@@ -1,3 +1,6 @@
+---
+title: cool_page/
+---
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,7 +22,7 @@ header { margin-bottom:32px; padding-bottom:16px; border-bottom:1px solid var(--
 .tree a:hover { color:var(--amber); border-bottom-color:var(--amber); }
 .tree .dir { color:var(--amber); }
 .tree .branch { color:var(--ink-mute); }
-.tree .size { color:var(--ink-mute); font-size:11px; }
+.tree .date { color:var(--ink-mute); font-size:11px; }
 footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-mute); letter-spacing:0.05em; }
 footer a { color:var(--ink-mute); text-decoration:none; border-bottom:1px dotted var(--line); }
 footer a:hover { color:var(--amber); }
@@ -29,11 +32,15 @@ footer a:hover { color:var(--amber); }
 <header>
   <div class="title">tree cool_page/</div>
   <div class="cmd">git branch: gh-pages · github.com/TerryKiddy/cool_page</div>
-  <div class="meta">generated 2026-05-13 04:21 UTC · 0 directories, 1 file · rev 3910a8a</div>
+  <div class="meta">built by jekyll · {{ site.time | date: "%Y-%m-%d %H:%M UTC" }}{% if site.github %} · rev {{ site.github.build_revision | slice: 0, 7 }}{% endif %}</div>
 </header>
+{%- assign htmls = site.static_files | where_exp: "f", "f.extname == '.html'" | where_exp: "f", "f.name != '404.html'" | sort: "path" -%}
 <pre class="tree"><span class="dir">cool_page/</span>
-<span class="branch">└── </span><a href="./memory-market.html">memory-market.html</a>                    <span class="size">54.6K</span>
-</pre>
+{%- for f in htmls %}
+<span class="branch">{% if forloop.last %}└── {% else %}├── {% endif %}</span><a href=".{{ f.path }}">{{ f.path | remove_first: "/" }}</a>
+{%- endfor %}
+
+<span class="branch">{{ htmls.size }} file{% if htmls.size != 1 %}s{% endif %}</span></pre>
 <footer>
   <a href="https://github.com/TerryKiddy/cool_page/tree/gh-pages" target="_blank" rel="noopener">source ↗</a>
 </footer>

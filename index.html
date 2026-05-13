@@ -5,158 +5,37 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>cool_page/</title>
 <style>
-:root {
-  --bg: #0e0b09;
-  --ink: #f5f0e8;
-  --ink-dim: #b5ac9d;
-  --ink-mute: #6b6358;
-  --line: #2a2520;
-  --amber: #f4b942;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-  font-size: 14px;
-  line-height: 1.7;
-  padding: 6vh 5vw;
-  min-height: 100vh;
-}
-header {
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
-}
-.title { color: var(--amber); font-size: 16px; }
-.title::before { content: '$ '; color: var(--ink-mute); }
-.cmd { color: var(--ink-dim); margin-top: 6px; font-size: 12px; }
-.cmd::before { content: '# '; color: var(--ink-mute); }
-.meta { color: var(--ink-mute); font-size: 11px; margin-top: 12px; letter-spacing: 0.05em; }
-
-.tree { white-space: pre; color: var(--ink-dim); }
-.tree a {
-  color: var(--ink);
-  text-decoration: none;
-  border-bottom: 1px dotted transparent;
-}
-.tree a:hover { color: var(--amber); border-bottom-color: var(--amber); }
-.tree .dir { color: var(--amber); }
-.tree .branch { color: var(--ink-mute); }
-.tree .size { color: var(--ink-mute); font-size: 11px; }
-.tree .date { color: var(--ink-mute); font-size: 11px; }
-.tree .row { display: block; }
-
-footer {
-  margin-top: 40px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-  font-size: 11px;
-  color: var(--ink-mute);
-  letter-spacing: 0.05em;
-}
-footer a { color: var(--ink-mute); text-decoration: none; border-bottom: 1px dotted var(--line); }
-footer a:hover { color: var(--amber); }
-.err { color: #ef476f; }
+:root { --bg:#0e0b09; --ink:#f5f0e8; --ink-dim:#b5ac9d; --ink-mute:#6b6358; --line:#2a2520; --amber:#f4b942; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--ink); font-family:ui-monospace,'JetBrains Mono','SF Mono',Menlo,monospace; font-size:14px; line-height:1.7; padding:6vh 5vw; min-height:100vh; }
+header { margin-bottom:32px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+.title { color:var(--amber); font-size:16px; }
+.title::before { content:'$ '; color:var(--ink-mute); }
+.cmd { color:var(--ink-dim); margin-top:6px; font-size:12px; }
+.cmd::before { content:'# '; color:var(--ink-mute); }
+.meta { color:var(--ink-mute); font-size:11px; margin-top:12px; letter-spacing:0.05em; }
+.tree { white-space:pre; color:var(--ink-dim); }
+.tree a { color:var(--ink); text-decoration:none; border-bottom:1px dotted transparent; }
+.tree a:hover { color:var(--amber); border-bottom-color:var(--amber); }
+.tree .dir { color:var(--amber); }
+.tree .branch { color:var(--ink-mute); }
+.tree .size { color:var(--ink-mute); font-size:11px; }
+footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-mute); letter-spacing:0.05em; }
+footer a { color:var(--ink-mute); text-decoration:none; border-bottom:1px dotted var(--line); }
+footer a:hover { color:var(--amber); }
 </style>
 </head>
 <body>
 <header>
   <div class="title">tree cool_page/</div>
   <div class="cmd">git branch: gh-pages · github.com/TerryKiddy/cool_page</div>
-  <div class="meta" id="meta">loading…</div>
+  <div class="meta">generated 2026-05-13 03:48 UTC · 0 directories, 1 file · rev 54a6a40</div>
 </header>
-
-<pre class="tree" id="tree">loading...</pre>
-
+<pre class="tree"><span class="dir">cool_page/</span>
+<span class="branch">└── </span><a href="./memory-market.html">memory-market.html</a>                    <span class="size">54.6K</span>
+</pre>
 <footer>
   <a href="https://github.com/TerryKiddy/cool_page/tree/gh-pages" target="_blank" rel="noopener">source ↗</a>
 </footer>
-
-<script>
-const OWNER = 'TerryKiddy';
-const REPO = 'cool_page';
-const BRANCH = 'gh-pages';
-const EXCLUDE_DIRS = new Set(['.git', '.github']);
-
-const treeEl = document.getElementById('tree');
-const metaEl = document.getElementById('meta');
-
-function fmtSize(n) {
-  if (n < 1024) return n + 'B';
-  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + 'K';
-  return (n / 1024 / 1024).toFixed(1) + 'M';
-}
-
-function esc(s) {
-  return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
-
-function buildNode(items) {
-  const root = { dirs: {}, files: [] };
-  for (const it of items) {
-    if (EXCLUDE_DIRS.has(it.path.split('/')[0])) continue;
-    const parts = it.path.split('/');
-    let node = root;
-    for (let i = 0; i < parts.length - 1; i++) {
-      const seg = parts[i];
-      if (!node.dirs[seg]) node.dirs[seg] = { dirs: {}, files: [] };
-      node = node.dirs[seg];
-    }
-    const name = parts[parts.length - 1];
-    if (it.type === 'tree') {
-      if (!node.dirs[name]) node.dirs[name] = { dirs: {}, files: [] };
-    } else {
-      node.files.push({ name, path: it.path, size: it.size || 0 });
-    }
-  }
-  return root;
-}
-
-function renderNode(node, prefix, parentPath, out) {
-  const dirNames = Object.keys(node.dirs).sort();
-  const files = node.files.slice().sort((a, b) => a.name.localeCompare(b.name));
-  const entries = [
-    ...dirNames.map(n => ({ kind: 'dir', name: n, child: node.dirs[n] })),
-    ...files.map(f => ({ kind: 'file', name: f.name, path: f.path, size: f.size }))
-  ];
-  entries.forEach((e, i) => {
-    const last = i === entries.length - 1;
-    const branch = (last ? '└── ' : '├── ');
-    const nextPrefix = prefix + (last ? '    ' : '│   ');
-    if (e.kind === 'dir') {
-      out.push(`<span class="row">${esc(prefix)}<span class="branch">${branch}</span><span class="dir">${esc(e.name)}/</span></span>`);
-      renderNode(e.child, nextPrefix, parentPath + e.name + '/', out);
-    } else {
-      const href = './' + e.path;
-      const pad = ' '.repeat(Math.max(1, 42 - (prefix.length + branch.length + e.name.length)));
-      out.push(`<span class="row">${esc(prefix)}<span class="branch">${branch}</span><a href="${esc(href)}">${esc(e.name)}</a>${pad}<span class="size">${fmtSize(e.size)}</span></span>`);
-    }
-  });
-}
-
-(async function main() {
-  try {
-    const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
-    if (!r.ok) throw new Error(`github api ${r.status}`);
-    const data = await r.json();
-    const items = data.tree;
-
-    const fileCount = items.filter(i => i.type === 'blob' && !EXCLUDE_DIRS.has(i.path.split('/')[0])).length;
-    const dirCount = items.filter(i => i.type === 'tree' && !EXCLUDE_DIRS.has(i.path.split('/')[0])).length;
-
-    const root = buildNode(items);
-    const out = [`<span class="dir">cool_page/</span>`];
-    renderNode(root, '', '', out);
-    out.push('');
-    out.push(`<span class="branch">${dirCount} director${dirCount === 1 ? 'y' : 'ies'}, ${fileCount} file${fileCount === 1 ? '' : 's'}</span>`);
-    treeEl.innerHTML = out.join('\n');
-    metaEl.textContent = `auto-indexed via github api · ref ${data.sha.slice(0, 7)}${data.truncated ? ' · truncated' : ''}`;
-  } catch (err) {
-    treeEl.innerHTML = `<span class="err">failed: ${esc(err.message)}</span>`;
-    metaEl.textContent = 'error';
-  }
-})();
-</script>
 </body>
 </html>

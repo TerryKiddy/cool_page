@@ -1,290 +1,160 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>cool_page · catalogue</title>
-<meta name="description" content="A growing collection of one-off HTML experiments, auto-indexed from the gh-pages branch.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Manrope:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<title>cool_page/</title>
 <style>
 :root {
   --bg: #0e0b09;
-  --bg-2: #14110d;
   --ink: #f5f0e8;
   --ink-dim: #b5ac9d;
   --ink-mute: #6b6358;
   --line: #2a2520;
   --amber: #f4b942;
-  --amber-d: #c08c1a;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Manrope', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 400;
-  line-height: 1.6;
-  font-size: 16px;
-  letter-spacing: 0.005em;
+  font-family: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 6vh 5vw;
   min-height: 100vh;
-  padding: 10vh 6vw 12vh;
-  background-image: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(244,185,66,0.06), transparent 60%);
 }
-.serif { font-family: 'Fraunces', 'Noto Serif SC', serif; }
-.mono { font-family: 'JetBrains Mono', monospace; }
-
-header { max-width: 1100px; margin: 0 auto 80px; }
-.eyebrow {
-  display: flex; align-items: center; gap: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--amber);
-  margin-bottom: 28px;
-}
-.eyebrow .dot {
-  width: 7px; height: 7px; background: var(--amber);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--amber);
-  animation: pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.75); } }
-
-h1 {
-  font-family: 'Fraunces', 'Noto Serif SC', serif;
-  font-weight: 300;
-  font-size: clamp(56px, 9vw, 120px);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
-  margin-bottom: 24px;
-}
-h1 em { font-style: italic; color: var(--amber); font-weight: 400; }
-.lede {
-  max-width: 640px;
-  color: var(--ink-dim);
-  font-size: 17px;
-  line-height: 1.55;
-}
-.lede strong { color: var(--ink); font-weight: 500; }
-.meta {
-  margin-top: 36px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--ink-mute);
-}
-
-main { max-width: 1100px; margin: 0 auto; }
-
-.entries { border-top: 1px solid var(--line); }
-.entry {
-  display: grid;
-  grid-template-columns: 56px 1fr 110px;
-  gap: 32px;
-  align-items: baseline;
-  padding: 32px 0;
+header {
+  margin-bottom: 32px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
-  transition: background 0.2s ease;
 }
-.entry:hover { background: rgba(244,185,66,0.025); }
-.entry-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--ink-mute);
-  padding-top: 6px;
-}
-.entry-title {
-  font-family: 'Fraunces', 'Noto Serif SC', serif;
-  font-size: 30px;
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  margin-bottom: 10px;
-}
-.entry-title a {
+.title { color: var(--amber); font-size: 16px; }
+.title::before { content: '$ '; color: var(--ink-mute); }
+.cmd { color: var(--ink-dim); margin-top: 6px; font-size: 12px; }
+.cmd::before { content: '# '; color: var(--ink-mute); }
+.meta { color: var(--ink-mute); font-size: 11px; margin-top: 12px; letter-spacing: 0.05em; }
+
+.tree { white-space: pre; color: var(--ink-dim); }
+.tree a {
   color: var(--ink);
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  border-bottom: 1px dotted transparent;
 }
-.entry-title a:hover { color: var(--amber); border-bottom-color: var(--amber); }
-.entry-note {
-  color: var(--ink-dim);
-  font-size: 15px;
-  line-height: 1.55;
-  max-width: 720px;
-}
-.entry-path {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--ink-mute);
-  margin-top: 10px;
-}
-.entry-meta {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--ink-mute);
-  text-align: right;
-  padding-top: 8px;
-}
-
-.status {
-  padding: 60px 0;
-  text-align: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  color: var(--ink-mute);
-}
-.status.err { color: #ef476f; }
-
-.skeleton {
-  padding: 32px 0;
-  border-bottom: 1px solid var(--line);
-  opacity: 0.4;
-}
-.skeleton-bar {
-  height: 18px;
-  background: linear-gradient(90deg, var(--line) 0%, var(--bg-2) 50%, var(--line) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s linear infinite;
-  border-radius: 2px;
-  margin-bottom: 10px;
-}
-.skeleton-bar.short { width: 40%; height: 24px; }
-.skeleton-bar.long { width: 80%; height: 14px; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.tree a:hover { color: var(--amber); border-bottom-color: var(--amber); }
+.tree .dir { color: var(--amber); }
+.tree .branch { color: var(--ink-mute); }
+.tree .size { color: var(--ink-mute); font-size: 11px; }
+.tree .date { color: var(--ink-mute); font-size: 11px; }
+.tree .row { display: block; }
 
 footer {
-  max-width: 1100px;
-  margin: 80px auto 0;
-  padding-top: 30px;
+  margin-top: 40px;
+  padding-top: 16px;
   border-top: 1px solid var(--line);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.15em;
+  font-size: 11px;
   color: var(--ink-mute);
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  letter-spacing: 0.05em;
 }
-footer a { color: var(--ink-mute); text-decoration: none; border-bottom: 1px solid var(--line); }
-footer a:hover { color: var(--amber); border-bottom-color: var(--amber); }
-
-@media (max-width: 720px) {
-  body { padding: 6vh 5vw 8vh; }
-  .entry { grid-template-columns: 1fr; gap: 6px; }
-  .entry-num { display: none; }
-  .entry-meta { text-align: left; padding-top: 4px; }
-}
+footer a { color: var(--ink-mute); text-decoration: none; border-bottom: 1px dotted var(--line); }
+footer a:hover { color: var(--amber); }
+.err { color: #ef476f; }
 </style>
 </head>
 <body>
 <header>
-  <div class="eyebrow"><span class="dot"></span>cool_page · index</div>
-  <h1>auto<em>·</em>catalogue</h1>
-  <p class="lede">A growing collection of one-off HTML experiments, deployed straight to the <strong>gh-pages</strong> branch. Each entry below is <strong>auto-indexed</strong> from the live filesystem — title and note are pulled directly from each page.</p>
-  <div class="meta" id="meta">scanning gh-pages…</div>
+  <div class="title">tree cool_page/</div>
+  <div class="cmd">git branch: gh-pages · github.com/TerryKiddy/cool_page</div>
+  <div class="meta" id="meta">loading…</div>
 </header>
 
-<main>
-  <div class="entries" id="entries">
-    <div class="skeleton"><div class="skeleton-bar short"></div><div class="skeleton-bar long"></div><div class="skeleton-bar long"></div></div>
-    <div class="skeleton"><div class="skeleton-bar short"></div><div class="skeleton-bar long"></div><div class="skeleton-bar long"></div></div>
-  </div>
-</main>
+<pre class="tree" id="tree">loading...</pre>
 
 <footer>
-  <div>github.com/TerryKiddy/cool_page · branch <span style="color:var(--amber)">gh-pages</span></div>
-  <div><a href="https://github.com/TerryKiddy/cool_page" target="_blank" rel="noopener">source ↗</a></div>
+  <a href="https://github.com/TerryKiddy/cool_page/tree/gh-pages" target="_blank" rel="noopener">source ↗</a>
 </footer>
 
 <script>
 const OWNER = 'TerryKiddy';
 const REPO = 'cool_page';
 const BRANCH = 'gh-pages';
-const EXCLUDE = new Set(['index.html', '404.html']);
-const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const EXCLUDE_DIRS = new Set(['.git', '.github']);
 
-const meta = document.getElementById('meta');
-const list = document.getElementById('entries');
+const treeEl = document.getElementById('tree');
+const metaEl = document.getElementById('meta');
 
-async function api(path) {
-  const r = await fetch(`${API}/${path}`);
-  if (!r.ok) throw new Error(`github api ${r.status}`);
-  return r.json();
+function fmtSize(n) {
+  if (n < 1024) return n + 'B';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + 'K';
+  return (n / 1024 / 1024).toFixed(1) + 'M';
 }
 
-function extract(htmlText) {
-  const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-  const title = doc.querySelector('title')?.textContent?.trim() || '(untitled)';
-  let note = doc.querySelector('meta[name="description"]')?.content?.trim();
-  if (!note) {
-    const candidates = doc.querySelectorAll('.hero-lede, .lede, .section-intro, p');
-    for (const el of candidates) {
-      const txt = el.textContent?.trim().replace(/\s+/g, ' ');
-      if (txt && txt.length > 20) { note = txt; break; }
+function esc(s) {
+  return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function buildNode(items) {
+  const root = { dirs: {}, files: [] };
+  for (const it of items) {
+    if (EXCLUDE_DIRS.has(it.path.split('/')[0])) continue;
+    const parts = it.path.split('/');
+    let node = root;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const seg = parts[i];
+      if (!node.dirs[seg]) node.dirs[seg] = { dirs: {}, files: [] };
+      node = node.dirs[seg];
+    }
+    const name = parts[parts.length - 1];
+    if (it.type === 'tree') {
+      if (!node.dirs[name]) node.dirs[name] = { dirs: {}, files: [] };
+    } else {
+      node.files.push({ name, path: it.path, size: it.size || 0 });
     }
   }
-  if (note && note.length > 240) note = note.slice(0, 237).trim() + '…';
-  return { title, note: note || '(no preview)' };
+  return root;
 }
 
-async function loadEntry(file) {
-  const [text, commits] = await Promise.all([
-    fetch(file.download_url).then(r => r.text()),
-    api(`commits?path=${encodeURIComponent(file.path)}&sha=${BRANCH}&per_page=1`).catch(() => [])
-  ]);
-  const { title, note } = extract(text);
-  const date = commits[0]?.commit?.committer?.date?.slice(0, 10) || '';
-  return { name: file.name, path: file.path, title, note, date };
-}
-
-function render(entries) {
-  if (!entries.length) {
-    list.innerHTML = '<div class="status">no pages yet — push a .html to gh-pages</div>';
-    return;
-  }
-  list.innerHTML = entries.map((e, i) => `
-    <article class="entry">
-      <div class="entry-num">${String(i + 1).padStart(2, '0')}</div>
-      <div>
-        <h2 class="entry-title"><a href="./${e.name}">${escapeHtml(e.title)}</a></h2>
-        <p class="entry-note">${escapeHtml(e.note)}</p>
-        <div class="entry-path">/${e.path}</div>
-      </div>
-      <div class="entry-meta">${e.date || '—'}</div>
-    </article>
-  `).join('');
-}
-
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+function renderNode(node, prefix, parentPath, out) {
+  const dirNames = Object.keys(node.dirs).sort();
+  const files = node.files.slice().sort((a, b) => a.name.localeCompare(b.name));
+  const entries = [
+    ...dirNames.map(n => ({ kind: 'dir', name: n, child: node.dirs[n] })),
+    ...files.map(f => ({ kind: 'file', name: f.name, path: f.path, size: f.size }))
+  ];
+  entries.forEach((e, i) => {
+    const last = i === entries.length - 1;
+    const branch = (last ? '└── ' : '├── ');
+    const nextPrefix = prefix + (last ? '    ' : '│   ');
+    if (e.kind === 'dir') {
+      out.push(`<span class="row">${esc(prefix)}<span class="branch">${branch}</span><span class="dir">${esc(e.name)}/</span></span>`);
+      renderNode(e.child, nextPrefix, parentPath + e.name + '/', out);
+    } else {
+      const href = './' + e.path;
+      const pad = ' '.repeat(Math.max(1, 42 - (prefix.length + branch.length + e.name.length)));
+      out.push(`<span class="row">${esc(prefix)}<span class="branch">${branch}</span><a href="${esc(href)}">${esc(e.name)}</a>${pad}<span class="size">${fmtSize(e.size)}</span></span>`);
+    }
+  });
 }
 
 (async function main() {
   try {
-    const tree = await api(`contents/?ref=${BRANCH}`);
-    const files = tree.filter(f => f.type === 'file' && f.name.endsWith('.html') && !EXCLUDE.has(f.name));
-    if (!files.length) {
-      render([]);
-      meta.textContent = '0 entries';
-      return;
-    }
-    meta.textContent = `found ${files.length} page${files.length === 1 ? '' : 's'} · fetching metadata…`;
-    const entries = await Promise.all(files.map(loadEntry));
-    entries.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    render(entries);
-    meta.textContent = `${entries.length} entr${entries.length === 1 ? 'y' : 'ies'} · auto-indexed via github api · sorted by last commit`;
+    const r = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
+    if (!r.ok) throw new Error(`github api ${r.status}`);
+    const data = await r.json();
+    const items = data.tree;
+
+    const fileCount = items.filter(i => i.type === 'blob' && !EXCLUDE_DIRS.has(i.path.split('/')[0])).length;
+    const dirCount = items.filter(i => i.type === 'tree' && !EXCLUDE_DIRS.has(i.path.split('/')[0])).length;
+
+    const root = buildNode(items);
+    const out = [`<span class="dir">cool_page/</span>`];
+    renderNode(root, '', '', out);
+    out.push('');
+    out.push(`<span class="branch">${dirCount} director${dirCount === 1 ? 'y' : 'ies'}, ${fileCount} file${fileCount === 1 ? '' : 's'}</span>`);
+    treeEl.innerHTML = out.join('\n');
+    metaEl.textContent = `auto-indexed via github api · ref ${data.sha.slice(0, 7)}${data.truncated ? ' · truncated' : ''}`;
   } catch (err) {
-    list.innerHTML = `<div class="status err">failed to load: ${escapeHtml(err.message)}</div>`;
-    meta.textContent = 'error';
+    treeEl.innerHTML = `<span class="err">failed: ${esc(err.message)}</span>`;
+    metaEl.textContent = 'error';
   }
 })();
 </script>

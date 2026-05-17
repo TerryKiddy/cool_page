@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 网络控制权 · 英伟达闭环 vs 博通开放网络 — 深入浅出版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Serif+SC:wght@300;400;500;700;900&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0b0d12;
+    --paper: #f5efe2;
+    --paper-dim: #ebe3d2;
+    --rule: #1a1d24;
+    --rule-soft: rgba(11,13,18,0.12);
+    --muted: #4a4639;
+    --amber: #c8651b;
+    --amber-soft: #d99250;
+    --blood: #8b1a1a;
+    --teal: #1b4d4a;
+    --highlight: #f0e4c4;
+    --shadow-strong: rgba(11,13,18,0.18);
+    --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.85'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.06'/></svg>");
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    font-size: 17px;
+    line-height: 1.78;
+    letter-spacing: 0.005em;
+    background-image: var(--grain);
+  }
+  ::selection { background: var(--ink); color: var(--paper); }
+
+  /* ============ TYPOGRAPHY ============ */
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .display {
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
+    font-weight: 900;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  em { font-style: italic; color: var(--amber); font-weight: 500; }
+  strong { font-weight: 700; }
+
+  /* ============ LAYOUT ============ */
+  .container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+  .narrow { max-width: 720px; margin: 0 auto; padding: 0 32px; }
+
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding: 18px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    background: rgba(245,239,226,0.92);
+  }
+  .masthead .left { display: flex; gap: 24px; align-items: center; }
+  .masthead .left .dot {
+    width: 8px; height: 8px; background: var(--amber); border-radius: 50%;
+    box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px var(--amber);
+  }
+  .masthead .right { color: var(--muted); }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 80px 32px 60px;
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 20px; right: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+  }
+  .kicker {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber);
+    padding: 6px 12px;
+    border: 1px solid var(--amber);
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 6.5vw, 84px);
+    line-height: 0.98;
+    font-weight: 900;
+    margin-bottom: 28px;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+  .hero h1 .amber { color: var(--amber); font-style: italic; font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1; }
+  .hero h1 .vs {
+    display: inline-block;
+    font-size: 0.6em;
+    vertical-align: middle;
+    padding: 0 0.3em;
+    font-style: italic;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .hero .deck {
+    max-width: 760px;
+    font-size: clamp(18px, 2vw, 22px);
+    line-height: 1.55;
+    color: var(--muted);
+    margin-bottom: 48px;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 300;
+  }
+  .meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--rule-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+  .meta-strip span strong {
+    display: block;
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    margin-top: 4px;
+  }
+
+  /* ============ TLDR ============ */
+  .tldr {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 64px 32px;
+    position: relative;
+  }
+  .tldr::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--grain);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .tldr-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 60px;
+    position: relative;
+    z-index: 1;
+  }
+  .tldr-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber-soft);
+    padding-top: 8px;
+  }
+  .tldr-label::before {
+    content: "—";
+    margin-right: 12px;
+  }
+  .tldr-content p {
+    font-size: 22px;
+    line-height: 1.5;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 300;
+    color: var(--paper);
+    margin-bottom: 20px;
+  }
+  .tldr-content p:last-child { margin-bottom: 0; }
+  .tldr-content strong { color: var(--amber-soft); font-weight: 500; }
+  .tldr-content .num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--amber-soft);
+    font-size: 24px;
+    margin-right: 8px;
+  }
+
+  /* ============ GLOSSARY ============ */
+  .glossary-section {
+    padding: 80px 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-head {
+    max-width: 1160px;
+    margin: 0 auto 48px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 60px;
+    align-items: end;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 24px;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .section-head h2 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+  }
+  .glossary-grid {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--rule-soft);
+    border-left: 1px solid var(--rule-soft);
+  }
+  .gloss-card {
+    padding: 28px;
+    border-right: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--paper);
+    transition: background 0.3s;
+  }
+  .gloss-card:hover { background: var(--paper-dim); }
+  .gloss-card .term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .gloss-card .cn {
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .gloss-card p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+  .gloss-card .analogy {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--rule-soft);
+    font-size: 14px;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .gloss-card .analogy::before {
+    content: "白话讲";
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 10px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 1px 6px;
+    margin-right: 8px;
+    letter-spacing: 0.1em;
+    vertical-align: middle;
+  }
+
+  /* ============ THREE-LAYER DIAGRAM ============ */
+  .layer-section {
+    padding: 100px 32px;
+    background: var(--paper-dim);
+    border-bottom: 1px solid var(--rule);
+  }
+  .layer-diagram {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+  .layer-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 60px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: start;
+  }
+  .layer-row:last-child { border-bottom: none; }
+  .layer-tag {
+    position: relative;
+  }
+  .layer-tag .name {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--amber);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .layer-tag .cn {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    color: var(--muted);
+    display: block;
+  }
+  .layer-tag .num-big {
+    font-family: 'Fraunces', serif;
+    font-size: 110px;
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--ink);
+    opacity: 0.08;
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    z-index: 0;
+  }
+  .layer-body { position: relative; z-index: 1; }
+  .layer-body p { margin-bottom: 12px; font-size: 16px; }
+  .layer-body .players {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    background: var(--ink);
+    color: var(--paper);
+    letter-spacing: 0.05em;
+  }
+  .chip.amber { background: var(--amber); }
+  .chip.outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
+
+  /* ============ ARTICLE BODY ============ */
+  .article-section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .article-section .container {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 60px;
+  }
+  .article-section .marker {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+    height: fit-content;
+  }
+  .article-section .marker .num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--amber);
+    display: block;
+  }
+  .article-section .marker .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 12px;
+    display: block;
+  }
+  .article-section h2 {
+    font-size: clamp(28px, 3.6vw, 40px);
+    margin-bottom: 32px;
+    font-weight: 700;
+  }
+  .article-section h2 .amber { color: var(--amber); font-style: italic; }
+  .article-section p {
+    margin-bottom: 22px;
+    font-size: 17px;
+    line-height: 1.85;
+  }
+  .article-section p .term-inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--paper-dim);
+    padding: 1px 6px;
+    border-bottom: 1px solid var(--amber);
+    color: var(--ink);
+  }
+
+  /* ============ PULL QUOTE ============ */
+  .pullquote {
+    margin: 40px 0;
+    padding: 32px 0 32px 32px;
+    border-left: 4px solid var(--amber);
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-size: 24px;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .pullquote::before {
+    content: "“";
+    font-size: 60px;
+    line-height: 0;
+    vertical-align: -0.4em;
+    color: var(--amber);
+    font-weight: 900;
+    margin-right: 8px;
+  }
+
+  /* ============ ASIDE / EXPLAINER BOX ============ */
+  .explainer {
+    margin: 32px 0;
+    padding: 28px 32px;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+  }
+  .explainer::before {
+    content: "为什么这件事重要";
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    background: var(--amber);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .explainer p {
+    color: var(--paper) !important;
+    font-size: 15px !important;
+    line-height: 1.7 !important;
+    margin-bottom: 12px !important;
+  }
+  .explainer p:last-child { margin-bottom: 0 !important; }
+  .explainer strong { color: var(--amber-soft); }
+
+  /* ============ PLAYER CARDS ============ */
+  .players-section {
+    padding: 100px 32px;
+    background: var(--ink);
+    color: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .players-section .section-head {
+    border-color: rgba(245,239,226,0.2);
+  }
+  .players-section .section-head h2 { color: var(--paper); }
+  .players-section .section-num { color: var(--amber-soft); }
+  .players-grid {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1px;
+    background: rgba(245,239,226,0.15);
+  }
+  .player-card {
+    background: var(--ink);
+    padding: 32px;
+    position: relative;
+  }
+  .player-card .role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber-soft);
+    margin-bottom: 16px;
+    display: block;
+  }
+  .player-card h3 {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--paper);
+    margin-bottom: 4px;
+    font-variation-settings: "opsz" 80, "SOFT" 50;
+  }
+  .player-card .ticker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber-soft);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .player-card .one-liner {
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--paper);
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(245,239,226,0.15);
+  }
+  .player-card h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber-soft);
+    margin: 16px 0 8px;
+  }
+  .player-card ul {
+    list-style: none;
+    margin-bottom: 16px;
+  }
+  .player-card ul li {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(245,239,226,0.85);
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 6px;
+  }
+  .player-card ul li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--amber-soft);
+    font-weight: 700;
+  }
+
+  /* ============ COMPARISON TABLE ============ */
+  .table-section {
+    padding: 100px 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .table-wrap {
+    max-width: 1160px;
+    margin: 0 auto;
+    overflow-x: auto;
+  }
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.compare th, table.compare td {
+    padding: 18px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  table.compare thead th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 12px;
+  }
+  table.compare thead th.route {
+    color: var(--amber);
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+  }
+  table.compare tbody td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  table.compare tbody tr:hover { background: var(--paper-dim); }
+  table.compare td .pro { color: var(--teal); font-weight: 600; }
+  table.compare td .con { color: var(--blood); font-weight: 600; }
+
+  /* ============ RANKING ============ */
+  .ranking-section {
+    padding: 100px 32px;
+    background: var(--paper-dim);
+    border-bottom: 1px solid var(--rule);
+  }
+  .ranking-grid {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ink);
+  }
+  .rank-col {
+    background: var(--paper);
+    padding: 32px 28px;
+    min-height: 380px;
+  }
+  .rank-col h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .rank-col .axis {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 16px;
+    display: block;
+  }
+  .rank-col .desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  .rank-list {
+    list-style: none;
+    counter-reset: rank;
+  }
+  .rank-list li {
+    counter-increment: rank;
+    padding: 12px 0 12px 44px;
+    border-top: 1px solid var(--rule-soft);
+    position: relative;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .rank-list li::before {
+    content: counter(rank, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--amber);
+    background: var(--ink);
+    color: var(--amber-soft);
+    padding: 3px 8px;
+  }
+  .rank-list li .reason {
+    display: block;
+    font-family: 'Source Serif 4', 'Noto Serif SC', serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* ============ RISKS ============ */
+  .risk-section { padding: 100px 32px; border-bottom: 1px solid var(--rule); }
+  .risk-grid {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .risk-card {
+    padding: 28px;
+    border: 1px solid var(--rule-soft);
+    background: var(--paper);
+    position: relative;
+    border-left: 4px solid var(--blood);
+  }
+  .risk-card .num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--blood);
+    opacity: 0.4;
+    position: absolute;
+    top: 16px;
+    right: 24px;
+  }
+  .risk-card h4 {
+    font-size: 17px;
+    margin-bottom: 12px;
+    padding-right: 60px;
+    color: var(--ink);
+  }
+  .risk-card p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* ============ TRACKING ============ */
+  .tracking-section { padding: 100px 32px; background: var(--ink); color: var(--paper); border-bottom: 1px solid var(--rule); }
+  .tracking-section .section-head { border-color: rgba(245,239,226,0.2); }
+  .tracking-section .section-head h2 { color: var(--paper); }
+  .tracking-section .section-num { color: var(--amber-soft); }
+  .tracking-list {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+  .tracking-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 48px;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(245,239,226,0.15);
+  }
+  .tracking-item:last-child { border-bottom: none; }
+  .tracking-item .co {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--amber-soft);
+  }
+  .tracking-item .co .ticker {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-style: normal;
+    color: rgba(245,239,226,0.6);
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+  .tracking-item .metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: center;
+    align-items: center;
+  }
+  .tracking-item .metrics .chip {
+    background: rgba(245,239,226,0.1);
+    color: var(--paper);
+    border: 1px solid rgba(245,239,226,0.2);
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* ============ CONCLUSION ============ */
+  .conclusion {
+    padding: 120px 32px;
+    text-align: left;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .conclusion .narrow { max-width: 820px; }
+  .conclusion .kicker { margin-bottom: 24px; }
+  .conclusion h2 {
+    font-size: clamp(36px, 5.5vw, 64px);
+    line-height: 1.05;
+    margin-bottom: 48px;
+    font-weight: 900;
+  }
+  .conclusion h2 em { font-style: italic; color: var(--amber); font-weight: 900; }
+  .three-points {
+    counter-reset: pt;
+    margin: 48px 0;
+  }
+  .three-points .pt {
+    counter-increment: pt;
+    padding: 28px 0;
+    border-top: 1px solid var(--rule-soft);
+    position: relative;
+    padding-left: 80px;
+  }
+  .three-points .pt:last-child { border-bottom: 1px solid var(--rule-soft); }
+  .three-points .pt::before {
+    content: counter(pt);
+    position: absolute;
+    left: 0;
+    top: 24px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .three-points .pt h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .three-points .pt p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .final-line {
+    margin-top: 48px;
+    padding: 32px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-size: 22px;
+    line-height: 1.4;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .final-line strong { color: var(--amber-soft); font-style: normal; font-weight: 700; }
+
+  /* ============ SOURCES ============ */
+  .sources {
+    padding: 80px 32px;
+    background: var(--paper-dim);
+    border-top: 1px solid var(--rule);
+  }
+  .sources .container { display: block; max-width: 1160px; }
+  .sources .section-num { color: var(--amber); }
+  .sources h2 { font-size: 28px; margin-bottom: 24px; }
+  .sources ul { list-style: none; }
+  .sources ul li {
+    padding: 10px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+    border-bottom: 1px dashed var(--rule-soft);
+  }
+  .sources ul li strong { color: var(--ink); font-weight: 700; margin-right: 8px; }
+  .sources .note {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--paper);
+    border-left: 3px solid var(--amber);
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px 32px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  footer .att {
+    color: rgba(245,239,226,0.5);
+    margin-top: 12px;
+    font-size: 10px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 860px) {
+    .section-head, .layer-row, .article-section .container, .tldr-inner, .tracking-item {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .article-section .marker { position: static; }
+    .article-section .marker .num { font-size: 56px; }
+    .ranking-grid { grid-template-columns: 1fr; }
+    .risk-grid { grid-template-columns: 1fr; }
+    .hero { padding: 60px 24px 40px; }
+    .meta-strip { gap: 24px; }
+    .layer-tag .num-big { font-size: 70px; top: -10px; left: -10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========================== MASTHEAD =========================== -->
+<header class="masthead">
+  <div class="left">
+    <span class="dot"></span>
+    <span>第二层利润池 · 系列之二</span>
+  </div>
+  <div class="right">2026.05 · 深入浅出版</div>
+</header>
+
+<!-- =========================== HERO =========================== -->
+<section class="hero">
+  <div class="container">
+    <span class="kicker">AI Networking · 万卡集群利润池</span>
+    <h1>
+      谁能在 AI 网络里<br>
+      <span class="amber">收税</span>？
+    </h1>
+    <p class="deck">
+      英伟达的闭环 <span style="font-family:'Fraunces',serif;font-style:italic;color:var(--amber);">vs</span> 博通的开放网络 —— 万卡集群之后，硬件利润池正在被重新分配。这不是 InfiniBand 与 Ethernet 谁取代谁的问题，而是<strong style="color:var(--ink);">谁能在 scale-up、scale-out、scale-across 三层网络里同时收税</strong>。
+    </p>
+    <div class="meta-strip">
+      <span>原文作者<strong>川沐｜Trumoo（@xiaomustock）</strong></span>
+      <span>原文摘抄<strong>微证券</strong></span>
+      <span>市场规模<strong>$220 亿 / 2026E</strong></span>
+      <span>长期 CAGR<strong>~51%（J.P. Morgan）</strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== TLDR =========================== -->
+<section class="tldr">
+  <div class="tldr-inner">
+    <div class="tldr-label">三句话总结</div>
+    <div class="tldr-content">
+      <p><span class="num">01</span>真正发生的，不是 InfiniBand 切到 Ethernet，而是<strong>架构控制权</strong>从"端口速率升级"上移到"谁定义集群拓扑、交换 ASIC、NIC/DPU、光电接口、系统软件和客户认证"。</p>
+      <p><span class="num">02</span>英伟达守的是<strong>高端训练闭环的确定性</strong>，博通做的是<strong>云厂自研 ASIC + 开放 Ethernet 的核心税收层</strong>，Marvell 是<strong>NVLink Fusion 和光电互连的弹性桥</strong>，Arista/Cisco 是<strong>订单和收入的验证层</strong>。</p>
+      <p><span class="num">03</span>投资上的答案不是押单一协议胜负，而是买<strong>跨路线收税能力</strong>——谁能在多种架构里都拿到收税的位置，谁就能在 1.6T/3.2T 之后继续拿走更高质量的利润池。</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== GLOSSARY =========================== -->
+<section class="glossary-section">
+  <div class="section-head">
+    <div class="section-num">读前必备 · 00</div>
+    <h2>八个绕不开的术语</h2>
+  </div>
+  <div class="glossary-grid">
+
+    <div class="gloss-card">
+      <span class="term">InfiniBand</span>
+      <span class="cn">英伟达的"高速专线"</span>
+      <p>一种为高性能计算设计的网络协议，延迟极低、专门优化大规模 GPU 训练。被英伟达通过收购 Mellanox 收入囊中，是其闭环生态的关键一环。</p>
+      <div class="analogy">像是数据中心里的"私人高铁"——只服务自家乘客，但速度和稳定性最好。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">AI Ethernet</span>
+      <span class="cn">改造过的"开放高速公路"</span>
+      <p>传统以太网为 AI 训练做的增强版——加上 RoCE、UEC（超以太网联盟）、拥塞控制、遥测。代表玩家：博通的 Tomahawk/Jericho、Arista 交换机、英伟达的 Spectrum-X。</p>
+      <div class="analogy">公路系统全球通用，所以人人都能造车上路，但要靠 ETC、智能信号灯弥补速度劣势。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">NVLink / NVLink Fusion</span>
+      <span class="cn">英伟达的"机柜内总线"</span>
+      <p>NVLink 是连接 GPU 与 GPU 的专有高速通道。NVLink Fusion 是 2025 年起开放给第三方的版本——允许联发科、Marvell、富士通、高通的 CPU/ASIC 接入英伟达机柜。</p>
+      <div class="analogy">原本只准自家品牌零件接入的接口，开始有限度地"对外授权"，是攻是守的暧昧动作。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">Scale-up / out / across</span>
+      <span class="cn">三层网络的"距离感"</span>
+      <p>Scale-up = 一个机柜内（GPU 之间）；scale-out = 多个机柜跨房间互联；scale-across = 跨数据中心、跨园区。三层的距离、带宽、延迟要求完全不同。</p>
+      <div class="analogy">同栋楼内打内线 / 同城跨楼宇专线 / 跨城跨省干线——本质都是网络，但分工不同。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">Tomahawk / Jericho</span>
+      <span class="cn">博通的"交换机大脑"</span>
+      <p>博通的两大交换 ASIC 系列。Tomahawk 主打超高带宽（最新 Tomahawk 6 单芯片 102.4 Tbps），Jericho 主打长距离、深缓存。Tomahawk Ultra 把以太网延伸到 scale-up 场景。</p>
+      <div class="analogy">数据中心里所有数据包都要经过的"指挥塔"——谁的交换机芯片快、稳、便宜，谁就握住网络的脉门。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">SUE / UALink</span>
+      <span class="cn">挑战 NVLink 的"开放联盟"</span>
+      <p>SUE（Scale-Up Ethernet，博通推动）和 UALink（AMD、Intel、Meta 等联盟）都是想把"机柜内总线"从英伟达专有协议变成开放标准的努力。</p>
+      <div class="analogy">几个不想被锁死在苹果接口里的厂商，凑钱想立一套通用 USB-C 标准。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">Custom XPU / ASIC</span>
+      <span class="cn">云厂的"自研芯片"</span>
+      <p>Google TPU、Amazon Trainium、Meta MTIA、Microsoft Maia——超大规模云厂为减少对英伟达依赖而自研的 AI 芯片。设计服务往往外包给博通或 Marvell。</p>
+      <div class="analogy">大型连锁餐厅嫌中央厨房（英伟达）太贵，开始自己定制锅碗瓢盆——但还是要找代工厂（博通/Marvell）来做。</div>
+    </div>
+
+    <div class="gloss-card">
+      <span class="term">CPO / Retimer / AEC / DSP</span>
+      <span class="cn">让信号"不掉链子"的小零件</span>
+      <p>CPO（共封装光学）、Retimer（信号中继）、AEC（有源电缆）、DSP（数字信号处理器）——都是高速链路两端必须的辅助芯片。代表玩家：Astera、Credo、Marvell。</p>
+      <div class="analogy">不会决定路线怎么走，但决定路能不能走通——长距离信号传输前的"放大器和信号处理"。</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================== THREE LAYER DIAGRAM =========================== -->
+<section class="layer-section">
+  <div class="section-head" style="max-width:1160px;margin:0 auto 48px;">
+    <div class="section-num">底层模型 · 01</div>
+    <h2>三层网络，三种战争</h2>
+  </div>
+  <div class="layer-diagram">
+
+    <div class="layer-row">
+      <div class="layer-tag">
+        <span class="num-big">01</span>
+        <span class="name">Scale-Up</span>
+        <span class="cn">机柜内 · 纵向扩展</span>
+      </div>
+      <div class="layer-body">
+        <p>把一个机柜内的 GPU/ASIC 组成一个<strong>逻辑计算单元</strong>。距离最短，带宽要求最高，延迟最敏感。这是英伟达 NVLink/NVSwitch 的传统主场——也是 SUE、UALink、PCIe/CXL Fabric 想要撬动的关键阵地。</p>
+        <p style="color:var(--muted);font-size:15px;">这一层赢家拿走"机柜系统"的定义权。一旦客户接受了你的 scale-up 标准，整个机柜的 GPU 互联、电源、散热、机架设计都得围着你转。</p>
+        <div class="players">
+          <span class="chip amber">英伟达 NVLink/NVSwitch</span>
+          <span class="chip">NVLink Fusion</span>
+          <span class="chip">博通 SUE / Tomahawk Ultra</span>
+          <span class="chip">UALink 联盟</span>
+          <span class="chip outline">PCIe / CXL Fabric</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-row">
+      <div class="layer-tag">
+        <span class="num-big">02</span>
+        <span class="name">Scale-Out</span>
+        <span class="cn">机柜间 · 横向扩展</span>
+      </div>
+      <div class="layer-body">
+        <p>多个机柜、pod、训练域之间的互联——典型的"万卡集群网络"。这是<strong>市场增量最大、增长最快、参与者最多</strong>的一层。InfiniBand 与 AI Ethernet 在这一层正面相遇。</p>
+        <p style="color:var(--muted);font-size:15px;">UBS 的估算：Ethernet AI switching 从 2025 年约 $100 亿增长到 2028 年约 $580 亿——5.8 倍。Arista 1Q26 仅产品收入同比就增长 37%，AI Center 全年指引从 32.5 亿上调至 35 亿。</p>
+        <div class="players">
+          <span class="chip amber">英伟达 InfiniBand / Spectrum-X</span>
+          <span class="chip">博通 Tomahawk / Jericho</span>
+          <span class="chip">Arista Etherlink</span>
+          <span class="chip">Cisco Silicon One</span>
+          <span class="chip outline">超以太网联盟 UEC</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-row">
+      <div class="layer-tag">
+        <span class="num-big">03</span>
+        <span class="name">Scale-Across</span>
+        <span class="cn">跨数据中心 · 跨园区调度</span>
+      </div>
+      <div class="layer-body">
+        <p>多个数据中心、跨园区、电力约束下的算力资源<strong>跨域调度</strong>。这是 AI 训练规模再上一个数量级后必然出现的难题：单一园区电力不够，必须把训练拆到多地。</p>
+        <p style="color:var(--muted);font-size:15px;">博通和 Meta 的多年战略合作明确覆盖 scale-across——说明这一层不再是远期幻想，而是 2027–2029 年正在落地的工程。</p>
+        <div class="players">
+          <span class="chip amber">博通 Jericho（深缓存、长距）</span>
+          <span class="chip">DCI（数据中心互联）光模块</span>
+          <span class="chip">Marvell PAM4 DSP / AEC</span>
+          <span class="chip outline">Ciena / Cisco 长距设备</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================== SECTION 1: PROBLEM =========================== -->
+<section class="article-section">
+  <div class="container">
+    <div class="marker">
+      <span class="num">01</span>
+      <span class="label">问题定义</span>
+    </div>
+    <div>
+      <h2>第二层利润池不是端口数量，<span class="amber">而是架构控制权</span></h2>
+      <p>第一篇文章已经讲清楚了：1.6T/3.2T 速率升级，价值会从光模块扩散到 <span class="term-inline">交换 ASIC</span>、<span class="term-inline">Retimer/AEC</span>、<span class="term-inline">SerDes</span>、连接器、背板、线卡、高速 PCB/CCL、CPO/NPO/OCS 和系统厂。但第二篇不能继续铺全景地图——那样会沦为材料堆叠。</p>
+      <p>这一篇只回答一个更靠前的问题：<strong>万卡集群选择什么网络架构，谁就能决定后续硬件利润池怎么分。</strong></p>
+      <div class="explainer">
+        <p><strong>架构选择决定四件事：</strong></p>
+        <p>一、GPU/ASIC 在<strong>机柜内</strong>怎么组成逻辑计算单元（scale-up）；</p>
+        <p>二、多个机柜、pod 和训练域<strong>怎么互联</strong>（scale-out）；</p>
+        <p>三、多个数据中心、园区和电力约束下的算力资源<strong>怎么跨域调度</strong>（scale-across）；</p>
+        <p>四、客户愿不愿意把<strong>系统调优、可观测性、故障定位、客户认证和供应链交付</strong>交给一个平台。</p>
+      </div>
+      <p>这就是为什么同一张 AI 网络地图里会同时出现英伟达、博通、Marvell、Arista、Cisco、Astera、Credo、光模块、连接器和 PCB/CCL。它们不是简单横向竞争者，而是在<strong>不同网络层级里争夺"谁让昂贵 xPU 不空转"</strong>的权力。</p>
+      <div class="pullquote">端口数量、速率和光模块出货是结果；架构控制权才是原因。</div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== SECTION 2 & 3: EVIDENCE + MARKET =========================== -->
+<section class="article-section" style="background:var(--paper-dim);">
+  <div class="container">
+    <div class="marker">
+      <span class="num">02</span>
+      <span class="label">研报证据矩阵</span>
+    </div>
+    <div>
+      <h2>七份大行研报，<span class="amber">验证同一条主线</span></h2>
+      <p>把这一组研报重新排布后，证据链其实很清楚——每家投行负责证明同一条主线的不同环节：</p>
+
+      <div style="margin:32px 0;display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:14px;">
+        <div style="padding:20px;background:var(--paper);border-left:3px solid var(--amber);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px;">J.P. Morgan + UBS</div>
+          <strong>证明增量市场在 Ethernet AI switching。</strong>JPM 给 2026 年 $220 亿规模 + 51% CAGR；UBS 给 $100B → $580B（2025–2028）。
+        </div>
+        <div style="padding:20px;background:var(--paper);border-left:3px solid var(--amber);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px;">Bernstein</div>
+          <strong>解释为什么网络芯片增长会快于 xPU。</strong>AI 数据中心网络芯片 2030 年约 $1000 亿框架；connectivity/optics、switches 各占 35-45% TAM。
+        </div>
+        <div style="padding:20px;background:var(--paper);border-left:3px solid var(--amber);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px;">Goldman Sachs ×3</div>
+          <strong>验证 Broadcom、Arista、Cisco 的订单和财务兑现。</strong>Broadcom × Meta 多年战略；Arista 1Q26 beat & raise；Cisco F3Q26 AI 超大规模订单上修。
+        </div>
+        <div style="padding:20px;background:var(--paper);border-left:3px solid var(--amber);">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px;">UBS Marvell + Morgan Stanley</div>
+          <strong>验证 Marvell 弹性 + 光电路线。</strong>英伟达对 Marvell 战略投资 $20 亿；MS 补充 GTC/OFC 后的 CPO、Spectrum、Quantum 反馈。
+        </div>
+      </div>
+
+      <p>这组证据的共同点是：<strong>需求不是单纯来自"更多 GPU"，而来自集群规模扩大后的通信复杂度</strong>。AI 网络硬件的价值不是平均落到每个端口，而是按架构控制权、silicon 位置、系统交付能力和供应瓶颈重新分配。</p>
+
+      <h2 style="margin-top:48px;">Ethernet 变大，<span class="amber">但 InfiniBand 没有失效</span></h2>
+      <p>把 J.P. Morgan、UBS 和 Bernstein 放在一起看，最关键的结论<strong>不是</strong>"Ethernet 替代 InfiniBand"，而是"<strong>Ethernet 的增量市场更大、增长更快、参与者更多</strong>"。</p>
+      <p>InfiniBand 仍是高端训练集群里最成熟的路线之一——尤其适合英伟达 GPU 闭环、低延迟、拥塞控制和大规模训练稳定性要求极高的场景。</p>
+      <p>但云厂同时追求三件事：<strong>性能、成本、供应链选择</strong>。</p>
+
+      <div class="explainer">
+        <p style="font-family:'Noto Serif SC',serif;font-size:16px !important;">
+          • <strong>高端训练</strong>看性能 → 倾向 InfiniBand / NVLink<br>
+          • <strong>推理集群</strong>看成本和可运维 → 倾向 AI Ethernet<br>
+          • <strong>自研 ASIC</strong>看架构自主权 → 倾向开放 scale-up<br>
+          • <strong>分布式数据中心</strong>看跨园区功耗和拓扑重构 → 需要 scale-across
+        </p>
+        <p style="margin-top:12px;">单一路线很难全部满足。多路线共存不是模糊结论，而是<strong>客户工程约束下的必然结果</strong>。</p>
+      </div>
+
+      <p>所以争论"谁替代谁"没有意义。<strong>应该追踪客户把新项目放到哪条路线</strong>。InfiniBand 的确定性仍在英伟达，高增长斜率更多在 Ethernet、开放 scale-up、NIC/DPU、交换 ASIC、系统平台和光电接口。</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== PLAYER CARDS =========================== -->
+<section class="players-section">
+  <div class="section-head">
+    <div class="section-num">玩家拆解 · 04-08</div>
+    <h2>五个角色，五种打法</h2>
+  </div>
+  <div class="players-grid">
+
+    <div class="player-card">
+      <span class="role">04 · 守擂 / 确定性</span>
+      <h3>英伟达</h3>
+      <span class="ticker">NASDAQ : NVDA</span>
+      <p class="one-liner">闭环仍是高端训练基本盘，<br>NVLink Fusion 是<strong style="color:var(--amber-soft);">防御性开放</strong>。</p>
+
+      <h4>真正的壁垒（不止 InfiniBand）</h4>
+      <ul>
+        <li>GPU + NVLink + NVSwitch + Quantum-X InfiniBand</li>
+        <li>+ Spectrum-X Ethernet + ConnectX + BlueField</li>
+        <li>+ DOCA + CUDA / NCCL + 整机柜架构</li>
+      </ul>
+
+      <h4>闭环的卖点</h4>
+      <ul>
+        <li>训练稳定性、上线时间</li>
+        <li>尾延迟、拥塞控制、故障定位</li>
+        <li>大集群最怕昂贵 GPU 等网络</li>
+      </ul>
+
+      <h4>风险</h4>
+      <ul>
+        <li>客户把网络决策权转向博通、Marvell、Arista、Cisco 或自研</li>
+        <li>NVLink Fusion 本质是被迫开放</li>
+      </ul>
+    </div>
+
+    <div class="player-card">
+      <span class="role">05 · 攻擂 / 弹性</span>
+      <h3>博通</h3>
+      <span class="ticker">NASDAQ : AVGO</span>
+      <p class="one-liner">不是 Tomahawk 一家，<br>是 <strong style="color:var(--amber-soft);">custom XPU + Ethernet fabric</strong> 的平台税。</p>
+
+      <h4>三层价值叠加</h4>
+      <ul>
+        <li>Custom XPU/ASIC 帮云厂降低对通用 GPU 的依赖</li>
+        <li>Tomahawk / Jericho 提供高端 Ethernet 和大规模 fabric</li>
+        <li>SUE / Tomahawk Ultra 把 Ethernet 推向 scale-up</li>
+      </ul>
+
+      <h4>关键证据（高盛 4/14 报告）</h4>
+      <ul>
+        <li>Broadcom × Meta：多年多代战略合作</li>
+        <li>支持 Meta 的 MTIA 自研芯片</li>
+        <li>供应链计划延伸到 2029 年，初始承诺 &gt;1GW</li>
+        <li>明确覆盖 scale-up / out / across</li>
+      </ul>
+
+      <h4>证伪风险</h4>
+      <ul>
+        <li>大客户项目推迟、先进节点/封装卡住</li>
+        <li>英伟达闭环继续保持高份额</li>
+      </ul>
+    </div>
+
+    <div class="player-card">
+      <span class="role">06 · 桥梁 / 多入口</span>
+      <h3>Marvell</h3>
+      <span class="ticker">NASDAQ : MRVL</span>
+      <p class="one-liner">从 PAM4 DSP 供应商<br>升级为<strong style="color:var(--amber-soft);">架构弹性资产</strong>。</p>
+
+      <h4>转折点（UBS 3/31 报告）</h4>
+      <ul>
+        <li>英伟达对 Marvell <strong style="color:var(--amber-soft);">战略投资 $20 亿</strong></li>
+        <li>进入 NVLink Fusion 生态</li>
+        <li>潜在产品包括 scale-up networking</li>
+      </ul>
+
+      <h4>"桥"的角色</h4>
+      <ul>
+        <li>英伟达想把 NVLink attach 扩展到第三方 XPU</li>
+        <li>云厂想自研 ASIC，但不想放弃英伟达 rack-scale</li>
+        <li>Marvell 在两边之间做整合</li>
+      </ul>
+
+      <h4>多入口结构</h4>
+      <ul>
+        <li>客户买英伟达闭环 → 经 NVLink Fusion 参与</li>
+        <li>客户做自研 ASIC → 经 custom silicon 参与</li>
+        <li>光电接口升级 → 经 DSP/AEC/CPO 参与</li>
+      </ul>
+    </div>
+
+    <div class="player-card">
+      <span class="role">07 · 财务验证层</span>
+      <h3>Arista / Cisco</h3>
+      <span class="ticker">NYSE : ANET / NASDAQ : CSCO</span>
+      <p class="one-liner">系统厂不是尾部交付，<br>是把架构故事<strong style="color:var(--amber-soft);">变成订单和递延收入</strong>的层。</p>
+
+      <h4>Arista 1Q26（高盛 5/5）</h4>
+      <ul>
+        <li>收入 $27.09 亿，产品收入 YoY +37%</li>
+        <li>2026 收入指引上调至 +27.7%</li>
+        <li>AI Center 指引 $32.5B → $35B</li>
+        <li>采购承诺 $89 亿（QoQ +$21 亿）</li>
+        <li>短期递延收入增加 $9.07 亿</li>
+      </ul>
+
+      <h4>Cisco F3Q26（高盛 5/13）</h4>
+      <ul>
+        <li>收入 $158 亿，YoY +12%</li>
+        <li>网络收入 $88 亿，YoY +25%</li>
+        <li>产品订单 YoY +35%</li>
+        <li>AI 超大规模订单展望 $50B → $90B</li>
+        <li>Silicon One 在供应约束下相对占优</li>
+      </ul>
+    </div>
+
+    <div class="player-card">
+      <span class="role">08 · 落地闸门</span>
+      <h3>Astera / Credo</h3>
+      <span class="ticker">NASDAQ : ALAB / CRDO</span>
+      <p class="one-liner">不定义架构，<br>但决定架构<strong style="color:var(--amber-soft);">能不能落地</strong>。</p>
+
+      <h4>为什么必须留位置（Bernstein）</h4>
+      <ul>
+        <li>connectivity/optics 占网络 TAM 的 35-45%</li>
+        <li>switches 占 35-45%</li>
+        <li>NIC/DPU 占 20%，其中芯片价值占 90%+</li>
+      </ul>
+
+      <h4>真实落地的链路</h4>
+      <ul>
+        <li>scale-up/out/across 漂亮归漂亮</li>
+        <li>最后都要穿过板级走线、连接器、铜缆</li>
+        <li>Retimer、DSP、NIC/DPU、光电接口</li>
+        <li>链路不稳定 → 昂贵 xPU 等待、重传、降速</li>
+      </ul>
+
+      <h4>升级路径</h4>
+      <ul>
+        <li>UALink / PCIe / CXL Fabric / SUE / AEC 渗透加速</li>
+        <li>从"配套件"升级为"可收费的可靠性资产"</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================== ARCHITECTURE COMPARISON TABLE =========================== -->
+<section class="table-section">
+  <div class="section-head">
+    <div class="section-num">架构路线对照 · 10</div>
+    <h2>四条路线，<span style="color:var(--amber);font-style:italic;">各自解决什么</span></h2>
+  </div>
+  <div class="table-wrap">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="route">InfiniBand</th>
+          <th class="route">AI Ethernet</th>
+          <th class="route">NVLink Fusion</th>
+          <th class="route">SUE / UALink</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>适合场景</td>
+          <td>高端训练、确定性要求高、英伟达 GPU 集中部署</td>
+          <td>规模化、开放生态、成本敏感、多供应商协作</td>
+          <td>第三方 CPU/XPU 接入英伟达 rack-scale 生态</td>
+          <td>把 scale-up 从专有互连推向开放、可定制</td>
+        </tr>
+        <tr>
+          <td>核心优势</td>
+          <td><span class="pro">成熟、低延迟、闭环优化</span></td>
+          <td><span class="pro">标准化、生态广、单位带宽便宜</span></td>
+          <td><span class="pro">英伟达性能 + 客户自研 ASIC</span></td>
+          <td><span class="pro">降低供应商锁定、提高自研利用率</span></td>
+        </tr>
+        <tr>
+          <td>主要劣势</td>
+          <td><span class="con">成本高、开放性差、供应链选择窄</span></td>
+          <td><span class="con">需要 RoCE/UEC/遥测/拥塞控制 软件补足</span></td>
+          <td><span class="con">本质仍依赖英伟达，开放程度有限</span></td>
+          <td><span class="con">联盟尚未量产，生态成熟度待证</span></td>
+        </tr>
+        <tr>
+          <td>关键玩家</td>
+          <td>英伟达（Mellanox）</td>
+          <td>博通、Arista、Cisco、英伟达 Spectrum-X</td>
+          <td>英伟达 + Marvell/联发科/富士通/高通</td>
+          <td>博通（SUE）、UALink 联盟（AMD/Intel/Meta…）</td>
+        </tr>
+        <tr>
+          <td>商业本质</td>
+          <td>闭环溢价</td>
+          <td>开放税收</td>
+          <td>防御性开放</td>
+          <td>反锁定联盟</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="max-width:1160px;margin:32px auto 0;font-size:15px;color:var(--muted);font-style:italic;">市场喜欢把架构竞争写成二选一：InfiniBand vs Ethernet，或者英伟达 vs 开放生态。但真实情况是 —— <strong style="color:var(--ink);">多路线共存</strong>。</p>
+</section>
+
+<!-- =========================== CUSTOMER TABLE =========================== -->
+<section class="table-section" style="background:var(--paper-dim);">
+  <div class="section-head">
+    <div class="section-num">客户路线 · 09</div>
+    <h2>不同云厂，<span style="color:var(--amber);font-style:italic;">不会走同一张网络图</span></h2>
+  </div>
+  <div class="table-wrap">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th>云厂 / 模型方</th>
+          <th class="route">Scale-Up 倾向</th>
+          <th class="route">Scale-Out 倾向</th>
+          <th class="route">自研 ASIC</th>
+          <th class="route">主要受益供应商</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Microsoft / OpenAI</td>
+          <td>NVLink / NVLink Fusion 混合</td>
+          <td>InfiniBand + 自建 AI Ethernet</td>
+          <td>Maia（设计转向博通）</td>
+          <td>英伟达、博通</td>
+        </tr>
+        <tr>
+          <td>Meta</td>
+          <td>SUE + 自研机柜</td>
+          <td>AI Ethernet 为主</td>
+          <td>MTIA（与博通多代合作至 2029）</td>
+          <td>博通（核心受益方）</td>
+        </tr>
+        <tr>
+          <td>Google</td>
+          <td>自研 ICI（TPU 互连）</td>
+          <td>自研 + Arista 系统</td>
+          <td>TPU（与博通、Marvell 同时合作）</td>
+          <td>博通、Marvell、Arista</td>
+        </tr>
+        <tr>
+          <td>AWS</td>
+          <td>专有 + NVLink Fusion 试点</td>
+          <td>AI Ethernet</td>
+          <td>Trainium（与 Marvell 深度合作）</td>
+          <td>Marvell、Astera、英伟达</td>
+        </tr>
+        <tr>
+          <td>Oracle / xAI</td>
+          <td>NVLink（英伟达机柜为主）</td>
+          <td>InfiniBand</td>
+          <td>暂无</td>
+          <td>英伟达</td>
+        </tr>
+        <tr>
+          <td>Anthropic</td>
+          <td>多路线 hedge</td>
+          <td>跨多家路线</td>
+          <td>传闻是博通第四个客户</td>
+          <td>博通、英伟达</td>
+        </tr>
+        <tr>
+          <td>中国主要云厂</td>
+          <td>专有互连 + 开源 fabric</td>
+          <td>本地 AI Ethernet</td>
+          <td>多家自研</td>
+          <td>本土供应链为主</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="max-width:1160px;margin:32px auto 0;font-size:15px;color:var(--muted);font-style:italic;">没有一条路线能通吃。<strong style="color:var(--ink);">谁更受益，不取决于"AI 网络是不是增长"，而取决于客户路线和预算落点。</strong></p>
+</section>
+
+<!-- =========================== RANKING =========================== -->
+<section class="ranking-section">
+  <div class="section-head">
+    <div class="section-num">公司排序 · 11</div>
+    <h2>三个维度，三种排名 —— 它们<span style="color:var(--amber);font-style:italic;">不是同一个排名</span></h2>
+  </div>
+  <div class="ranking-grid">
+
+    <div class="rank-col">
+      <h3>确定性</h3>
+      <span class="axis">订单 · 收入 · 客户验证</span>
+      <p class="desc">看的是当下能不能把架构故事兑现为可计入的收入。最适合追求"已发生事实"的资金。</p>
+      <ol class="rank-list">
+        <li>英伟达<span class="reason">端到端闭环，护城河最厚</span></li>
+        <li>Arista<span class="reason">AI Center 指引上调 + 采购承诺 $89B</span></li>
+        <li>Cisco<span class="reason">AI 超大规模订单从 $50B 上修至 $90B</span></li>
+      </ol>
+    </div>
+
+    <div class="rank-col">
+      <h3>弹性</h3>
+      <span class="axis">路线切换 · 上修空间</span>
+      <p class="desc">看的是新路线渗透后的估值重估空间。适合追求"路线兑现"的中长期资金。</p>
+      <ol class="rank-list">
+        <li>博通<span class="reason">custom XPU + Meta 多年合作 + SUE/Tomahawk/Jericho 组合</span></li>
+        <li>Marvell<span class="reason">NVLink Fusion + custom ASIC + 光电接口 + 潜在 scale-up switching</span></li>
+        <li>Astera / Credo<span class="reason">高速连接芯片，渗透加速则升级为可收费可靠性资产</span></li>
+      </ol>
+    </div>
+
+    <div class="rank-col">
+      <h3>战略控制力</h3>
+      <span class="axis">客户长期依赖 · 不可替代性</span>
+      <p class="desc">看的是十年尺度上谁能持续"收税"。这才是真正的护城河。</p>
+      <ol class="rank-list">
+        <li>英伟达<span class="reason">GPU / 网络 / 软件闭环</span></li>
+        <li>博通<span class="reason">云厂自研 ASIC + 开放 Ethernet 的关键 silicon</span></li>
+        <li>Marvell<span class="reason">弹性桥角色，长期价值取决于桥能否被替代</span></li>
+      </ol>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================== RISKS =========================== -->
+<section class="risk-section">
+  <div class="section-head">
+    <div class="section-num">证伪清单 · 12</div>
+    <h2>这条主线<span style="color:var(--amber);font-style:italic;">最怕</span>把订单写成利润</h2>
+  </div>
+  <div class="risk-grid">
+    <div class="risk-card">
+      <span class="num">01</span>
+      <h4>架构替代不按预期发生</h4>
+      <p>如果 InfiniBand 在高端训练里继续维持强势，而 AI Ethernet 在大规模训练的性能、运维、软件生态不如预期 —— 博通、Arista/Cisco 和开放网络链条的弹性会被压低。</p>
+    </div>
+    <div class="risk-card">
+      <span class="num">02</span>
+      <h4>供应链约束</h4>
+      <p>Arista 已经明确提到 switching ASIC 上游供应约束和组件成本压力。AI 网络不是只有客户需求 —— 交换 ASIC、先进节点、SerDes、光模块、PCB、连接器、散热、电源都可能成为收入确认的瓶颈。</p>
+    </div>
+    <div class="risk-card">
+      <span class="num">03</span>
+      <h4>云厂自研节奏波动</h4>
+      <p>博通和 Marvell 的弹性都和 hyperscaler 自研 ASIC 项目相关。如果客户推迟架构切换、训练需求转向推理、或者资本支出节奏变化 —— 项目收入会有明显波动。</p>
+    </div>
+    <div class="risk-card">
+      <span class="num">04</span>
+      <h4>毛利率压力</h4>
+      <p>系统厂订单强，不代表利润率一定好。组件涨价、供应链抢货、客户议价、白盒竞争和软件服务占比变化 —— 都可能让收入兑现慢于市场想象。</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== TRACKING =========================== -->
+<section class="tracking-section">
+  <div class="section-head">
+    <div class="section-num">季度跟踪表 · 13</div>
+    <h2>后续<span style="color:var(--amber-soft);font-style:italic;">每家只看哪些指标</span></h2>
+  </div>
+  <div class="tracking-list">
+
+    <div class="tracking-item">
+      <div class="co">英伟达<span class="ticker">NVDA</span></div>
+      <div class="metrics">
+        <span class="chip">Networking Revenue</span>
+        <span class="chip">Spectrum-X 进展</span>
+        <span class="chip">InfiniBand × Ethernet 组合</span>
+        <span class="chip">NVLink Fusion 伙伴数</span>
+        <span class="chip">DPU / DOCA 扩展</span>
+      </div>
+    </div>
+
+    <div class="tracking-item">
+      <div class="co">博通<span class="ticker">AVGO</span></div>
+      <div class="metrics">
+        <span class="chip">Custom silicon backlog</span>
+        <span class="chip">Meta / Google / Anthropic 项目</span>
+        <span class="chip">Tomahawk / Jericho 需求</span>
+        <span class="chip">AI Networking 表述变化</span>
+      </div>
+    </div>
+
+    <div class="tracking-item">
+      <div class="co">Marvell<span class="ticker">MRVL</span></div>
+      <div class="metrics">
+        <span class="chip">Data Center Revenue</span>
+        <span class="chip">Custom ASIC 出货</span>
+        <span class="chip">PAM4 / AEC</span>
+        <span class="chip">NVLink Fusion 项目转收入</span>
+      </div>
+    </div>
+
+    <div class="tracking-item">
+      <div class="co">Arista<span class="ticker">ANET</span></div>
+      <div class="metrics">
+        <span class="chip">AI Center 指引</span>
+        <span class="chip">采购承诺</span>
+        <span class="chip">递延收入</span>
+        <span class="chip">毛利率</span>
+        <span class="chip">供应约束变化</span>
+      </div>
+    </div>
+
+    <div class="tracking-item">
+      <div class="co">Cisco<span class="ticker">CSCO</span></div>
+      <div class="metrics">
+        <span class="chip">AI 超大规模订单</span>
+        <span class="chip">Networking Revenue</span>
+        <span class="chip">Silicon One / Acacia</span>
+        <span class="chip">传统业务稀释程度</span>
+      </div>
+    </div>
+
+  </div>
+  <p style="max-width:1160px;margin:48px auto 0;font-size:15px;color:rgba(245,239,226,0.7);font-style:italic;">只要这些指标继续改善，本文主线就成立。如果这些指标分化 —— 就要把收益从主题行情<strong style="color:var(--amber-soft);font-style:normal;">重新拆回公司和环节</strong>。</p>
+</section>
+
+<!-- =========================== CONCLUSION =========================== -->
+<section class="conclusion">
+  <div class="narrow">
+    <span class="kicker">结论 · 14</span>
+    <h2>真正的赢家，是能<em>跨路线收税</em>的人</h2>
+
+    <div class="three-points">
+      <div class="pt">
+        <h3>InfiniBand 不会消失</h3>
+        <p>英伟达的闭环在高端训练集群里仍然最有确定性。但云厂不会停止寻找开放替代 —— AI Ethernet、UALink、SUE、NVLink Fusion 会持续抬升开放网络和自研 ASIC 的战略价值。</p>
+      </div>
+      <div class="pt">
+        <h3>博通与 Marvell 是路线迁移里最值得深挖的弹性资产</h3>
+        <p>博通的强项是 custom XPU + Tomahawk/Jericho/SUE，Marvell 的强项是 custom ASIC + 光电接口 + NVLink Fusion。二者都不是单纯"卖芯片"，而是在争 AI 集群架构里的关键位置。</p>
+      </div>
+      <div class="pt">
+        <h3>Arista 和 Cisco 是财务验证层</h3>
+        <p>一个证明 AI Ethernet 系统可以变成高质量收入和采购承诺，一个证明传统网络巨头仍能拿到 AI 超大规模客户预算。真正值得买单的不是"网络需求强"，而是 —— 订单能不能转收入？收入能不能守毛利率？系统能不能被客户长期认证？</p>
+      </div>
+    </div>
+
+    <div class="final-line">
+      AI 网络不是从 InfiniBand 简单切到 Ethernet，也不是从光模块切到交换机。它本质上是 AI 集群从"<strong>买更多 GPU/ASIC</strong>"进入"<strong>让每一美元算力更少空转</strong>"的阶段。<br><br>谁能定义这条集群大动脉，<strong>谁就能在 1.6T/3.2T 之后继续拿走更高质量的利润池。</strong>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== SOURCES =========================== -->
+<section class="sources">
+  <div class="container">
+    <div style="margin-bottom:32px;">
+      <div class="section-num" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">数据口径与来源</div>
+      <h2>核心引用研报</h2>
+    </div>
+    <ul>
+      <li><strong>J.P. Morgan · 2026-04-27</strong>Hardware &amp; Networking Industry Model: Robust Outlook Across Markets Leveraged to AI Infrastructure Build; Detailed Discussion on Market Share Trends</li>
+      <li><strong>UBS · 2026-04-06</strong>US Enterprise Hardware and Networking: Spring 2026 Outlook</li>
+      <li><strong>Bernstein · 2026-03-23</strong>Future of Tech: AI Datacenter Networking Primer</li>
+      <li><strong>Goldman Sachs · 2026-04-14</strong>Broadcom Inc.: Partnership with Meta further reinforces Broadcom's technology advantage in custom silicon and AI networking</li>
+      <li><strong>UBS · 2026-03-31</strong>Marvell Technology Group: MRVL/NVDA Partnership to Deepen NVLink Fusion Integration</li>
+      <li><strong>Goldman Sachs · 2026-05-05</strong>Arista Networks Inc.: 1Q26 review: Beat and raise, supply constraints weigh on upside and GM%</li>
+      <li><strong>Goldman Sachs · 2026-05-13</strong>Cisco Systems Inc.: F3Q26 First Take: Beat and raise on networking with strong AI hyperscale orders</li>
+      <li><strong>Citi · 2026-05-14</strong>Cisco Systems: Broad Networking Strength; Maintain Buy</li>
+      <li><strong>Morgan Stanley · 2026-03</strong>AI Supply Chain Tracker: Key Investor Feedback from GTC/OFC</li>
+      <li><strong>UBS · 2026-03-18</strong>NVIDIA Corp: GTC - Management Q&amp;A and Day 2 Highlights</li>
+    </ul>
+    <div class="note">
+      <strong>官方资料口径</strong>：公司官网、投资者关系材料和标准组织资料用于核对产品定义与架构表述，主要包括 NVIDIA Spectrum-X、NVLink Fusion、Broadcom Tomahawk/Jericho/Tomahawk Ultra、Marvell 与 NVIDIA 合作、Arista Etherlink、Cisco Silicon One、Ultra Ethernet Consortium 和 UALink Consortium 等公开资料。<br><br>
+      <strong>股价口径</strong>：本文不进行实时股价、目标价距离或估值倍数推导；文中评级、目标价和预测数据仅作为对应机构报告属性或业务判断背景，不作为当前估值结论。<br><br>
+      <strong>汇率口径</strong>：文中美元金额保持原币种，不做跨币种换算。<br><br>
+      <em style="color:var(--amber);">川沐原注：纯引用，因为这方面我也不懂，所以没做任何改动 —— 但是把 $MRVL 跟英伟达 $NVDA 和博通 $AVGO 放一块比较的时候，$MRVL 已经赢麻了。</em>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== FOOTER =========================== -->
+<footer>
+  <div>原文 · 川沐｜Trumoo（@xiaomustock）· 摘抄自微证券</div>
+  <div class="att">深入浅出版 · 重新排版与术语注释 · 2026.05</div>
+</footer>
+
+</body>
+</html>

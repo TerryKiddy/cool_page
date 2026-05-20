@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>九个人构成自己的九部漫画（第三弹：大开眼界！）</title>
+<style>
+:root {
+  --bg: #f7f4ee;
+  --card: #fff;
+  --ink: #1a1a1a;
+  --ink-soft: #2c2c2c;
+  --muted: #7a7368;
+  --rule: #e6dfd1;
+  --accent: #8a3a2a;
+  --tag-bg: #ece4d2;
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14110e;
+    --card: #1c1814;
+    --ink: #ece6d8;
+    --ink-soft: #d6cfbe;
+    --muted: #948b7c;
+    --rule: #2e2822;
+    --accent: #e8a07a;
+    --tag-bg: #2a241d;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei",
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+header.top {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: calc(28px + var(--safe-top)) 20px 18px;
+  border-bottom: 1px solid var(--rule);
+}
+header.top h1 {
+  margin: 0 0 6px 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+header.top .meta {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 8px 20px 64px;
+}
+.group {
+  padding: 24px 0 28px;
+  border-bottom: 1px dashed var(--rule);
+}
+.group:last-child { border-bottom: none; }
+.imgs {
+  display: grid;
+  gap: 10px;
+  margin: 0 -4px 18px;
+}
+.imgs.n1 { grid-template-columns: 1fr; }
+.imgs.n2 { grid-template-columns: 1fr 1fr; }
+.imgs.n3 { grid-template-columns: 1fr 1fr 1fr; }
+.imgs.n4 { grid-template-columns: 1fr 1fr; }
+.imgs.n5, .imgs.n6, .imgs.nbig {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.thumb {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: rgba(138, 58, 42, 0.15);
+  transition: transform 0.15s ease;
+}
+.thumb:active { transform: scale(0.98); }
+.thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.caption { color: var(--ink-soft); }
+.caption p { margin: 0 0 14px 0; }
+.caption p:last-child { margin-bottom: 0; }
+.caption strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+.gid {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--tag-bg);
+  border-radius: 10px;
+  padding: 1px 10px;
+  margin-right: 8px;
+  vertical-align: 2px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+.prose-only .caption {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 15px;
+  background: var(--card);
+  padding: 16px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+}
+.prose-only .caption strong { color: var(--ink); font-style: normal; }
+
+/* Phone tuning */
+@media (max-width: 640px) {
+  body { font-size: 16px; line-height: 1.85; }
+  header.top { padding: calc(20px + var(--safe-top)) 16px 14px; }
+  header.top h1 { font-size: 19px; }
+  main { padding: 4px 16px 80px; }
+  .group { padding: 18px 0 22px; }
+  .imgs { margin: 0 -2px 14px; gap: 6px; }
+  .imgs.n3, .imgs.n5, .imgs.n6, .imgs.nbig {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 380px) {
+  .imgs.n4 { grid-template-columns: 1fr; }
+}
+
+/* Lightbox */
+.lb {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 1000;
+  cursor: zoom-out;
+  touch-action: none;
+}
+.lb.open { display: flex; }
+.lb img {
+  max-width: 96vw; max-height: 92vh;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  border-radius: 4px;
+}
+.lb .lb-close {
+  position: absolute; top: calc(12px + var(--safe-top)); right: 14px;
+  width: 36px; height: 36px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Floating "back to top" */
+#top {
+  position: fixed;
+  right: 14px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  width: 42px; height: 42px;
+  border-radius: 21px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 900;
+  -webkit-tap-highlight-color: transparent;
+}
+#top.show { opacity: 0.92; pointer-events: auto; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>九个人构成自己的九部漫画（第三弹：大开眼界！）</h1>
+  <div class="meta">阅读视图 · 46 节 · 71 张图</div>
+</header>
+<main>
+<section class="group prose-only">
+  <div class="caption">
+    <span class="gid">§1</span>
+    <p>上期回顾：<br>九个人构成自己的九部漫画（第一弹）<br>九个人构成自己的九部漫画（第二弹）<br>胡晓江按：话题当然只是一时的热度，继续下去的原因在于，我预想这份文档是长效的，可以面向未来。因为每一期包含的信息量太大，读过之后，或许还会第二次甚至第三次回头再看。而当人们希望了解某个作者，或者希望得到更多对漫画的视野时，它都能提供意想不到的收获。<br>本期名为大开眼界，因为找来了口味五花八门的九个人，有漫画家，有更广义的创作者，还有资深收藏家，据我猜测，或许他是民国连环画收藏的民间第一人！<br>首先就是引进漫画中最夯的<strong>《海鸥耶丁》</strong>作者Joe，在他离开中国之前，我把这个折磨人的问题抛给了他，而他也认真回答了，本期将呈现这份精彩之处显然在于开拓漫画爱好者眼界的书单。<strong>《Papayep》</strong>的主编+主创成桦旅居法国，我的好奇在或许她也会和Joe一样，提供更多的异域视野。然后是井子和石榴，她们是我心目中最出色的作者之二，漫画家书单的有趣之处在于和创作之间的联系，你总能发现其中的一脉相承和蛛丝马迹。<br>徐为国老师是我朋友圈的神人之一，还有几位神人尚未请动。当我研读民国连环画时立刻发现了他，因为几乎只有他在发布相关的内容，涉猎之深，收藏之珍，之巨，之广，都极其惊人，他在连环画论坛id是yayidaye，当时我们悄悄分析这一神秘人物，猜测是“压抑大爷”的拼音，然而实际是“牙医大爷”，也算一桩趣事。这次厚着脸皮打扰他，当然也是因为连环画和漫画本是同源，期待徐老师带来不同视野的缘故。<br>老二的作品，看似更多连环画和老漫画的传承，因此我也非常好奇他的书单。隐二最初给我的印象是研究者，后来越来越呈现出创作者的面向，他最早也迷过连环画，后来的趣味就转向了，那么他和老二以及徐老师之间，会有基于连环画的兴趣交集吗？<br>再就是在文艺漫领域深耕的章梦梦老师，一直以来，三吉舍的译介以及对原创的发掘，弥补了异常漫画最初设想过却未能实现的许多空白。还有玩说唱的小老虎，我发现他和漫画之间的关联是因为前些年，总看到他在朋友圈发漫画页，大致是青年漫或异色漫的范畴，而我全部没看过，也因此被深深吸引，有些循着线索找到，有些因为没好意思多问，至今仍是谜。<br>我继续以“编者按”的形式参与分享。<br>九个人构成自己的九部漫画（第三弹）<br>涉及书目较多，仅部分配图。Joe的书单特地制作了幻灯，所以多用了一些照片。图片部分来自参与者，部分引自网络。<br>★乔·凯斯勒 Joe Kessler，漫画家，<strong>《海鸥耶丁》</strong>作者，安古兰国际漫画节“最佳新人奖”得主，现居伦敦，任教于伦敦艺术大学坎伯韦尔艺术学院。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB6CjRLibvmtSsicIslY09tRkELicgic5XrMxZmiclRpQoZYtPpem7xPMvUglPRdfMV3ooQh81AEvHQw7zWfRFXI2h1FsLmebu5Jzvvc/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="1"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB6CjRLibvmtSsicIslY09tRkELicgic5XrMxZmiclRpQoZYtPpem7xPMvUglPRdfMV3ooQh81AEvHQw7zWfRFXI2h1FsLmebu5Jzvvc/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§2 · 图 1</span>
+    <p><strong>《The Acme Novelty Date Book》</strong>Chris Ware：这是一本我在12岁、13岁的时候买的书，美国漫画家Chris Ware的合集，其实记不太清当时到底多大了。Chris Ware 是一个极其精确、克制、形式感很强的漫画家，才华惊人，但又完全无法模仿。作为一个漫画家去看他的作品，会感受到一股压倒性的力量，让你想：“我到底怎么样才可能做到这样？”</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n2">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6AaeCoYRNA0lpmNoCibkgictLCn24zA9Piaf5eHxUfq3OytVnjNPuW7W14Kr6UxSibbqnpEv2cVTFSlURXoOuMh5dWzLchLicTqwUE/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="2"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6AaeCoYRNA0lpmNoCibkgictLCn24zA9Piaf5eHxUfq3OytVnjNPuW7W14Kr6UxSibbqnpEv2cVTFSlURXoOuMh5dWzLchLicTqwUE/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB49QgSy7VPicwFNXjeNmOICFECzVfetQsjJ2jeWniadHTqMHRG4etq0dLEfTTQYrRCmzZ4hWskcGdSQUvqID9WjRtX0VYicOZ7UUg/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="3"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB49QgSy7VPicwFNXjeNmOICFECzVfetQsjJ2jeWniadHTqMHRG4etq0dLEfTTQYrRCmzZ4hWskcGdSQUvqID9WjRtX0VYicOZ7UUg/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§3 · 图 2–3</span>
+    <p>这是他的速写本，里面都是比较随意，比较容易理解的画。你可以看出来这些画是出自人类之手。我曾经把这本书里的很多画临摹了很多很多次，非常仔细地研究它。我和住在我家街那头的表亲——他当时也特别喜欢做漫画——我们会来回交换这本书，把它翻到散架，把里面所有东西都画一遍。里面有各种不同类型的思考、绘画方式，非常有趣。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6cvBu3MWTBZIWtNuwEclbW5K2C3PSiaRY9vHyDlM1DqFT4c5IjLCes2jDTHv6cJDDNPIdCWCiaJ3NvyZUUykJKgVMP4mHL1ibkGo/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="4"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6cvBu3MWTBZIWtNuwEclbW5K2C3PSiaRY9vHyDlM1DqFT4c5IjLCes2jDTHv6cJDDNPIdCWCiaJ3NvyZUUykJKgVMP4mHL1ibkGo/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§4 · 图 4</span>
+    <p>让我买下这本书的这张画，我当时觉得这是我见过最棒的东西。上面写着：“做爱是情侣之间可能拥有的最强烈、最美丽、最深刻的共同体验之一”。哈哈哈哈。这对我13岁的大脑来说特别有吸引力，现在也还是一样。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n3">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB5hibCyFOF06BkGsyDURnvjFk1mj8XGEZHDh8cXjXtp8DfwFia2CIegRPemIaVK85s7Oib1O5AsY7ruVibia4sj8HiafcbyrhcgzDS78/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="5"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB5hibCyFOF06BkGsyDURnvjFk1mj8XGEZHDh8cXjXtp8DfwFia2CIegRPemIaVK85s7Oib1O5AsY7ruVibia4sj8HiafcbyrhcgzDS78/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4IPvRvTiaSj3aE460MlobFljIyv3PSK2I16zPrqE0ErZjePoHIFjicibdiaODkBTUxHPkqfEfLFNicVbjEISQ1KxAVG8ibcZhNRA5og/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="6"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4IPvRvTiaSj3aE460MlobFljIyv3PSK2I16zPrqE0ErZjePoHIFjicibdiaODkBTUxHPkqfEfLFNicVbjEISQ1KxAVG8ibcZhNRA5og/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5ZJDJZNibqz67Hf0G8oVpoI3icSGYNcaptE9nhHumMVmMNqbZx0mzBbib2Nv31M4WbYBhia223QibWeoeiczq07tZsmw04AP1sCWwqg/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="7"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5ZJDJZNibqz67Hf0G8oVpoI3icSGYNcaptE9nhHumMVmMNqbZx0mzBbib2Nv31M4WbYBhia223QibWeoeiczq07tZsmw04AP1sCWwqg/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§5 · 图 5–7</span>
+    <p><strong>《Little Nemo in Slumberland》</strong>Winsor McCay：我刚刚稍微讲了一点“周日漫画副刊”，这种形式的作品其实有很多可选，比如<strong>《Krazy Kat》</strong><strong>《Gasoline Alley》</strong><strong>《White Boy》</strong>之类的，有很多很多，但这本<strong>《Little Nemo》</strong>是我第一次真正接触到这种形式的作品，而且是这个版本。这本书巨大无比，里面是Winsor McCay在世纪之交画出的这些不可思议的作品。我只是会想到，如果你是个小孩，每周都能在报纸背面收到这样一页会是什么感觉，它们太美了，你很容易就迷失在这些画面的形式、结构和氛围之中，它们总会让我想画画，因为里面充满了各种点子。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4SqLhIBVBB4faFqiaV09dXibc1YCcD84VrAL0MRC7BDd82h7BxFfHib6N0SEN36rB1jALYXJqzmzX0OvKDicdp1pd2P8SxohPQtfY/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="8"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4SqLhIBVBB4faFqiaV09dXibc1YCcD84VrAL0MRC7BDd82h7BxFfHib6N0SEN36rB1jALYXJqzmzX0OvKDicdp1pd2P8SxohPQtfY/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§6 · 图 8</span>
+    <p><strong>《Norakuro》</strong>田河水泡：这是田河水泡的漫画，我觉得它对中国人的描绘非常冒犯，我觉得很多我真正喜欢的漫画，在道德层面其实都挺令人反感的。我知道我们刚刚看的<strong>《Little Nemo》</strong>里面也有很多种族主义图像。据我了解，田河水泡最初至少某种程度上是一个亲战的日本漫画家，那个时代的语气就是二十世纪中叶那种氛围。作品里有很多非常冒犯性的描绘，尤其是针对中国人的。但是！我在阅读的时候其实并不能真正地了解到这些，因为我不懂日语，我是对它的形式、色彩使用有着感知。我们可以看到他如何让人物完整地出现在画框中，如何安排阅读的节奏，如何使用颜色去引导阅读。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n3">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6bv2cJBYhxRUA4AIrvetsJGy37ZmPWiclf3RV2fYibic6SGdibrg9SNGZtze5iapaCjdCHr4wYVBlGHWqsNuLAYDTAZYUTtERD5TrQ/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="9"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6bv2cJBYhxRUA4AIrvetsJGy37ZmPWiclf3RV2fYibic6SGdibrg9SNGZtze5iapaCjdCHr4wYVBlGHWqsNuLAYDTAZYUTtERD5TrQ/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB7WpzV3NH0I7oiatlOyeKXNDpXjthQSONNbnBxUvibuia7Kastq6613YtZQ7p4v9mpIlD44b4dNQKAcHzu4bfNA6wScz0oLTzkwTQ/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="10"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB7WpzV3NH0I7oiatlOyeKXNDpXjthQSONNbnBxUvibuia7Kastq6613YtZQ7p4v9mpIlD44b4dNQKAcHzu4bfNA6wScz0oLTzkwTQ/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB66ThLibJMepOYzdvh0f6uwVyRVZsicAPZQPtFiaZv4ayhhxya53kmqZvDHrL1NDX3QqABiaR0aNtPbk64ONc8E2yIhuOpiaY3GXZAI/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="11"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB66ThLibJMepOYzdvh0f6uwVyRVZsicAPZQPtFiaZv4ayhhxya53kmqZvDHrL1NDX3QqABiaR0aNtPbk64ONc8E2yIhuOpiaY3GXZAI/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§7 · 图 9–11</span>
+    <p>我第一次得到这些书是从日本订购的，它们对我来说完全是无法理解的东西。它们寄到之后，我会反复研究它们，而我必须自己去为它们作出判断。这是让我将漫画还有其他语言开始产生关联的开始。我觉得当我并不真正理解那些语言的时候我反而会更喜欢这些漫画，因为那样我会以一种更纯粹、更简单的方式去接触那些图像，而不会有那么多语言挡在中间妨碍我。而我觉得某种程度上，也正是因为这部分的经验，引导我开始创作无字漫画。<br>（编者按：<strong>《野良小黑》</strong>在战时被认为拿战争开滑稽玩笑而被禁止，战后却又因为战争题材而被限制，但更公正的看法则是，这实际是一部因为遭受两头非议而被低估的田园牧歌式的漫画，漫画中的动物军打得很是热闹，却从来也不会死，与现实中的战争毫无关系，从小阅读<strong>《野良小黑》</strong>并一直喜爱这部作品的读者中，就有以反战著称的手冢治虫。<br>另一方面我也赞同joe所说的，在某种程度上，好的漫画无翻译时拥有一种全新的读法，有些时候，甚至能因此收获更多。）</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n4">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5JD1R3ib7KazvickzuWPIqIRzh22QC6txoIQlXLy6hMMGMRaJpQQYOZdZXqxibzU1ibsNticlI9tD6FhZrY0ZmyzHWjs3GP20DYej8/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="12"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5JD1R3ib7KazvickzuWPIqIRzh22QC6txoIQlXLy6hMMGMRaJpQQYOZdZXqxibzU1ibsNticlI9tD6FhZrY0ZmyzHWjs3GP20DYej8/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7de3LqqvLkRXOjuUF2V7eIqoR6EDrMvwGAibOYhkX1sKxNIIExlY7pzULpOwSwqgvqdExXtSpWw5CGxr0nSZ0FXUzNZaia4xKvU/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="13"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7de3LqqvLkRXOjuUF2V7eIqoR6EDrMvwGAibOYhkX1sKxNIIExlY7pzULpOwSwqgvqdExXtSpWw5CGxr0nSZ0FXUzNZaia4xKvU/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6kpaJW9u8T5zF4NXlgRn2gGjKUqPZSNl7bGtick6wkPUDbO9OYYakzT0AUjHichP9R83fFLXxZTCMmoGhRQBclCLsrIqIqjib3HY/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="14"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6kpaJW9u8T5zF4NXlgRn2gGjKUqPZSNl7bGtick6wkPUDbO9OYYakzT0AUjHichP9R83fFLXxZTCMmoGhRQBclCLsrIqIqjib3HY/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5GoTmtY1arBgyic4tRdZPqJRU37hDWVAmOicWia5HdPMMxXAGVNDSTeUhBTq5DSa8lZlXPNgeAw2poZibEl9jg5eUN8xUysgyl6nc/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="15"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5GoTmtY1arBgyic4tRdZPqJRU37hDWVAmOicWia5HdPMMxXAGVNDSTeUhBTq5DSa8lZlXPNgeAw2poZibEl9jg5eUN8xUysgyl6nc/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§8 · 图 12–15</span>
+    <p><strong>《He Done Her Wrong》</strong>Milt Gross：说到无字漫画。这是一本美国无字史诗，它非常愚蠢，同时也是最好笑的作品之一，基本上每一页只有一张图，它是一个非常夸张的喜剧，一个关于从美国西部到大城市、再返回的史诗旅程：爱情、失落、背叛，以及所有这些东西。虽然它真的蛮蠢的，但它又经常奇怪地令人感动，并充满了这种俗气的画面——它明知故犯，又直接、又好笑。它又是另一种会让我想画画的东西，因为你会觉得：“你可以画得这么快、这么好笑、这么愚蠢，却依然能传达真正的情感。”</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n4">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4O1XwE18wd5rNhvxTJZiaT5Y4iannwjOUVnT2tSiaYruWAcfRLxkYOBgGmnA7R9TFhqMlOKhPDkGwaaD7icRCIz1nw0j9qJ07oooc/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="16"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4O1XwE18wd5rNhvxTJZiaT5Y4iannwjOUVnT2tSiaYruWAcfRLxkYOBgGmnA7R9TFhqMlOKhPDkGwaaD7icRCIz1nw0j9qJ07oooc/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4dicua2mNzEicns9vP5tYib3B25akQcM7U5Imp3CwYtGSBDwOg0jVZ1NDia6365K505NAsqnTnicdt8F9M5rx7w9r3vQ8Zg2cGjF58/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="17"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4dicua2mNzEicns9vP5tYib3B25akQcM7U5Imp3CwYtGSBDwOg0jVZ1NDia6365K505NAsqnTnicdt8F9M5rx7w9r3vQ8Zg2cGjF58/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4y0nJ1pp2mWFEVPckhaGhoqvzbZJiaCTz8wEQFfqY0ybnYnEMqWqcFribQ7iby3YC2ZeNEBdMFibiceTe3qgibMsY2T6TabqrrujM1M/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="18"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4y0nJ1pp2mWFEVPckhaGhoqvzbZJiaCTz8wEQFfqY0ybnYnEMqWqcFribQ7iby3YC2ZeNEBdMFibiceTe3qgibMsY2T6TabqrrujM1M/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7moY2A6vZEML3yPqcqqVicJJycCbCFjfdZLS9jK023k5NRxbzSJKsH7ia9p9b6u0S41UnL659D8hiaAu5DFSOZkfcte2ib7zIbM54/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="19"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7moY2A6vZEML3yPqcqqVicJJycCbCFjfdZLS9jK023k5NRxbzSJKsH7ia9p9b6u0S41UnL659D8hiaAu5DFSOZkfcte2ib7zIbM54/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§9 · 图 16–19</span>
+    <p><strong>《Golden Pollen》</strong>林静一：这是林静一<strong>《Golden Pollen》</strong>里的故事。这是一种非常富有表现力的、诗性的颜色、节奏、留白的表达。一种印象派式的漫画，极富留白的、个人化的。当我第一次看到它时，它对我来说再次像是来自另一个世界的东西。它打开了我对于颜色、空间，以及这些物体与情绪之间关系的大量思考。因为我觉得他很多很好的作品，本质上都是非常情绪化的绘画。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n4">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB6b4L4Hvs2Hia2UwkrPkOSftnFF9s3KwBOnetoF0OCa9xsFCRj6eYcldgKtARGtY8cAOf2e41Fic2GpRic5riciaVGdicT27ZMNicCFhg/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="20"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB6b4L4Hvs2Hia2UwkrPkOSftnFF9s3KwBOnetoF0OCa9xsFCRj6eYcldgKtARGtY8cAOf2e41Fic2GpRic5riciaVGdicT27ZMNicCFhg/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB7gWiacnNcN1XKqeC8xNxKFIKzJazAVibNUcgWDw5Rz3CEqsP4CYz05ezfBED7Iax3LznVX1sNjND7TgolvOj6ibYFFxFpad1SQk0/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="21"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB7gWiacnNcN1XKqeC8xNxKFIKzJazAVibNUcgWDw5Rz3CEqsP4CYz05ezfBED7Iax3LznVX1sNjND7TgolvOj6ibYFFxFpad1SQk0/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7NJzdYWwfxUZfw8Pkl8YoibXuHzek6TfE6UF25A0YmjaRkT5CTObG6ztbWMQyRX0QavYNCiboicbRvmicmia99fMaUcle9beoOo74I/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="22"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7NJzdYWwfxUZfw8Pkl8YoibXuHzek6TfE6UF25A0YmjaRkT5CTObG6ztbWMQyRX0QavYNCiboicbRvmicmia99fMaUcle9beoOo74I/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7iaG1qNJDwIDbzz7Sz1LIdbUS1pXlGyicUV1M0GjlicJiclZfnQsXsBMtsAwSRnic1gjW2t9XJxSAicK3TvtbGGHhIKpQ4BDs2qu4zM/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="23"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7iaG1qNJDwIDbzz7Sz1LIdbUS1pXlGyicUV1M0GjlicJiclZfnQsXsBMtsAwSRnic1gjW2t9XJxSAicK3TvtbGGHhIKpQ4BDs2qu4zM/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§10 · 图 20–23</span>
+    <p><strong>《Passionate Journey》</strong>Frans Masereel：这是一本有点处于漫画世界之外的东西，这是一系列木刻小说。他做了一整套木刻小说，这本是<strong>《Passionate Journey》</strong>，我觉得可能是最好的一本。它同样也是无字的。阅读它时完全停不下来，你感受着故事里这个人在上世纪早期的比利时四处游荡，到处惹麻烦，它让人感觉非常诚实，很私人化，似乎无法以任何其他形式存在。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB7g49yIkdg5njaYh27icmiaqScialHpFUkdQ79DnKksve3N2MrUoWxPFHXpvdkBMMkkzvtIWian4BlvQbw8eKB1FalrmWqGXthyuk8/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="24"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB7g49yIkdg5njaYh27icmiaqScialHpFUkdQ79DnKksve3N2MrUoWxPFHXpvdkBMMkkzvtIWian4BlvQbw8eKB1FalrmWqGXthyuk8/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§11 · 图 24</span>
+    <p><strong>《Pittsburgh》</strong>Frank Santoro：Frank Santoro是一个对我非常重要的艺术家。我本来应该展示他的<strong>《Storyville》</strong>，而不是<strong>《Pittsburgh》</strong>，因为那本书真正开启了漫画中的那种快速绘画手法。它真的让我摆脱了那种“必须极其控制、精确地画每一只手”的想法，让我觉得自己也可以作为一个混乱的、富有表现力的人去创作漫画。但这是他较新的作品，我觉得甚至更好，所以我选了它。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n3">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6QySDYTzyHK64DG8HsAmsl8opR9AiaVVazrBjlDCgD5HAJXJp4rx0wl3YhFyCLQrGWFYia54gaMFnqiaNxhRKjUhfUkX2ynNvIe0/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="25"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6QySDYTzyHK64DG8HsAmsl8opR9AiaVVazrBjlDCgD5HAJXJp4rx0wl3YhFyCLQrGWFYia54gaMFnqiaNxhRKjUhfUkX2ynNvIe0/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4OFRNuB3utVTibsPn0KGQbRlSUtJCT7y2AdoOEic2XoG8N2gPNqqOZQYsnZwotibmQWvW17r8jYQwj93uKApoXwO9kdO6NF8iaF3M/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="26"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4OFRNuB3utVTibsPn0KGQbRlSUtJCT7y2AdoOEic2XoG8N2gPNqqOZQYsnZwotibmQWvW17r8jYQwj93uKApoXwO9kdO6NF8iaF3M/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB5l28O5VqLrpWtC2nyuQwXVyzicyXlOuJ1N9alUdw3QMh1F2iayR2bGnMGauv1CcVGyBkBTctFBDZ96RjXwFbuoGLmicjDl9OWTjc/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="27"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB5l28O5VqLrpWtC2nyuQwXVyzicyXlOuJ1N9alUdw3QMh1F2iayR2bGnMGauv1CcVGyBkBTctFBDZ96RjXwFbuoGLmicjDl9OWTjc/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§12 · 图 25–27</span>
+    <p><strong>《Pittsburgh》</strong>是一个寓言式的故事，关于父母离婚以及离婚后的关系，关于已经锈蚀衰败的工业城市匹兹堡，还有Frank 自己逐渐老去。它有点悲伤，但那些画真的非常美，也非常敏感。我以前会迷失在很多种关于“这是漫画式绘画”“这是漫画家该画的方式”之类的想法里面。而 Frank 是这样一个人：他完全沉浸在漫画历史之中，并且比任何人都更理解它；但与此同时，他允许自己以各种不同方式去画，而这些都成立，都有效。所以他也给予了我这种许可，也给予了我们所有人一种许可——去按照任何我们想要的方式画画。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n4">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6XHEwmnFTnExR3fdzTkFewqZA62OxSeFmnqtDMplVXhPPvyEA0HHwtZy6v6Dm8mk3Fa7V8Fu2OltnfbqsMqibNfsxhELFCYjec/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="28"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6XHEwmnFTnExR3fdzTkFewqZA62OxSeFmnqtDMplVXhPPvyEA0HHwtZy6v6Dm8mk3Fa7V8Fu2OltnfbqsMqibNfsxhELFCYjec/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB48Yk8tkWFbCmJOHGt25MDntBmbccYLRWVyJNo1PDkFiaSozfHB6Xmicq8qbSPxlVeNibQWIpsp5WXKicc8MpYLzJxwyKEQibsbsGAk/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="29"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB48Yk8tkWFbCmJOHGt25MDntBmbccYLRWVyJNo1PDkFiaSozfHB6Xmicq8qbSPxlVeNibQWIpsp5WXKicc8MpYLzJxwyKEQibsbsGAk/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4XogVjThDTN6bOH6I38OuHhwAchXhVEYKXHUjrUlPDa2robvEPFdID0L5lJBAW1B2gPTjo6wfEXRsxeVdtibGSwroslgwUYibOw/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="30"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4XogVjThDTN6bOH6I38OuHhwAchXhVEYKXHUjrUlPDa2robvEPFdID0L5lJBAW1B2gPTjo6wfEXRsxeVdtibGSwroslgwUYibOw/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7u7XUTUpqN2tjRZl4ydFgpQPm0jmELtlHUOZczmMbdiafLLJcamEbs8Dv9ulApuWxianbWicqVJzrpCibXopAwIkb4fItfjrAFzuA/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="31"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB7u7XUTUpqN2tjRZl4ydFgpQPm0jmELtlHUOZczmMbdiafLLJcamEbs8Dv9ulApuWxianbWicqVJzrpCibXopAwIkb4fItfjrAFzuA/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§13 · 图 28–31</span>
+    <p><strong>《Baby Boom》</strong>横山裕一：这是横山裕一的<strong>《Baby Boom》</strong>。我本来是不打算放任何我自己出版过的书的。虽然这本我出过，但这本书在我们出版之前已经存在了大概十年左右了，所以我觉得放进来也没关系。它是以一种非常快速、非常有趣的方式画出来的。并且通过这些看起来大部分都很平淡的重复动作，逐渐揭示出这两个人物之间的关系，以及我们与物理世界之间的关系。颜色在这里也非常重要。实际上，还有一个有点无聊但很关键的地方——这本版本的印刷技术。我们用了六色印刷，所以它在纸面上非常鲜艳，非常有生命力。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs nbig">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4hMYVrMwicAwRu06nD4iafEuculJGp5W3YiahWzPCjv1pxEA86zL4spiamJ8pJJZ9eJlbWDbltibhBbFpEdCbthXax0KVvkbjFX80U/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="32"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4hMYVrMwicAwRu06nD4iafEuculJGp5W3YiahWzPCjv1pxEA86zL4spiamJ8pJJZ9eJlbWDbltibhBbFpEdCbthXax0KVvkbjFX80U/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4MticZCdia73yP56M06LjrRyS1TfuVaDRJhhibmQJUkFCra8hQojy0ibnyj8AVSQkqB7EVVeHL0f5XicOOmzw94Xqv6oghibNUnlDI0/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="33"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4MticZCdia73yP56M06LjrRyS1TfuVaDRJhhibmQJUkFCra8hQojy0ibnyj8AVSQkqB7EVVeHL0f5XicOOmzw94Xqv6oghibNUnlDI0/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB604QLfIUd6gld3qHAAIKibfktRSUte3HdTA0nvA5iaMP6FMmg6eKoGn0melyC228ia9XUb6GVf0f0f5RJjRibicS7ibYhz25G0P4GVk/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="34"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB604QLfIUd6gld3qHAAIKibfktRSUte3HdTA0nvA5iaMP6FMmg6eKoGn0melyC228ia9XUb6GVf0f0f5RJjRibicS7ibYhz25G0P4GVk/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5rLNWDC0YwzY4Ypz2icibhIxBzgs6QgcAL4KS1nINKH0XWV6URhBxcdPMwIoBMkhCfpoPEXCGZYXKIqTtaGpFHjjJNJDbiaVqU6g/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="35"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5rLNWDC0YwzY4Ypz2icibhIxBzgs6QgcAL4KS1nINKH0XWV6URhBxcdPMwIoBMkhCfpoPEXCGZYXKIqTtaGpFHjjJNJDbiaVqU6g/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4m7icXvSwfURTtXJuhzwF99ZXKtOOU4NiaI9f4hficK7zHnK1pckvgnricdmoBK7LEd95ibDQZMDy5pOPU1CauD1ZSrntjGlgBgS0g/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="36"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4m7icXvSwfURTtXJuhzwF99ZXKtOOU4NiaI9f4hficK7zHnK1pckvgnricdmoBK7LEd95ibDQZMDy5pOPU1CauD1ZSrntjGlgBgS0g/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6bwHs4hshbQjjEmBBnPmibSQOB19iaJx8eQPBBiarAspMn0LGChESZEw7YbwqbczLnrgPqmsgQ7x8ZaG4s2nBHdokTiaHoiaZb7JXo/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="37"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB6bwHs4hshbQjjEmBBnPmibSQOB19iaJx8eQPBBiarAspMn0LGChESZEw7YbwqbczLnrgPqmsgQ7x8ZaG4s2nBHdokTiaHoiaZb7JXo/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4icuDiaY8GdazQ1EDRMbDb2SgW8DhKthB5R2wRjEJ6ibiaCHQHskBxCpnVACyh7g5xNeWzoiciakAUeZgwnvtLekeD4CCc6IAl54Jyk/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="38"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB4icuDiaY8GdazQ1EDRMbDb2SgW8DhKthB5R2wRjEJ6ibiaCHQHskBxCpnVACyh7g5xNeWzoiciakAUeZgwnvtLekeD4CCc6IAl54Jyk/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§14 · 图 32–38</span>
+    <p><strong>《Vivre à FranDisco》</strong>Thierry Van Hasselt、Marcel Schmitz：Thierry Van Hasselt 是一个漫画家，也创办了 Frémok，一个非常重要的比利时出版社。而 Marcel Schmitz是一个我觉得有一些学习障碍的人，他在一个工作中心里制作纸雕塑，而 Thierry 会去那里和他一起工作。他们一起用纸做了一些小城镇，这基本上就是他们在那个中心里日常做的事情：在空间里走来走去，然后慢慢把城镇“缩小”，再配合 Marcel 画的一些车辆之类的东西，他们就像进入那个纸做的城市一样去探索它，真的变小了，然后在里面四处探险。其实也没发生什么特别复杂的剧情，就是一直在探索这个地方。但有一个很有意思的点是：里面会有一种很强的对比——一边是那种非常熟练、很专业的绘画，一边又是一些比较歪歪扭扭、很随性的画。两种东西混在一起，有一种特别奇妙的感觉。<br>出版及活动主办方@盐Salt Circulations整理翻译<br>（编者按：因为Joe准备了较多照片，机会难得，就一并发布了，也作为苏州那场活动的现场记录。我认为这甚至比讲解自己的作品更直接，Joe实际讲述了他为何会画出<strong>《海鸥耶丁》</strong>的秘密，你看懂了吗？）<br>★徐为国 Xu Wei Guo，年过六旬，澳大利亚国籍，酷爱中国传统连环画和中国传统艺术。<br>我是一个传统连环画的爱好者，这种爱好当然和少年经历有关，把传统连环画作为构成自己这个话题掺杂到卡通漫画区块，也许能找到一丝类同的线索。按照要求，我要提供九种连环画或漫画卡通代表那些影响个人爱好，欣赏品味，甚至构成对传统文化的个人理解。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6mg9P5L5fXHvlKZaXKr9b8mR5OdPYAUXJnAnribWGPicLke3JVl3W8LegNyQd2ibEWvlaL9YxFUnCQibktoRQ7NjV6xdiclGsZEibUI/640?wx_fmt=png&amp;from=appmsg" data-idx="39"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6mg9P5L5fXHvlKZaXKr9b8mR5OdPYAUXJnAnribWGPicLke3JVl3W8LegNyQd2ibEWvlaL9YxFUnCQibktoRQ7NjV6xdiclGsZEibUI/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§15 · 图 39</span>
+    <p><strong>《千里走单骑》</strong>陈光镒：小时候，我很喜欢在租书摊花几分钱看连环画，看连环画的不仅有小孩，也有成年人。那时候的连环画主打的都是文革风，非常的红色。而传统古典题材的连环画是不允许看的。有次，摊主拿出一本包了封皮的连环画偷偷给一个成年读者，这种被包了封皮的小书通常是不放在书摊上，也不租给小孩看，只租给大人看。所以我这样的小孩平时是看不到的，当那个大人拿了书坐在板凳上看时，我就站在后面蹭看，那本书是上海人美文革前出版的三国演义套书中的一本，书名是千里走单骑。<br>正是因为看了这本连环画，我喜欢上了中国传统的东西，后来很多传统文化知识都来自连环画了。所谓犹记当年小巷口，千里单骑关云长。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB53JjibpHIlAn0dJhfw2Ir87ny4RVm8ZIUHNY9b2XZwvVyQkcAtTyjF57S3kL9UoGXEGAt8YZndwkkpy4Rg8HLxah6Qhe3Vq49s/640?wx_fmt=png&amp;from=appmsg" data-idx="40"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB53JjibpHIlAn0dJhfw2Ir87ny4RVm8ZIUHNY9b2XZwvVyQkcAtTyjF57S3kL9UoGXEGAt8YZndwkkpy4Rg8HLxah6Qhe3Vq49s/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§16 · 图 40</span>
+    <p><strong>《天宝图》</strong>朱润斋：这是民国时代宏泰书局出版的连环画，记得小时候我父亲由于工作关系，把我送到小县城，让爷爷奶奶照顾。我记得那时候做饭菜是用芦柴生火，点火用的是旧报纸和旧书。一次我从旧书堆里看到了民国时代的连环画，薄命珠燕，千里送京娘，双珠凤，天宝图等，我拿了这些书偷偷躲在墙角看了起来，后来爷爷看见我翻看这些连环画，就告诉我，这些是大毒草，别人看到你看是要举报的，当时我就吓得扔掉了这些书，当然它们最后都成了灶灰。多年以后，我开始收藏连环画，一次机缘巧合，买到了这本天宝图。<br><strong>《快枪手卢克》</strong>Morris：80年代末，百家出版社翻译出版了一套美国西部的卡通漫画，幸运的卢克系列，有魔指，达尔东城，寻宝记等，这套西部枪手的传奇故事不仅故事情节动人，而且幽默风趣，在那个时代，正是改革开放的初期，能够有这么个作品，对于了解西方人性是有很大的裨益的。同时代还有电视剧加里森敢死队，大西洋底来的人，动画片迪斯尼米老鼠唐老鸭等。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6yZ1dt4Y8XfOfEt422vUkdxUeXRuxgf1NL07q5wUY4PRoL8AY91eO9trHIPr7yiaarVYnQZCkwle1Ey5o0Ze8oKhDwMxbGrDKo/640?wx_fmt=png&amp;from=appmsg" data-idx="41"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6yZ1dt4Y8XfOfEt422vUkdxUeXRuxgf1NL07q5wUY4PRoL8AY91eO9trHIPr7yiaarVYnQZCkwle1Ey5o0Ze8oKhDwMxbGrDKo/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§17 · 图 41</span>
+    <p><strong>《项链》</strong>华三川:莫泊桑的小说十分精彩，改编和画成连环画后也一样的精彩，中学课余爱看一些名著，学校图书馆不仅有小说，也有连环画，最先看的是小说项链，后来翻看到一本50年代版的连环画，是华三川先生用钢笔创作的。这本连环画人物形象突出，内心的活动画面化十分精彩，和小说所描绘的非常契合。当时觉得，读一本好的连环画有时比文字更有冲击感。<br><strong>《丁丁历险记》</strong>Georges Prosper Remi:一个比利时的世界闻名的漫画大师，创作几十部精彩的长篇漫画，在那个互联网还没出现的年代，埃尔热的作品陪伴了我们那个时代青春期的所有欲望和冲动，一个完全不同于中国传统连环画的漫画，没有了死板的说教，用幽默，探险，逻辑和地方风情展现了一系列的冒险故事，时至今日，从内容来说，个人觉得依然碾压国内的所有连环画。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB4Cs3d5D9plUTVFAKw1No7ibhX51W8xyAoiav6sFVkP2icw8TyBErYjABAjTLicSibV1NOTS8mBMPNib0Gib8WtGbccq8IlewWtoupXCo/640?wx_fmt=png&amp;from=appmsg" data-idx="42"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB4Cs3d5D9plUTVFAKw1No7ibhX51W8xyAoiav6sFVkP2icw8TyBErYjABAjTLicSibV1NOTS8mBMPNib0Gib8WtGbccq8IlewWtoupXCo/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§18 · 图 42</span>
+    <p><strong>《辛十四娘》</strong>胡若佛:胡若佛大师的作品称得上后无来者，他的游丝铁线海内一绝，女子媚态在其笔下画出，至今无人能及。如果说达芬奇的画鸡蛋是杜撰的故事，从没见真实史料有这么一说，而胡大师的每日练笔画圆可是真有其事，每日鸡叫起床，毛笔画圆，从无间断，练得一手无法超越的线描绝技。胡若佛先生的画作让人见识到传统绘画的魅力，他的作品有金瓶梅的册页，杨家将，蔡文姬，花木兰，红楼梦打金枝等连环画。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5TfXjUGrkURelxb6F3eIKS93pWss5ueSuW0FqJjxalInKtwLamhmSA8FH9DOYG8d1gT8KGFEw8Ecr5zIoreKxylWfwe1fTrpc/640?wx_fmt=png&amp;from=appmsg" data-idx="43"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5TfXjUGrkURelxb6F3eIKS93pWss5ueSuW0FqJjxalInKtwLamhmSA8FH9DOYG8d1gT8KGFEw8Ecr5zIoreKxylWfwe1fTrpc/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§19 · 图 43</span>
+    <p><strong>《射雕英雄传》</strong>姜云行（云君）:中国式武侠从春秋战国开始就有了侠士一说，荆轲风萧萧兮易水寒壮士一去兮不复返可谓把侠字演绎的淋漓尽致。中国武侠小说到了民国初年，达到顶峰，这期间连环画的诞生又给了这个题材有了演绎的新舞台，赵三岛，赵宏本，颜梅华，等连环画大师创作了无数武侠连环画题材，然而真正能够把武侠精髓画在纸上是香港的云君先生，他为金庸，梁羽生等武侠小说家创作的插图确称得上是真正的武侠风格，直至如今，包括黄玉郎，李志清等绘制武侠漫画，以及大陆画家绘制的武侠连环画，没有一部能够与其比肩的。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6sBH4G0aAamwDTTqFMtPaC9fMJrqHzXdZdeDO7r1Mu8Pgqu38R5Akowd2R7A2IXraynUFd3uFFbxSvzeyjNc5ozp8wzcF7R0Y/640?wx_fmt=png&amp;from=appmsg" data-idx="44"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6sBH4G0aAamwDTTqFMtPaC9fMJrqHzXdZdeDO7r1Mu8Pgqu38R5Akowd2R7A2IXraynUFd3uFFbxSvzeyjNc5ozp8wzcF7R0Y/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§20 · 图 44</span>
+    <p><strong>《十一郎》</strong>沈曼云:民国连环画的诞生就是补足传统艺术和知识在民间传播的工具，传统京剧和其他戏曲电影在上海这个大都市上演的成本是很高的，看场戏看部电影大洋一块，这对于一般人是无法消费的，另外那个时代百姓文化普遍低下，县城里高中毕业就已经是大才子了。所以连环画的图文并茂解决了这个问题，小书摊遍及街头巷尾，看一本一个铜板。<br>这些民国连环画基本都是照抄舞台装扮，根据戏剧电影上演时间每天更新。我喜欢京剧，和看这些连环画有着千丝万缕的联系。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7S0vP1Nlb53gURibFM8fnQlOLPeibqLMvsukfokB3OjcpFSpUicdLo3kicWI2ia8VROz9yXadwSAh541Ok2wXf66AosulYicE0tcZM4/640?wx_fmt=png&amp;from=appmsg" data-idx="45"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7S0vP1Nlb53gURibFM8fnQlOLPeibqLMvsukfokB3OjcpFSpUicdLo3kicWI2ia8VROz9yXadwSAh541Ok2wXf66AosulYicE0tcZM4/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§21 · 图 45</span>
+    <p><strong>《李自成》</strong>崔君沛、施大畏等:一套连环画能够把场景表现得如此宏大，气势恢宏，人物刻画传神至极，历史厚重感透纸而出。非这套上海人美的李自成莫属，我一直诟病80年代的连环画的无耻和没落，这个时代的急躁和浮夸在连环画领域表现得淋漓尽致。然而由施大畏，崔君沛，罗希贤等现代学院派领军的画家创作的李自成却让我大开眼界，爱不释手。<br>任何一个时代总会有一些闪光点，上美这套李自成应该是中国传统连环画最后的尊严了。<br>（编者按：那三本卢克也是我小时候特别喜欢的，都翻烂了的程度，后来又引进了数个版本，但那已经是长大后的事，面向儿童的读物总是做得很丑陋，而且版本那么多，有点无从买起，就没有补看了。记得同期还有力大无比的帕尔特、自作聪明的傻小子等等，前者出过名为超能小子班尼的新版，后者在后浪出过故事更短也就魅力较少的一本。还有超人系列和唐老鸭系列，前者神秘莫测，充满未知，只因背后还有庞大的超英宇宙，后者是围绕着吝啬、贪婪自私的人性，不断展开关于金钱的冒险，比米老鼠系列好看太多了，唐老鸭的有钱叔叔这个角色对金钱的渴望带有梦想家属性，使得这些故事不仅不市侩，反而变得浪漫和纯粹。<br>对丁丁历险记的高度评价竟出自连环画迷，这一点很有意思，其实我从小不爱看连环画，只因其教化色彩实在太浓了，画面严肃，文本简陋，丁丁历险记和后来的日漫，相对于国产连环画，都属于降维打击。即使是技艺高超的连环画，也与读者有距离，最多只能令人赞叹其技艺，赏玩其格调，而很难提供一个可以零距离接触乃至沉浸的世界。当然，我觉得民国连环画要比建国后连环画好得多，这是特别大的话题这里就不展开了。<br>射雕英雄传的插图为何比内地的武侠连环画甚至香港的武侠漫画好，也是非常有趣的话题，我估计内地的连环画取材于旧武侠小说，三侠五义之类，内容比较陈旧套路，也没什么生活质感，显然不如金庸那样的新派武侠吸引，而香港的武侠漫画虽然是新武侠起步，却过于强调打打杀杀，同样十分套路且缺少生活质感。这样就反衬了这些插图的生动，它将连环画那种狭小的舞台感还原成了相对真实的场景，角色又不像香港武侠漫画那样雷同和雷人到根本无法代入，自然就亲切很多，读者可以代入角色，进入情境，在一个相对真实的武侠世界遨游。）<br>★老二，生活和工作于昆明，游离在插图与漫画之间。自二零一二年开始自由创作。<br>丰子恺：丰子恺的作品看似简单，简单到误以为自己也能画，于是画过一点，始终不得要领，索性放弃，权当小品欣赏。名为小品，实则包罗万象，经寥寥数笔，竟个个成立。画面一角题字点睛，书法也很可观。偶尔翻一翻，能解乏、解忧，浮躁时亦能降燥。再看他人仿作，情味十足，自然想到漫画的漫，也许是漫无目的的漫，或自由散漫的漫——有丰子恺开风气之先，好像怎样画都没错。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB77ibEhlSX7lSQmvxGAcCOcRKDibMAO49S67GibDMgoJ60KsfOvxUrj8GaPDN920tfVV7DZ8tXwae8kd9o0syERbCD7TCpmt5Z2gI/640?wx_fmt=png&amp;from=appmsg" data-idx="46"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB77ibEhlSX7lSQmvxGAcCOcRKDibMAO49S67GibDMgoJ60KsfOvxUrj8GaPDN920tfVV7DZ8tXwae8kd9o0syERbCD7TCpmt5Z2gI/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§22 · 图 46</span>
+    <p>胡考：小学接触到<strong>《胡考漫画二种》</strong>，一半网罗旧上海众生相，一半演绎古代故事，无论“瘪三”还是西施，大都富于构成感与装饰味。画外寥寥数语，幽默而辛辣，气息浓郁。小书装帧质朴，一切恰到好处，至今爱不释手。胡考的滋养如涓涓细流源源不断，常看常新，历久弥新。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6Px1SOvExiceiaWXeOJeGO7TUF1nupDK5sJEiajyUmORbJ4lcv94xsrGjibibia4SohF3QzK69UeGv0nrWpSpVIZA4EicElaTkTV07I8/640?wx_fmt=png&amp;from=appmsg" data-idx="47"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6Px1SOvExiceiaWXeOJeGO7TUF1nupDK5sJEiajyUmORbJ4lcv94xsrGjibibia4SohF3QzK69UeGv0nrWpSpVIZA4EicElaTkTV07I8/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§23 · 图 47</span>
+    <p>张光宇：新世纪初，小学还未毕业，沃尔玛进入中国，竟在超市货架上邂逅张光宇的<strong>《西游漫记》</strong>。<strong>《西游漫记》</strong>百十来页，一面手书文字，一面彩色图画。画面脑洞大开，幽默可喜，文字讽刺笑骂，古今结合，也算混搭。后来看他画梁山人物、民间情歌，各有滋味，直到民国漫画热，才知他是大师，顺便刨出曹涵美的<strong>《金瓶梅插图》</strong>一并欣赏。<br>工笔（丁聪与王叔晖）：有人说丁聪的作品属于“工笔漫画”，然而在真正的工笔画家面前，未免散漫。千禧年间，三联印过一套丁聪漫画作品集，买过一本<strong>《讽刺画》</strong>，当时只道是寻常，现在看来未必能过审。另一本<strong>《文化人肖像》</strong>，所绘多为中老年，惟妙惟俏，对法令纹印象尤深。同时期，人民美术出版社印过大开本连环画，买过一本王叔晖的<strong>《西厢记》</strong>，画风清丽优雅、温婉含蓄，一度爱不释手。近来重看刘继卣，又觉技高一筹。<br>王泽：作为小学生，从王泽的<strong>《老夫子》</strong>里学到若干半俗半雅的词，如“XX风云”、“XX惊魂”，以至“无可奈何”、“衣冠禽兽”，往往张口就来。王泽的作品有世情和无厘头，画面不失水准。虽陷抄袭风波，但青出于蓝，也算发扬光大。曾临摹过其中人物，现在提笔还能默写，尤爱大番薯。相较港片，<strong>《老夫子》</strong>算得上港味启蒙。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7hDN4Wjx1qzYMtrxy5IjLhcPaR6ruxzqaOia8M2gIUKtf0QQB5WhwCQQ25OqSY34IHZhwCRyeVZVaOQKAjsOvibkNMtdDcva4Ug/640?wx_fmt=png&amp;from=appmsg" data-idx="48"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7hDN4Wjx1qzYMtrxy5IjLhcPaR6ruxzqaOia8M2gIUKtf0QQB5WhwCQQ25OqSY34IHZhwCRyeVZVaOQKAjsOvibkNMtdDcva4Ug/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§24 · 图 48</span>
+    <p><strong>《丁丁历险记》</strong>埃尔热：它的好，在于绘画上的可望又可即，拆开细看，极富营养，若尽力追赶，仿佛能摸到尾巴。慢慢摸索，果然为笔下增色。至于故事，以<strong>《蓝莲花》</strong>探虚实，知道不必认真。随着年龄增长，逐渐对侦探或间谍失去兴趣，剩下的唯有异域风情。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5Sjf8nATiaPaCS8Zib2Cw0FgPrv1EIVafhDCPhO34kFxgOl6Q6icnjMbajsqGLXpiaEZiax7U64HY71BOhWJyiast5oseLoBSTzGia1g/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="49"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/rWtroSqhIB5Sjf8nATiaPaCS8Zib2Cw0FgPrv1EIVafhDCPhO34kFxgOl6Q6icnjMbajsqGLXpiaEZiax7U64HY71BOhWJyiast5oseLoBSTzGia1g/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§25 · 图 49</span>
+    <p>艾尔·赫什菲尔德：不知国内是否引进过他的书，仅在网上看到零星作品，一眼难忘。他的灵动飘逸传神熨帖无需多言，有部纪录片，叫做<strong>《线条之王》</strong>，名副其实。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7doArCOyQfDFoMbAdwYuvrPG7TRs9TIc3WSia3U1ianeUXS4K8QXIBNTQhPbqJfqJanYNpDAzZZXuhnFLtYZOxTaGQ0e92sZh8Y/640?wx_fmt=png&amp;from=appmsg" data-idx="50"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7doArCOyQfDFoMbAdwYuvrPG7TRs9TIc3WSia3U1ianeUXS4K8QXIBNTQhPbqJfqJanYNpDAzZZXuhnFLtYZOxTaGQ0e92sZh8Y/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§26 · 图 50</span>
+    <p><strong>《代号十三》</strong>让·范阿姆 编/威廉姆·万斯 绘：从千禧年间的<strong>《连环画报》</strong>到同期印制的彩色单行本，对<strong>《黑太阳》</strong>一直念念不忘。可惜当时未出全篇，只能从前三本着眼，此后二十余年，历经“图像小说”兴衰迭代，这部漫画始终在边缘徘徊，籍籍无名，听说后浪再版，更名为<strong>《代号十三》</strong>。故事类似<strong>《谍影重重》</strong>，按好莱坞套路铺陈，扎根美国，放眼世界，难以想象出自比利时画家之手。论人物场景，已非写实那样简单，而是集电影与绘画的优势于一身，功力非凡，令人望尘莫及。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4x8kldiceme3FnXtFOnUcicU5icpzDcN23VC9ibwJ0vceqyBHQeiafKKNXcHXDcXl6uXdVxWCqriaKKOy0ibxib9s6woiaoWy6kfzHXWwU/640?wx_fmt=jpeg&amp;from=appmsg" data-idx="51"><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/rWtroSqhIB4x8kldiceme3FnXtFOnUcicU5icpzDcN23VC9ibwJ0vceqyBHQeiafKKNXcHXDcXl6uXdVxWCqriaKKOy0ibxib9s6woiaoWy6kfzHXWwU/640?wx_fmt=jpeg&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§27 · 图 51</span>
+    <p>克里斯·韦尔：大学毕业时，他的作品还未引进国内，偶然在一家建筑书店邂逅体量巨大的原版<strong>《老屋记》</strong>，拆开一看，似乎要穷尽一切形式，不止漫画那么简单。若有心借鉴，足够受用终生。后来，国内引进其另一部漫画，读过几十页，不明所以，所以不明觉厉，且作资料束之高阁，权当有座高山，攀不攀，它就在那里。<br>（编者按：老二按作者梳理，实际涉及的书大大超过九部了，甚至连作者也有十个，把丁聪和王叔晖合二为一还蛮有趣的，我没这样想过，但可能是的，而且丁聪的父亲也画得一手工笔美人图，看起来两人还真的同出一脉，也因为我对这些毫无研究啦。<br>提到丰子恺我就忍不住想再提一嘴他的后人，书是出了不少，但或许因为原稿遗失，当年的印品质量不足以支撑复刻——其实有啥不可以呢，还是没品啊，一味求清晰，就像要给泥塑上新漆那个感觉——所以他们竟胆大包天到请人，也可能是自己上手，重新描了丰子恺的部分作品，来混充原作出版！全然不懂这些新描是何等拙劣，这也印证了老二所说的看似简单。）<br>★隐二，猿仙记掌柜，狒伯把戏团武指，桂林公园护林员。<br>我童年的视觉营养主要来自便宜的连环画，与漫画这种彼时很“高端”的文化消费品基本是绝缘的。在记忆里翻箱倒柜，找出的多是一些我与漫画之间的“歪史”。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6rGGNLCxJ7IKl2FwqacV2zu0Lbks2eRrC7BmSamgGd4gSHm7I1GZFAna57mosTYepwibaaN7mJfj4pt8rmL330wywwhRWuxMP0/640?wx_fmt=png&amp;from=appmsg" data-idx="52"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6rGGNLCxJ7IKl2FwqacV2zu0Lbks2eRrC7BmSamgGd4gSHm7I1GZFAna57mosTYepwibaaN7mJfj4pt8rmL330wywwhRWuxMP0/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§28 · 图 52</span>
+    <p>图：贺友直<strong>《白光》</strong>发在<strong>《连环画报》</strong>上时，采取四拼一的方式<br>贺友直<strong>《白光》</strong>1980年：第一期一鸣提名了连环画，所以我必须应和一条。在贺友直的<strong>《十五贯》</strong>、王弘力的<strong>《杨志卖刀》</strong>和胡若佛的<strong>《蔡文姬》</strong>之间犹豫时，忽然想到<strong>《白光》</strong>更值得提及。因为在突破新中国连环画“不近人味、刻画不够具体”的通病方面，<strong>《白光》</strong>走得更远。类似值得打捞的新中国连环画还有一些，有机会可以列个单篇。<br>鸟山明<strong>《七龙珠》</strong>1985年：小学时去一个富裕的同学家看录像带，见他床上有一本打开的漫画书，那页是一个模样奇怪的卡通角色凌空驾云飞翔的俯视角度。我被那溢出画面的活力和游刃有余的透视给震惊了——之前自以为是的从连环画积累的审美认知完全被秒杀。后来我回忆那本书应该是<strong>《七龙珠》</strong>。然而，我当时震惊过后的反应，是把那本书给合上了——此后继续沉浸于连环画和中外美术名作的惯性迷恋当中。<br>前两年录播客，回忆起自己当时这个动作，做了个比喻：好比你打开冰箱门，发现里面竟然是一个外星球的世界，而你第一反应其实是赶紧把冰箱门关上。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB4WufpNKZhhbwFg8p3yhszC2xtJTLEZLMdtml0UHKjoRrKibc4ebExyTyibutGH9CYibphVm7ic9CJAiaHiaLibd5xSftvfiaJAPA6UIcs/640?wx_fmt=png&amp;from=appmsg" data-idx="53"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB4WufpNKZhhbwFg8p3yhszC2xtJTLEZLMdtml0UHKjoRrKibc4ebExyTyibutGH9CYibphVm7ic9CJAiaHiaLibd5xSftvfiaJAPA6UIcs/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§29 · 图 53</span>
+    <p>图：<strong>《孔雀王》</strong>里让我印象最深的是这种密教形象<br>荻野真<strong>《孔雀王》</strong>1986年：严格来说这是第一部我认真阅读的“标准漫画”。是90年代引进国内的。当时这种书是摆在我老家新华书店柜台后面的书架上卖的，想翻阅，得厚着脸皮请臭脸的店员拿给你。我更多的是把这套漫画当做一套风格别致的仙魔混战题材连环画来看。后来我对花轮和一那种繁复妖异的古典题材兴趣盎然，没准和<strong>《孔雀王》</strong>的密教美术启蒙有关。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7bf7pYUsicbxUS4cxNdDKicBQrubMpuqJNHDOhhsiaFicSRnVAdyNuWbxIblXorWicm4VEsdY5Pqk0uzt54heiaLDOgyv84MPviaNTr0/640?wx_fmt=png&amp;from=appmsg" data-idx="54"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7bf7pYUsicbxUS4cxNdDKicBQrubMpuqJNHDOhhsiaFicSRnVAdyNuWbxIblXorWicm4VEsdY5Pqk0uzt54heiaLDOgyv84MPviaNTr0/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§30 · 图 54</span>
+    <p>图：<strong>《少女椿》</strong>英文版 Mr. Arashi&#x27;s Amazing Freak Show<br>丸尾末广<strong>《少女椿》</strong>日版1984年 英版1993年：时间来到大学时代，那时候我们用一个叫“电驴”的无限制下载工具，每天从网上疯狂搜集各种奇特资源。我在一堆漫画里发现了英文版的<strong>《少女椿》</strong>。这个作品让我对漫画视觉方面有所欠缺的成见一扫而光。读进去之后，对主角小绿命运中的苦难和幻灭，更是产生了深深的同理心。以至于后来搜集各种版本<strong>《少女椿》</strong>成为我藏书名单上的天字第一号专题。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB4tD7oYsGpRJqALP0maPBc5vug33iahZes3ra3cvhL5NbJ27KmwRvFdUts0mJMdHQS1K9mibiaZHvVWS1TEuyBTyjpHzUcysUym2E/640?wx_fmt=png&amp;from=appmsg" data-idx="55"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB4tD7oYsGpRJqALP0maPBc5vug33iahZes3ra3cvhL5NbJ27KmwRvFdUts0mJMdHQS1K9mibiaZHvVWS1TEuyBTyjpHzUcysUym2E/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§31 · 图 55</span>
+    <p>横山裕一<strong>《NIWA》</strong>（Garden）2010年：除了打扫卫生，精读一本有难度的书，也是我心脑滞塞时刻的自救方法。这本<strong>《NIWA》</strong>是疗效颇佳的一次。当时我写了很长一篇阅读笔记，点击习见的迷宫。总而言之，<strong>《NIWA》</strong>是一部通过极限压缩角色、剧情等叙事因素之后，把海量思想实验深度融入漫画形式语言的绚丽之作。作为藏书癖，我会用穷尽某位作者一切书的方式，去“供养”他。去年年底，我们追到东京艺术书展，去收藏横山裕一的原稿。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7d84nC1icsT5ficAzGl7AHqicib438iaGUHM9l5t2VfqMHTCHIjtHSphtSzD12IG1rSibj8GsN2iapTwuL8Rq3WWZQqFMmHknMe5W69s/640?wx_fmt=png&amp;from=appmsg" data-idx="56"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7d84nC1icsT5ficAzGl7AHqicib438iaGUHM9l5t2VfqMHTCHIjtHSphtSzD12IG1rSibj8GsN2iapTwuL8Rq3WWZQqFMmHknMe5W69s/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§32 · 图 56</span>
+    <p>图：漫出格  展览上的SC<br>SC特别漫画：直到在网上看到冷冷的<strong>《花瓶女》</strong>，我才极为后知后觉的了解到国内有一批和我大致同龄的漫画作者，堪称百花齐放。2013年，插画作者阿涩带我去南京的南艺美术馆参观了“漫出格”这个展览，那是SC当时聚集的漫画作者群体和ta们的精神导师Anke Feuchtenberger等欧洲作者的一次同台亮相。当时到场的还有香港的漫画作者智海，据说，他是上面两个群体建立连接的桥梁。<br>“漫出格”展览上的原稿和自制漫画书，让人大开眼界。从那时起，我开始狂热收集各种独立漫画出版物。SC异常漫画系列，我后来在阿涩的帮助下收集全了。他当时嘱咐我可以整理一下国内独立漫画的历史。令我羞愧的是，我不光无力整理，甚至几大本SC也还没全看完。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB4FOXLfFNsdIY6pl90YX0yo0aTqHdvHCCib5FjicaicNaWibds0PxcNaffkjgoVJh5NASBYVcwxnqr2eBxnFhrN31Qqic0su3MEtJYQ/640?wx_fmt=png&amp;from=appmsg" data-idx="57"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB4FOXLfFNsdIY6pl90YX0yo0aTqHdvHCCib5FjicaicNaWibds0PxcNaffkjgoVJh5NASBYVcwxnqr2eBxnFhrN31Qqic0su3MEtJYQ/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§33 · 图 57</span>
+    <p>Amanda Vähämäki &amp; Michelangelo Setola<strong>《Souvlaki Circus》</strong>2008年：芬兰的Amanda和意大利的Setola 在2008年合作了这本小书，两人各自从独立创作的炭笔画中选取若干，穿插构成了一本无字的“漫画诗”。就像书名的不确定含义一样，这本书并没有明确的故事和角色，农舍、机具、牲畜、乡间生灵、森林传说等等图像如梦境般被“跳接”在一起，精微隐匿于松弛的炭色之下，流淌着诡异而温暖的气韵。<br>对这类漫画的迷恋，映证我作为“伪漫画爱好者”的邪修本质：我看重的漫画，要么是从绘画的角度进入，要么是从“书”这个载体的角度进入。剧情、分镜、叙事这些漫画的灵魂方面，我真的是门外汉。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6lbgEhP64iaJvLBS92DCRKtaVy344p4lzr7L2TKjicFz1OXib4NJE580rRqmDPMGguUHugBe4iaaibIHfnqia9oqFF51RQmOY5jET0k/640?wx_fmt=png&amp;from=appmsg" data-idx="58"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6lbgEhP64iaJvLBS92DCRKtaVy344p4lzr7L2TKjicFz1OXib4NJE580rRqmDPMGguUHugBe4iaaibIHfnqia9oqFF51RQmOY5jET0k/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§34 · 图 58</span>
+    <p>Olivier Schrauwen<strong>《Arsène Schrauwen》</strong>2014年：提及这本漫画就不得不说“浮什么海”漫画书店。这个在上海的豪华地段奇迹般短暂存在过的书店，是由曾在留学欧洲的Ölga与人合伙创办的。当时我几乎每个周末都会魂不守舍地飘向那里。以此为桥头堡，接触到了大量质量非常在线的欧美作者漫画。其中印象最深的，就是比利时的Olivier Schrauwen当时刚出的长篇大作<strong>《Arsène Schrauwen》</strong>。和小时候在旧书摊淘小人书类似，久了，就会有“心流”闪现。大多数书，往往要来回翻几次，内心小天平称一称，才能决定买不买。但有一些可以说是“命定之书”，你仅仅需要拿在手上，甚至还没翻完一页，就会极其笃定地告诉自己：这本我肯定要。然后就放在一边，去纠结别的书了。甚至“能不能配得上和这本一起结账”，会成为当天挑选其它书的潜在标准。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n2">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6NsuhocugkSvq9HFAydZ6joRLGV1wbRIWQmwEuzMF5He0jibnLsmny5iaRY0JsYOdPAq6icUj7p8ktgKtpFcBW4vNHBpGZcugu2M/640?wx_fmt=png&amp;from=appmsg" data-idx="59"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB6NsuhocugkSvq9HFAydZ6joRLGV1wbRIWQmwEuzMF5He0jibnLsmny5iaRY0JsYOdPAq6icUj7p8ktgKtpFcBW4vNHBpGZcugu2M/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7VbnQWg9QNCmJbHv7UyficKfyxa071ES7V7WI7zZct0bOic7q7rCEx96dbibz6CtnZ8hZc0HxJKYUxhI91dDCoiaRvfXZyCqYPwok/640?wx_fmt=png&amp;from=appmsg" data-idx="60"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7VbnQWg9QNCmJbHv7UyficKfyxa071ES7V7WI7zZct0bOic7q7rCEx96dbibz6CtnZ8hZc0HxJKYUxhI91dDCoiaRvfXZyCqYPwok/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§35 · 图 59–60</span>
+    <p>图：最後の手段 <strong>《えんちゃんち》</strong>  原稿展<br>最後の手段<strong>《えんちゃんち》</strong>2024年自出版 2025年正式出版：“最後の手段”是一个日本实验动画团队，成员除了1985年出生的有坂亜由夢，还包括木幡連和老田真衣。看ins页面，他们的创作以富于韵律和流动性的动画为主，造型有蓬松Q弹的泡沫感，颜色明亮活跃。这部名字类似“恩酱的家”的漫画，就像一系列风起云涌的图像组成的液态雕塑，内容和分镜彼此难分，契合了整部漫画要呈现的由一个小孩引发的绮丽的失控与纷乱。<br>这部漫画之所以对我重要，更大的原因是它狠狠抽了我一巴掌，让我对还能遇到更新锐、更异质、更厉害的漫画作品，持中立的期待。<br>（编者按：冷冷获得二次提名！SC的精神导师是方安珂么？好像不是，虽然有一些作者受到了安珂铅笔画的影响，但并不多，SC一直以来都是极其多元的路线，主旨似乎一直是收集漫画的可能性。而最初，给予过我们最大帮助的应该是香港的欧阳应霁老师。但就其精神风貌而言，一直是由征集到的稿件决定，虽然每一期都有主题，但除了SC5必须无字之外，其余的主题都非常松散，从来也没有过这个稿子很好但不符合主题所以无法选入的纠结，只要画得好，离题万里也是要收录的。）<br>★成桦，二维动画导演，逐帧动画师，短篇漫画作者，Papayep工作室主理兼制片人，旅居巴黎。<br>从所有看过的漫画里挑出九本与自我构成有关的，这个议题太难了，好比要认真总结前半生。我筛选了很久，大体按照过去的过去、过去和现在，三个模糊的节点，选了几位曾经喜欢并且看过多部作品的作者，或是备受启发的书。正好趁机再回顾一下，顺便也说说自己吧。<br>过去的过去（1999-2010）<br>Clamp<strong>《魔卡少女樱》</strong>：当我还是个小朋友的时候，买的第一套日漫是<strong>《魔卡少女樱》</strong>，小学时期喜欢看变身英雄类题材的动画，美少女战士、奥特曼、恐龙战队之类的。<strong>《樱》</strong>的剧情轻飘飘的没什么大起大落，但是画风精致少女气息十足，涉及元素有恋爱有变身（每套衣服都精心设计），有萌宠有魔法牌，还出了各种好看的小周边，把孩子们照顾得服服帖帖。作为少女漫画作者中的顶流，Clamp不知道是当时多少女孩子眼里的明星，我对她们的了解大多来自<strong>《漫友》</strong>杂志，封面图如果是Clamp的作品这期必要大卖。其他几部作品比如<strong>《Chobits》</strong>、<strong>《翼》</strong>、<strong>《X》</strong>、<strong>《XXXHolic》</strong>、<strong>《东京巴比伦》</strong>等等，每一部都画得极其细腻华丽，身边有些喜欢画漫画的女生会下意识模仿，并以此定为画功好坏的标准，初中小学那会儿我也老画大眼睛尖下巴，基本上只画脸。或许是受到Clamp的影响，小时候对漫画的画风非常“挑剔”，有些即便故事很好但只要画风不行就一律拒绝欣赏，不知道这算不算是一种“毒害”呢🤔</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB43hwnyicLe9dca2PPNgib9ummliasZSfdpBCp3FuwKdDLSdu6zq0hv0Gy9bnxGPByVev4TP8WOM4ibIyr7GLlpfe6MoU7An5icX3qs/640?wx_fmt=png&amp;from=appmsg" data-idx="61"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB43hwnyicLe9dca2PPNgib9ummliasZSfdpBCp3FuwKdDLSdu6zq0hv0Gy9bnxGPByVev4TP8WOM4ibIyr7GLlpfe6MoU7An5icX3qs/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§36 · 图 61</span>
+    <p>门小雷<strong>《666》</strong>：自1999年起，我开始关注门小雷。<strong>《雷酒业》</strong>、<strong>《阿苦》</strong>、<strong>《恐怖早餐》</strong>…她的漫画是当时<strong>《漫友》</strong>期刊里我最期待的，后来有几部出了单行本，<strong>《里里外外》</strong>、<strong>《Boom！边走边爱》</strong>等等。<strong>《666》</strong>是其中的一部中长篇，怪力少女与机器人666的相处日常，印象特深某天少女窝在沙发上看爱情片，666在一旁直愣愣的学，中途突然倒头亲吻，满嘴铁锈味结果挨了一记重拳被打飞。小雷本人对<strong>《666》</strong>的评价是，不堪入目，青涩但疯狂。她早期的漫画每篇风格都不太一样，却很有辨识度和爆发力。她擅长取景，爱用歪歪斜斜的大透视，脸画得很精致，线条喜欢加粗，外轮廓的钩边硬邦邦的但内部的型塑很柔软，关节处会加点红晕，冷暖色调平衡适中，色彩感极好…那几年受小雷的影响实在太大，怎么画都会有她的影子，对她的喜欢持续了整个学生时期。<br><strong>《Cult青年的选择》</strong>：2009年读美院动画系的时候，我和几个班里聊得来的朋友之间有个“独躺”小组（意思是喜欢独立但不想站着），我们经常交流喜欢的电影、动画、漫画、音乐。有天一个朋友拿来了<strong>《Cult青年的选择》</strong>，我看完整个人都麻了，得知第一期已经断销，只买到第二期。这本合集拿在手里，翻页的间隙会冒出滚烫的浓烟，它的存在像是一种精神侵染，直指心灵所向，探索无畏并为此疯癫，书名就是态度。那两年我热衷于看各种早年的邪典电影，对实验的渴望开始觉醒，<strong>《Cult青年的选择》</strong>对我而言是一个年少轻狂的见证，与朋友一起拉过的片、pogo过的演出、追过的作画和美术、为造梦一起留下的黑眼圈。<br>过去（2011-2022）<br>松本大洋<strong>《乒乓》</strong>：2011年底我到法国留学，在住处附近的图书馆里借了法文版的<strong>《乒乓》</strong>和<strong>《Go go monster》</strong>。翻到<strong>《乒乓》</strong>第三四卷时，震撼力直逼眼球——这动作的张力，比赛的紧张感、景别的掌控、人物的造型…虽然法语看得吃力，但画面的表现太有力量了，好适合做成动画！（2014年的改编剧集由汤浅作监督也是超级狂喜，最初关注汤浅以及众多日本作画和美术的大神也是因为喜欢4°C做的动画版<strong>《恶童》</strong>）当时我正要报考法国的动画学校，看松本大洋的漫画顺便恶补基本功，一边翻书一边临摹，试图学习松本果断又松弛的线条，大广角下的人物透视，脸和手的独特画法，恍然大悟之前喜欢过的作品里，有不少原来是受了他的影响，相见恨晚的感觉。2019年的安古兰漫画节，松本大洋现身原作展及master讲座，瘦瘦小小的身影被海水一般的忠实读者簇拥，身着西装的他端坐在剧场中央，轻声细语地回答主持人抛出的问题，双手持拿话筒，非常安静内向，和他张扬的画风截然不同。平时在网络上几乎很少看到关于他私下生活的讯息，极其低调，估计把生命和灵魂都渗透到作品里去了。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB5phibcw6LcnOS4YWlTy8Q3E8Zdnd7iaAJNqNE4I4ibJL87upVMAybelOgdibcmRQVtzltZezk5U1SEQ8fdh6SicT7qZXQe8ia0BIGyQ/640?wx_fmt=png&amp;from=appmsg" data-idx="62"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB5phibcw6LcnOS4YWlTy8Q3E8Zdnd7iaAJNqNE4I4ibJL87upVMAybelOgdibcmRQVtzltZezk5U1SEQ8fdh6SicT7qZXQe8ia0BIGyQ/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§37 · 图 62</span>
+    <p>Winshluss<strong>《Welcome to the death club》</strong>：我读的第一本Winshluss的漫画是<strong>《Pinocchio》</strong>。2010年我大三，为了学习法语在杭州法盟借了这本漫画，一口气读完面红耳赤，心想：法盟进的书尺度很大啊…这也让我记住了Winshluss。两年后，我和班里关系很好的法国朋友说起这件事，得知这居然是他最喜欢的漫画家之一。我开始了解更多Winshluss的漫画，<strong>《In god we trust》</strong>、<strong>《Super Negra》</strong>、<strong>《Wizz et Buzz》</strong>、<strong>《Monsieur Ferraille》</strong>… 这部<strong>《Welcome to the death club》</strong>短篇集是一本无字漫画，画面的叙事感极强，乍看觉得画风脏脏乱乱，但越看越带劲。血腥暴力又傻缺可爱，故事结尾像是浇了一层机油，原地点燃瞬间炸裂。Winshluss的书大多数是Requins Marteaux出版的，极生猛的一家法国独立漫画出版社，出版的大多都是异色漫画，其中Antoine Marchalot、Pierre Schilling的漫画也特别推荐。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7oBOOYCatoYqicQ28wQpFNAYc70w5zSQDsArp7RbMjW6QRWoicPhxvdKzu77956MdDDIJMxibjiaLUVkdIVujkUzneg8gOagAe58A/640?wx_fmt=png&amp;from=appmsg" data-idx="63"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7oBOOYCatoYqicQ28wQpFNAYc70w5zSQDsArp7RbMjW6QRWoicPhxvdKzu77956MdDDIJMxibjiaLUVkdIVujkUzneg8gOagAe58A/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§38 · 图 63</span>
+    <p><strong>《Lagon revue》</strong>：第一次看到<strong>《Lagon revue》</strong>这本合集应该是在2016年。那年我去帮一个法国朋友的动画短片做点手绘逐帧，Sammy Stein（Lagon Revue的发起者之一）的工作间正好也在那个openspace里面。他说自己除了画漫画，也做编辑、印刷、宣发贩售。我一边听他讲一边翻他们做的书，心想能做到这个水准也太了不起了吧！<strong>《Lagon revue》</strong>集结了全世界各色各样出众的艺术家，唯一的限制只有页数，其他无论是内容上还是书体本身的设计，皆以个性、自由、美感为界。<strong>《Lagon revue》</strong>的出刊非常规律，基本上一年一期（最新一期做了两年），每期都能颠覆对美的定义，尝试更猎奇更先锋的视觉实验，各个艺术领域的学者都能从中受益，汲取新的灵感。平时逛各种书展，经常会看到Sammy的身影，书展上形形色色的独立漫、Fanzine、奇怪又特别的印物，满满的宝藏，大家在此相遇又彼此支持，氛围极好。在这样的地方，漫画和其他艺术形式之间没有界限，无论叙事还是抽象，只要够独特好看，就会受人喜爱。自那时起，自己也萌生出画漫画做独立zine的念头，2017年我和正义开始做<strong>《Papayep》</strong>独立漫画杂志，到后来的<strong>《漫象集·小地方》</strong>叙事漫画合集，试图回到创作的起点，唤起对美的感知。<br>现在</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7GHnxFg7LkicbRRPBvLxVD2RQRU2YwW3BLKp5BwBnniayg2sWXmXdfcEUesXwKcbVIwIEj89ak2x36MFnF8Pxg9QkZwgg84owXk/640?wx_fmt=png&amp;from=appmsg" data-idx="64"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB7GHnxFg7LkicbRRPBvLxVD2RQRU2YwW3BLKp5BwBnniayg2sWXmXdfcEUesXwKcbVIwIEj89ak2x36MFnF8Pxg9QkZwgg84owXk/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§39 · 图 64</span>
+    <p>Sophie Guerrive<strong>《Le bureau du coeur》</strong>：不久前阮筠庭老师搁家做客，临走前掏出一本Sophie Guerrive的<strong>《Le bureau du coeur》</strong>，说偶然发现了这本书，画风很可爱，但软件翻译得乱七八糟的。我接过来读了几天，越看越喜欢，读完惊叹竟然每一篇小故事都很棒！书名直译为<strong>《心灵事务所》</strong>，书中的主人公是作者<strong>《Tulipe》</strong>漫画书系列里的两只鸟，他俩决定开一家事务所帮人们解决各种烦恼。书中自嘲：“两只鸟能为人类做什么呢？”这些信件都来自真实的读者，年纪小的才五岁，年纪大的有退休老人，提的问题大到生命的意义、瞬间与永恒的虚无，小到不想去学校、失恋的苦痛…这个数字化时代，还有多少人会用纸笔给他人写信呢？人们是否还记得写信时用的书面语和文邹邹的修辞？这样认真的写信好珍贵啊！作者把信件扫描并印到书里，用漫画短篇一一答复，大多只有两三页，以<strong>《Tulipe》</strong>里九格漫画的形式，巧妙地借喻，每读一篇就像念了一首诗（也难怪软件翻译不了），温婉含蓄又富有哲理。如果单看画风，这也许不是我会主动翻开的漫画类型，但细读之后，完全被作者广阔的人生视野和善良的心所打动。我时常会想，自己这样的渺小，能给别人带来什么呢？答案就在书里。今年<strong>《Le bureau du coeur》</strong>有望出第二部，希望这套书日后可以引进国内，疗愈更多的人。另外，Sophie还给孩子们画了一个小故事系列，主人公是一条小蛇，它不爱吃蔬菜、不想上学、喜欢收集各种形状的自己的屎、喜欢骑车却没有脚…每本都超级可爱！<br>浦泽直树<strong>《朝剧》</strong>：说来惭愧，大学里，好友多次推荐我看<strong>《20世纪少年》</strong>，但当时我对大长篇有点抗拒，连第一卷都没看完。前些天因为喜欢<strong>《Monster》</strong>开始补浦泽直树的漫画，最近又读了<strong>《朝剧》</strong>。少女Asa的家中原本有十几个兄弟姐妹，生来并无存在感的她阴错阳差学会了开飞机，成为一名出色的女飞行员，以拯救日本为使命，就此展开一段奇妙人生。<strong>《朝剧》</strong>目前出到第九卷，还在连载。浦泽直树是非常有导演思维的漫画家，擅长编剧的同时又善用分镜、蒙太奇剪辑，乐感也很好，读他的漫画流畅得像是在看电影。有人说他是中篇的大神，长篇的烂尾王，看到第九卷的时候确实担心，出现人物和事件已经涉及日本首相、东京奥运、自卫队、越南战争的逃兵…格局越铺越大。在真实历史背景下编写故事，要展开并深挖的史料太多，可信度就很难拿捏，期待看他会怎样画下去吧。和看<strong>《Monster》</strong>的感受不同，<strong>《朝剧》</strong>整体读下来比较轻松阳光，女主角积极开朗坚强勇敢，给身边的人带去无尽的正能量，自己也默默努力变强，性格讨喜。而她所要对抗的——那只吞噬家人威胁国家的巨大怪兽，隐约有着抚平战败创伤，赴死拯救民族自尊的象征寓意，会不会这也是日本盛产特摄电影的精神由来？选这部漫画还有一个原因是因为，读的时候正好在构思改编一个年代背景下的真人事迹，浦泽直树的漫画对如何将真实写入虚构有不少值得学习的地方。不过眼下最想做的事，是能悠悠闲闲躺看<strong>《Pluto冥王》</strong>和<strong>《20世纪少年》</strong>…<br>藤子·F·不二雄<strong>《SF短篇完全版》</strong>：2018年，正义买了全套藤子·F·不二雄的<strong>《SF短篇完全版》</strong>，我就一起跟着看，每一篇的结尾都出其不意发人深省。不久前跟着一个b站up主又重温了一遍，唤起对这套漫画的记忆，又一次被折服。举例其中特别感动的一篇，某高中生为了考上理想大学努力的学习，但因为家中债务繁重负担不起学费被父母劝退学，心灰意冷的他离开家，偶遇深宅里财富自由的老人，两人签下契约交换身份，老人复得年轻的身体，而高中生拥有了梦寐以求的财富和名望但是身体虚弱危在旦夕。故事最后，变成少年的老人回到原来家中，他说青春太过于美好，是生命中最宝贵和无价的体验，这场交换对那孩子太不公平，决定把身体还给高中生，并坦然接受自己只能再活四个月的残酷现实…这套短篇系列包裹着层层科幻的外壳，实则在探讨社会问题、环境问题、人类的生存问题种种。时隔数十年，书中的启示依旧能得到应验直指人心，太伟大了…这次第二遍复读让我意识到，藤本弘之所以可以画出这样有现世意味和警世预言的漫画作品，是因为他能站在上帝的视角观察人间万物，将自己置身宇宙之外来审视这颗星球，胸怀大爱破妄显真。有时听闻发生的一些荒谬的事情，看到人们麻木的生活状态，设想如果是藤本弘，一定会将这些现实题材改编成有趣的故事，抒发心中的正义！<br>（编者按：连带上期，门小雷的666已经被提到三次了，真让我好奇那是怎样的作品。而Winshluss，我很喜欢他的暗黑匹诺曹，只是那个作品有一种构思太精巧的感觉，结构上处处呼应，非常结实，就好像有着无数扣子且全都扣得紧紧的夹克，让人有点喘不上气，如果能松弛一些会不会更好呢。）<br>★石榴，也可以叫我十六。独立漫画创作者。<br><strong>《柯南》</strong>青山刚昌：高三艺考的时候在报刊亭更新就会购买的单行本，跟大学陷入<strong>《海贼王》</strong>一样，那个时候可能是第一次品味到追黑白连载漫画的乐趣。画画很疲惫的一天过去后，手上还是铅笔灰就在出租房美滋滋看一环扣一环的破案。虽然也不是什么高智商犯罪，但作者对人物之间感情羁绊的描述，以及对人物性格的塑造，算是开始了我对日漫的初步印象。<br><strong>《Polina（波丽娜）》</strong>Bastien Vivès：这本是让我从漫画讲故事到漫画讲情绪转变的一本。进入研究生阶段后，我经常在导师的工作室借书看，他也总给我看一些日本以外的漫画。这本漫画在剧情之外让我知道原来画面不用叠加设置很多台词，基于人物的动作和作者的线条就能接收到他想传达的情绪。我觉得很多地方都藏着一些说不出口的情绪，需要慢慢去感受。粗细对比强烈的线条很多时候让我觉得书里的画面在抖动着播放。<br><strong>《Le Goût du chlore（氯的滋味）》</strong>Bastien Vivès：也是上本作者的作品，我对线条的喜欢可能就是一开始受到他的影响。这本书几乎没有什么复杂剧情，它讲的只是一个有些孤独的男生，因为医生建议开始去泳池游泳，后来在那里认识了一个女孩。两个人断断续续地聊天、游泳、靠近，又慢慢分开。<br>整本漫画安静得像把大家都拉进泳池一样，人物漂浮在水里的停顿、水带来的潮湿感、泳池里略带消毒水的气味，我到现在还能记得，看漫画时画面里的安静氛围传达到我这里的那一刻感受。漫画后面的画面用了彩铅无框形式，变成了一种很私人角度的记录，像是生活留下来的零散记忆片段。如果前面是泳池故事的话，后面的彩铅画面就像是这本漫画气味的存在。<br><strong>《当尘埃落尽》</strong>Michel Rabagliati：在漫画里讲死亡却没有很多哭喊和人生意义的说教，家人们聚在一起吃饭，医院里的等待和最后死亡来临时大家的反应，这种“正常生活与死亡并存”的感觉，其实比纯粹悲伤更让人觉得难过。这也是我在学习如何面对死亡时读到的漫画。<strong>《不必为我歌唱》</strong>也是这本作者的作品，同样作者也没有把人生画得很戏剧化。没有人突然获得答案，也没有真正解决孤独。只是很平静地告诉大家，人会在一次次失去里继续往前生活。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5286aeIMrXXwJtwlQHIVJGd1VxaBhMa3dkBibfm4Dw6Bume2vaqOaUyJbt17Zn3OHq0FicOtjQDWjw2icoVCyqgXXV7wlrR2ZvYg/640?wx_fmt=png&amp;from=appmsg" data-idx="65"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5286aeIMrXXwJtwlQHIVJGd1VxaBhMa3dkBibfm4Dw6Bume2vaqOaUyJbt17Zn3OHq0FicOtjQDWjw2icoVCyqgXXV7wlrR2ZvYg/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§40 · 图 65</span>
+    <p><strong>《牛乳配達》</strong>INA：毕业之后看漫画我开始不那么执着于故事本身。我越来越喜欢那些只靠场景、线条和人物状态就能传递情绪的作品。这本和我看<strong>《火花》</strong>这个剧时一样，总是有一个特定的气味和颜色在我脑海里，火花是蓝色的、冬天天快亮时的冷空气味，这本书是夕阳后居民区小公园里的夏天草香。书里没有任何剧情戏剧冲突，围绕着主角送牛奶时发生的琐碎小事展开，作者的线条让我觉得，漫画里可以用一切我们能画出来的画面去传递情绪。<br><strong>《幽游白书》</strong>富坚义博：很喜欢漫画里主角身上的笨拙感，可能少年热血漫多少都会把主角描绘成有一腔热血的笨蛋天才，但这本漫画里每个人都存在着很强烈的孤独感。读起来让人觉得很潮湿又有种说不来的空白。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB5qKomaP91H8HiaSTXzw7ApRPGB8FyBLicicosiab5OFbxoMlQ34sehAYNWHPGk1aicfEc1iaW5JkyQkzvI4XwDTRnLgemNjPJibLRicPU/640?wx_fmt=png&amp;from=appmsg" data-idx="66"><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/rWtroSqhIB5qKomaP91H8HiaSTXzw7ApRPGB8FyBLicicosiab5OFbxoMlQ34sehAYNWHPGk1aicfEc1iaW5JkyQkzvI4XwDTRnLgemNjPJibLRicPU/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§41 · 图 66</span>
+    <p><strong>《Des fourmis dans les jambes》</strong>André Derainne：这是去韩国ue书展时买到的书，当时很犹豫这么大的精装书带回来很重，但在摊位前反复看了之后还是购入。回来反复看里面的画面和颜色，与其说是漫画，更像一本关于机场的视觉诗，把离开和抵达的机场空间描绘的特别有气氛。里面的灯光，人流，荧光色彩的光斑都在产生着情绪。<br><strong>《忧郁的蜻蜓》</strong>门小雷：这本是大学时帮舍友在香港代购她的合集里的一册，当时窝在酒店提前想自己看看，就被这本里面浓烈的色彩和情绪吓一跳。她描述的朋友以及家人关系的变化，青春期里的不安，和对自我的怀疑，还有后面绚烂的想象都让我觉得它很像我青春期会有的一种低气压和理不开的愁绪。其实没有特别明确的烦恼，但大家都轻微地忧郁着，又边幻想边想逃离。<br><strong>《花生漫画》</strong>Charles M. Schulz：去年情绪低落时朋友拉着我看了作者的纪录片，然后借我看他的漫画，后面我也自己找来看了很多。是让人不那么在乎成功与否，接受失败、接受一切发生的“大人”漫画。现在很沉浸于看这样的四格或者多格，有时候会皱眉有时候被无厘头到呆笑，更多时候被花生漫画里这样的日常鼓舞着想继续画画。<br>（编者按：石榴的选择有些出乎意料，也或许是我迟钝，这里面有的作品我没认真看过，不太确定，只是倾向于认为石榴的两本漫画：心的散步和散步手册，似乎比这些画得更好，在趣味上的相似度也不太高。André Derainne的City Pop 让我想起永井博。）<br>★井子，现工作生活于东京。独立出版短篇漫画集<strong>《蒸发之海》</strong>，商业出版长篇漫画<strong>《温河幻觉》</strong>。<br><strong>《加州物语》</strong>吉田秋生：<strong>《加州物语》</strong>是吉田秋生的第一部长篇连载作品，我是去年才看的这部作品，在此之前我只读过她的<strong>《海街日记》</strong>。去年我把吉田秋生的作品几乎都找来看了一遍，我比较喜欢她早期的作品（<strong>《吉祥天女》</strong>之前的作品），她早期的短篇能很明显地感受到剧画的影响。<br><strong>《加州物语》</strong>共四卷，是我读研究生时的一位老师借给我的，因为是小小的文库本，我回家过暑假时就顺手带上了。虽然是日文版而且台词也很多，但因为实在太吸引人，我在等飞机、等火车和坐火车的途中就看完了前两本。这部作品有一种很鲜明的美国青春片气质，写的是在流浪中寻找自我归属感的边缘青年的故事。虽然读得很快，但读完之后的后劲却很大。在这之后的<strong>《比河更长、更温柔》</strong>我也非常喜欢。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB7eaTakYKFuuKWLIV2GelhfPzOF7epsTIzdMk9YZeBcdR9bjUSyNYtsvvEjicuQERLiaCm02nVapxIMQiaSRHFryia7icEdHkQuSoaA/640?wx_fmt=png&amp;from=appmsg" data-idx="67"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB7eaTakYKFuuKWLIV2GelhfPzOF7epsTIzdMk9YZeBcdR9bjUSyNYtsvvEjicuQERLiaCm02nVapxIMQiaSRHFryia7icEdHkQuSoaA/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§42 · 图 67</span>
+    <p><strong>《冈田史子作品集》</strong>冈田史子：冈田史子的漫画也是这几年才接触到，光看画面就非常喜欢，所以刚到日本后，我就立刻买了她的漫画。我很喜欢冈田史子漫画中人物身上那种略带病态的气质。虽然总带着一种不幸感，却并不显得矫情，也不沉溺于自我怜悯。冈田史子本人的人生经历也很曲折，或许正因为如此，她笔下的人物和情绪才会呈现出那样独特的质地。其中让我印象最深的是<strong>《红色的蔓草》</strong>。关于活着本身的苦恼、那种像黄色烟雾一样弥漫的不安，以及某些近乎病态的感受，我都能强烈地共鸣。<br><strong>《靛蓝色的心情》</strong>丸木户マキ：<strong>《靛蓝色的心情》</strong>我是先看的日剧，至于怎么接触到的我已经想不起来了。由于剧中的主角实在太迷人，看完之后还是意犹未尽，又找来了漫画看。漫画果然也很好看，而且有更多细节，心理描写也更细腻。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB66t4JkjEYAsqG4eZxt30O3vXD2c4ANiapT6rQll0Gliad202K9JaTsVNAEEBqoZiavqQ9G2VtZlyiad7KLbCwMiciagxbdgNPm2ud3M/640?wx_fmt=png&amp;from=appmsg" data-idx="68"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB66t4JkjEYAsqG4eZxt30O3vXD2c4ANiapT6rQll0Gliad202K9JaTsVNAEEBqoZiavqQ9G2VtZlyiad7KLbCwMiciagxbdgNPm2ud3M/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§43 · 图 68</span>
+    <p><strong>《カリクラ》</strong>華倫変：接触到華倫変，是因为在 ins 上看到了 mangasick 的推荐，一下子就被画风吸引了。读華倫変的漫画是一种很微妙的体验。读完之后常常很难讲清楚这到底是一个什么样的故事，故事本身似乎也并不完全按照逻辑展开，里面的人物也好像不受现实叙事的牵引。在他的漫画里，好像怎么活着都可以。那感觉很像待在一个塞满了自己喜欢的东西的、凌乱的小房间里，在那里似乎什么都可以做。所以我也会时不时把它翻出来看看。<br><strong>《晚安布布》</strong>浅野一二O：<strong>《晚安布布》</strong>是我在大学的时候读的，那个时候看的漫画还比较少，尤其很少接触这种类型的作品。所以读完之后相当震撼，甚至觉得人生都变得很空虚。我记得当时我并不喜欢那个结局，觉得难以接受。至于为什么，如果展开讲就要剧透了，还是不说了。<br><strong>《横滨购物纪行》</strong>芦奈野仁：<strong>《横滨购物纪行》</strong>是一个以末世为背景，却非常治愈的故事。里面有很多可爱的设定，画面和故事的节奏也都很舒服。是一部读完之后会让人觉得幸福的漫画。或许因为它陪我度过了很多个平静而美好的午后，所以直到现在，每次被问到最喜欢的漫画时，我都会想到这一部。<br><strong>《遥远的小镇》</strong>谷口治郎：记得这本书是某个下午躺在朋友家的沙发上看完的。朋友家窗外有一棵很大的树，我几乎看一会漫画，就会忍不住跑神去看一会树影和光斑，因为故事里有很多地方都会让我停下来想，如果是自己的话会怎么做。读完之后，有一种恍恍惚惚的不真实感。谷口治郎的<strong>《父之历》</strong>我也很喜欢。<br><strong>《蜂蜜与四叶草》</strong>羽海野千花：<strong>《蜂蜜与四叶草》</strong>是我每隔几年就会想要重新看一遍的作品。对，就是这么喜欢。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5wejdoPQf3mTibkDBXsCoQ3pKWcPoFm2tmK449bYze67aerL3FynsW3qXVG3jUeQCePu58Dd03spyIK0TZKL9jp1sTuFzIfzMs/640?wx_fmt=png&amp;from=appmsg" data-idx="69"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5wejdoPQf3mTibkDBXsCoQ3pKWcPoFm2tmK449bYze67aerL3FynsW3qXVG3jUeQCePu58Dd03spyIK0TZKL9jp1sTuFzIfzMs/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§44 · 图 69</span>
+    <p><strong>《夜晚与混凝土》</strong>町田洋：每一个短篇都很喜欢。读完之后做了很有趣的梦。<br>（编者按：稍稍意外没有GARO。<strong>《遥远的小镇》</strong>也是某种蒸发，我一直想拿这个漫画比较丰田彻也的<strong>《暗流》</strong>，后者俗就俗在非得给出一个答案，还是那种很套路的答案，这让结尾变得有些虚伪，情感也显得虚假，而谷口治郎就高明多了，生活总会无解或多解。）<br>★小老虎，一个玩说唱的。<br><strong>《宇宙猫》</strong>藤子不二雄：小学时读的，和哆啦A梦同时期的盗版书，大开眼界。<br><strong>《寄生兽》</strong>岩明均：冷峻，理性，一气呵成，第一次从人以外的角度看待生命，也是小学时看的。<br><strong>《神之山岭》</strong>谷口治郎、梦枕貘：我对登山的理解来源。<br><strong>《排球少年》</strong>古馆春一：以为灌篮高手是巅峰了，这部作品刷新了我对体育漫画的认知。<br><strong>《栞と紙魚子事件》</strong>诸星大二郎：我的诸星大二郎入门，从此进入他的奇想。<br><strong>《血界战线》</strong>内藤泰弘：最喜欢的吸血鬼漫画，我和纽约的感情纽带。</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5hI1Oib6boNL0L32u2cg5Autfdb9EkG1qFL2gtmt4FlV8h5icaRQpr9v9xoDibTBv3N7tU1lKcuHQZ3iaTF0fZjnVdnkXhaKvknibg/640?wx_fmt=png&amp;from=appmsg" data-idx="70"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB5hI1Oib6boNL0L32u2cg5Autfdb9EkG1qFL2gtmt4FlV8h5icaRQpr9v9xoDibTBv3N7tU1lKcuHQZ3iaTF0fZjnVdnkXhaKvknibg/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§45 · 图 70</span>
+    <p><strong>《Frank》</strong>Jim Woodring：多少次地翻开，我和加州的感情纽带。<br><strong>《黄金神威》</strong>野田智：品那品那，我和北海道的感情纽带。<br><strong>《孤独的美食家》</strong>久住昌之、谷口治郎：很有可能是我的下场。<br>（编者按：一直以来，我更喜欢藤子A的画面表现，而对藤子F则着迷于他孩子气的幻想——不是装大人玩深沉的那些，始终是那个在对宇宙还抱着无限憧憬的时代，没长大的小男孩。但篇幅一定得长，不长怎么冒险呢？包括哆啦A梦大长篇，或者<strong>《宇宙猫》</strong>，勉强可以算上<strong>《飞人》</strong>，也就是<strong>《小超人帕门》</strong>，虽然短但有延续性，因为那种在童年与死党享有另一个秘密生活的感觉太美妙了，像温凌当年做的绿校动画，或者古屋兔丸的荔枝光，都有相似之处。最喜欢的还是<strong>《外星怪客大聚会》</strong>，也就是<strong>《21卫门》</strong>，我甚至买了闲鱼上的自制，完整读一遍的那些晚上，真的感到了幸福。<br><strong>《Frank》</strong>也是我的最爱之一，即使排进九部或许也可以，我分析过Jim令Frank如此迷人的技巧，或许他为这个荒诞离奇的世界设定了一套在内里运行的方程式，但永远不会也不能告诉读者。读者只能观测到变幻的表象，难以理解的因和果，但又会意识到，潜在的运算正在发生，某个欲言又止的方程式，正支撑着一场又一场叵测而又必然的运算。）<br>★章梦梦，“三吉舍”公众号运营者，某不知名大学图书馆馆员，中年漫画迷。<br><strong>《火鸟》</strong>手塚治虫：对我影响最深的漫画作品，没有之一！记得最早是在一家早已消失的漫画契茶店看完的，当时我刚刚大学毕业，台版漫画还很少见。看完之后心情久久不能平静，没想到我一直用来消遣的漫画居然还能探讨哲学问题，而且故事还如此精彩曲折，虽然手塚没能画完，但在我心目中至今未能出现超越它的作品。<br><strong>《鼠族》</strong>Art Spiegelman：<strong>《鼠族》</strong>的伟大无需多言，但说实话，随着近些年的事态发展，尤其是近期美以和伊朗的战事，多少让我对犹太民族少了几分同情。不过这不影响这部作品本身的优秀。<br><strong>《〈少爷〉的时代》</strong>关川夏央/谷口治郎：差点让我以为有超越<strong>《火鸟》</strong>的作品出现了，不过终究还是科幻的元素更戳我，而且<strong>《少爷的时代》</strong>虽然出现了夏目漱石、森鸥外、石川啄木等名人，但阅读门槛很高，我也是前前后后看了三遍才勉强吃透个七八分。话说我还一度幻想着国内也能出一部类似的历史群像作品，核心主角和书名我都想好了，鲁迅和<strong>《阿Q的时代》</strong>。<br><strong>《阿拉蕾》</strong>鸟山明：我最喜欢的搞笑漫画，没有之一！在我那算不上幸福的童年里，<strong>《阿拉蕾》</strong>陪伴我度过了许多难熬的时光。当时为了买海南摄影的盗版，省下了好多天的早餐钱。其中有第一回企鹅村大奖赛的那卷，看得滚瓜烂熟。<br><strong>《历史之眼》</strong>岩明均：虽然有不少人嫌岩明均画技一般，不过人家故事讲得好啊。<strong>《历史之眼》</strong>我觉得算是他集大成的作品了，人物刻画和故事节奏都没的说。唯一让人遗憾的是这部作品几乎不可能完结了……<br><strong>《横滨购物纪行》</strong>芦奈野仁：理想中的科幻作品，不知道该如何描述这种风格，乡村废土风？漫画中的那种恬静的末世是我向往的地方，没有那么多讨厌的人类，也没有那么多该死的工作，静静等待末日的来临，不好么？<br><strong>《灯塔》</strong>Christophe Chabouté：一部让我彻底入坑欧漫的作品，感谢后浪！</p>
+  </div>
+</section>
+<section class="group">
+  <div class="imgs n1">
+    <a class="thumb" href="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6eryXtwLyq2poT4ahia0EhkPgFs3ia8HniaCDglI1VnM90d6u3jTrcxXYSt7lrw8iajwSIuTpoZibbaRvfsNmdlQZMmTrQIOGniaG4s/640?wx_fmt=png&amp;from=appmsg" data-idx="71"><img src="https://mmbiz.qpic.cn/mmbiz_png/rWtroSqhIB6eryXtwLyq2poT4ahia0EhkPgFs3ia8HniaCDglI1VnM90d6u3jTrcxXYSt7lrw8iajwSIuTpoZibbaRvfsNmdlQZMmTrQIOGniaG4s/640?wx_fmt=png&amp;from=appmsg" loading="lazy" alt="" referrerpolicy="no-referrer"></a>
+  </div>
+  <div class="caption">
+    <span class="gid">§46 · 图 71</span>
+    <p><strong>《谜狐怪童》</strong>植芝理一：怪诞复杂的背景，无处不在的彩蛋，都戳中了我的爽点，一部御宅浓度很高的作品，据说是作者大学时候开始画的，创作力爆棚。<br><strong>《剧画漂流》</strong>辰巳嘉裕：最近一直在翻译的大作，对于了解日本1950至1960年代的漫画历史，尤其是剧画的历史有非常大的帮助。同时，对主流的手塚治虫和常盘庄系的漫画家们所主导的漫画历史，也是一个非常好的补充。其实只剩下四分之一没翻译完了，但最近得到了消息，说是台湾那边已经签下了版权，看来自己的翻译是用不上了，多少有点失落……<br>（编者按：本期获得两度提名的<strong>《横滨购物纪行》</strong>，我是很久很久以前读的了，记得刚开始有些不以为然，未免也太寡淡了，却渐渐被吸引，甚至沉沦其中，回想起来也不知道是什么缘故。科幻设定有点草台班子，但一旦接受就带感起来，末世辽阔无人，感受却被凝聚在很狭小的地方不断加深，又寂寥又荒凉，还有点温暖的人情味。<br>最后说几句火鸟吧，不少人觉得我是手冢黑，但真到三期了还是无人提到手冢大神，又觉得缺了点什么，终于章老师列入了<strong>《火鸟》</strong>，我也松了口气。虽然觉得<strong>《火鸟》</strong>只是短篇集，彼此之间联系松散，谈不到长篇，也谈不到未完，但唯其超然令我印象深刻。<br>原来死亡是这样，所有意识汇集在一起，别人的欢乐成为我的欢乐，别人的痛苦成为我的痛苦，然后“我”就烟消云散了，所有的好奇顷刻满足顷刻失去，所有的欲望顷刻满足顷刻失去，当然这只是我当时的理解，大概就是那种对活到尽头的盼头，只觉得太美妙了。<br>我最喜欢的是<strong>《凤凰篇》</strong>，手冢对善恶的拆解也帮助我接纳自己，我王就一定对，茜丸就一定错吗，善恶是流动的，即使代入后者，也有被安抚的感觉。因为命运的公正并不是善恶有报，而是知觉和体察，茜丸的本质是什么，他原本是不了解的，通过我王才得以了解。所以火鸟的生死观和善恶观曾带给我启发，令我平和。）<br>下期再见！如果还有下期……</p>
+  </div>
+</section>
+</main>
+<button id="top" aria-label="回到顶部">↑</button>
+<div class="lb" id="lb" role="dialog" aria-label="image viewer">
+  <button class="lb-close" id="lbclose" aria-label="关闭">✕</button>
+  <img id="lbimg" src="" alt="">
+</div>
+<script>
+(function(){
+  var lb = document.getElementById('lb');
+  var lbimg = document.getElementById('lbimg');
+  var lbclose = document.getElementById('lbclose');
+  function close() { lb.classList.remove('open'); lbimg.src=''; document.body.style.overflow=''; }
+  document.querySelectorAll('a.thumb').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      lbimg.src = a.getAttribute('href');
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+  lb.addEventListener('click', function(e){ if (e.target === lb || e.target === lbimg) close(); });
+  lbclose.addEventListener('click', close);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+
+  var topBtn = document.getElementById('top');
+  topBtn.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  function onScroll(){
+    if (window.scrollY > 600) topBtn.classList.add('show');
+    else topBtn.classList.remove('show');
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+})();
+</script>
+</body>
+</html>

@@ -315,7 +315,37 @@ footer{margin-top:80px; padding-top:30px; border-top:1px solid var(--line); font
   实际利率<span class="tag-bull">下行 / 转负</span> → 拿现金债券反而亏购买力 → 黄金<span class="tag-bull">顺风</span>。</p>
   <p>这就是为什么<strong>盯实际利率，比盯名义收益率更能看清金价大方向</strong>——回到交互二再拖一次，体会"名义涨、但实际不一定涨"。</p>
 
-  <h3><span class="n">5.2</span>当前局势：一次"熊市陡峭化"</h3>
+  <h3><span class="n">5.2</span>实证 · 过去一年，DFII10 与金价</h3>
+  <p>前面都是模型与直觉，下面这张是<strong>真实数据</strong>。把 FRED 的 <em class="k">DFII10</em>（10 年期 TIPS 收益率，可直接观察到的市场实际利率）和换算到人民币的<em class="k">伦敦金价</em>叠加在一张图上：</p>
+  <div class="def">
+    <div class="dt">DFII10</div>
+    <p>美国 10 年期通胀保值国债（TIPS）的市场收益率，<strong>本身就是"实际利率"</strong>——本金按 CPI 调整，所以它的报价已经把通胀剥离掉了。看金价，盯这一个数字比盯名义 10 年期更直接。</p>
+  </div>
+
+  <div class="widget">
+    <div class="wt">交互三 · 实际利率 vs 金价（近 1 年）</div>
+    <div class="wd">DFII10 走低=实际利率下沉=持金机会成本下降 → 金价顺风；反之亦然。可勾选反转 DFII10 坐标轴，让两条线"看起来同向"，直观感受反相关。</div>
+    <div class="stats">
+      <div class="stat"><div class="sl">当前金价</div><div class="sv" id="grNowG" style="color:var(--gold-deep)">—</div><div class="sl" id="grNowD" style="margin-top:4px">—</div></div>
+      <div class="stat"><div class="sl">当前 DFII10</div><div class="sv" id="grNowR" style="color:var(--info)">—</div><div class="sl" id="grNowRD" style="margin-top:4px">—</div></div>
+      <div class="stat"><div class="sl">期内最高金价</div><div class="sv" id="grHi" style="color:var(--bear)">—</div><div class="sl" id="grHiD" style="margin-top:4px">—</div></div>
+      <div class="stat"><div class="sl">期内最低金价</div><div class="sv" id="grLo" style="color:var(--bull)">—</div><div class="sl" id="grLoD" style="margin-top:4px">—</div></div>
+    </div>
+    <div class="chartbox" style="height:320px"><canvas id="grChart"></canvas></div>
+    <div class="ctrl" style="margin:14px 0 0">
+      <label style="min-width:auto"><input type="checkbox" id="grInv" checked style="vertical-align:middle;margin-right:6px;accent-color:var(--gold)">反转 DFII10 轴</label>
+      <span style="font-size:13px;color:var(--muted);flex:1">勾选后两条线"形似同向"——这只是视觉对齐，本质仍是负相关。</span>
+    </div>
+    <div class="note">数据来源：FRED · DFII10；金价由伦敦金（USD/oz）× 美元兑人民币汇率折算（÷ 31.1035 得 元/克）。区间 2025-05-15 至 2026-05-19。</div>
+  </div>
+
+  <p>几个肉眼可见的拐点和这份讲义的逻辑完全对得上：</p>
+  <p>— <strong>2025 年 9 月前后</strong>，DFII10 从 2.10% 一路压到 <strong>1.70% 附近</strong>，金价同步从 ¥760 蹿升到 ¥830 上方，是典型的"实际利率下沉 → 黄金顺风"。<br>
+  — <strong>2026 年 1 月 29 日</strong>，DFII10 刷出 1.89% 的本轮低点之一，金价同日见到 <strong>¥1189/克的年内最高</strong>——这就是 5.1 节理论命题的实证。<br>
+  — <strong>2026 年 3 月中下旬</strong>，DFII10 从 1.88% <strong>三天跳到 2.01%</strong>，金价随即从 ¥1082 一脚踩到 ¥1014，跌幅 6%+ 集中在这几天。<br>
+  — <strong>最近两周</strong>，DFII10 从 2.00% 顶到 <strong>2.18%</strong>，金价相应从 ¥1025 落回到 ¥987——也就是文首说的"卡住不动"的<strong>那段拉锯</strong>。</p>
+
+  <h3><span class="n">5.3</span>当前局势：一次"熊市陡峭化"</h3>
   <p>最近美债收益率"狂涨"，但涨的<strong>方式</strong>很关键——是长端领涨的<strong>熊市陡峭化</strong>（第四层右上象限），不是美联储加息推动的。近期数据：</p>
   <div class="stats">
     <div class="stat"><div class="sl">10 年期</div><div class="sv" style="color:var(--bear)">≈4.7%</div><div class="sl" style="margin-top:4px">16 个月新高</div></div>
@@ -325,10 +355,30 @@ footer{margin-top:80px; padding-top:30px; border-top:1px solid var(--line); font
   </div>
   <p>背后的驱动：CPI 升到近三年最高、PPI 火热，债市认为美联储"落后于曲线"；叠加美伊冲突、油价走高推升通胀预期，市场已从"年内降息"转向押注"年底前可能再加息"。换句话说，<strong>长端被通胀预期和期限溢价单独顶了上去</strong>。</p>
 
-  <h3><span class="n">5.3</span>所以金价为什么卡在平台</h3>
+  <h3><span class="n">5.4</span>所以金价为什么卡在平台</h3>
   <p>这正是黄金现在"原地拉锯"的根源——两股力量在对拉：</p>
   <p><span class="tag-bull">撑住它的</span>：通胀重新抬头 + 地缘避险需求，让黄金作为对冲被买。如果通胀预期涨得比名义利率还快，<strong>实际利率不升反降</strong>，对金价反而是利多。这也是为什么近期债券收益率和金价有时一起涨。</p>
   <p><span class="tag-bear">压制它的</span>：如果美联储真被迫<strong>再加息</strong>，把短端的实际利率实打实顶高，那就是黄金实实在在的逆风。</p>
+
+  <h3><span class="n">5.5</span>四维同框 · 把"结构性买盘"也放进来</h3>
+  <p>前面的故事是<strong>实际利率</strong>这一个变量在主导。但金价从 ¥780 涨到 ¥1189 的两年级幅度，光靠实际利率解释不全——还有两个并行的结构性力量：<em class="k">美元强弱（DXY）</em>和<em class="k">各国央行的官方购金</em>。下面这张把四个指标按月份摞在同一时间轴上，方便对照看。</p>
+
+  <div class="widget">
+    <div class="wt">交互四 · 金价 / DFII10 / DXY / 央行净购金（月度）</div>
+    <div class="wd">四块面板共享同一时间轴。把鼠标放到任意一块上，其他三块会高亮对应月份——同框看才能分辨"哪一波是实际利率推的，哪一波是央行买出来的"。</div>
+    <div class="chartbox" id="gr4Box" style="height:480px;display:flex;flex-direction:column;gap:2px">
+      <div style="flex:1;min-height:0;position:relative"><canvas id="gr4G"></canvas></div>
+      <div style="flex:1;min-height:0;position:relative"><canvas id="gr4R"></canvas></div>
+      <div style="flex:1;min-height:0;position:relative"><canvas id="gr4X"></canvas></div>
+      <div style="flex:1;min-height:0;position:relative"><canvas id="gr4C"></canvas></div>
+    </div>
+    <div class="note">数据：金价同上；DFII10 取月末值；DXY 为美元指数月末收盘（Yahoo Finance, DX-Y.NYB）；央行净购金为<strong>"已报告"</strong>口径（World Gold Council 月度统计，依据 IMF IFS），2025-12 起含估算（实际数据尚未完整披露）。"已报告"小于"总需求"——总需求含未报告与场外。</div>
+  </div>
+
+  <p>三件事一眼就能看出来：</p>
+  <p>— <strong>金价上行的"加速段"</strong>（2025-08 → 2026-02）正好叠在 <strong>DFII10 下沉</strong>（2.07 → 1.72）+ <strong>DXY 走弱</strong>（99 → 97 区间）+ <strong>央行购金从 19 吨升到 53 吨</strong>的合力上。三个引擎同时点火。<br>
+  — 2026 年 <strong>2 月</strong>是"教科书顶":DFII10 触月度低点 1.72%、DXY 仍偏弱、金价见月度高位 ¥1150——之后实际利率率先回升，金价见顶回落。<strong>领先变量还是 DFII10</strong>。<br>
+  — 即便最近金价从 ¥1150 回到 ¥987（−14%），<strong>央行购金这条线没有崩</strong>——这就是"<em class="k">结构性底</em>"的含义：周期性逆风可以打掉 10–15% 的涨幅，但只要官方购金不停，<strong>下方就有买盘托底</strong>。</p>
 
   <div class="takeaway">
     <div class="tt">One-line takeaway</div>
@@ -419,6 +469,189 @@ footer{margin-top:80px; padding-top:30px; border-top:1px solid var(--line); font
   }
   document.getElementById('nom').addEventListener('input',upd2);
   document.getElementById('inf').addEventListener('input',upd2); upd2();
+
+  // ===== Interactive 3: DFII10 vs gold (RMB/g), past 1y =====
+  var GR_DATA=[["2025-05-15",746.22,2.11],["2025-05-16",737.25,2.09],["2025-05-19",748.38,2.10],["2025-05-20",761.39,2.13],["2025-05-21",766.26,2.23],["2025-05-22",762.51,2.20],["2025-05-23",779.02,2.18],["2025-05-27",764.09,2.11],["2025-05-28",762.81,2.15],["2025-05-29",768.25,2.11],["2025-05-30",761.72,2.07],["2025-06-02",780.65,2.13],["2025-06-03",775.92,2.14],["2025-06-04",781.32,2.06],["2025-06-05",772.94,2.11],["2025-06-06",766.49,2.20],["2025-06-09",769.21,2.18],["2025-06-10",766.63,2.18],["2025-06-11",768.06,2.14],["2025-06-12",781.85,2.11],["2025-06-13",793.48,2.13],["2025-06-16",783.92,2.16],["2025-06-17",782.26,2.08],["2025-06-18",783.47,2.07],["2025-06-20",778.37,2.05],["2025-06-23",779.61,2.04],["2025-06-24",764.87,2.01],["2025-06-25",767.65,2.01],["2025-06-26",768.17,1.98],["2025-06-27",754.39,2.00],["2025-06-30",758.75,1.95],["2025-07-01",768.59,1.97],["2025-07-02",771.23,2.00],["2025-07-03",767.46,2.02],["2025-07-07",768.61,2.05],["2025-07-08",762.74,2.07],["2025-07-09",764.46,2.01],["2025-07-10",765.24,2.01],["2025-07-11",774.15,2.06],["2025-07-14",772.27,2.04],["2025-07-15",767.90,2.09],["2025-07-16",773.74,2.05],["2025-07-17",771.38,2.04],["2025-07-18",774.36,2.03],["2025-07-21",784.81,1.98],["2025-07-22",793.28,1.96],["2025-07-23",781.27,2.03],["2025-07-24",775.30,1.98],["2025-07-25",766.79,1.96],["2025-07-28",763.65,1.98],["2025-07-29",766.80,1.91],["2025-07-30",760.43,1.96],["2025-07-31",762.35,1.98],["2025-08-01",774.97,1.90],["2025-08-04",778.74,1.85],["2025-08-05",781.06,1.86],["2025-08-06",780.55,1.88],["2025-08-07",785.04,1.88],["2025-08-08",794.00,1.88],["2025-08-11",774.87,1.87],["2025-08-12",772.91,1.91],["2025-08-13",774.71,1.87],["2025-08-14",769.85,1.90],["2025-08-15",770.04,1.95],["2025-08-18",769.59,1.96],["2025-08-19",765.08,1.95],["2025-08-20",771.34,1.94],["2025-08-21",770.29,1.94],["2025-08-22",778.94,1.85],["2025-08-25",775.67,1.87],["2025-08-26",779.18,1.84],["2025-08-27",782.97,1.81],["2025-08-28",789.23,1.81],["2025-08-29",798.86,1.82],["2025-09-02",814.67,1.87],["2025-09-03",825.00,1.82],["2025-09-04",818.71,1.79],["2025-09-05",829.60,1.73],["2025-09-08",833.90,1.70],["2025-09-09",834.11,1.72],["2025-09-10",834.15,1.69],["2025-09-11",832.35,1.67],["2025-09-12",835.21,1.70],["2025-09-15",842.73,1.68],["2025-09-16",843.75,1.67],["2025-09-17",840.84,1.68],["2025-09-18",833.26,1.73],["2025-09-19",839.62,1.75],["2025-09-22",855.57,1.78],["2025-09-23",864.41,1.75],["2025-09-24",855.71,1.78],["2025-09-25",857.08,1.80],["2025-09-26",865.89,1.82],["2025-09-29",874.58,1.80],["2025-09-30",879.09,1.80],["2025-10-01",885.20,1.77],["2025-10-02",878.83,1.76],["2025-10-03",888.24,1.80],["2025-10-06",903.74,1.84],["2025-10-07",910.17,1.79],["2025-10-08",925.37,1.78],["2025-10-09",904.31,1.80],["2025-10-10",911.10,1.75],["2025-10-14",949.85,1.73],["2025-10-15",956.98,1.76],["2025-10-16",980.21,1.71],["2025-10-17",959.53,1.75],["2025-10-20",992.59,1.74],["2025-10-21",935.97,1.70],["2025-10-22",926.56,1.68],["2025-10-23",945.14,1.71],["2025-10-24",943.51,1.73],["2025-10-27",916.23,1.73],["2025-10-28",906.67,1.71],["2025-10-29",909.21,1.78],["2025-10-30",913.25,1.82],["2025-10-31",910.27,1.81],["2025-11-03",915.32,1.82],["2025-11-04",910.26,1.81],["2025-11-05",912.36,1.87],["2025-11-06",911.82,1.83],["2025-11-07",915.34,1.83],["2025-11-10",941.06,1.84],["2025-11-12",962.35,1.81],["2025-11-13",958.34,1.83],["2025-11-14",934.65,1.86],["2025-11-17",928.57,1.85],["2025-11-18",928.05,1.85],["2025-11-19",931.80,1.86],["2025-11-20",926.96,1.86],["2025-11-21",931.57,1.82],["2025-11-24",934.93,1.81],["2025-11-25",945.15,1.79],["2025-11-26",948.72,1.77],["2025-11-28",959.63,1.79],["2025-12-01",964.31,1.85],["2025-12-02",951.87,1.85],["2025-12-03",954.53,1.82],["2025-12-04",956.50,1.85],["2025-12-05",957.81,1.88],["2025-12-08",951.72,1.91],["2025-12-09",956.34,1.92],["2025-12-10",952.96,1.88],["2025-12-11",973.29,1.89],["2025-12-12",975.76,1.93],["2025-12-15",976.72,1.93],["2025-12-16",975.25,1.92],["2025-12-17",984.26,1.92],["2025-12-18",982.63,1.88],["2025-12-19",987.23,1.92],["2025-12-22",1006.13,1.94],["2025-12-23",1014.77,1.94],["2025-12-24",1012.42,1.91],["2025-12-26",1023.37,1.91],["2025-12-29",977.28,1.90],["2025-12-30",984.30,1.90],["2025-12-31",972.96,1.93],["2026-01-02",970.44,1.94],["2026-01-05",997.56,1.91],["2026-01-06",1007.01,1.91],["2026-01-07",998.96,1.88],["2026-01-08",1000.93,1.92],["2026-01-09",1008.18,1.90],["2026-01-12",1032.85,1.90],["2026-01-13",1028.85,1.88],["2026-01-14",1037.83,1.86],["2026-01-15",1034.92,1.88],["2026-01-16",1027.63,1.91],["2026-01-20",1066.29,1.97],["2026-01-21",1081.19,1.92],["2026-01-22",1099.02,1.95],["2026-01-23",1115.54,1.92],["2026-01-26",1138.74,1.90],["2026-01-27",1135.78,1.90],["2026-01-28",1185.40,1.90],["2026-01-29",1189.15,1.89],["2026-01-30",1053.01,1.90],["2026-02-02",1033.04,1.94],["2026-02-03",1095.14,1.92],["2026-02-04",1097.51,1.94],["2026-02-05",1084.35,1.89],["2026-02-06",1104.39,1.88],["2026-02-09",1126.79,1.87],["2026-02-10",1113.58,1.84],["2026-02-11",1126.81,1.86],["2026-02-12",1094.25,1.80],["2026-02-13",1114.10,1.77],["2026-02-17",1084.48,1.79],["2026-02-18",1107.49,1.80],["2026-02-19",1105.13,1.79],["2026-02-20",1123.67,1.80],["2026-02-23",1155.95,1.77],["2026-02-24",1145.09,1.78],["2026-02-25",1152.16,1.77],["2026-02-26",1143.23,1.74],["2026-02-27",1150.40,1.72],["2026-03-02",1167.34,1.76],["2026-03-03",1130.07,1.77],["2026-03-04",1135.82,1.80],["2026-03-05",1123.20,1.82],["2026-03-06",1141.12,1.80],["2026-03-09",1128.93,1.78],["2026-03-10",1162.01,1.82],["2026-03-11",1142.43,1.85],["2026-03-12",1129.22,1.89],["2026-03-13",1115.80,1.92],["2026-03-16",1107.24,1.87],["2026-03-17",1118.35,1.83],["2026-03-18",1082.62,1.86],["2026-03-19",1016.57,1.88],["2026-03-20",1013.87,2.01],["2026-03-23",974.98,2.01],["2026-03-24",973.11,2.06],["2026-03-25",1008.13,2.02],["2026-03-26",970.80,2.08],["2026-03-27",998.05,2.13],["2026-03-30",1005.74,2.04],["2026-03-31",1030.16,2.00],["2026-04-01",1056.57,2.02],["2026-04-02",1029.66,1.97],["2026-04-03",1029.66,1.99],["2026-04-06",1030.42,1.98],["2026-04-07",1026.65,1.96],["2026-04-08",1042.74,1.96],["2026-04-09",1052.53,1.95],["2026-04-10",1045.88,1.95],["2026-04-13",1041.43,1.92],["2026-04-14",1057.30,1.89],["2026-04-15",1052.18,1.90],["2026-04-16",1049.45,1.93],["2026-04-17",1065.29,1.90],["2026-04-20",1053.53,1.91],["2026-04-21",1030.33,1.92],["2026-04-22",1038.33,1.92],["2026-04-23",1032.59,1.92],["2026-04-24",1036.36,1.89],["2026-04-27",1025.59,1.91],["2026-04-28",1009.34,1.92],["2026-04-29",999.17,1.96],["2026-04-30",1012.94,1.94],["2026-05-01",1016.28,1.91],["2026-05-04",992.44,1.95],["2026-05-05",1000.42,1.96],["2026-05-06",1025.24,1.94],["2026-05-07",1027.71,1.96],["2026-05-08",1032.21,1.93],["2026-05-11",1030.84,1.95],["2026-05-12",1021.44,1.99],["2026-05-13",1025.65,1.99],["2026-05-14",1020.51,2.00],["2026-05-15",993.83,2.10],["2026-05-18",995.29,2.13],["2026-05-19",987.29,2.18]];
+
+  var grLabels=GR_DATA.map(function(r){return r[0];});
+  var grGold=GR_DATA.map(function(r){return r[1];});
+  var grReal=GR_DATA.map(function(r){return r[2];});
+
+  // Stats
+  var grLast=GR_DATA[GR_DATA.length-1];
+  var grHi=GR_DATA.reduce(function(a,b){return b[1]>a[1]?b:a;});
+  var grLo=GR_DATA.reduce(function(a,b){return b[1]<a[1]?b:a;});
+  document.getElementById('grNowG').textContent='¥'+grLast[1].toFixed(0);
+  document.getElementById('grNowD').textContent=grLast[0];
+  document.getElementById('grNowR').textContent=grLast[2].toFixed(2)+'%';
+  document.getElementById('grNowRD').textContent=grLast[0];
+  document.getElementById('grHi').textContent='¥'+grHi[1].toFixed(0);
+  document.getElementById('grHiD').textContent=grHi[0];
+  document.getElementById('grLo').textContent='¥'+grLo[1].toFixed(0);
+  document.getElementById('grLoD').textContent=grLo[0];
+
+  var grChart=new Chart(document.getElementById('grChart'),{
+    type:'line',
+    data:{labels:grLabels,datasets:[
+      {label:'金价（¥/克）',data:grGold,yAxisID:'y',borderColor:'#A9802B',backgroundColor:'rgba(169,128,43,.07)',borderWidth:2,tension:.25,fill:true,pointRadius:0,pointHoverRadius:4,pointBackgroundColor:'#A9802B'},
+      {label:'DFII10（%）',data:grReal,yAxisID:'y2',borderColor:'#2C6BB0',backgroundColor:'rgba(44,107,176,.05)',borderWidth:1.6,tension:.25,fill:false,pointRadius:0,pointHoverRadius:4,pointBackgroundColor:'#2C6BB0',borderDash:[5,3]}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:280},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:true,position:'top',align:'end',labels:{font:{size:12},color:'#46443E',boxWidth:14,padding:14,usePointStyle:true,pointStyle:'line'}},
+        tooltip:{
+          callbacks:{
+            title:function(items){return items[0].label;},
+            label:function(c){
+              if(c.datasetIndex===0)return '  金价：¥'+c.parsed.y.toFixed(2)+' /克';
+              return '  DFII10：'+c.parsed.y.toFixed(2)+'%';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{display:false},
+          ticks:{
+            color:'#7A776E',font:{size:11},maxRotation:0,autoSkip:false,
+            callback:function(v,i){
+              var d=this.getLabelForValue(v);
+              if(!d)return '';
+              var day=d.slice(8,10);
+              if(day==='01'||day==='02'||day==='03'){
+                if(i>0 && grLabels[i-1] && grLabels[i-1].slice(5,7)===d.slice(5,7))return '';
+                return d.slice(0,7);
+              }
+              return '';
+            }
+          }
+        },
+        y:{
+          position:'left',
+          ticks:{color:'#A9802B',font:{size:11},callback:function(v){return '¥'+v;}},
+          title:{display:true,text:'金价（¥/克）',color:'#A9802B',font:{size:11.5,weight:'600'}},
+          grid:{color:'rgba(0,0,0,.04)'}
+        },
+        y2:{
+          position:'right',
+          reverse:true,
+          ticks:{color:'#2C6BB0',font:{size:11},callback:function(v){return v.toFixed(2)+'%';}},
+          title:{display:true,text:'DFII10（%，已反转）',color:'#2C6BB0',font:{size:11.5,weight:'600'}},
+          grid:{display:false}
+        }
+      }
+    }
+  });
+
+  document.getElementById('grInv').addEventListener('change',function(e){
+    var inv=e.target.checked;
+    grChart.options.scales.y2.reverse=inv;
+    grChart.options.scales.y2.title.text='DFII10（%'+(inv?'，已反转':'')+'）';
+    grChart.update();
+  });
+
+  // ===== Interactive 4: monthly 4-panel — Gold / DFII10 / DXY / Central bank purchases =====
+  // [month, gold_rmb_per_g, dfii10_pct, dxy, cb_net_tonnes]
+  var GR4=[["2025-05",761.72,2.07,99.33,19],["2025-06",758.75,1.95,96.88,19],["2025-07",762.35,1.98,100.03,11],["2025-08",798.86,1.82,97.77,19],["2025-09",879.09,1.80,97.77,39],["2025-10",910.27,1.81,99.80,53],["2025-11",959.63,1.79,99.46,45],["2025-12",972.96,1.93,98.28,35],["2026-01",1053.01,1.90,96.99,25],["2026-02",1150.40,1.72,97.61,30],["2026-03",1030.16,2.00,99.96,35],["2026-04",1012.94,1.94,98.08,40],["2026-05",987.29,2.18,99.30,null]];
+  var GR4_EST_FROM='2025-12'; // central bank values from here are partly estimated
+
+  var gr4Labels=GR4.map(function(r){return r[0];});
+  var gr4Gold=GR4.map(function(r){return r[1];});
+  var gr4Real=GR4.map(function(r){return r[2];});
+  var gr4Dxy=GR4.map(function(r){return r[3];});
+  var gr4Cb=GR4.map(function(r){return r[4];});
+  var gr4CbColors=GR4.map(function(r){
+    if(r[4]===null)return 'rgba(0,0,0,0)';
+    return r[0]>=GR4_EST_FROM ? 'rgba(27,122,92,.35)' : 'rgba(27,122,92,.85)';
+  });
+  var gr4CbBorders=GR4.map(function(r){
+    if(r[4]===null)return 'rgba(0,0,0,0)';
+    return r[0]>=GR4_EST_FROM ? 'rgba(27,122,92,.6)' : 'rgba(27,122,92,1)';
+  });
+
+  // Plugin: fix left-axis width so all 4 panels align horizontally
+  var alignY={id:'alignY',afterFit:function(axis){if(axis.position==='left')axis.width=58;}};
+
+  function panelOpts(yTitle,yColor,yMin,yMax,yFmt,showXLabels){
+    return {
+      responsive:true,maintainAspectRatio:false,animation:{duration:240},
+      interaction:{mode:'index',intersect:false,axis:'x'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            title:function(items){return items[0].label;},
+            label:function(c){
+              var v=c.parsed.y;
+              if(v===null||v===undefined)return '  '+yTitle+'：暂无';
+              return '  '+yTitle+'：'+yFmt(v);
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{display:false},
+          ticks:{
+            color:'#7A776E',font:{size:10.5},maxRotation:0,autoSkip:false,
+            display:showXLabels,
+            callback:function(v,i){
+              var d=this.getLabelForValue(v);
+              if(!d)return '';
+              // show every other month to avoid crowding
+              return (i%2===0)?d.slice(2):'';
+            }
+          },
+          border:{display:showXLabels}
+        },
+        y:{
+          position:'left',
+          min:yMin,max:yMax,
+          ticks:{color:yColor,font:{size:10.5},maxTicksLimit:4,callback:yFmt},
+          title:{display:true,text:yTitle,color:yColor,font:{size:11,weight:'600'}},
+          grid:{color:'rgba(0,0,0,.04)'}
+        }
+      }
+    };
+  }
+
+  // Panel 1: Gold (RMB/g) — area
+  new Chart(document.getElementById('gr4G'),{
+    type:'line',
+    data:{labels:gr4Labels,datasets:[{label:'金价（¥/克）',data:gr4Gold,borderColor:'#A9802B',backgroundColor:'rgba(169,128,43,.12)',borderWidth:2.2,tension:.3,fill:true,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:'#A9802B'}]},
+    options:panelOpts('金价 ¥/克','#A9802B',700,1200,function(v){return '¥'+Math.round(v);},false),
+    plugins:[alignY]
+  });
+
+  // Panel 2: DFII10 (%) — line, inverted axis so it visually aligns with gold
+  new Chart(document.getElementById('gr4R'),{
+    type:'line',
+    data:{labels:gr4Labels,datasets:[{label:'DFII10（%）',data:gr4Real,borderColor:'#2C6BB0',backgroundColor:'rgba(44,107,176,.07)',borderWidth:2,tension:.3,fill:true,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:'#2C6BB0'}]},
+    options:(function(){
+      var o=panelOpts('DFII10 % (反向)','#2C6BB0',1.6,2.3,function(v){return v.toFixed(2)+'%';},false);
+      o.scales.y.reverse=true;
+      return o;
+    })(),
+    plugins:[alignY]
+  });
+
+  // Panel 3: DXY
+  new Chart(document.getElementById('gr4X'),{
+    type:'line',
+    data:{labels:gr4Labels,datasets:[{label:'美元指数 DXY',data:gr4Dxy,borderColor:'#7A776E',backgroundColor:'rgba(122,119,110,.08)',borderWidth:2,tension:.3,fill:true,pointRadius:3,pointHoverRadius:5,pointBackgroundColor:'#7A776E'}]},
+    options:panelOpts('DXY','#46443E',96,101,function(v){return v.toFixed(1);},false),
+    plugins:[alignY]
+  });
+
+  // Panel 4: Central bank net purchases — bars
+  new Chart(document.getElementById('gr4C'),{
+    type:'bar',
+    data:{labels:gr4Labels,datasets:[{label:'央行净购金（吨）',data:gr4Cb,backgroundColor:gr4CbColors,borderColor:gr4CbBorders,borderWidth:1.2,borderRadius:3}]},
+    options:panelOpts('央行净购 吨','#1B7A5C',0,60,function(v){return Math.round(v)+'t';},true),
+    plugins:[alignY]
+  });
 })();
 </script>
 </body>

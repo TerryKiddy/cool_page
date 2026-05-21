@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>利率与黄金 · 从短端到实际利率</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --paper:#F7F4EC; --paper2:#FEFCF7; --ink:#1C1B19; --ink2:#46443E;
+  --muted:#7A776E; --line:#E2DCCE; --line2:#D4CDBA;
+  --gold:#A9802B; --gold-soft:#F0E6CC; --gold-deep:#6E5316;
+  --bull:#1B7A5C; --bull-soft:#E2F1EA;
+  --bear:#B23A36; --bear-soft:#F6E5E2;
+  --info:#2C6BB0; --info-soft:#E3EDF7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Noto Sans SC",system-ui,sans-serif;
+  font-weight:400; line-height:1.85; font-size:16.5px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:780px; margin:0 auto; padding:0 24px 120px}
+
+/* hero */
+.hero{padding:88px 0 56px; border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"Playfair Display",serif; font-style:italic; color:var(--gold); font-size:18px; letter-spacing:.5px; margin-bottom:18px}
+h1{font-family:"Noto Serif SC",serif; font-weight:700; font-size:46px; line-height:1.25; letter-spacing:-.5px}
+h1 .sub{display:block; font-size:21px; font-weight:500; color:var(--ink2); margin-top:14px; letter-spacing:0}
+.lede{margin-top:26px; font-size:17.5px; color:var(--ink2); max-width:640px}
+.meta{margin-top:30px; font-size:13px; color:var(--muted); letter-spacing:.3px; display:flex; gap:18px; flex-wrap:wrap; align-items:center}
+.meta .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:inline-block}
+
+/* layer header */
+.layer{margin:72px 0 0}
+.layer-tag{display:inline-flex; align-items:center; gap:10px; font-family:"Playfair Display",serif; font-size:15px; color:var(--gold-deep); background:var(--gold-soft); padding:6px 16px; border-radius:30px; letter-spacing:.5px; margin-bottom:22px}
+.layer-tag b{font-weight:700}
+.layer h2{font-family:"Noto Serif SC",serif; font-weight:700; font-size:30px; line-height:1.35; margin-bottom:8px}
+.layer .layer-cap{color:var(--muted); font-size:15px; margin-bottom:8px}
+
+h3{font-family:"Noto Serif SC",serif; font-weight:600; font-size:21px; margin:42px 0 14px; line-height:1.4}
+h3 .n{color:var(--gold); font-family:"Playfair Display",serif; font-weight:700; margin-right:10px}
+p{margin:14px 0}
+.wrap p strong, .wrap li strong{font-weight:700; color:var(--ink)}
+em.k{font-style:normal; font-weight:500; color:var(--gold-deep); background:linear-gradient(transparent 62%, var(--gold-soft) 62%); padding:0 2px}
+
+/* definition card */
+.def{background:var(--paper2); border:1px solid var(--line); border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:20px 24px; margin:26px 0}
+.def .dt{font-family:"Noto Serif SC",serif; font-weight:600; font-size:16px; color:var(--gold-deep); margin-bottom:6px; display:flex; align-items:center; gap:8px}
+.def .dt::before{content:"定义"; font-family:"Playfair Display",serif; font-style:italic; font-size:12px; background:var(--gold); color:#fff; padding:2px 9px; border-radius:20px; font-weight:500}
+.def p{margin:6px 0; font-size:15.5px; color:var(--ink2)}
+
+/* analogy */
+.analogy{border:1px dashed var(--line2); border-radius:12px; padding:18px 22px; margin:24px 0; background:rgba(255,255,255,.4)}
+.analogy .at{font-size:13px; color:var(--gold); letter-spacing:1px; margin-bottom:6px; font-weight:500}
+.analogy p{margin:4px 0; font-size:15.5px; color:var(--ink2)}
+
+/* interactive widget */
+.widget{background:var(--paper2); border:1px solid var(--line); border-radius:16px; padding:26px 26px 22px; margin:30px 0}
+.widget .wt{font-family:"Noto Serif SC",serif; font-weight:600; font-size:16px; margin-bottom:4px}
+.widget .wd{font-size:13px; color:var(--muted); margin-bottom:20px}
+.ctrl{display:flex; align-items:center; gap:14px; margin:14px 0}
+.ctrl label{font-size:14px; color:var(--ink2); white-space:nowrap; min-width:104px}
+.ctrl .val{font-family:"Playfair Display",serif; font-weight:700; font-size:17px; min-width:64px; text-align:right; color:var(--gold-deep)}
+input[type=range]{-webkit-appearance:none; appearance:none; flex:1; height:5px; border-radius:5px; background:var(--line2); outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:19px; height:19px; border-radius:50%; background:var(--gold); cursor:pointer; border:3px solid var(--paper2); box-shadow:0 0 0 1px var(--gold)}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--gold); cursor:pointer; border:3px solid var(--paper2)}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin:20px 0}
+.stat{background:var(--paper); border-radius:10px; padding:14px 16px}
+.stat .sl{font-size:12.5px; color:var(--muted); margin-bottom:4px}
+.stat .sv{font-family:"Playfair Display",serif; font-weight:700; font-size:25px; line-height:1.1}
+.chartbox{position:relative; width:100%; height:280px; margin-top:8px}
+.note{font-size:13px; color:var(--muted); margin-top:14px; font-style:italic}
+
+/* 2x2 grid */
+.quad-axis{font-size:13px; color:var(--muted); text-align:center; margin:6px 0}
+.quad{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0}
+.qcell{border-radius:12px; padding:18px; border:1px solid var(--line)}
+.qcell.bear{background:var(--bear-soft); border-color:#E7C7C4}
+.qcell.bull{background:var(--bull-soft); border-color:#C5E2D6}
+.qcell.now{border:2.5px solid var(--info); position:relative}
+.qcell .qt{font-family:"Noto Serif SC",serif; font-weight:600; font-size:18px}
+.qcell.bear .qt{color:var(--bear)} .qcell.bull .qt{color:var(--bull)}
+.qcell .qd{font-size:14px; color:var(--ink2); margin-top:6px}
+.qcell .qc{font-size:13px; color:var(--muted); margin-top:4px}
+.nowbadge{position:absolute; top:-12px; right:14px; background:var(--info); color:#fff; font-size:12px; padding:3px 12px; border-radius:20px; font-weight:500}
+
+/* takeaway */
+.takeaway{background:var(--ink); color:#F2EEE3; border-radius:16px; padding:30px 30px; margin:30px 0}
+.takeaway .tt{font-family:"Playfair Display",serif; font-style:italic; color:var(--gold); font-size:15px; margin-bottom:10px}
+.takeaway p{color:#E3DDCD; margin:8px 0; font-size:15.5px}
+.takeaway strong{color:#fff}
+
+/* cheat table */
+table.cheat{width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px}
+table.cheat th, table.cheat td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--line)}
+table.cheat th{font-family:"Noto Serif SC",serif; font-weight:600; color:var(--gold-deep); border-bottom:2px solid var(--line2)}
+table.cheat td:first-child{font-weight:500; white-space:nowrap}
+table.cheat tr:hover td{background:var(--paper2)}
+
+.divider{height:1px; background:var(--line); margin:64px 0; border:none}
+.tag-bull{color:var(--bull); font-weight:500}
+.tag-bear{color:var(--bear); font-weight:500}
+
+footer{margin-top:80px; padding-top:30px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); line-height:1.7}
+
+@media(max-width:600px){
+  h1{font-size:34px} h1 .sub{font-size:18px}
+  .layer h2{font-size:24px} .hero{padding:60px 0 40px}
+  .ctrl{flex-wrap:wrap} .ctrl label{min-width:auto}
+  .quad{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Rates &amp; Gold · 一份给入门者的笔记</div>
+  <h1>利率与黄金
+    <span class="sub">从"短端"到"实际利率"，看懂金价背后的那根线</span>
+  </h1>
+  <p class="lede">我们从"金价是不是又到了一个起跳平台"聊起，一路聊到美债收益率为什么狂涨。这份讲义把那场对话整理成由浅入深的五层——每一层只引入一两个新概念，配上可以拖动的图，最后全部收束回一个问题：这些利率到底怎么牵动黄金。</p>
+  <div class="meta">
+    <span><span class="dot"></span>阅读约 15 分钟</span>
+    <span>含 3 个交互图</span>
+    <span>数据截至 2026 年 5 月中旬（示意）</span>
+  </div>
+</header>
+
+<!-- RECAP -->
+<section class="layer">
+  <div class="layer-tag"><b>序</b> 我们聊到哪了</div>
+  <h2>三个问题，串成一条线</h2>
+  <p>这份笔记的起点是三个看似无关、其实环环相扣的问题：</p>
+  <p><strong>① 黄金</strong>——金价（人民币约 990/克）在一波大涨后卡住不动，这个"平台"是再次起跳的中继，还是顶部的反复？<br>
+  <strong>② 利率机制</strong>——美联储加息，和 2 年期、10 年期美债收益率到底是什么关系？<br>
+  <strong>③ 当下</strong>——为什么最近美债收益率"狂涨"，这又意味着什么？</p>
+  <p>要回答这三个，绕不开几个基础概念：<em class="k">短端 / 长端</em>、<em class="k">收益率曲线</em>、<em class="k">名义利率 vs 实际利率</em>、<em class="k">期限溢价</em>。下面就从最底层一块块搭起来。</p>
+</section>
+
+<hr class="divider">
+
+<!-- LAYER 1 -->
+<section class="layer">
+  <div class="layer-tag"><b>第一层</b> 钱的"时间价格"</div>
+  <h2>利率，是有"期限"的</h2>
+  <p class="layer-cap">最容易被忽略的基础：同样是"利率"，借一晚和借十年，是两个完全不同的数字。</p>
+
+  <h3><span class="n">1.1</span>什么是"短端"和"长端"</h3>
+  <p>利率本质是"用钱的价格"。但借钱的<strong>时间长短</strong>不同，价格也不同。把所有期限的利率从短到长排成一条线，就是利率的<em class="k">期限结构</em>：</p>
+  <div class="def">
+    <div class="dt">短端 / 长端</div>
+    <p><strong>短端（short end）</strong>：很短期限的利率，比如隔夜、3 个月、2 年。它最贴近<strong>央行当下的政策</strong>。</p>
+    <p><strong>长端（long end）</strong>：长期限的利率，比如 10 年、30 年。它更多反映市场对<strong>未来很多年</strong>的经济、通胀的看法。</p>
+  </div>
+  <div class="analogy">
+    <div class="at">打个比方</div>
+    <p>短端像今天的天气预报——基本由眼前的气压（央行政策）决定，很准。</p>
+    <p>长端像"未来十年的气候展望"——央行说了不全算，更取决于大趋势（增长、通胀、债务）。两者会朝不同方向动。</p>
+  </div>
+
+  <h3><span class="n">1.2</span>谁说了算短端：联邦基金利率</h3>
+  <p>美联储（美国央行）真正能直接控制的，其实只有<strong>最短的那一端</strong>——<em class="k">联邦基金利率</em>，即银行之间隔夜拆借的基准利率。</p>
+  <div class="def">
+    <div class="dt">联邦基金利率（Fed Funds Rate）</div>
+    <p>美联储设定的政策利率，是整条利率曲线"最左边的锚"。美联储"加息""降息"，调的就是它。</p>
+    <p>它<strong>不</strong>直接决定 10 年期国债收益率——后者是市场交易出来的。这个区别，是后面所有内容的关键。</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LAYER 2 -->
+<section class="layer">
+  <div class="layer-tag"><b>第二层</b> 市场利率：国债收益率</div>
+  <h2>2 年期 vs 10 年期，各听谁的话</h2>
+  <p class="layer-cap">联邦基金利率是央行定的；国债收益率是市场每天交易出来的。两者关系，决定了曲线长什么样。</p>
+
+  <h3><span class="n">2.1</span>两个最重要的期限</h3>
+  <p><strong>2 年期国债收益率</strong>反映的是：市场预期<strong>未来约两年内</strong>美联储的利率大致走到哪。所以它对加息/降息预期<strong>极其敏感</strong>，几乎和政策利率同步起落——它是短端的代表。</p>
+  <p><strong>10 年期国债收益率</strong>则由三块拼成：长期增长预期 + 长期通胀预期 + <em class="k">期限溢价</em>（后面讲）。它对当前政策利率的敏感度<strong>低得多</strong>。有时美联储猛加息，10 年期反而走低——因为市场认为猛加息会压住未来的增长和通胀。</p>
+
+  <h3><span class="n">2.2</span>把它们连起来：收益率曲线</h3>
+  <p>把各个期限的收益率画成一条线，就是<em class="k">收益率曲线</em>。下面这张图可以拖：调节美联储的政策利率，看短端、长端各自怎么反应、曲线整体怎么变形。</p>
+
+  <div class="widget">
+    <div class="wt">交互一 · 政策利率如何牵动曲线</div>
+    <div class="wd">拖动联邦基金利率，观察短端被"拽着走"、长端"按兵不动"，曲线由陡变平、再到倒挂。</div>
+    <div class="ctrl">
+      <label>联邦基金利率</label>
+      <input type="range" id="ffr" min="0" max="6" step="0.25" value="0.5">
+      <span class="val" id="ffrOut">0.50%</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="sl">2 年期</div><div class="sv" id="y2" style="color:var(--info)">—</div></div>
+      <div class="stat"><div class="sl">10 年期</div><div class="sv" id="y10" style="color:var(--bull)">—</div></div>
+      <div class="stat"><div class="sl">2s10s 利差</div><div class="sv" id="spread">—</div></div>
+      <div class="stat"><div class="sl">曲线状态</div><div class="sv" id="state" style="font-size:19px;padding-top:4px">—</div></div>
+    </div>
+    <div class="chartbox"><canvas id="curveChart"></canvas></div>
+    <div class="note">教学用简化模型，数值为示意，非实盘报价。</div>
+  </div>
+
+  <div class="def">
+    <div class="dt">2s10s 利差</div>
+    <p>= 10 年期收益率 − 2 年期收益率。正值=曲线向上倾斜（正常）；趋近 0=变平；<strong>负值=倒挂</strong>（短端比长端还高）。它是判断经济周期的重要信号，第四层细讲。</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LAYER 3 -->
+<section class="layer">
+  <div class="layer-tag"><b>第三层</b> 名义 vs 实际</div>
+  <h2>真正重要的，是"实际利率"</h2>
+  <p class="layer-cap">你看到的收益率几乎都是"名义"的。但能不能跑赢通胀、决定黄金方向的，是减掉通胀之后的"实际"利率。</p>
+
+  <h3><span class="n">3.1</span>名义利率的"陷阱"</h3>
+  <p>报道里说的"10 年期 4.7%"是<em class="k">名义利率</em>——账面上的数字。但如果同期通胀是 5%，你拿着这笔钱的<strong>购买力其实在缩水</strong>。账面赚了 4.7%，实际亏了。</p>
+
+  <h3><span class="n">3.2</span>实际利率 = 名义利率 − 通胀预期</h3>
+  <div class="def">
+    <div class="dt">实际利率（Real Interest Rate）</div>
+    <p>名义利率扣除通胀预期之后的"真实回报"。这是衡量"持有现金/债券到底划不划算"的核心。市场上可以用 <strong>TIPS（通胀保值债券）</strong>收益率直接观察它。</p>
+  </div>
+  <p>下面这张图把这个减法做成可拖的——名义利率和通胀预期分别调，看实际利率怎么变，以及它对黄金是顺风还是逆风。</p>
+
+  <div class="widget">
+    <div class="wt">交互二 · 名义、通胀与实际利率</div>
+    <div class="wd">实际利率 = 名义利率 − 通胀预期。注意：名义在涨，不代表实际在涨。</div>
+    <div class="ctrl">
+      <label>名义利率</label>
+      <input type="range" id="nom" min="0" max="8" step="0.1" value="4.7">
+      <span class="val" id="nomOut">4.7%</span>
+    </div>
+    <div class="ctrl">
+      <label>通胀预期</label>
+      <input type="range" id="inf" min="0" max="8" step="0.1" value="2.5">
+      <span class="val" id="infOut">2.5%</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="sl">实际利率</div><div class="sv" id="real">—</div></div>
+      <div class="stat"><div class="sl">对黄金</div><div class="sv" id="goldImpact" style="font-size:18px;padding-top:5px">—</div></div>
+    </div>
+    <div class="note">费雪近似式：实际 ≈ 名义 − 通胀预期。数值为示意。</div>
+  </div>
+
+  <h3><span class="n">3.3</span>期限溢价：长端的"额外补偿"</h3>
+  <div class="def">
+    <div class="dt">期限溢价（Term Premium）</div>
+    <p>把钱锁定很多年，要承担更多不确定性（通胀变化、政府发债太多、政策反复）。投资者要求的<strong>额外补偿</strong>就是期限溢价。它主要堆在长端。</p>
+    <p>当市场担心通胀失控或政府赤字过大，期限溢价上升 → <strong>长端被单独推高</strong>。这正是当下的关键，下两层会用到。</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LAYER 4 -->
+<section class="layer">
+  <div class="layer-tag"><b>第四层</b> 曲线的语言</div>
+  <h2>四种移动方式，与衰退信号</h2>
+  <p class="layer-cap">收益率涨跌只是表象。真正的信息在于：是哪一端在主导，以及利差在走阔还是收窄。</p>
+
+  <h3><span class="n">4.1</span>牛熊 × 陡峭趋平：四个象限</h3>
+  <p>用两个维度切：纵向看收益率方向（<span class="tag-bear">上行=熊市</span> / <span class="tag-bull">下行=牛市</span>），横向看利差变化（趋平=收窄 / 陡峭=走阔）。组合出四种局面：</p>
+
+  <div class="quad-axis">↑ 上行（熊市 Bear）　·　↓ 下行（牛市 Bull）</div>
+  <div class="quad">
+    <div class="qcell bear">
+      <div class="qt">熊市趋平</div>
+      <div class="qd">短端领涨，长端跟不上</div>
+      <div class="qc">驱动：美联储激进加息（交互一的剧本）</div>
+    </div>
+    <div class="qcell bear now">
+      <div class="nowbadge">现在</div>
+      <div class="qt">熊市陡峭</div>
+      <div class="qd">长端领涨，短端涨得慢</div>
+      <div class="qc">驱动：通胀 / 财政 / 油价 → 期限溢价上升</div>
+    </div>
+    <div class="qcell bull">
+      <div class="qt">牛市趋平</div>
+      <div class="qd">长端领跌，短端跌得慢</div>
+      <div class="qc">驱动：避险买盘 / 增长担忧</div>
+    </div>
+    <div class="qcell bull">
+      <div class="qt">牛市陡峭</div>
+      <div class="qd">短端领跌，长端跌得慢</div>
+      <div class="qc">驱动：降息预期 / 复苏初期</div>
+    </div>
+  </div>
+  <div class="quad-axis">← 趋平（利差收窄）　·　陡峭（利差走阔）→</div>
+
+  <h3><span class="n">4.2</span>倒挂：为什么大家盯它</h3>
+  <p>当美联储把短端加得太高、超过长端，曲线就<strong>倒挂</strong>（2s10s 转负）。历史上，倒挂常常领先于经济衰退出现——因为它意味着市场认为"现在利率高到撑不住，未来必须大幅降息"。</p>
+  <p>所以倒挂对黄金往往是个<strong>前瞻利好信号</strong>：它预示美联储迟早被迫转向降息，而降息周期通常压低实际利率、利好黄金。</p>
+</section>
+
+<hr class="divider">
+
+<!-- LAYER 5 -->
+<section class="layer">
+  <div class="layer-tag"><b>第五层</b> 收束到黄金</div>
+  <h2>把所有线索接回金价</h2>
+  <p class="layer-cap">前四层铺的概念，最终都是为了看清这一件事：金价往哪走。</p>
+
+  <h3><span class="n">5.1</span>黄金为什么"怕"实际利率</h3>
+  <p>黄金<strong>不生息</strong>——拿着它没有利息、没有股息。所以它最大的对手是"无风险又能生息的资产"，比如国债。衡量这个机会成本的，正是<em class="k">实际利率</em>：</p>
+  <p>实际利率<span class="tag-bear">上行</span> → 持有黄金的机会成本变大 → 金价<span class="tag-bear">逆风</span>。<br>
+  实际利率<span class="tag-bull">下行 / 转负</span> → 拿现金债券反而亏购买力 → 黄金<span class="tag-bull">顺风</span>。</p>
+  <p>这就是为什么<strong>盯实际利率，比盯名义收益率更能看清金价大方向</strong>——回到交互二再拖一次，体会"名义涨、但实际不一定涨"。</p>
+
+  <h3><span class="n">5.2</span>当前局势：一次"熊市陡峭化"</h3>
+  <p>最近美债收益率"狂涨"，但涨的<strong>方式</strong>很关键——是长端领涨的<strong>熊市陡峭化</strong>（第四层右上象限），不是美联储加息推动的。近期数据：</p>
+  <div class="stats">
+    <div class="stat"><div class="sl">10 年期</div><div class="sv" style="color:var(--bear)">≈4.7%</div><div class="sl" style="margin-top:4px">16 个月新高</div></div>
+    <div class="stat"><div class="sl">30 年期</div><div class="sv" style="color:var(--bear)">≈5.2%</div><div class="sl" style="margin-top:4px">18 年新高</div></div>
+    <div class="stat"><div class="sl">2 年期</div><div class="sv">≈4.1%</div><div class="sl" style="margin-top:4px">短端相对淡定</div></div>
+    <div class="stat"><div class="sl">2s10s 利差</div><div class="sv" style="color:var(--bull)">+0.53%</div><div class="sl" style="margin-top:4px">正且走阔</div></div>
+  </div>
+  <p>背后的驱动：CPI 升到近三年最高、PPI 火热，债市认为美联储"落后于曲线"；叠加美伊冲突、油价走高推升通胀预期，市场已从"年内降息"转向押注"年底前可能再加息"。换句话说，<strong>长端被通胀预期和期限溢价单独顶了上去</strong>。</p>
+
+  <h3><span class="n">5.3</span>所以金价为什么卡在平台</h3>
+  <p>这正是黄金现在"原地拉锯"的根源——两股力量在对拉：</p>
+  <p><span class="tag-bull">撑住它的</span>：通胀重新抬头 + 地缘避险需求，让黄金作为对冲被买。如果通胀预期涨得比名义利率还快，<strong>实际利率不升反降</strong>，对金价反而是利多。这也是为什么近期债券收益率和金价有时一起涨。</p>
+  <p><span class="tag-bear">压制它的</span>：如果美联储真被迫<strong>再加息</strong>，把短端的实际利率实打实顶高，那就是黄金实实在在的逆风。</p>
+
+  <div class="takeaway">
+    <div class="tt">One-line takeaway</div>
+    <p>去年金价从 780 起跳，靠的是<strong>降息预期 + 宽松顺风</strong>；而现在的平台，处在<strong>通胀回升、美联储转鹰风险上升</strong>的拉锯里。形态相似，内核不同——所以当下方向的不确定性，比去年那次大得多。</p>
+    <p>判断的关键变量不是名义收益率，而是<strong>实际利率</strong>：它向下，黄金大概率顺风；它被加息顶上去，平台就更可能是顶部而非中继。</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CHEAT SHEET -->
+<section class="layer">
+  <div class="layer-tag"><b>附</b> 速查表</div>
+  <h2>一页记住所有概念</h2>
+  <table class="cheat">
+    <thead><tr><th>概念</th><th>一句话理解</th><th>对黄金</th></tr></thead>
+    <tbody>
+      <tr><td>短端</td><td>很短期限的利率，紧跟央行政策</td><td>—</td></tr>
+      <tr><td>长端</td><td>长期限利率，反映增长/通胀/期限溢价</td><td>—</td></tr>
+      <tr><td>联邦基金利率</td><td>美联储唯一直接控制的政策利率</td><td>加息→偏空</td></tr>
+      <tr><td>2 年期收益率</td><td>市场押注未来两年美联储路径，极敏感</td><td>升→偏空</td></tr>
+      <tr><td>10 年期收益率</td><td>长期预期+期限溢价，对政策不那么听话</td><td>看实际利率</td></tr>
+      <tr><td>名义利率</td><td>账面数字，没扣通胀</td><td>参考有限</td></tr>
+      <tr><td>实际利率</td><td>名义 − 通胀预期，黄金最核心对手</td><td><b>升→空 / 降→多</b></td></tr>
+      <tr><td>期限溢价</td><td>锁定长期承担风险的额外补偿</td><td>升→长端被顶高</td></tr>
+      <tr><td>2s10s 利差</td><td>10年 − 2年，负值即倒挂</td><td>倒挂→前瞻利好</td></tr>
+      <tr><td>熊市陡峭化</td><td>长端领涨，通胀/财政驱动（=现在）</td><td>看实际利率拉锯</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  本文为概念讲义，所有数值与模型均为教学示意，不构成任何投资建议；市场数据截至 2026 年 5 月中旬，请以实时行情为准。<br>
+  交互模型为简化的直觉演示，并非真实定价公式。
+</footer>
+
+</div>
+
+<script>
+(function(){
+  // ===== Interactive 1: yield curve =====
+  var mats=['3个月','2年','5年','10年','30年'];
+  function curveVals(r){return [r+0.10, 0.50+r*0.92, 1.50+r*0.55, 2.60+r*0.30, 3.20+r*0.20];}
+  var ptCol=['#A9802B','#2C6BB0','#A9802B','#1B7A5C','#A9802B'];
+  var c1=new Chart(document.getElementById('curveChart'),{
+    type:'line',
+    data:{labels:mats,datasets:[{data:curveVals(0.5),borderColor:'#A9802B',
+      backgroundColor:'rgba(169,128,43,.08)',borderWidth:2.5,tension:.3,fill:true,
+      pointRadius:[4,6,4,6,4],pointBackgroundColor:ptCol,pointBorderColor:ptCol}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:220},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+'：'+c.parsed.y.toFixed(2)+'%';}}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#7A776E'}},
+        y:{min:0,max:7,ticks:{callback:function(v){return v+'%';},font:{size:11},color:'#7A776E'},grid:{color:'rgba(0,0,0,.05)'}}}}
+  });
+  function upd1(){
+    var r=parseFloat(document.getElementById('ffr').value);
+    document.getElementById('ffrOut').textContent=r.toFixed(2)+'%';
+    var y2=0.50+r*0.92, y10=2.60+r*0.30, sp=y10-y2;
+    document.getElementById('y2').textContent=y2.toFixed(2)+'%';
+    document.getElementById('y10').textContent=y10.toFixed(2)+'%';
+    var spEl=document.getElementById('spread');
+    spEl.textContent=(sp>=0?'+':'')+sp.toFixed(2)+'%';
+    spEl.style.color = sp<0 ? '#B23A36' : '#1B7A5C';
+    var st=document.getElementById('state');
+    if(sp>0.8){st.textContent='陡峭/正常';st.style.color='#1B7A5C';}
+    else if(sp>0.1){st.textContent='趋平';st.style.color='#A9802B';}
+    else if(sp>-0.0001){st.textContent='接近持平';st.style.color='#A9802B';}
+    else {st.textContent='倒挂 ⚠';st.style.color='#B23A36';}
+    c1.data.datasets[0].data=curveVals(r); c1.update();
+  }
+  document.getElementById('ffr').addEventListener('input',upd1); upd1();
+
+  // ===== Interactive 2: real rate =====
+  function upd2(){
+    var nom=parseFloat(document.getElementById('nom').value);
+    var inf=parseFloat(document.getElementById('inf').value);
+    document.getElementById('nomOut').textContent=nom.toFixed(1)+'%';
+    document.getElementById('infOut').textContent=inf.toFixed(1)+'%';
+    var real=nom-inf;
+    var rEl=document.getElementById('real');
+    rEl.textContent=(real>=0?'+':'')+real.toFixed(1)+'%';
+    rEl.style.color = real<0 ? '#1B7A5C' : (real>2 ? '#B23A36' : '#A9802B');
+    var g=document.getElementById('goldImpact');
+    if(real< -0.5){g.textContent='强顺风 ▲';g.style.color='#1B7A5C';}
+    else if(real<1){g.textContent='偏顺风 ↗';g.style.color='#1B7A5C';}
+    else if(real<2.5){g.textContent='中性 →';g.style.color='#A9802B';}
+    else {g.textContent='逆风 ▼';g.style.color='#B23A36';}
+  }
+  document.getElementById('nom').addEventListener('input',upd2);
+  document.getElementById('inf').addEventListener('input',upd2); upd2();
+})();
+</script>
+</body>
+</html>

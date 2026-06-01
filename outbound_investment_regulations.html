@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国务院关于对外投资的规定 · 由浅入深解析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Spectral:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4efe3;
+    --paper-deep:#ebe3d2;
+    --ink:#1c1916;
+    --ink-soft:#4a443c;
+    --ink-faint:#8a8073;
+    --cinnabar:#9e2b25;
+    --cinnabar-bright:#b5342b;
+    --bronze:#9a7b3f;
+    --line:#d8cfba;
+    --seal:#a8332b;
+    --maxw:920px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(158,43,37,.04), transparent 38%),
+      radial-gradient(circle at 88% 78%, rgba(154,123,63,.05), transparent 42%);
+    color:var(--ink);
+    font-family:"Noto Sans SC",sans-serif;
+    font-weight:400;
+    line-height:1.85;
+    letter-spacing:.01em;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.45;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+  }
+  .wrap{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding:0 26px;}
+
+  /* ---------- top progress bar ---------- */
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:50;
+    background:linear-gradient(90deg,var(--cinnabar),var(--bronze));}
+
+  /* ---------- depth rail ---------- */
+  #rail{position:fixed;left:max(18px,calc(50vw - var(--maxw)/2 - 64px));top:50%;
+    transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:14px;}
+  #rail a{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:"Spectral",serif;font-size:13px;color:var(--ink-faint);text-decoration:none;
+    border:1px solid var(--line);background:rgba(244,239,227,.7);transition:.35s;backdrop-filter:blur(3px);}
+  #rail a:hover{color:var(--cinnabar);border-color:var(--cinnabar);}
+  #rail a.active{background:var(--cinnabar);color:#fff;border-color:var(--cinnabar);transform:scale(1.12);
+    box-shadow:0 4px 14px rgba(158,43,37,.35);}
+  @media(max-width:1180px){#rail{display:none;}}
+
+  /* ---------- hero ---------- */
+  header{padding:118px 0 64px;text-align:center;position:relative;}
+  .decree-no{font-family:"Spectral",serif;letter-spacing:.42em;font-size:13px;color:var(--cinnabar);
+    text-transform:uppercase;margin-bottom:30px;padding-left:.42em;}
+  .seal{position:absolute;top:80px;right:6%;width:118px;height:118px;border:2.5px solid var(--seal);
+    border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transform:rotate(-9deg);color:var(--seal);opacity:.9;}
+  .seal span{font-family:"Noto Serif SC",serif;font-weight:700;writing-mode:vertical-rl;
+    font-size:21px;letter-spacing:.32em;line-height:1.1;}
+  .seal small{font-family:"Spectral",serif;font-size:10px;letter-spacing:.18em;margin-top:6px;opacity:.85;}
+  @media(max-width:760px){.seal{position:static;margin:0 auto 34px;transform:rotate(-4deg);}}
+  h1{font-family:"Noto Serif SC",serif;font-weight:900;font-size:clamp(34px,6.4vw,62px);
+    line-height:1.18;letter-spacing:.02em;color:var(--ink);}
+  h1 .sub{display:block;font-size:clamp(16px,2.6vw,22px);font-weight:500;color:var(--ink-soft);
+    margin-top:18px;letter-spacing:.16em;}
+  .hero-meta{display:flex;gap:0;justify-content:center;flex-wrap:wrap;margin-top:46px;
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;max-width:640px;margin-inline:auto;}
+  .hero-meta div{flex:1;min-width:150px;padding:18px 14px;border-right:1px solid var(--line);}
+  .hero-meta div:last-child{border-right:none;}
+  .hero-meta .k{font-size:12px;letter-spacing:.2em;color:var(--ink-faint);margin-bottom:8px;}
+  .hero-meta .v{font-family:"Noto Serif SC",serif;font-weight:700;font-size:18px;color:var(--cinnabar);}
+  .lede{max-width:680px;margin:48px auto 0;font-size:18px;line-height:2;color:var(--ink-soft);}
+  .lede strong{color:var(--ink);font-weight:700;border-bottom:2px solid var(--bronze);}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;border-top:1px solid var(--line);}
+  .lv-head{display:flex;align-items:flex-start;gap:24px;margin-bottom:38px;}
+  .lv-num{font-family:"Spectral",serif;font-weight:300;font-size:clamp(56px,11vw,104px);
+    line-height:.82;color:var(--paper-deep);-webkit-text-stroke:1.5px var(--bronze);flex-shrink:0;}
+  .lv-tt{padding-top:6px;}
+  .lv-tag{font-size:12px;letter-spacing:.34em;color:var(--cinnabar);margin-bottom:10px;}
+  .lv-tt h2{font-family:"Noto Serif SC",serif;font-weight:700;font-size:clamp(24px,4.4vw,36px);
+    line-height:1.3;letter-spacing:.02em;}
+  .lv-tt p.cap{margin-top:12px;color:var(--ink-soft);font-size:15.5px;max-width:560px;}
+
+  p.body{font-size:16.5px;margin-bottom:18px;color:var(--ink-soft);}
+  p.body b{color:var(--ink);font-weight:700;}
+  .hl{background:linear-gradient(transparent 62%,rgba(154,123,63,.28) 62%);padding:0 1px;color:var(--ink);font-weight:500;}
+  .article-ref{font-family:"Spectral",serif;font-size:12px;color:var(--cinnabar);
+    border:1px solid var(--cinnabar);border-radius:3px;padding:1px 7px;margin-left:6px;
+    white-space:nowrap;letter-spacing:.05em;}
+
+  /* spotlight box */
+  .spot{background:linear-gradient(135deg,#fffaf0,#f6efdd);border:1px solid var(--line);
+    border-left:4px solid var(--cinnabar);border-radius:6px;padding:26px 30px;margin:26px 0;
+    box-shadow:0 12px 30px -18px rgba(28,25,22,.4);}
+  .spot .lab{font-family:"Spectral",serif;font-size:11px;letter-spacing:.28em;color:var(--cinnabar);
+    text-transform:uppercase;margin-bottom:12px;}
+  .spot h3{font-family:"Noto Serif SC",serif;font-size:22px;font-weight:700;margin-bottom:12px;}
+  .spot p{font-size:16px;color:var(--ink-soft);}
+
+  /* ---------- glossary ---------- */
+  .gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:16px;margin-top:30px;}
+  .term{background:#fbf7ec;border:1px solid var(--line);border-radius:7px;padding:0;cursor:pointer;
+    transition:.3s;overflow:hidden;position:relative;}
+  .term:hover{border-color:var(--cinnabar);transform:translateY(-3px);
+    box-shadow:0 16px 34px -22px rgba(158,43,37,.6);}
+  .term.open{border-color:var(--cinnabar);}
+  .term .t-top{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .term .t-name{font-family:"Noto Serif SC",serif;font-weight:700;font-size:17.5px;color:var(--ink);line-height:1.4;}
+  .term .t-en{font-family:"Spectral",serif;font-size:11px;color:var(--ink-faint);letter-spacing:.04em;display:block;margin-top:4px;font-weight:400;}
+  .term .plus{width:22px;height:22px;flex-shrink:0;position:relative;}
+  .term .plus::before,.term .plus::after{content:"";position:absolute;background:var(--cinnabar);transition:.3s;}
+  .term .plus::before{top:10px;left:2px;width:18px;height:2px;}
+  .term .plus::after{top:2px;left:10px;width:2px;height:18px;}
+  .term.open .plus::after{transform:rotate(90deg);opacity:0;}
+  .term .t-body{max-height:0;opacity:0;transition:.4s;padding:0 20px;}
+  .term.open .t-body{max-height:420px;opacity:1;padding:0 20px 20px;}
+  .term .t-body p{font-size:14.5px;line-height:1.78;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:14px;}
+  .term .t-body .key{color:var(--cinnabar);font-weight:700;}
+
+  /* ---------- three categories ---------- */
+  .cats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
+  @media(max-width:680px){.cats{grid-template-columns:1fr;}}
+  .cat{border-radius:8px;padding:24px 22px;color:#fff;position:relative;overflow:hidden;}
+  .cat h4{font-family:"Noto Serif SC",serif;font-size:23px;font-weight:700;margin-bottom:10px;letter-spacing:.06em;}
+  .cat p{font-size:14px;line-height:1.7;opacity:.94;}
+  .cat .big{position:absolute;right:-6px;bottom:-22px;font-family:"Spectral",serif;font-size:96px;opacity:.13;font-weight:700;}
+  .cat.e{background:linear-gradient(150deg,#3f6f4e,#2c5239);}
+  .cat.l{background:linear-gradient(150deg,#b8862f,#8f661c);}
+  .cat.f{background:linear-gradient(150deg,#a8332b,#7c2019);}
+
+  /* ---------- duty / redline list ---------- */
+  .duties{margin-top:26px;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .duty{display:flex;gap:20px;padding:22px 24px;background:#fbf7ec;border-bottom:1px solid var(--line);transition:.25s;}
+  .duty:last-child{border-bottom:none;}
+  .duty:hover{background:#fff;}
+  .duty .d-ic{font-family:"Spectral",serif;font-weight:700;font-size:22px;color:var(--cinnabar);flex-shrink:0;width:34px;}
+  .duty .d-tt{font-family:"Noto Serif SC",serif;font-weight:600;font-size:17px;margin-bottom:5px;}
+  .duty .d-tx{font-size:14.5px;color:var(--ink-soft);line-height:1.7;}
+
+  /* ---------- penalty table ---------- */
+  .pen-tab{margin-top:28px;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .pen-row{display:grid;grid-template-columns:1.4fr 1fr;border-bottom:1px solid var(--line);}
+  .pen-row:last-child{border-bottom:none;}
+  .pen-row.head{background:var(--ink);color:var(--paper);}
+  .pen-row.head>div{font-family:"Noto Serif SC",serif;font-weight:600;font-size:14px;letter-spacing:.08em;}
+  .pen-row>div{padding:16px 20px;}
+  .pen-row>div:first-child{border-right:1px solid var(--line);font-size:15px;}
+  .pen-row.head>div:first-child{border-right-color:rgba(255,255,255,.15);}
+  .pen-row .amt{font-family:"Spectral",serif;font-weight:700;color:var(--cinnabar);font-size:15px;}
+  .pen-row:not(.head):nth-child(even){background:#fbf7ec;}
+  @media(max-width:560px){.pen-row{grid-template-columns:1fr;}.pen-row>div:first-child{border-right:none;border-bottom:1px solid var(--line);}}
+
+  /* ---------- timeline ---------- */
+  .tl{display:flex;flex-direction:column;gap:0;margin-top:28px;position:relative;padding-left:30px;}
+  .tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line);}
+  .tl-item{position:relative;padding:0 0 26px 18px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{content:"";position:absolute;left:-29px;top:5px;width:12px;height:12px;border-radius:50%;
+    background:var(--paper);border:2.5px solid var(--bronze);}
+  .tl-item.fin::before{background:var(--cinnabar);border-color:var(--cinnabar);}
+  .tl-d{font-family:"Spectral",serif;font-weight:700;font-size:14px;color:var(--cinnabar);letter-spacing:.04em;}
+  .tl-t{font-size:15px;color:var(--ink-soft);margin-top:3px;}
+
+  /* extend cards */
+  .ext{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:26px;}
+  .ext-c{background:#fbf7ec;border:1px solid var(--line);border-radius:7px;padding:22px;border-top:3px solid var(--bronze);}
+  .ext-c h4{font-family:"Noto Serif SC",serif;font-size:17px;font-weight:700;margin-bottom:9px;}
+  .ext-c p{font-size:14px;color:var(--ink-soft);line-height:1.72;}
+
+  footer{padding:60px 0 90px;text-align:center;border-top:1px solid var(--line);}
+  footer .src{font-size:13px;color:var(--ink-faint);letter-spacing:.04em;}
+  footer .dis{font-size:12.5px;color:var(--ink-faint);margin-top:14px;max-width:560px;margin-inline:auto;line-height:1.7;}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<nav id="rail">
+  <a href="#s0" data-t="0">00</a>
+  <a href="#s1" data-t="1">01</a>
+  <a href="#s2" data-t="2">02</a>
+  <a href="#s3" data-t="3">03</a>
+  <a href="#s4" data-t="4">04</a>
+  <a href="#s5" data-t="5">05</a>
+  <a href="#s6" data-t="6">06</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <header id="s0">
+    <div class="seal"><span>对外投资</span><small>STATE COUNCIL</small></div>
+    <div class="decree-no reveal">中华人民共和国国务院令 · 第 837 号</div>
+    <h1 class="reveal">国务院关于对外投资的规定
+      <span class="sub">一份让你看懂的逐层解析</span>
+    </h1>
+    <div class="hero-meta reveal">
+      <div><div class="k">通过</div><div class="v">2026.04.17</div></div>
+      <div><div class="k">公布</div><div class="v">2026.05.05</div></div>
+      <div><div class="k">施行</div><div class="v">2026.07.01</div></div>
+    </div>
+    <p class="lede reveal">这是国家层面第一次用<strong>专门行政法规</strong>，系统规范"中国主体到境外投资"这件事。核心基调一句话：<strong>鼓励出海，守住安全底线</strong>。</p>
+  </header>
+
+  <!-- ================= L1 为什么 ================= -->
+  <section id="s1">
+    <div class="lv-head reveal">
+      <div class="lv-num">01</div>
+      <div class="lv-tt">
+        <div class="lv-tag">最浅 · 它为什么存在</div>
+        <h2>立法初衷：开放与安全的两条腿</h2>
+        <p class="cap">读懂这一节，就抓住了整部法规的"性格"——它既想推你走出去，又要替国家管住风险。</p>
+      </div>
+    </div>
+    <p class="body reveal">规定开宗明义说，目的是<b>推进高水平对外开放</b>、促进对外投资高质量发展，同时<b>维护国家主权、安全、发展利益</b><span class="article-ref">第一条</span>。</p>
+    <p class="body reveal">它的立法依据是《对外关系法》《对外贸易法》等上位法，并把<span class="hl">总体国家安全观</span>、统筹发展和安全写进了指导思想里<span class="article-ref">第三条</span>。对外，它呼应"一带一路"、反对单边主义和保护主义<span class="article-ref">第四条</span>。</p>
+    <div class="spot reveal">
+      <div class="lab">最值得记的一条</div>
+      <h3>投资者依法享有"对外投资自主权"</h3>
+      <p>自主决策、自担风险、自负盈亏——政府支持你按市场化原则出海，但<b>不替你兜底</b>。同时设了一条不可逾越的红线：不得危害国家安全、损害国家利益和社会公共利益<span class="article-ref">第五条</span>。</p>
+    </div>
+  </section>
+
+  <!-- ================= L2 核心概念 ================= -->
+  <section id="s2">
+    <div class="lv-head reveal">
+      <div class="lv-num">02</div>
+      <div class="lv-tt">
+        <div class="lv-tag">打地基 · 专有名词解析</div>
+        <h2>先把术语拆开看懂</h2>
+        <p class="cap">下面这些词在原文里反复出现，是理解后面所有条款的钥匙。点开任意一张卡片查看大白话解释。</p>
+      </div>
+    </div>
+    <div class="gloss reveal" id="glossGrid"></div>
+  </section>
+
+  <!-- ================= L3 监管框架 ================= -->
+  <section id="s3">
+    <div class="lv-head reveal">
+      <div class="lv-num">03</div>
+      <div class="lv-tt">
+        <div class="lv-tag">进一层 · 怎么管</div>
+        <h2>监管框架：三类清单 + 分类分级</h2>
+        <p class="cap">国家不是"一刀切"，而是把对外投资分门别类、按风险高低分级，覆盖投资全过程。</p>
+      </div>
+    </div>
+    <p class="body reveal">投资主管部门、商务主管部门会同其他部门，根据国民经济需要、各国投资环境与风险，制定并动态调整政策，明确哪些<b>鼓励、限制、禁止</b><span class="article-ref">第十一条</span>。整体上实行<span class="hl">分类分级、全过程监管</span>，推动"便利化"与"防风险"相结合<span class="article-ref">第十条</span>。</p>
+    <div class="cats reveal">
+      <div class="cat e"><h4>鼓励</h4><p>符合国家战略、互利共赢的方向，给政策与服务支持。</p><div class="big">E</div></div>
+      <div class="cat l"><h4>限制</h4><p>需履行核准、备案等手续，达到条件才能投。</p><div class="big">L</div></div>
+      <div class="cat f"><h4>禁止</h4><p>触碰安全或法律红线，不得投资，违者重罚。</p><div class="big">F</div></div>
+    </div>
+    <p class="body reveal" style="margin-top:26px;">投资前依规要办的手续包括<span class="hl">核准备案、信息报告、跨境资金登记</span>等，必须如实提交材料、配合监督检查<span class="article-ref">第十二条</span>。</p>
+  </section>
+
+  <!-- ================= L4 红线义务 ================= -->
+  <section id="s4">
+    <div class="lv-head reveal">
+      <div class="lv-num">04</div>
+      <div class="lv-tt">
+        <div class="lv-tag">再深一层 · 不能碰的红线</div>
+        <h2>监管红线与合规义务</h2>
+        <p class="cap">这里是出海最容易"踩雷"的地方，尤其是技术与数据的跨境流动。</p>
+      </div>
+    </div>
+    <div class="duties reveal">
+      <div class="duty"><div class="d-ic">壹</div><div><div class="d-tt">不得规避出口管制</div><div class="d-tx">不能出口/使用国家禁止或未经许可的货物、技术、服务、数据；更不能借<b>派技术人员、跨境培训、技术指导、组织人员赴外工作</b>等方式变相转移出去<span class="article-ref">第十三条</span>。</div></div></div>
+      <div class="duty"><div class="d-ic">贰</div><div><div class="d-tt">服从境外投资安全审查</div><div class="d-tx">对可能影响国家安全的境外投资及资产、权益转让，国家有权审查；相关方须协助配合，<b>不得拒绝、阻碍</b>，并须遵守审查决定<span class="article-ref">第十五条</span>。</div></div></div>
+      <div class="duty"><div class="d-ic">叁</div><div><div class="d-tt">健全合规与安全治理</div><div class="d-tx">在海外投资的企业要建合规经营、内控、安全生产、突发事件处置等制度，保障员工与资产安全<span class="article-ref">第十六条</span>。</div></div></div>
+      <div class="duty"><div class="d-ic">肆</div><div><div class="d-tt">规范经营、公平竞争</div><div class="d-tx">不得诋毁同行商誉、侵犯商业秘密、无正当理由低价倾销，或靠贿赂欺诈牟取不正当利益<span class="article-ref">第十七条</span>。</div></div></div>
+    </div>
+    <p class="body reveal" style="margin-top:26px;">此外，凡涉及资金汇兑、货物技术进出口、跨境数据流动、<span class="hl">经营者集中审查</span>、网络安全、税收、国资监管等，仍按各自专门法律法规执行<span class="article-ref">第十四条</span>。</p>
+  </section>
+
+  <!-- ================= L5 保护反制 ================= -->
+  <section id="s5">
+    <div class="lv-head reveal">
+      <div class="lv-num">05</div>
+      <div class="lv-tt">
+        <div class="lv-tag">另一面 · 国家替你撑腰</div>
+        <h2>保护机制与反制工具</h2>
+        <p class="cap">规定不只是"管你"，也包含一整套在境外保护中国投资者的手段。</p>
+      </div>
+    </div>
+    <div class="duties reveal">
+      <div class="duty"><div class="d-ic">A</div><div><div class="d-tt">领事保护与协助</div><div class="d-tx">境外发生战争、动乱、灾害、疫情、恐袭等突发事件，中国籍员工人身财产安全受威胁时，驻外机构应及时核实、敦促当地保护、协助避险<span class="article-ref">第二十条</span>。</div></div></div>
+      <div class="duty"><div class="d-ic">B</div><div><div class="d-tt">投资壁垒调查与国别反制</div><div class="d-tx">遇到与贸易有关的投资壁垒，商务部可发起调查；据结果可调整国别投资政策、限制相关货物技术进出口<span class="article-ref">第二十三条</span>。</div></div></div>
+      <div class="duty"><div class="d-ic">C</div><div><div class="d-tt">反外国制裁 · 反制清单</div><div class="d-tx">对中国采取歧视性禁限措施的，可依《反外国制裁法》把参与的组织、个人列入<b>反制清单</b>并采取措施<span class="article-ref">第二十四条</span>。</div></div></div>
+      <div class="duty"><div class="d-ic">D</div><div><div class="d-tt">针对歧视性打压的反措施</div><div class="d-tx">对无理剥夺投资者权益的外国主体，可限制其对华进出口、在华投资、人员入境、在华工作居留资格等<span class="article-ref">第二十五条</span>。</div></div></div>
+    </div>
+  </section>
+
+  <!-- ================= L6 罚则 ================= -->
+  <section id="s6">
+    <div class="lv-head reveal">
+      <div class="lv-num">06</div>
+      <div class="lv-tt">
+        <div class="lv-tag">最深 · 违规的代价</div>
+        <h2>罚则：罚多少、停多久</h2>
+        <p class="cap">细到具体罚款比例。注意：罚款大多按"投资额的千分之几"计算，并可附带"禁投期"。</p>
+      </div>
+    </div>
+    <div class="pen-tab reveal">
+      <div class="pen-row head"><div>违规行为</div><div>主要后果</div></div>
+      <div class="pen-row"><div>投资国家禁止的项目<span class="article-ref">二十七条</span></div><div>责令停止、限期处分股份资产、没收违法所得；拒不执行罚<span class="amt">投资额 5‰–10‰</span></div></div>
+      <div class="pen-row"><div>未办核准备案 / 提交虚假材料</div><div>责令改正、没收所得、罚 <span class="amt">1‰–5‰</span>；拒不改正升至 <span class="amt">5‰–10‰</span></div></div>
+      <div class="pen-row"><div>以贿赂欺骗获得核准备案</div><div>撤销文件、没收所得、罚 <span class="amt">1‰–5‰</span>，并可责令停止处分</div></div>
+      <div class="pen-row"><div>不配合安全审查 / 危害国安<span class="article-ref">二十八条</span></div><div>责令改正、没收所得、罚款；可禁投 <span class="amt">1–3 年</span></div></div>
+      <div class="pen-row"><div>对直接责任人员（多数情形）</div><div>另处 <span class="amt">2万–10万元</span> 罚款</div></div>
+    </div>
+    <p class="body reveal" style="margin-top:22px;">处罚生效后，主管部门可在 <b>3 年内不受理</b> 其核准备案申请，或禁止其 <b>1 至 3 年</b> 内从事对外投资活动<span class="article-ref">第二十七条</span>。造成损害的依法承担民事、治安乃至刑事责任<span class="article-ref">第三十条</span>。</p>
+  </section>
+
+  <!-- ================= 延伸 ================= -->
+  <section id="ext">
+    <div class="lv-head reveal">
+      <div class="lv-num">+</div>
+      <div class="lv-tt">
+        <div class="lv-tag">收尾 · 适用范围延伸</div>
+        <h2>它还管到哪些场景</h2>
+      </div>
+    </div>
+    <div class="ext reveal">
+      <div class="ext-c"><h4>港澳台投资</h4><p>对港澳台地区投资的管理<b>参照本规定</b>执行；另有规定的从其规定<span class="article-ref">三十二条</span>。</p></div>
+      <div class="ext-c"><h4>境外金融市场投资</h4><p>用自有/募集/受托资金在境外金融市场投资，依本规定及国家其他规定执行<span class="article-ref">三十三条</span>。</p></div>
+      <div class="ext-c"><h4>再投资</h4><p>用对外投资所得资产、权益在境外再投资，同样纳入管理<span class="article-ref">三十三条</span>。</p></div>
+      <div class="ext-c"><h4>居民个人 · 细则待出</h4><p>境内居民个人对外投资的<b>具体管理办法</b>，由投资、商务主管部门另行制定——值得后续留意。</p></div>
+    </div>
+
+    <div class="lv-head reveal" style="margin-top:60px;">
+      <div class="lv-tt" style="padding-top:0;">
+        <div class="lv-tag">关键时间轴</div>
+        <h2 style="font-size:24px;">从通过到施行</h2>
+      </div>
+    </div>
+    <div class="tl reveal">
+      <div class="tl-item"><div class="tl-d">2026 · 04 · 17</div><div class="tl-t">国务院第 83 次常务会议通过</div></div>
+      <div class="tl-item"><div class="tl-d">2026 · 05 · 05</div><div class="tl-t">以国务院令第 837 号公布（总理 李强 签署）</div></div>
+      <div class="tl-item fin"><div class="tl-d">2026 · 07 · 01</div><div class="tl-t">正式施行</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="src">资料来源 · 中国政府网《国务院关于对外投资的规定》（国务院令第837号）</div>
+    <div class="dis">本页为对法规原文的通俗解析，仅供理解参考，不构成法律或投资建议；涉及具体投资决策请以官方原文及专业意见为准。</div>
+  </footer>
+</div>
+
+<script>
+/* ---------- glossary data ---------- */
+const TERMS=[
+ {n:"对外投资（境外投资）",en:"Outbound Investment",d:"境内主体通过投入资产、权益，或提供融资、担保等方式，<span class='key'>直接或间接获得境外企业、资产</span>的所有权、控制权、经营管理权等权益的活动。简单说：把钱或资源投到国外去拿股权或控制权。"},
+ {n:"投资者",en:"Investor",d:"包括境内的<span class='key'>企业、其他组织，以及居民个人</span>。注意：个人也算在内——这是本规定一个特别值得关注的点。"},
+ {n:"投资自主权",en:"Investment Autonomy",d:"投资者自主决策、<span class='key'>自担风险、自负盈亏</span>。市场化导向，政府支持但不兜底，前提是不危害国家安全与公共利益。"},
+ {n:"核准备案",en:"Approval & Filing",d:"投资前依规要办的行政手续。有的项目需<span class='key'>核准（事前批准）</span>，有的只需<span class='key'>备案（登记报告）</span>。提交虚假材料或不办都会被罚。"},
+ {n:"出口管制",en:"Export Control",d:"国家对特定货物、技术、服务、数据出口的限制或禁止。规定特别强调：<span class='key'>不能借出海变相转移</span>受管制的技术与数据。"},
+ {n:"境外投资安全审查",en:"Security Review",d:"对可能影响国家安全的境外投资及相关资产、权益转让进行审查的制度。相关方<span class='key'>必须配合，不得拒绝阻碍</span>。"},
+ {n:"经营者集中审查",en:"Merger Review",d:"反垄断领域概念。并购达到一定规模需做<span class='key'>反垄断申报审查</span>——对外投资涉及并购时仍按反垄断法走。"},
+ {n:"政策性保险 / 海外投资保险",en:"Policy Insurance",d:"由政策性保险机构提供的风险保障，覆盖<span class='key'>战争、征收、汇兑限制</span>等海外政治风险。"},
+ {n:"反外国制裁法 · 反制清单",en:"Anti-Sanctions",d:"当外国对中国采取歧视性禁限措施时，可将参与者列入<span class='key'>反制清单</span>并采取反制措施的法律工具。"},
+ {n:"领事保护与协助",en:"Consular Protection",d:"境外中国公民、员工遇战争、动乱、灾害等突发事件、安全受威胁时，<span class='key'>驻外外交机构</span>提供核实、敦促、协助避险等帮助。"},
+ {n:"投资壁垒",en:"Investment Barrier",d:"投资目的国设置的、与贸易有关的投资障碍。遇到时商务部可<span class='key'>发起调查并采取国别反制</span>。"},
+ {n:"分类分级 · 全过程监管",en:"Tiered Supervision",d:"按投资类别和风险等级、覆盖投资全周期的监管方式，目标是<span class='key'>便利化与防风险并重</span>。"},
+ {n:"总体国家安全观",en:"Holistic Security",d:"统筹发展与安全的国家安全理念，被写入指导思想，<span class='key'>贯穿对外投资全过程</span>。"},
+ {n:"鼓励 / 限制 / 禁止 三类",en:"Three Categories",d:"国家把对外投资分成三类来管理。<span class='key'>投了禁止类，重罚并可禁投 1–3 年</span>。"}
+];
+const grid=document.getElementById('glossGrid');
+TERMS.forEach(t=>{
+  const el=document.createElement('div');
+  el.className='term';
+  el.innerHTML=`<div class="t-top"><div><span class="t-name">${t.n}</span><span class="t-en">${t.en}</span></div><div class="plus"></div></div><div class="t-body"><p>${t.d}</p></div>`;
+  el.addEventListener('click',()=>el.classList.toggle('open'));
+  grid.appendChild(el);
+});
+
+/* ---------- reveal on scroll ---------- */
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4*60)+'ms';io.observe(el);});
+
+/* ---------- progress + active rail ---------- */
+const bar=document.getElementById('progress');
+const secs=[...document.querySelectorAll('section[id^="s"],header')];
+const links=[...document.querySelectorAll('#rail a')];
+function onScroll(){
+  const h=document.documentElement;
+  const p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+  bar.style.width=(p*100)+'%';
+  let cur=secs[0].id;
+  secs.forEach(s=>{if(s.getBoundingClientRect().top<window.innerHeight*0.4)cur=s.id;});
+  links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+}
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+</script>
+</body>
+</html>

@@ -302,11 +302,76 @@
   .hero .reveal:nth-child(5){animation-delay:.5s;}
   @keyframes rise{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:none;}}
 
+  /* ===== PayGo field-report section ===== */
+  section.featured{background:linear-gradient(180deg,rgba(236,180,84,.04),transparent 60%);}
+  .paygo-intro{font-size:15.5px;color:var(--ink-dim);font-weight:300;max-width:780px;}
+  .paygo-intro b{color:var(--ink);font-weight:500;}
+  .paygo-intro .hl-y{color:var(--gold);font-weight:500;}
+  .subhead{display:flex;align-items:center;gap:11px;font-family:"Chakra Petch",sans-serif;font-weight:600;letter-spacing:.03em;font-size:16px;color:var(--ink);margin:34px 0 15px;flex-wrap:wrap;}
+  .subhead .bar{width:22px;height:2px;background:var(--signal);box-shadow:0 0 8px var(--signal-glow);flex:none;}
+  .src-tag{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.04em;font-weight:400;padding:2px 9px;border-radius:6px;}
+  .subhead .src-tag{margin-left:auto;}
+  .src-off{color:var(--signal);background:rgba(47,230,166,.08);border:1px solid var(--line);}
+  .src-com{color:var(--gold);background:rgba(236,180,84,.08);border:1px solid rgba(236,180,84,.25);}
+
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:14px;}
+  .fact{padding:18px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line-soft);}
+  .fact .ft{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:9px;}
+  .fact .fv{font-size:14px;color:var(--ink-dim);font-weight:300;line-height:1.7;}
+  .fact .fv b{color:var(--ink);font-weight:500;}
+  .fact .fv .g{color:var(--signal);font-weight:600;}
+  .fact .fv .y{color:var(--gold);font-weight:600;}
+
+  .lifeline{display:flex;flex-wrap:wrap;border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;background:var(--panel-2);}
+  .life{flex:1;min-width:150px;padding:15px 16px;border-right:1px solid var(--line-soft);}
+  .life:last-child{border-right:none;}
+  .life .ls{font-family:"Chakra Petch",sans-serif;font-size:12px;color:var(--signal);letter-spacing:.05em;}
+  .life .lt{font-size:14.5px;color:var(--ink);font-weight:600;margin:5px 0 4px;}
+  .life .ld{font-size:12.5px;color:var(--ink-mute);font-weight:300;line-height:1.6;}
+  .life.bad .ls{color:var(--warn);}
+  .life.bad .lt{color:#ffb893;}
+  .life-note{font-size:12.5px;color:var(--ink-mute);font-weight:300;margin-top:9px;}
+  .life-note b{color:var(--warn);font-weight:500;}
+
+  .mf{display:flex;flex-direction:column;gap:11px;}
+  .mf-row{display:grid;grid-template-columns:1fr 1.15fr;gap:12px;}
+  .mf-cell{padding:13px 15px;border-radius:11px;font-size:13.8px;font-weight:300;line-height:1.65;}
+  .mf-myth{background:rgba(255,155,99,.06);border:1px solid rgba(255,155,99,.22);color:#ffd2bb;}
+  .mf-fact{background:rgba(47,230,166,.05);border:1px solid var(--line);color:var(--ink-dim);}
+  .mf-cell .lab{display:block;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+  .mf-myth .lab{color:var(--warn);}
+  .mf-fact .lab{color:var(--signal);}
+  .mf-cell b{color:var(--ink);font-weight:500;}
+
+  .xquote{position:relative;padding:20px 24px 20px 28px;border-radius:14px;background:linear-gradient(150deg,var(--panel),var(--void-2));border:1px solid var(--line);}
+  .xquote::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;border-radius:3px;background:var(--signal);box-shadow:0 0 10px var(--signal-glow);}
+  .xquote .qhead{display:flex;align-items:center;gap:10px;margin-bottom:11px;flex-wrap:wrap;}
+  .xquote .xlogo{font-family:Georgia,serif;font-weight:700;font-size:15px;width:27px;height:27px;display:flex;align-items:center;justify-content:center;border-radius:7px;background:#000;color:#fff;border:1px solid var(--line-soft);flex:none;}
+  .xquote .who{font-weight:600;color:var(--ink);font-size:14.5px;}
+  .xquote .when{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-mute);margin-left:auto;}
+  .xquote .qt{font-size:15px;color:var(--ink);line-height:1.85;}
+  .xquote .qt em{color:var(--gold);font-style:normal;font-weight:600;}
+  .xquote .qmeta{margin-top:13px;font-size:13px;color:var(--ink-dim);font-weight:300;line-height:1.7;}
+
+  .srcs{display:flex;flex-wrap:wrap;gap:9px;}
+  .srcchip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-family:"JetBrains Mono",monospace;font-size:12px;background:var(--void-2);border:1px solid var(--line-soft);color:var(--ink-dim);}
+  .srcchip:hover{border-color:var(--signal-deep);color:var(--signal);}
+  .srcchip .q{font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:5px;}
+  .q-primary{background:rgba(47,230,166,.13);color:var(--signal);}
+  .q-secondary{background:rgba(164,186,180,.12);color:var(--ink-dim);}
+  .q-forum{background:rgba(236,180,84,.13);color:var(--gold);}
+  .q-blog{background:rgba(164,186,180,.07);color:var(--ink-mute);}
+  .verify-note{margin-top:16px;padding:14px 16px;border-radius:11px;background:rgba(164,186,180,.04);border:1px dashed var(--line-soft);font-size:12.5px;color:var(--ink-mute);font-weight:300;line-height:1.75;}
+  .verify-note b{color:var(--ink-dim);font-weight:500;}
+
   @media (max-width:760px){
     .grid-2,.grid-3{grid-template-columns:1fr;}
     .nav-links{display:none;}
     header.hero{padding:48px 0 40px;}
     .opt-body,.opt-head{padding-left:24px;padding-right:18px;}
+    .mf-row{grid-template-columns:1fr;}
+    .life{border-right:none;border-bottom:1px solid var(--line-soft);}
+    .life:last-child{border-bottom:none;}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;}
@@ -325,6 +390,7 @@
       <a href="#how">使用指南</a>
       <a href="#compare">方案对比</a>
       <a href="#options">方案详情</a>
+      <a href="#paygo">PayGo 实战</a>
       <a href="#more">更多网站</a>
     </div>
   </div>
@@ -342,7 +408,7 @@
     </div>
     <div class="stats reveal">
       <div class="stat"><div class="num">50<small> 个/卡</small></div><div class="lbl">一张可编程卡最多写入号码</div></div>
-      <div class="stat"><div class="num">5<small> 套方案</small></div><div class="lbl">保号 · 接码 · 流量全覆盖</div></div>
+      <div class="stat"><div class="num">6<small> 套方案</small></div><div class="lbl">保号 · 接码 · 流量全覆盖</div></div>
       <div class="stat"><div class="num">~1<small> 分钟</small></div><div class="lbl">eSIM 下单到写入耗时</div></div>
       <div class="stat"><div class="num">¥0<small> 起</small></div><div class="lbl">德国沃达丰 0 开卡 0 月租</div></div>
     </div>
@@ -475,6 +541,14 @@
             <td><span class="pill">漫游激活</span></td>
           </tr>
           <tr>
+            <td><span class="flag">🇺🇸</span>美国 Ultra Mobile PayGo</td>
+            <td>收短信 / 保号</td>
+            <td>$3/月 · 年约 $36</td>
+            <td>中国卡(填美国账单地址)</td>
+            <td>激活按卖家攻略</td>
+            <td><span class="pill">Wi-Fi Calling</span></td>
+          </tr>
+          <tr>
             <td><span class="flag">🇪🇪</span>爱沙尼亚 esim.gg</td>
             <td>接码 / 纯净家宽 IP</td>
             <td>接码 &lt; 5€ · 流量 40€/50GB/半年</td>
@@ -588,6 +662,32 @@
         </div>
       </article>
 
+      <!-- Ultra Mobile PayGo -->
+      <article class="opt reveal">
+        <div class="opt-head">
+          <span class="opt-flag">🇺🇸</span>
+          <div class="opt-title"><div class="country">USA · Ultra Mobile PayGo</div><div class="name">Ultra Mobile PayGo（紫卡）</div></div>
+          <div class="opt-badges"><span class="badge y">$3/月保号</span><span class="badge g">接码热门</span></div>
+        </div>
+        <div class="opt-body">
+          <div class="spec">
+            <div class="cell"><div class="k">月费</div><div class="v">$3 / 月 <small>100min·100短信·100MB</small></div></div>
+            <div class="cell"><div class="k">网络</div><div class="v">T-Mobile <small>MVNO · 4G/5G</small></div></div>
+            <div class="cell"><div class="k">保号年成本</div><div class="v">≈ $36 <small>不含税费</small></div></div>
+            <div class="cell"><div class="k">支付</div><div class="v">中国 VISA/Master <small>填美国账单地址</small></div></div>
+          </div>
+          <ul class="opt-notes">
+            <li><b>优点：</b>业内最便宜的美国保号卡之一，<span class="hl-y">$3/月</span>就能长期持有美国号；开 <b>Wi-Fi Calling</b> 后可在大陆接收验证码，适合注册 AI 订阅 / 海外服务。</li>
+            <li><b>计费：</b>每 <b>30 天周期</b>从预付的 PayGo 钱包<b>自动扣 $3</b>（非自然月、非纯按量），<b>余额必须 ≥$3</b>，否则停机——不会免费保活。</li>
+            <li><b>缺点 / 坑：</b>激活流程繁琐、坊间说法矛盾；用中国卡在<b>网页端充值风控易失败</b>；个别报告称在中国激活的卡可能短期被封。</li>
+          </ul>
+          <div class="links">
+            <a class="lnk y" href="https://www.ultramobile.com/paygo/" target="_blank" rel="noopener">ultramobile.com</a>
+            <a class="lnk" href="#paygo">↓ 看实战详解</a>
+          </div>
+        </div>
+      </article>
+
       <!-- Estonia -->
       <article class="opt reveal">
         <div class="opt-head">
@@ -640,10 +740,99 @@
     </div>
   </section>
 
+  <!-- ============ PAYGO FIELD REPORT ============ -->
+  <section id="paygo" class="featured">
+    <div class="sec-head reveal">
+      <span class="sec-idx">06</span>
+      <h2>Ultra Mobile PayGo · 在中国实战</h2>
+      <p class="sec-sub">深度调研 + 对抗式核验：$3/月美国紫卡，怎么激活、怎么保号、怎么接码。</p>
+    </div>
+
+    <p class="paygo-intro reveal">很多人买 <b>Ultra Mobile PayGo「紫卡」</b>（运行在 T-Mobile 网络的 MVNO）来做<span class="hl-y">长期美国号保号 + 大陆接码</span>——注册 Claude / ChatGPT、Telegram、WhatsApp、Google 等。它便宜（$3/月），但<b>激活繁琐、计费有坑</b>。下面把官方规则与社区实测分开标注，并附上被证伪的常见传言。</p>
+
+    <div class="subhead reveal"><span class="bar"></span>套餐 · 计费 · 充值<span class="src-tag src-off">官方规则</span></div>
+    <div class="facts">
+      <div class="fact reveal"><div class="ft">套餐内容</div><div class="fv"><span class="g">$3 / 月</span>：100 分钟通话 + 100 条短信 + 100MB（4G/5G）。<b>2020 年至今未涨价</b>。</div></div>
+      <div class="fact reveal"><div class="ft">计费机制</div><div class="fv">每 <b>30 天周期</b>（非自然月）从预付的 <b>PayGo 钱包</b>自动扣 <span class="g">$3</span>，<b>非纯按量</b>。同一钱包也付超量费。</div></div>
+      <div class="fact reveal"><div class="ft">超量资费</div><div class="fv">通话 <b>$0.03/分钟</b>、短信 <b>$0.01/条</b>、流量 <b>$0.03/MB</b>，从钱包余额扣。</div></div>
+      <div class="fact reveal"><div class="ft">充值 / 续费</div><div class="fv">登录 <b>my.ultramobile.com</b> 借记/信用卡充值；开 <span class="g">Auto Renew</span>（$5/$10/$20 面额，自动扣 $3 续费）。</div></div>
+    </div>
+
+    <div class="subhead reveal"><span class="bar"></span>保号生命线：余额不足后会怎样<span class="src-tag src-off">官方规则</span></div>
+    <div class="lifeline reveal">
+      <div class="life bad"><div class="ls">STAGE 0</div><div class="lt">余额 &lt; $3</div><div class="ld">30 天周期末扣不到 $3 → 账户被暂停。</div></div>
+      <div class="life bad"><div class="ls">STAGE 1 · ≤60 天</div><div class="lt">暂停期</div><div class="ld">最长 60 天内补足余额可复活，号码暂时保留。</div></div>
+      <div class="life bad"><div class="ls">STAGE 2 · +30 天</div><div class="lt">宽限期</div><div class="ld">若 60 天后余额在 $0.01–$2.99，再给 30 天宽限（合计最长约 90 天）。</div></div>
+      <div class="life bad"><div class="ls">STAGE 3</div><div class="lt">销号 · 回收</div><div class="ld">仍不足 $3 → 销号、余额作废、号码可被重新分配（可能无法携号转网）。</div></div>
+    </div>
+    <p class="life-note reveal"><b>⚠ 关键例外：</b>若第 60 天时余额正好为 <b>$0.00</b>，则<b>不给</b> 30 天宽限，60 天即销号。所以保号务必开 Auto Renew、余额留 ≥$5 缓冲。保号一年套餐成本约 <b>$36</b>（不含税费）。</p>
+
+    <div class="subhead reveal"><span class="bar"></span>用中国卡充值 & 在大陆接码<span class="src-tag src-com">社区实测</span></div>
+    <ul class="opt-notes reveal">
+      <li><b>用中国卡：</b>可用中国发行的 <b>VISA / Master</b> 充值，账单地址的<b>州 + 邮编填美国的</b>（城市/街道可随意，建议填免税州 AK/DE/MT/NH/OR）。但<b>网页端常因风控/IP 校验失败</b>，变通：改用 <b>Ultra Mobile App</b>（风控更松）、走美国住宅 IP，或联系客服手动绑卡。</li>
+      <li><b>接码靠 Wi-Fi Calling：</b>开通后连上 WiFi，顶部出现「<span class="hl-g">Wi-Fi Calling</span>」标识，此时收发短信/通话按<b>美国本地用量</b>计入套餐的 100 条短信/100 分钟——这是大陆收验证码的可行机制。<b>不开则走国际漫游</b>（资费很高）。⚠ 个别 2025 报告称在中国激活的卡可能 1–2 天内被封（稳定性风险）。</li>
+    </ul>
+
+    <div class="subhead reveal"><span class="bar"></span>操作步骤<span class="src-tag src-com">官方 + 实测</span></div>
+    <div class="steps">
+      <div class="step reveal"><div class="node">1</div><h4>买卡</h4><div class="body">Ultra Mobile PayGo 紫卡（实体卡 / eSIM）。非原生 eSIM 机型可用 <b>9eSIM / 5ber</b> 写卡器把 eSIM 写入实体卡——⚠ 官方<b>未文档化</b> Wi-Fi Calling / VoLTE / SMS 兼容，存在功能风险。</div></div>
+      <div class="step reveal"><div class="node">2</div><h4>激活（最大坑点）</h4><div class="body"><b>严格按卖家提供的激活攻略操作。</b>坊间多种说法互相矛盾（是否必须美国 IP、能否大陆漫游激活均无定论），<b>不要只信单一教程</b>。</div></div>
+      <div class="step reveal"><div class="node">3</div><h4>充值保号</h4><div class="body">登录 my.ultramobile.com 开 <b>Auto Renew</b>，钱包余额留 <b>≥$5</b>；用中国卡走 <b>App</b> 比网页端更稳。</div></div>
+      <div class="step reveal"><div class="node">4</div><h4>开 Wi-Fi Calling</h4><div class="body"><b>平台端 + 手机端都要开</b>。之后连上 WiFi 即可在大陆收发短信/接码。</div></div>
+      <div class="step reveal"><div class="node">5</div><h4>长期维护</h4><div class="body">保持余额 ≥$3，避免被扣到停机；万一停机，<b>越早充值越安全</b>（见上方保号生命线）。</div></div>
+    </div>
+
+    <div class="subhead reveal"><span class="bar"></span>避坑清单 · 传言 vs 事实<span class="src-tag src-com">核验结论</span></div>
+    <div class="mf reveal">
+      <div class="mf-row">
+        <div class="mf-cell mf-myth"><span class="lab">传言 ✗</span>发 GOGO+邮编 到 6700 就能自助激活，官方说<b>无需</b>身处美国 / 美国 IP / 漫游。</div>
+        <div class="mf-cell mf-fact"><span class="lab">事实 ✓</span>该说法<b>已被证伪</b>。激活前置条件证据相互矛盾、无定论，<b>一律以卖家激活攻略为准</b>。</div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-cell mf-myth"><span class="lab">传言 ✗</span>激活<b>必须翻墙</b>，否则会被墙 / 失败。</div>
+        <div class="mf-cell mf-fact"><span class="lab">事实 ✓</span><b>未被证实</b>（也未被否证）。是否必须美国 IP 没有定论；按攻略备好美国 IP 环境更稳妥。</div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-cell mf-myth"><span class="lab">传言 ✗</span><b>只能</b>在 T-Mobile 门店买，不能网购 SIM。</div>
+        <div class="mf-cell mf-fact"><span class="lab">事实 ✓</span><b>被证伪</b>。实体卡 / eSIM 均可网购（淘宝、eBay 等渠道）。</div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-cell mf-myth"><span class="lab">传言 ✗</span>欠费满 <b>60 天</b>就永久销号。</div>
+        <div class="mf-cell mf-fact"><span class="lab">事实 ✓</span>实为停机最长 60 天；余额 $0.01–$2.99 再给 <b>30 天宽限</b>（最长约 90 天）。但余额 $0.00 则 60 天即销号。</div>
+      </div>
+      <div class="mf-row">
+        <div class="mf-cell mf-myth"><span class="lab">传言 ✗</span>不开 Wi-Fi Calling，发短信 <b>$0.5/条</b>、收 <b>$0.1/条</b>。</div>
+        <div class="mf-cell mf-fact"><span class="lab">事实 ✓</span>具体数字<b>被证伪</b>。真实机制：<b>开 Wi-Fi Calling</b> 走套餐额度；不开走<b>国际漫游</b>（高价），接码务必开。</div>
+      </div>
+    </div>
+
+    <div class="subhead reveal"><span class="bar"></span>X 用户实录<span class="src-tag src-com">一手经验</span></div>
+    <div class="xquote reveal">
+      <div class="qhead"><span class="xlogo">𝕏</span><span class="who">@LiuGods</span><span class="when">2024-07</span></div>
+      <p class="qt">他买紫卡注册海外账号时发现「<em>激活比较复杂</em>」——卖家附了激活攻略，但内容啰嗦到他得让 GPT 帮忙整理后才照着做。</p>
+      <p class="qmeta">→ 印证了「激活是最大坑点」这一结论：紫卡值钱在 $3/月，但激活要花心思、依赖卖家攻略。 &nbsp;<a href="https://x.com/LiuGods/status/1807808512954597744" target="_blank" rel="noopener">查看原帖 ↗</a></p>
+    </div>
+
+    <div class="subhead reveal"><span class="bar"></span>信息来源 & 核验</div>
+    <div class="srcs reveal">
+      <a class="srcchip" href="https://www.ultramobile.com/paygo/" target="_blank" rel="noopener"><span class="q q-primary">官方</span>ultramobile.com/paygo</a>
+      <a class="srcchip" href="https://www.ultramobile.com/mobile-plans-terms-conditions/" target="_blank" rel="noopener"><span class="q q-primary">官方</span>Ultra T&amp;C</a>
+      <a class="srcchip" href="https://www.androidcentral.com/ultra-mobile-paygo" target="_blank" rel="noopener"><span class="q q-secondary">媒体</span>Android Central</a>
+      <a class="srcchip" href="https://bestmvno.com/ultra-mobile/ultra-mobiles-paygo-tourist-plans-updated/" target="_blank" rel="noopener"><span class="q q-secondary">媒体</span>BestMVNO</a>
+      <a class="srcchip" href="https://www.howardforums.com/threads/ultramobile-3-monthly-plan-questions.1931623/" target="_blank" rel="noopener"><span class="q q-forum">论坛</span>HowardForums</a>
+      <a class="srcchip" href="https://x.com/LiuGods/status/1807808512954597744" target="_blank" rel="noopener"><span class="q q-primary">X</span>@LiuGods</a>
+      <a class="srcchip" href="https://www.uscardforum.com/t/topic/290391" target="_blank" rel="noopener"><span class="q q-forum">论坛</span>USCardForum</a>
+      <a class="srcchip" href="https://taohaome.org/93.html" target="_blank" rel="noopener"><span class="q q-blog">博客</span>taohaome 实测</a>
+      <a class="srcchip" href="https://www.9esim.com/" target="_blank" rel="noopener"><span class="q q-primary">官方</span>9eSIM</a>
+      <a class="srcchip" href="https://esim.5ber.com/" target="_blank" rel="noopener"><span class="q q-primary">官方</span>5ber.eSIM</a>
+    </div>
+    <p class="verify-note reveal"><b>核验于 2026-06。</b>本节由多智能体并行检索 + 对抗式核验生成（确认 18 条结论、否决 7 条传言）。<b>官方规则</b>（套餐 / 计费 / 保号时间线 / 充值 / Auto Renew）来自 Ultra Mobile 官网并经多方独立印证，价格自 2020 起 $3 稳定；<b>社区实测</b>（用中国卡充值、大陆接码、Wi-Fi Calling 操作、激活流程）来自中文社区博客与 X 帖，属坊间经验、可能随风控政策变化。激活的确切前置条件无定论，请以卖家攻略与官网为准。MVNO 资费政策可能随时调整。</p>
+  </section>
+
   <!-- ============ MORE ============ -->
   <section id="more">
     <div class="sec-head reveal">
-      <span class="sec-idx">06</span>
+      <span class="sec-idx">07</span>
       <h2>其他 eSIM 网站推荐</h2>
       <p class="sec-sub">备选清单，按需自取。</p>
     </div>

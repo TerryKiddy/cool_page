@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国行手机 eSIM 使用指南 · 境外手机号自由</title>
+<meta name="description" content="国行手机如何用可编程 SIM + eSIM 拥有长期可用的境外手机号：方案对比、保号神器、收短信接码、全球流量。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#070b0c;
+    --void-2:#0a1113;
+    --panel:#0e1719;
+    --panel-2:#11201f;
+    --ink:#e9f3f0;
+    --ink-dim:#a4bab4;
+    --ink-mute:#5c726c;
+    --signal:#2fe6a6;
+    --signal-deep:#0fae7d;
+    --signal-glow:rgba(47,230,166,.5);
+    --gold:#ecb454;
+    --gold-deep:#b4842f;
+    --warn:#ff9b63;
+    --warn-bg:rgba(255,155,99,.08);
+    --line:rgba(47,230,166,.14);
+    --line-soft:rgba(164,186,180,.12);
+    --maxw:1080px;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  ::selection{background:var(--signal);color:var(--void);}
+  body{
+    background-color:var(--void);
+    background-image:
+      radial-gradient(circle at 15% -5%, rgba(47,230,166,.10), transparent 42%),
+      radial-gradient(circle at 90% 4%, rgba(236,180,84,.07), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(15,174,125,.08), transparent 55%);
+    color:var(--ink);
+    font-family:"Noto Sans SC",sans-serif;
+    line-height:1.85;
+    letter-spacing:.005em;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  /* circuit grid texture */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size:54px 54px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 0%, #000 0%, transparent 78%);
+    mask-image:radial-gradient(ellipse at 50% 0%, #000 0%, transparent 78%);
+    opacity:.5;
+  }
+  /* faint scanline / grain */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:1;pointer-events:none;mix-blend-mode:overlay;opacity:.04;
+    background-image:repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px);
+  }
+  .wrap{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+
+  a{color:var(--signal);text-decoration:none;transition:color .18s, border-color .18s;}
+  a:hover{color:#7af0c8;}
+
+  /* ===== top nav ===== */
+  nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(7,11,12,.72);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{max-width:var(--maxw);margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:18px;}
+  .brand{display:flex;align-items:center;gap:11px;font-family:"Chakra Petch",sans-serif;font-weight:700;letter-spacing:.06em;font-size:14px;color:var(--ink);white-space:nowrap;}
+  .chip{
+    width:30px;height:22px;border-radius:4px;flex:none;position:relative;
+    background:linear-gradient(135deg,#f5d486,var(--gold) 55%,var(--gold-deep));
+    box-shadow:0 0 0 1px rgba(0,0,0,.4) inset, 0 2px 8px rgba(236,180,84,.35);
+  }
+  .chip::before{content:"";position:absolute;inset:4px;border:1px solid rgba(60,40,8,.55);border-radius:2px;}
+  .chip::after{content:"";position:absolute;left:50%;top:3px;bottom:3px;width:1px;background:rgba(60,40,8,.55);
+    box-shadow:-7px 0 rgba(60,40,8,.55),7px 0 rgba(60,40,8,.55);}
+  .nav-links{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
+  .nav-links a{
+    font-family:"Chakra Petch",sans-serif;font-size:12.5px;letter-spacing:.04em;color:var(--ink-dim);
+    padding:5px 11px;border-radius:7px;border:1px solid transparent;
+  }
+  .nav-links a:hover{color:var(--signal);background:rgba(47,230,166,.06);}
+  .nav-links a.active{color:var(--signal);border-color:var(--line);background:rgba(47,230,166,.05);}
+
+  /* ===== signal bars ===== */
+  .bars{display:inline-flex;align-items:flex-end;gap:3px;height:18px;}
+  .bars i{width:4px;border-radius:1px;background:var(--signal);box-shadow:0 0 6px var(--signal-glow);animation:pulse 1.5s ease-in-out infinite;}
+  .bars i:nth-child(1){height:35%;animation-delay:0s;}
+  .bars i:nth-child(2){height:60%;animation-delay:.18s;}
+  .bars i:nth-child(3){height:82%;animation-delay:.36s;}
+  .bars i:nth-child(4){height:100%;animation-delay:.54s;}
+  @keyframes pulse{0%,100%{opacity:.35;transform:scaleY(.7);}50%{opacity:1;transform:scaleY(1);}}
+
+  /* ===== hero ===== */
+  header.hero{padding:74px 0 56px;position:relative;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace;
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--signal);
+    padding:6px 14px;border:1px solid var(--line);border-radius:100px;background:rgba(47,230,166,.04);
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 10px var(--signal);animation:blink 1.8s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  h1{
+    font-family:"Noto Sans SC",sans-serif;font-weight:900;line-height:1.08;letter-spacing:-.01em;
+    font-size:clamp(38px,7vw,76px);margin:26px 0 0;
+    background:linear-gradient(180deg,#ffffff 8%,#bfe9d9 70%,var(--signal) 130%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  h1 .em{font-family:"Chakra Petch",sans-serif;color:var(--gold);-webkit-text-fill-color:var(--gold);}
+  .lede{max-width:660px;margin-top:22px;font-size:18px;color:var(--ink-dim);font-weight:300;}
+  .lede b{color:var(--ink);font-weight:500;}
+  .hero-callout{
+    margin-top:30px;max-width:680px;display:flex;gap:16px;align-items:flex-start;
+    padding:18px 20px;border-radius:var(--r);
+    background:linear-gradient(110deg,rgba(236,180,84,.10),rgba(236,180,84,.03));
+    border:1px solid rgba(236,180,84,.28);
+  }
+  .hero-callout .ico{font-size:22px;line-height:1.4;}
+  .hero-callout p{font-size:15px;color:#f3e6cd;}
+  .hero-callout b{color:var(--gold);}
+
+  .stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px;}
+  .stat{
+    flex:1;min-width:140px;padding:18px 20px;border-radius:var(--r);
+    background:linear-gradient(160deg,var(--panel),var(--void-2));
+    border:1px solid var(--line);position:relative;overflow:hidden;
+  }
+  .stat::before{content:"";position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--signal),transparent);}
+  .stat .num{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:30px;color:var(--signal);line-height:1;}
+  .stat .num small{font-size:14px;color:var(--ink-dim);}
+  .stat .lbl{font-size:12.5px;color:var(--ink-mute);margin-top:8px;letter-spacing:.02em;}
+
+  /* ===== section scaffolding ===== */
+  section{padding:50px 0;border-top:1px solid var(--line-soft);position:relative;}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:30px;flex-wrap:wrap;}
+  .sec-idx{font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:14px;color:var(--signal);letter-spacing:.1em;
+    border:1px solid var(--line);border-radius:7px;padding:4px 10px;background:rgba(47,230,166,.05);white-space:nowrap;}
+  h2{font-family:"Noto Sans SC",sans-serif;font-weight:900;font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;color:var(--ink);}
+  .sec-sub{flex-basis:100%;color:var(--ink-mute);font-size:14.5px;font-weight:300;margin-top:-6px;}
+
+  /* ===== intro cards ===== */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .card{
+    background:linear-gradient(165deg,var(--panel),var(--void-2));
+    border:1px solid var(--line-soft);border-radius:var(--r);padding:24px;position:relative;
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--line);box-shadow:0 14px 40px rgba(0,0,0,.45);}
+  .card .tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);}
+  .card h3{font-size:19px;font-weight:700;margin:8px 0 10px;color:var(--ink);}
+  .card p{color:var(--ink-dim);font-size:14.5px;font-weight:300;}
+  .card p b{color:var(--ink);font-weight:500;}
+  .hl-g{color:var(--signal);font-weight:500;}
+  .hl-y{color:var(--gold);font-weight:500;}
+
+  /* ===== problems ===== */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .prob{padding:26px 22px;border-radius:var(--r);background:var(--panel-2);border:1px solid var(--line-soft);transition:transform .25s,border-color .25s;}
+  .prob:hover{transform:translateY(-4px);border-color:var(--signal-deep);}
+  .prob .pico{font-size:30px;display:block;margin-bottom:14px;}
+  .prob h4{font-size:16px;color:var(--ink);margin-bottom:8px;font-weight:700;}
+  .prob p{font-size:14px;color:var(--ink-dim);font-weight:300;}
+
+  /* ===== steps timeline ===== */
+  .steps{position:relative;margin-left:8px;}
+  .steps::before{content:"";position:absolute;left:21px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,var(--signal),var(--gold));opacity:.35;}
+  .step{position:relative;padding:0 0 30px 64px;}
+  .step:last-child{padding-bottom:0;}
+  .step .node{
+    position:absolute;left:0;top:0;width:44px;height:44px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:18px;
+    background:var(--panel);border:1px solid var(--line);color:var(--signal);
+    box-shadow:0 0 0 5px var(--void), 0 0 18px rgba(47,230,166,.2);
+  }
+  .step h4{font-size:18px;color:var(--ink);font-weight:700;margin-bottom:6px;}
+  .step .body{color:var(--ink-dim);font-size:14.5px;font-weight:300;}
+  .step .body b{color:var(--ink);font-weight:500;}
+  .plat{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .plat .p{
+    display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:9px;font-size:13px;
+    background:var(--void-2);border:1px solid var(--line-soft);color:var(--ink-dim);
+  }
+  .plat .p b{color:var(--ink);}
+  .plat .p.warn{border-color:rgba(255,155,99,.3);background:var(--warn-bg);color:#ffceb0;}
+
+  /* ===== comparison table ===== */
+  .table-scroll{overflow-x:auto;border-radius:var(--r);border:1px solid var(--line);background:var(--panel-2);}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px;}
+  thead th{
+    font-family:"Chakra Petch",sans-serif;font-weight:600;letter-spacing:.04em;text-align:left;
+    padding:15px 16px;color:var(--void);background:linear-gradient(180deg,var(--signal),var(--signal-deep));
+    position:sticky;top:0;white-space:nowrap;
+  }
+  thead th:first-child{border-top-left-radius:0;}
+  tbody td{padding:14px 16px;border-top:1px solid var(--line-soft);vertical-align:top;color:var(--ink-dim);}
+  tbody tr:hover td{background:rgba(47,230,166,.04);}
+  tbody td:first-child{color:var(--ink);font-weight:500;white-space:nowrap;}
+  .flag{font-size:18px;margin-right:6px;}
+  .pill{display:inline-block;font-size:11.5px;font-family:"JetBrains Mono",monospace;padding:2px 8px;border-radius:6px;
+    background:rgba(47,230,166,.1);color:var(--signal);border:1px solid var(--line);}
+  .pill.y{background:rgba(236,180,84,.1);color:var(--gold);border-color:rgba(236,180,84,.25);}
+  .pill.m{background:rgba(164,186,180,.08);color:var(--ink-dim);border-color:var(--line-soft);}
+
+  /* ===== option cards (SIM card styled) ===== */
+  .opts{display:flex;flex-direction:column;gap:22px;}
+  .opt{
+    position:relative;border-radius:18px;overflow:hidden;
+    background:linear-gradient(150deg,var(--panel) 0%,var(--void-2) 100%);
+    border:1px solid var(--line);
+    transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+  .opt:hover{transform:translateY(-5px);border-color:var(--signal-deep);box-shadow:0 22px 60px rgba(0,0,0,.55);}
+  /* perforated left rail like a SIM/boarding pass */
+  .opt::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+    background:repeating-linear-gradient(180deg,var(--signal) 0 10px,transparent 10px 20px);opacity:.7;}
+  .opt-head{display:flex;align-items:center;gap:16px;padding:22px 26px 16px 30px;flex-wrap:wrap;}
+  .opt-flag{font-size:42px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));}
+  .opt-title{flex:1;min-width:200px;}
+  .opt-title .country{font-family:"Chakra Petch",sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);}
+  .opt-title .name{font-size:24px;font-weight:900;color:var(--ink);line-height:1.15;margin-top:2px;}
+  .opt-badges{display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{font-size:12px;font-weight:500;padding:5px 12px;border-radius:100px;white-space:nowrap;}
+  .badge.g{background:rgba(47,230,166,.12);color:var(--signal);border:1px solid var(--line);}
+  .badge.y{background:rgba(236,180,84,.12);color:var(--gold);border:1px solid rgba(236,180,84,.3);}
+
+  .opt-body{padding:4px 26px 24px 30px;}
+  .spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line-soft);
+    border:1px solid var(--line-soft);border-radius:11px;overflow:hidden;margin-bottom:18px;}
+  .spec .cell{background:var(--void-2);padding:13px 15px;}
+  .spec .k{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);}
+  .spec .v{font-size:14.5px;color:var(--ink);font-weight:500;margin-top:4px;}
+  .spec .v small{color:var(--ink-dim);font-weight:300;}
+
+  .opt-notes{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:18px;}
+  .opt-notes li{position:relative;padding-left:24px;color:var(--ink-dim);font-size:14.5px;font-weight:300;}
+  .opt-notes li::before{content:"›";position:absolute;left:6px;top:0;color:var(--signal);font-weight:700;font-family:"Chakra Petch",sans-serif;}
+  .opt-notes li b{color:var(--ink);font-weight:500;}
+
+  .note-warn{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:11px;
+    background:var(--warn-bg);border:1px solid rgba(255,155,99,.28);margin-bottom:18px;}
+  .note-warn .wi{color:var(--warn);font-size:17px;line-height:1.5;flex:none;}
+  .note-warn p{font-size:13.5px;color:#ffd9c2;font-weight:300;}
+  .note-warn b{color:#ffb893;font-weight:500;}
+
+  .links{display:flex;gap:10px;flex-wrap:wrap;}
+  .lnk{
+    display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;font-size:13.5px;font-weight:500;
+    background:rgba(47,230,166,.07);border:1px solid var(--line);color:var(--signal);
+    font-family:"JetBrains Mono",monospace;letter-spacing:.01em;transition:background .18s, transform .18s;
+  }
+  .lnk:hover{background:rgba(47,230,166,.16);transform:translateY(-2px);color:#9ff3d2;}
+  .lnk.y{background:rgba(236,180,84,.07);border-color:rgba(236,180,84,.28);color:var(--gold);}
+  .lnk.y:hover{background:rgba(236,180,84,.16);color:#f6d28a;}
+  .lnk::after{content:"↗";font-size:11px;opacity:.7;}
+
+  /* tip box (telcel folded -> show inline) */
+  details.detail{margin-top:14px;border:1px dashed var(--line);border-radius:11px;background:var(--void-2);overflow:hidden;}
+  details.detail summary{cursor:pointer;padding:13px 16px;font-size:13.5px;color:var(--signal);font-family:"JetBrains Mono",monospace;list-style:none;}
+  details.detail summary::-webkit-details-marker{display:none;}
+  details.detail summary::before{content:"+ ";color:var(--gold);}
+  details.detail[open] summary::before{content:"− ";}
+  details.detail .dc{padding:0 16px 16px;color:var(--ink-dim);font-size:14px;font-weight:300;}
+
+  /* ===== other sites ===== */
+  .sites{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+  .site{display:flex;align-items:center;gap:13px;padding:18px;border-radius:var(--r);
+    background:var(--panel-2);border:1px solid var(--line-soft);transition:transform .22s,border-color .22s;font-family:"JetBrains Mono",monospace;}
+  .site:hover{transform:translateY(-3px);border-color:var(--signal-deep);}
+  .site .sd{width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal-glow);flex:none;}
+  .site .st{font-size:13.5px;color:var(--ink);}
+  .site .su{font-size:11.5px;color:var(--ink-mute);}
+
+  /* ===== footer ===== */
+  footer{padding:48px 0 70px;border-top:1px solid var(--line-soft);margin-top:30px;}
+  .disclaim{padding:18px 20px;border-radius:var(--r);background:rgba(255,155,99,.05);border:1px solid rgba(255,155,99,.18);
+    font-size:13px;color:var(--ink-dim);font-weight:300;margin-bottom:26px;}
+  .disclaim b{color:var(--warn);}
+  .foot-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-mute);}
+  .foot-row a{color:var(--ink-dim);border-bottom:1px dotted var(--line);}
+  .foot-row a:hover{color:var(--signal);}
+
+  /* ===== reveal animation ===== */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1;transform:none;}
+  /* hero load stagger */
+  .hero .reveal{animation:rise .9s cubic-bezier(.2,.7,.2,1) both;opacity:1;transform:none;transition:none;}
+  .hero .reveal:nth-child(1){animation-delay:.05s;}
+  .hero .reveal:nth-child(2){animation-delay:.16s;}
+  .hero .reveal:nth-child(3){animation-delay:.27s;}
+  .hero .reveal:nth-child(4){animation-delay:.38s;}
+  .hero .reveal:nth-child(5){animation-delay:.5s;}
+  @keyframes rise{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:none;}}
+
+  @media (max-width:760px){
+    .grid-2,.grid-3{grid-template-columns:1fr;}
+    .nav-links{display:none;}
+    header.hero{padding:48px 0 40px;}
+    .opt-body,.opt-head{padding-left:24px;padding-right:18px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .reveal{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand"><span class="chip"></span>eSIM&nbsp;GUIDE</div>
+    <div class="nav-links">
+      <a href="#what">什么是 eSIM</a>
+      <a href="#why">解决什么</a>
+      <a href="#how">使用指南</a>
+      <a href="#compare">方案对比</a>
+      <a href="#options">方案详情</a>
+      <a href="#more">更多网站</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="reveal"><span class="eyebrow"><span class="dot"></span>SIGNAL ACQUIRED · 境外号码自由</span></div>
+    <h1 class="reveal">国行手机<br><span class="em">eSIM</span> 使用指南</h1>
+    <p class="lede reveal">国行手机出厂被阉割 eSIM——但用一张<b>可编程 SIM 卡</b>，就能把全球的 eSIM 写进实体卡，间接拿到长期可用的<b>境外手机号</b>。本文把方案、价格、保号与接码玩法整理成一份可执行清单。</p>
+    <div class="hero-callout reveal">
+      <span class="ico">👾</span>
+      <p>核心场景：解决目前在<b>各种 AI 订阅</b>（Claude / ChatGPT 等）以及境外网站注册中，<b>需要一个长期可用的境外手机号</b>的痛点。</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><div class="num">50<small> 个/卡</small></div><div class="lbl">一张可编程卡最多写入号码</div></div>
+      <div class="stat"><div class="num">5<small> 套方案</small></div><div class="lbl">保号 · 接码 · 流量全覆盖</div></div>
+      <div class="stat"><div class="num">~1<small> 分钟</small></div><div class="lbl">eSIM 下单到写入耗时</div></div>
+      <div class="stat"><div class="num">¥0<small> 起</small></div><div class="lbl">德国沃达丰 0 开卡 0 月租</div></div>
+    </div>
+  </header>
+
+  <!-- ============ WHAT ============ -->
+  <section id="what">
+    <div class="sec-head reveal">
+      <span class="sec-idx">01</span>
+      <h2>什么是 eSIM &amp; 可编程 SIM</h2>
+      <p class="sec-sub">两个概念，是整套玩法的地基。</p>
+    </div>
+    <div class="grid-2">
+      <div class="card reveal">
+        <span class="tag">EMBEDDED SIM</span>
+        <h3>eSIM 嵌入式 SIM</h3>
+        <p>内置于设备的可编程 SIM 卡技术，<b>无需实体卡</b>即可通过软件远程下载、切换运营商配置。出国时只需在 <span class="hl-g">淘宝 / PDD</span> 买对应国家的 eSIM 套餐（通常很便宜），用支持 eSIM 的手机扫商家二维码即可写入。</p>
+        <p style="margin-top:12px;color:var(--ink-mute);font-size:13.5px;">⚠️ 因政策监管，<b style="color:var(--warn);">国行手机出厂默认阉割了 eSIM 功能</b>。</p>
+      </div>
+      <div class="card reveal">
+        <span class="tag">PROGRAMMABLE SIM</span>
+        <h3>可编程 SIM 卡（破局点）</h3>
+        <p>国内厂商为绕开国行限制研发的实体卡，<span class="hl-g">支持把 eSIM 的数据写入一张实体 SIM 卡</span>，间接让国行手机用上 eSIM。一张卡可写入多组号码，<b>最多 50 个</b>，在 App 里随时切换，绰绰有余。</p>
+        <p style="margin-top:12px;color:var(--ink-mute);font-size:13.5px;">📦 推荐 <a href="https://www.9esim.com/zh/" target="_blank" rel="noopener">9eSIM</a>：容量大、兼容性高、上手友好。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY ============ -->
+  <section id="why">
+    <div class="sec-head reveal">
+      <span class="sec-idx">02</span>
+      <h2>解决的问题</h2>
+      <p class="sec-sub">为什么值得折腾一张可编程卡。</p>
+    </div>
+    <div class="grid-3">
+      <div class="prob reveal">
+        <span class="pico">✈️</span>
+        <h4>出差 / 旅游免实体卡</h4>
+        <p>境外出差旅游<b style="color:var(--ink);">不用买实体 SIM</b>、免邮寄麻烦，一劳永逸。eSIM 从下单到写入只需一两分钟，套餐通常还更便宜。</p>
+      </div>
+      <div class="prob reveal">
+        <span class="pico">🔀</span>
+        <h4>多号码随时切换</h4>
+        <p>一张卡写入多组号码，全部在 App 里管理，可随时<b style="color:var(--ink);">添加 / 删除 / 切换</b>，不用为每个号码备一张物理卡。</p>
+      </div>
+      <div class="prob reveal">
+        <span class="pico">🌐</span>
+        <h4>变相拥有境外手机号</h4>
+        <p>人在国内也能买国外 eSIM 套餐，满足 <b style="color:var(--ink);">Telegram / WhatsApp / AI 订阅</b> 等境外网站的手机验证，兼做临时科学上网。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW ============ -->
+  <section id="how">
+    <div class="sec-head reveal">
+      <span class="sec-idx">03</span>
+      <h2>使用指南 · 四步上手</h2>
+      <p class="sec-sub">从买卡到切换，标准流程。</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="node">1</div>
+        <h4>购买可编程 SIM 卡</h4>
+        <div class="body">推荐 <a href="https://www.9esim.com/zh/" target="_blank" rel="noopener">9eSIM</a>，容量大、兼容性高、上手友好。购买方式：<b>淘宝 / PDD 直接搜「9esim」</b>。</div>
+        <div class="plat">
+          <span class="p"><b>🤖 安卓</b> · App 可直接读写 SIM 卡</span>
+          <span class="p warn"><b>🍎 苹果</b> · 系统限制只能读（可切换），不能写入 → 需<b>额外购买写卡器</b></span>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="node">2</div>
+        <h4>购买 eSIM 套餐</h4>
+        <div class="body">到货后插入手机，在 <b>淘宝 / PDD</b> 搜目的地套餐，例如「巴西 esim」「墨西哥 esim」……购买后<b>商家会通过二维码把 eSIM 发给你</b>。</div>
+      </div>
+      <div class="step reveal">
+        <div class="node">3</div>
+        <h4>号码写入</h4>
+        <div class="body">用写卡 App 扫描商家提供的二维码，把 eSIM 信息写入实体卡。</div>
+        <div class="plat">
+          <a class="p" href="https://play.google.com/store/apps/details?id=ee.nekoko.nlpa.flavor1" target="_blank" rel="noopener"><b>🤖 安卓</b> · Google Play (nLPA)</a>
+          <a class="p" href="https://dl.9esim.com/nLPA.apk" target="_blank" rel="noopener"><b>🤖 安卓</b> · APK 直装</a>
+          <a class="p warn" href="https://apps.apple.com/app/nekokolpa/id6738007885" target="_blank" rel="noopener"><b>🍎 苹果</b> · App Store (需配写卡器)</a>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="node">4</div>
+        <h4>开始使用</h4>
+        <div class="body">在 App 里于<b>多张 SIM 卡之间自由切换</b>，到达目的地直接切到对应号码即可。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section id="compare">
+    <div class="sec-head reveal">
+      <span class="sec-idx">04</span>
+      <h2>方案速查对比</h2>
+      <p class="sec-sub">先看一眼这张表，按需求挑方案。</p>
+    </div>
+    <div class="table-scroll reveal">
+      <table>
+        <thead>
+          <tr><th>方案</th><th>主要用途</th><th>价格</th><th>支付方式</th><th>KYC / 条件</th><th>大陆可用</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="flag">🇲🇽</span>墨西哥 Telcel</td>
+            <td>当地上网</td>
+            <td>300 MXN / 5.5GB / 30天</td>
+            <td>VISA / MASTER</td>
+            <td>—</td>
+            <td><span class="pill m">当地用</span></td>
+          </tr>
+          <tr>
+            <td><span class="flag">🇩🇪</span>德国 Vodafone</td>
+            <td>长期保号</td>
+            <td>0 开卡 · 0 月租</td>
+            <td>充值需外币卡</td>
+            <td>护照 KYC + 德国 IP</td>
+            <td><span class="pill y">保号</span></td>
+          </tr>
+          <tr>
+            <td><span class="flag">🇺🇸</span>美国 Tello</td>
+            <td>收短信 / 保号</td>
+            <td>注册 28$ · 后续 5$/月</td>
+            <td>国区 PayPal + 大陆 VISA</td>
+            <td>美国地址 + 通信税</td>
+            <td><span class="pill">漫游激活</span></td>
+          </tr>
+          <tr>
+            <td><span class="flag">🇪🇪</span>爱沙尼亚 esim.gg</td>
+            <td>接码 / 纯净家宽 IP</td>
+            <td>接码 &lt; 5€ · 流量 40€/50GB/半年</td>
+            <td>支持微信支付</td>
+            <td>无</td>
+            <td><span class="pill">✓ IP 纯净</span></td>
+          </tr>
+          <tr>
+            <td><span class="flag">🇫🇷</span>法国 Free Mobile</td>
+            <td>全球无限流量</td>
+            <td>30€ / 月</td>
+            <td>欧洲银行账户</td>
+            <td>需欧洲 IBAN</td>
+            <td><span class="pill">✓ 含大陆</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ OPTIONS ============ -->
+  <section id="options">
+    <div class="sec-head reveal">
+      <span class="sec-idx">05</span>
+      <h2>方案详情</h2>
+      <p class="sec-sub">逐个拆解：怎么买、怎么付、怎么激活。</p>
+    </div>
+
+    <div class="opts">
+
+      <!-- Mexico -->
+      <article class="opt reveal">
+        <div class="opt-head">
+          <span class="opt-flag">🇲🇽</span>
+          <div class="opt-title"><div class="country">Mexico · Telcel</div><div class="name">墨西哥 Telcel</div></div>
+          <div class="opt-badges"><span class="badge g">当地上网</span></div>
+        </div>
+        <div class="opt-body">
+          <div class="spec">
+            <div class="cell"><div class="k">套餐示例</div><div class="v">300 MXN <small>/ 5.5GB / 30天</small></div></div>
+            <div class="cell"><div class="k">支付</div><div class="v">VISA / MASTER</div></div>
+            <div class="cell"><div class="k">交付</div><div class="v">二维码发邮箱 <small>后写入卡</small></div></div>
+          </div>
+          <ul class="opt-notes">
+            <li>当地最大运营商，<b>为游客专门提供 eSIM 购买选项</b>，适合在墨西哥出差期间上网。</li>
+            <li>买完后二维码会发到邮箱，再用写卡 App 写入可编程卡。</li>
+          </ul>
+          <div class="links">
+            <a class="lnk" href="https://www.telcel.com/travel-to-mexico/esim-english" target="_blank" rel="noopener">购买 eSIM</a>
+            <a class="lnk" href="https://www.telcel.com/portal-esim/en/login" target="_blank" rel="noopener">eSIM 管理</a>
+            <a class="lnk" href="http://comprasaldo.telcel.com/ad" target="_blank" rel="noopener">充值</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Germany -->
+      <article class="opt reveal">
+        <div class="opt-head">
+          <span class="opt-flag">🇩🇪</span>
+          <div class="opt-title"><div class="country">Germany · Vodafone CallYa</div><div class="name">德国沃达丰</div></div>
+          <div class="opt-badges"><span class="badge y">保号神器</span><span class="badge g">0 月租</span></div>
+        </div>
+        <div class="opt-body">
+          <div class="spec">
+            <div class="cell"><div class="k">成本</div><div class="v">0 开卡 · 0 月租</div></div>
+            <div class="cell"><div class="k">KYC</div><div class="v">护照 <small>（仅支持护照）</small></div></div>
+            <div class="cell"><div class="k">充值/保号</div><div class="v">外币卡 <small>wise / 港卡 / 欧卡</small></div></div>
+          </div>
+          <ul class="opt-notes">
+            <li><b>优点：</b>保号成本极低，<span class="hl-g">0 开卡费、0 月租</span>，大厂背景很稳定，<b>适合长期保号</b>。</li>
+            <li><b>条件：</b>护照（必须 KYC，只支持护照）；外币支付途径（开卡不需要，<b>充值保号需要</b>）。</li>
+            <li>最好挂上<b>德国梯子</b>，否则可能弹出邮局验证。</li>
+          </ul>
+          <div class="links">
+            <a class="lnk y" href="https://www.vodafone.de/freikarten/callya-classic-form/#personal-details-1" target="_blank" rel="noopener">官网申请</a>
+            <a class="lnk" href="https://x.com/AI_Jasonyu/status/2017934338889834825" target="_blank" rel="noopener">图文教程 (X)</a>
+            <a class="lnk" href="https://www.youtube.com/watch?v=t9EQ_lCXzCk&t=148s" target="_blank" rel="noopener">视频教程 (YT)</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- USA -->
+      <article class="opt reveal">
+        <div class="opt-head">
+          <span class="opt-flag">🇺🇸</span>
+          <div class="opt-title"><div class="country">USA · Tello</div><div class="name">美国 Tello</div></div>
+          <div class="opt-badges"><span class="badge y">收短信保号</span><span class="badge g">Wi-Fi Calling</span></div>
+        </div>
+        <div class="opt-body">
+          <div class="spec">
+            <div class="cell"><div class="k">保号</div><div class="v">5$ / 月</div></div>
+            <div class="cell"><div class="k">一次性</div><div class="v">注册约 28$ <small>含激活</small></div></div>
+            <div class="cell"><div class="k">套餐</div><div class="v">No data + 300 min</div></div>
+            <div class="cell"><div class="k">支付</div><div class="v">大陆 VISA <small>(paypal.com)</small></div></div>
+          </div>
+          <div class="note-warn">
+            <span class="wi">⚠</span>
+            <p><b>兼容性提示：</b>有同学用 9eSIM + Tello 遇到激活后 Wi-Fi Calling 无法收短信、打电话，客服答复是<b>不支持 eSIM Adaptor</b>；作者使用 <b>ESTKme</b> 没有遇到该问题。</p>
+          </div>
+          <ul class="opt-notes">
+            <li><b>优点：</b><span class="hl-y">5$/月保号</span>、纯 eSIM 全程线上、支持 Wi-Fi Calling 无需漫游、<b>可用大陆发行的 VISA 支付</b>。<b>缺点：</b>流量/通话少，大陆激活需开漫游（20$）。综合仅用于收短信场景。</li>
+            <li><b>选套餐：</b>Plans 选 <b>No data + 300 minutes</b>（最便宜，不能选 No data + No minutes）。</li>
+            <li><b>地址/税：</b>SIM 卡场景会收<span class="hl-y">通信税</span>；所谓免税州只免消费税、<b>不免通信税</b>。作者实测选<b>内华达州</b>最低（合计 1.81$）。</li>
+            <li><b>支付：</b>国区 PayPal（paypal.<b>com</b>）绑大陆 VISA 可用；大陆特供版 paypal.<b>cn</b> 不可用。</li>
+            <li><b>大陆激活：</b>需在设置里打开 Pay As You Go Data + 国际漫游（手机也开漫游）。Pay As You Go Data 须先一次性<b>充值 20$</b>，之后会附带一些漫游流量。激活成功通常会收到短信「Welcome to China!」。</li>
+            <li><b>Wi-Fi Calling：</b>需填 E911 Address（校验严格，作者填<b>内华达大学拉斯维加斯分校</b>地址通过）。<b>卡未激活前怎么填都不会通过</b>——地址不过先排查是不是卡没激活。平台和手机都要开（iPhone 全系支持，开启过程需梯子或漫游，之后可关掉）。最终网络连通即可通过网络收短信。</li>
+          </ul>
+          <div class="links">
+            <a class="lnk y" href="https://tello.com/" target="_blank" rel="noopener">tello.com 注册</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Estonia -->
+      <article class="opt reveal">
+        <div class="opt-head">
+          <span class="opt-flag">🇪🇪</span>
+          <div class="opt-title"><div class="country">Estonia · esim.gg</div><div class="name">爱沙尼亚（全球通用）</div></div>
+          <div class="opt-badges"><span class="badge g">便宜接码</span><span class="badge g">纯净家宽 IP</span></div>
+        </div>
+        <div class="opt-body">
+          <div class="spec">
+            <div class="cell"><div class="k">接码套餐</div><div class="v">&lt; 5 € <small>选最便宜即可</small></div></div>
+            <div class="cell"><div class="k">流量套餐</div><div class="v">40 € <small>/ 50GB / 半年</small></div></div>
+            <div class="cell"><div class="k">支付</div><div class="v">支持微信支付</div></div>
+            <div class="cell"><div class="k">实测</div><div class="v">✅ 注册 Claude 成功</div></div>
+          </div>
+          <ul class="opt-notes">
+            <li>登录站点后点击「购买新号码」。<b>只想接短信</b>就选最便宜的套餐，不到 5 欧元。</li>
+            <li>流量套餐也很便宜，<b>IP 在爱沙尼亚</b>，求纯净家宽 IP 的用户可入手。</li>
+            <li>实测：用<b>爱沙尼亚 IP + 爱沙尼亚手机号</b>（手机给电脑开热点）<span class="hl-g">成功注册 Claude</span>。</li>
+          </ul>
+          <div class="links">
+            <a class="lnk" href="https://esim.gg/" target="_blank" rel="noopener">esim.gg</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- France -->
+      <article class="opt reveal">
+        <div class="opt-head">
+          <span class="opt-flag">🇫🇷</span>
+          <div class="opt-title"><div class="country">France · Free Mobile</div><div class="name">法国 Free（全球无限流量）</div></div>
+          <div class="opt-badges"><span class="badge y">全球无限流量</span></div>
+        </div>
+        <div class="opt-body">
+          <div class="spec">
+            <div class="cell"><div class="k">价格</div><div class="v">30 € / 月</div></div>
+            <div class="cell"><div class="k">流量</div><div class="v">全球无限 <small>含中国大陆</small></div></div>
+            <div class="cell"><div class="k">条件</div><div class="v">需欧洲银行 IBAN</div></div>
+          </div>
+          <ul class="opt-notes">
+            <li><span class="hl-y">30 欧元 / 月，全球无限流量（包括中国大陆）</span>，适合需要稳定大流量的重度用户。</li>
+            <li>开通<b>条件：需要欧洲银行 IBAN</b>账户。</li>
+          </ul>
+          <div class="links">
+            <a class="lnk y" href="https://mobile.free.fr/" target="_blank" rel="noopener">mobile.free.fr</a>
+            <a class="lnk" href="https://x.com/realNyarime/status/2038968870690820099" target="_blank" rel="noopener">参考帖子 (X)</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ MORE ============ -->
+  <section id="more">
+    <div class="sec-head reveal">
+      <span class="sec-idx">06</span>
+      <h2>其他 eSIM 网站推荐</h2>
+      <p class="sec-sub">备选清单，按需自取。</p>
+    </div>
+    <div class="sites">
+      <a class="site reveal" href="https://www.esim.cc/product/4" target="_blank" rel="noopener"><span class="sd"></span><span><span class="st">esim.cc</span><br><span class="su">esim.cc/product/4</span></span></a>
+      <a class="site reveal" href="https://esimplus.me/" target="_blank" rel="noopener"><span class="sd"></span><span><span class="st">eSIM Plus</span><br><span class="su">esimplus.me</span></span></a>
+      <a class="site reveal" href="https://esim.redteago.com/zh-CN/" target="_blank" rel="noopener"><span class="sd"></span><span><span class="st">RedteaGO</span><br><span class="su">esim.redteago.com</span></span></a>
+      <a class="site reveal" href="https://1psim.com/" target="_blank" rel="noopener"><span class="sd"></span><span><span class="st">1pSIM</span><br><span class="su">1psim.com</span></span></a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="disclaim reveal">
+      <b>免责声明：</b>本页内容由飞书攻略整理而成，仅供学习参考。价格、政策与可用性随时间变化，请以各运营商 / 平台官网实时信息为准。涉及 KYC、跨境支付与网络访问，请遵守所在地法律法规。
+    </div>
+    <div class="foot-row">
+      <span>📱 国行手机 eSIM 使用指南 · 整理自飞书攻略</span>
+      <span><span class="bars" style="vertical-align:middle;"><i></i><i></i><i></i><i></i></span> &nbsp;<a href="https://github.com/TerryKiddy/cool_page/tree/gh-pages" target="_blank" rel="noopener">source ↗</a></span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>{ if(!el.closest('.hero')) io.observe(el); });
+
+  // active nav on scroll
+  const links = [...document.querySelectorAll('.nav-links a')];
+  const map = new Map(links.map(a=>[a.getAttribute('href').slice(1), a]));
+  const spy = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        const a = map.get(e.target.id);
+        if(a) a.classList.add('active');
+      }
+    });
+  },{rootMargin:'-45% 0px -50% 0px'});
+  document.querySelectorAll('section[id]').forEach(s=>spy.observe(s));
+</script>
+</body>
+</html>

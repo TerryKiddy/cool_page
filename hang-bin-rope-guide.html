@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收纳箱麻绳吊挂图示</title>
+<style>
+  :root{
+    --bg:#efe6d6;
+    --bg2:#e6d9c2;
+    --ink:#3a2e22;
+    --ink-soft:#6a5a48;
+    --hemp:#b9934f;
+    --hemp-dark:#8a6a36;
+    --terra:#9c5a37;
+    --line:#d6c6ab;
+    --card:#faf4e8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 120% at 0% 0%, var(--bg) 0%, var(--bg2) 70%, #ddccae 100%);
+    min-height:100vh;
+  }
+  .wrap{display:flex;min-height:100vh;flex-wrap:wrap}
+  .stage{
+    position:relative;flex:1 1 560px;min-width:320px;min-height:62vh;
+    border-right:1px solid var(--line);
+  }
+  #cv{display:block;width:100%;height:100%}
+  .badge{
+    position:absolute;top:18px;left:20px;z-index:5;
+    font-size:12px;letter-spacing:.18em;color:var(--hemp-dark);
+    text-transform:uppercase;font-weight:700;
+  }
+  .badge b{display:block;font-size:22px;letter-spacing:.04em;color:var(--ink);margin-top:4px}
+  /* 控制按钮 */
+  .controls{
+    position:absolute;left:20px;bottom:18px;z-index:5;display:flex;gap:8px;flex-wrap:wrap;
+  }
+  .controls button{
+    font-family:inherit;font-size:13px;cursor:pointer;
+    padding:8px 13px;border-radius:20px;border:1px solid var(--hemp);
+    background:rgba(250,244,232,.85);color:var(--ink);backdrop-filter:blur(4px);
+    transition:.15s;
+  }
+  .controls button:hover{background:var(--hemp);color:#fff}
+  .controls button.on{background:var(--terra);border-color:var(--terra);color:#fff}
+  .hint{
+    position:absolute;right:18px;bottom:18px;z-index:5;font-size:12px;color:var(--ink-soft);
+    background:rgba(250,244,232,.7);padding:5px 10px;border-radius:14px;
+  }
+  /* 3D 上的标注 */
+  .label{
+    position:absolute;z-index:4;pointer-events:none;
+    font-size:12.5px;line-height:1.35;color:var(--ink);
+    background:rgba(250,244,232,.92);border:1px solid var(--hemp);
+    padding:5px 9px;border-radius:10px;white-space:nowrap;
+    transform:translate(-50%,-50%);box-shadow:0 3px 10px rgba(90,60,30,.12);
+    transition:opacity .2s;
+  }
+  .label::after{content:"";position:absolute;width:7px;height:7px;background:var(--terra);
+    border-radius:50%;left:-4px;top:50%;transform:translateY(-50%)}
+  .label.hidden{opacity:0}
+
+  /* 侧栏 */
+  .panel{
+    flex:1 1 360px;max-width:430px;min-width:300px;
+    padding:30px 28px 50px;overflow-y:auto;max-height:100vh;
+  }
+  .panel h1{font-size:24px;letter-spacing:.02em;margin-bottom:4px}
+  .panel .sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:22px}
+  .sec-t{
+    font-size:12px;letter-spacing:.2em;color:var(--hemp-dark);font-weight:700;
+    text-transform:uppercase;margin:26px 0 12px;display:flex;align-items:center;gap:9px;
+  }
+  .sec-t::after{content:"";flex:1;height:1px;background:var(--line)}
+  .mat{display:flex;flex-wrap:wrap;gap:7px}
+  .mat span{font-size:12.5px;background:var(--card);border:1px solid var(--line);
+    padding:5px 10px;border-radius:14px}
+  ol.steps{list-style:none;counter-reset:s}
+  ol.steps li{
+    position:relative;counter-increment:s;padding:0 0 16px 40px;font-size:14px;line-height:1.6;
+  }
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:0;
+    width:27px;height:27px;border-radius:50%;background:var(--hemp);color:#fff;
+    font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;
+  }
+  ol.steps li::after{
+    content:"";position:absolute;left:13px;top:30px;bottom:2px;width:1px;background:var(--line);
+  }
+  ol.steps li:last-child::after{display:none}
+  ol.steps b{color:var(--terra)}
+  .knots{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .knot{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .knot h3{font-size:14px;margin-bottom:2px}
+  .knot p{font-size:11.5px;color:var(--ink-soft);line-height:1.45;margin-top:6px}
+  .knot svg{width:100%;height:96px;display:block}
+  .note{background:#fbeede;border:1px solid #e7c39b;border-radius:12px;padding:14px 16px;
+    font-size:13px;line-height:1.65}
+  .note b{color:var(--terra)}
+  .note ul{margin:6px 0 0 18px}
+  .note li{margin:3px 0}
+  @media(max-width:760px){
+    .stage{flex-basis:100%;border-right:none;border-bottom:1px solid var(--line);min-height:56vh}
+    .panel{max-width:none;max-height:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage" id="stage">
+    <div class="badge">图示 · 可拖动旋转<b>麻绳吊挂方案</b></div>
+    <canvas id="cv"></canvas>
+    <!-- 标注层 -->
+    <div class="label" data-x="2" data-y="1.95" data-z="0.62">雀头结 · 套住提手梁</div>
+    <div class="label" data-x="-2" data-y="1.55" data-z="0">两股分挂孔两端<br>(防前后翻倒)</div>
+    <div class="label" data-x="0" data-y="4.22" data-z="0">四股汇拢 · 缠绕结收口</div>
+    <div class="label" data-x="0" data-y="4.85" data-z="0">金属圆环</div>
+    <div class="label" data-x="0" data-y="6.05" data-z="0">挂钩 / 天花吊点</div>
+    <div class="controls">
+      <button id="b-reset">重置视角</button>
+      <button id="b-rope" class="on">绳子</button>
+      <button id="b-label" class="on">标注</button>
+      <button id="b-spin">自动旋转</button>
+    </div>
+    <div class="hint">拖动旋转 · 滚轮缩放</div>
+  </div>
+
+  <aside class="panel">
+    <h1>用细麻绳吊挂收纳箱</h1>
+    <div class="sub">两提手孔 → 四股吊点 → 单点圆环吊挂,挂得平、不翻、可拆。</div>
+
+    <div class="sec-t">材料</div>
+    <div class="mat">
+      <span>细麻绳约 4–5 m</span><span>金属圆环 / O 形环 ×1</span>
+      <span>剪刀</span><span>打火机或胶带(封绳头)</span>
+      <span>承重挂钩 ×1</span>
+    </div>
+
+    <div class="sec-t">穿绳与打结步骤</div>
+    <ol class="steps">
+      <li>剪两段<b>等长</b>麻绳,一段管一个提手孔。绳头先用胶带缠紧或火轻燎一下,防散开。</li>
+      <li>把一段绳<b>穿过提手孔</b>,搭在孔上方那条「提手梁」上。把两端往孔的<b>两端(前、后)</b>分开,别都堆在正中。</li>
+      <li>在每一端,把绳头绕提手梁<b>打一个雀头结</b>(绕一圈、绳头穿回自身环里拉紧),让它卡在孔端不滑动。两股绳就从孔的两端往上升。</li>
+      <li>另一个提手孔重复 2–3 步。此时共有<b>四股绳</b>从箱子四角往上,呈倒金字塔形——这是它挂平不翻的关键。</li>
+      <li>把箱子端平,四股绳头向中心上方汇拢,<b>全部穿过金属圆环</b>;调整长度让箱子水平。</li>
+      <li>在圆环正下方,用一小段绳把四股一起<b>缠绕结</b>捆紧收口(也可改打 8 字结)。最后把圆环挂上挂钩,<b>先轻载试挂</b>,再逐步放东西。</li>
+    </ol>
+
+    <div class="sec-t">两个关键结</div>
+    <div class="knots">
+      <div class="knot">
+        <h3>雀头结</h3>
+        <svg viewBox="0 0 120 96">
+          <rect x="6" y="20" width="108" height="13" rx="6" fill="#cdb492" stroke="#a98f63"/>
+          <text x="60" y="15" font-size="9" fill="#8a6a36" text-anchor="middle">提手梁</text>
+          <path d="M40 90 C40 64 40 50 55 50 C70 50 70 35 55 26
+                   C45 20 45 33 55 33 C66 33 66 50 50 50 C40 50 80 50 80 90"
+                fill="none" stroke="#b9934f" stroke-width="6" stroke-linecap="round"/>
+          <path d="M40 90 C40 64 40 50 55 50" fill="none" stroke="#8a6a36" stroke-width="6" stroke-linecap="round" opacity=".5"/>
+        </svg>
+        <p>绳绕梁一圈后,绳头穿回自己形成的环里拉紧。固定牢、好拆。</p>
+      </div>
+      <div class="knot">
+        <h3>缠绕结(收口)</h3>
+        <svg viewBox="0 0 120 96">
+          <line x1="46" y1="6" x2="46" y2="90" stroke="#cdb492" stroke-width="5"/>
+          <line x1="56" y1="6" x2="56" y2="90" stroke="#cdb492" stroke-width="5"/>
+          <line x1="66" y1="6" x2="66" y2="90" stroke="#cdb492" stroke-width="5"/>
+          <g stroke="#9c5a37" stroke-width="5" stroke-linecap="round">
+            <line x1="40" y1="40" x2="72" y2="40"/>
+            <line x1="40" y1="50" x2="72" y2="50"/>
+            <line x1="40" y1="60" x2="72" y2="60"/>
+          </g>
+          <text x="56" y="84" font-size="8" fill="#8a6a36" text-anchor="middle">捆紧四股</text>
+        </svg>
+        <p>用一小段绳在汇拢处缠几圈,绳头藏入圈内收紧。又结实又好看。</p>
+      </div>
+    </div>
+
+    <div class="sec-t">安全要点</div>
+    <div class="note">
+      <b>细麻绳承重有限,只放轻物。</b>
+      <ul>
+        <li>放毛绒、布艺、纸品等轻物;别放书、罐头等重/尖锐物。要承重就用<b>粗绳或双股</b>。</li>
+        <li>受力点在塑料提手梁,薄塑料可能开裂;雀头结分散受力,并定期检查。</li>
+        <li>塑料长期受力会蠕变松弛,过一阵复查一次绳结和挂点。</li>
+        <li>挂钩要打进龙骨/承重墙,膨胀螺丝固定,别只靠双面胶。</li>
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const canvas = document.getElementById('cv');
+  const stage  = document.getElementById('stage');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+
+  // ---- 灯光 ----
+  scene.add(new THREE.HemisphereLight(0xfff4e2, 0x6b5a45, 0.95));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.85);
+  dir.position.set(5,9,6); scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0xfff0d8, 0.35);
+  dir2.position.set(-6,4,-4); scene.add(dir2);
+
+  // ---- 材料 ----
+  const matPlastic = new THREE.MeshStandardMaterial({color:0xf6f5f1, roughness:0.55, metalness:0.02});
+  const matHemp    = new THREE.MeshStandardMaterial({color:0xbe9650, roughness:0.95, metalness:0});
+  const matHempDk  = new THREE.MeshStandardMaterial({color:0x8f6c33, roughness:0.95, metalness:0});
+  const matMetal   = new THREE.MeshStandardMaterial({color:0xa8a8ac, roughness:0.35, metalness:0.85});
+
+  // ============ 收纳箱 ============
+  const bin = new THREE.Group(); scene.add(bin);
+  const W=4, D=2.8, H=2, t=0.09;            // 长(X) 深(Z) 高(Y) 壁厚
+  const hz = D/2, hx = W/2;
+
+  // 侧壁(z=±) 无孔
+  function sideWall(zsign){
+    const g = new THREE.BoxGeometry(W, H, t);
+    const m = new THREE.Mesh(g, matPlastic);
+    m.position.set(0, H/2, zsign*(hz - t/2));
+    bin.add(m);
+  }
+  sideWall(1); sideWall(-1);
+
+  // 底
+  const bottom = new THREE.Mesh(new THREE.BoxGeometry(W, t, D), matPlastic);
+  bottom.position.set(0, t/2, 0); bin.add(bottom);
+
+  // 带孔提手壁(x=±):用 Shape+椭圆孔 拉伸
+  function handleWall(xsign){
+    const shape = new THREE.Shape();
+    const z0=-hz, z1=hz, y0=0, y1=H;
+    shape.moveTo(z0,y0); shape.lineTo(z1,y0); shape.lineTo(z1,y1); shape.lineTo(z0,y1); shape.lineTo(z0,y0);
+    const hole = new THREE.Path();
+    // 椭圆形提手孔:中心(z=0, y=1.55),半长0.8 半高0.2
+    hole.absellipse(0, 1.55, 0.8, 0.2, 0, Math.PI*2, true, 0);
+    shape.holes.push(hole);
+    const geo = new THREE.ExtrudeGeometry(shape, {depth:t, bevelEnabled:false});
+    const mesh = new THREE.Mesh(geo, matPlastic);
+    mesh.rotation.y = Math.PI/2;          // 让壁面朝 ±X
+    mesh.position.x = xsign*hx + (xsign>0 ? -0/0*0 : 0); // 占位
+    // 摆正位置:壁中面落在 x = xsign*(hx)
+    mesh.position.x = xsign>0 ? hx : -hx;
+    if(xsign<0){ mesh.rotation.y = -Math.PI/2; }
+    // 让厚度朝向箱内
+    mesh.position.x += xsign>0 ? -t/2 : t/2;
+    bin.add(mesh);
+  }
+  handleWall(1); handleWall(-1);
+
+  // ============ 绳子 ============
+  const ropeGroup = new THREE.Group(); scene.add(ropeGroup);
+  const RING = new THREE.Vector3(0, 4.75, 0);   // 圆环位置
+  const GATH = new THREE.Vector3(0, 4.25, 0);   // 收口缠绕位置
+
+  function tube(points, r, mat, closed){
+    const curve = new THREE.CatmullRomCurve3(points, !!closed);
+    const g = new THREE.TubeGeometry(curve, closed?40:34, r, 9, !!closed);
+    const m = new THREE.Mesh(g, mat||matHemp);
+    ropeGroup.add(m); return m;
+  }
+  const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+
+  // 每个提手:两股腿 + 两个雀头结 + 跨梁段
+  function buildHandle(sx){           // sx = +1 / -1
+    const wx = sx*hx;                 // 壁外侧 x
+    const ax = sx*(hx+0.02);          // 绳贴在壁外一点
+    const zEnd = 0.62;                // 两股分挂在孔两端
+    const barY = 1.86;                // 绳骑在提手梁上的高度
+    const tinyOff = sx*0.05;
+
+    [zEnd, -zEnd].forEach(function(zp){
+      // 1) 雀头结:绕梁一圈的小闭环(在 x-y 平面,z=zp)
+      const cx = sx*(hx-0.01), cy=1.86;
+      const loop = [
+        V(cx,            cy+0.16, zp),
+        V(cx+sx*0.14,    cy+0.02, zp),
+        V(cx+sx*0.05,    cy-0.18, zp),   // 穿入孔内
+        V(cx-sx*0.12,    cy-0.14, zp),
+        V(cx-sx*0.10,    cy+0.06, zp),
+        V(cx+sx*0.02,    cy+0.16, zp),
+      ];
+      tube(loop, 0.045, matHempDk, true);
+
+      // 2) 吊腿:从结点上升到圆环
+      const leg = [
+        V(ax, barY+0.14, zp),
+        V(sx*1.25, 3.0,  zp*0.55),
+        V(GATH.x+tinyOff, GATH.y+0.05, zp*0.18),
+        V(RING.x, RING.y-0.05, 0)
+      ];
+      tube(leg, 0.04, matHemp);
+    });
+
+    // 3) 跨梁段:两端之间沿提手梁穿过(藏在孔内)
+    tube([
+      V(sx*(hx-0.04), 1.74,  zEnd-0.05),
+      V(sx*(hx-0.07), 1.70,  0),
+      V(sx*(hx-0.04), 1.74, -zEnd+0.05)
+    ], 0.04, matHempDk);
+  }
+  buildHandle(1); buildHandle(-1);
+
+  // 收口缠绕(GATH 处) — 几圈小环
+  for(let i=0;i<4;i++){
+    const yy = GATH.y - 0.02 - i*0.07;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.035, 8, 26), matHempDk);
+    ring.position.set(0, yy, 0); ring.rotation.x = Math.PI/2;
+    ropeGroup.add(ring);
+  }
+  // 短麻绳从缠绕到圆环
+  tube([V(0,GATH.y+0.05,0), V(0,RING.y-0.08,0)], 0.05, matHemp);
+
+  // ============ 金属圆环 + 挂钩 ============
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.05, 12, 40), matMetal);
+  ring.position.copy(RING); scene.add(ring);
+
+  // 吊到挂钩的绳
+  tube([V(0,RING.y+0.18,0), V(0,5.7,0)], 0.045, matHemp);
+  // 挂钩
+  const hookBar = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.5,12), matMetal);
+  hookBar.position.set(0,6.05,0); scene.add(hookBar);
+  const hook = new THREE.Mesh(new THREE.TorusGeometry(0.16,0.05,12,30, Math.PI*1.4), matMetal);
+  hook.position.set(0,5.78,0); hook.rotation.z=Math.PI*0.15; scene.add(hook);
+  // 天花板
+  const ceil = new THREE.Mesh(new THREE.BoxGeometry(2.4,0.12,2.4),
+              new THREE.MeshStandardMaterial({color:0xe9ddc8, roughness:1}));
+  ceil.position.set(0,6.4,0); scene.add(ceil);
+
+  // ============ 自定义轨道控制 ============
+  const target = new THREE.Vector3(0, 2.6, 0);
+  let radius=11.5, theta=0.62, phi=1.18;     // 球坐标
+  const DEF={radius:11.5, theta:0.62, phi:1.18};
+  function applyCam(){
+    camera.position.set(
+      target.x + radius*Math.sin(phi)*Math.sin(theta),
+      target.y + radius*Math.cos(phi),
+      target.z + radius*Math.sin(phi)*Math.cos(theta)
+    );
+    camera.lookAt(target);
+  }
+  let drag=false, px=0, py=0;
+  function down(e){drag=true; const p=pt(e); px=p.x; py=p.y;}
+  function move(e){
+    if(!drag)return; const p=pt(e);
+    theta -= (p.x-px)*0.008; phi -= (p.y-py)*0.008;
+    phi=Math.max(0.25,Math.min(1.5,phi)); px=p.x; py=p.y;
+  }
+  function up(){drag=false;}
+  function pt(e){const t=e.touches?e.touches[0]:e; return {x:t.clientX,y:t.clientY};}
+  canvas.addEventListener('mousedown',down); window.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
+  canvas.addEventListener('touchstart',function(e){down(e);},{passive:true});
+  canvas.addEventListener('touchmove',function(e){move(e);e.preventDefault();},{passive:false});
+  canvas.addEventListener('touchend',up);
+  canvas.addEventListener('wheel',function(e){
+    radius=Math.max(6,Math.min(20, radius + e.deltaY*0.01)); e.preventDefault();
+  },{passive:false});
+
+  // ============ 标注投影 ============
+  const labels=[...document.querySelectorAll('.label')].map(el=>({
+    el, v:new THREE.Vector3(+el.dataset.x, +el.dataset.y, +el.dataset.z)
+  }));
+  let showLabels=true;
+  function updateLabels(){
+    const r=canvas.getBoundingClientRect();
+    labels.forEach(L=>{
+      const p=L.v.clone().project(camera);
+      const vis = p.z<1 && showLabels;
+      L.el.classList.toggle('hidden', !vis);
+      if(vis){
+        L.el.style.left=( (p.x*0.5+0.5)*r.width )+'px';
+        L.el.style.top =( (-p.y*0.5+0.5)*r.height )+'px';
+      }
+    });
+  }
+
+  // ============ 控制按钮 ============
+  let spin=false;
+  document.getElementById('b-reset').onclick=()=>{radius=DEF.radius;theta=DEF.theta;phi=DEF.phi;};
+  const bRope=document.getElementById('b-rope');
+  bRope.onclick=()=>{ropeGroup.visible=!ropeGroup.visible;ring.visible=ropeGroup.visible;bRope.classList.toggle('on',ropeGroup.visible);};
+  const bLabel=document.getElementById('b-label');
+  bLabel.onclick=()=>{showLabels=!showLabels;bLabel.classList.toggle('on',showLabels);};
+  const bSpin=document.getElementById('b-spin');
+  bSpin.onclick=()=>{spin=!spin;bSpin.classList.toggle('on',spin);};
+
+  // ============ 渲染循环 ============
+  function resize(){
+    const w=stage.clientWidth, h=stage.clientHeight;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',resize); resize();
+
+  function loop(){
+    if(spin && !drag) theta+=0.004;
+    applyCam(); renderer.render(scene,camera); updateLabels();
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HD-2D 拆解 · botmux 的机器人办公室是怎么做出来的</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08090f;
+    --bg2:#0d1019;
+    --panel:rgba(20,24,38,.72);
+    --panel-line:rgba(120,140,200,.14);
+    --ink:#ece7da;
+    --ink-dim:#9aa3bd;
+    --ink-faint:#5d6b8c;
+    --amber:#ffb24a;
+    --cyan:#52d8ff;
+    --blue:#4a9eff;
+    --magenta:#ff5d9e;
+    --green:#7be08a;
+    --glow:0 0 28px rgba(82,216,255,.35);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(900px 600px at 78% -8%, rgba(74,158,255,.10), transparent 60%),
+      radial-gradient(800px 700px at 8% 22%, rgba(255,93,158,.07), transparent 55%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    color:var(--ink);
+    font-family:"Noto Serif SC", Georgia, serif;
+    line-height:1.85;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* grain overlay */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .mono{font-family:"JetBrains Mono",monospace}
+  .pix{font-family:"Silkscreen",monospace;letter-spacing:.5px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+  /* ---------- HERO ---------- */
+  header{position:relative;padding:78px 0 30px;text-align:center}
+  .kicker{
+    font-family:"Silkscreen",monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);
+    text-transform:uppercase;opacity:.85;margin-bottom:22px;
+  }
+  .kicker::before,.kicker::after{content:"◆";margin:0 12px;color:var(--magenta);opacity:.6}
+  h1{
+    font-family:"Silkscreen",monospace;font-weight:700;
+    font-size:clamp(30px,6.4vw,68px);line-height:1.05;letter-spacing:1px;
+    background:linear-gradient(170deg,#fff 0%, #bcd4ff 45%, var(--blue) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 50px rgba(74,158,255,.25);
+  }
+  h1 .two{color:transparent;background:linear-gradient(170deg,var(--amber),#ff7a59);-webkit-background-clip:text;background-clip:text}
+  .lede{max-width:680px;margin:26px auto 0;font-size:17px;color:var(--ink-dim);line-height:1.95}
+  .lede b{color:var(--ink);font-weight:600}
+
+  /* ---------- STAGE (three.js) ---------- */
+  .stage-shell{position:relative;margin:40px auto 0;max-width:1080px;padding:0 28px}
+  .stage-frame{
+    position:relative;border-radius:18px;overflow:hidden;
+    border:1px solid var(--panel-line);
+    box-shadow:0 40px 120px -40px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.02);
+    background:#05060b;
+  }
+  #lab{display:block;width:100%;height:560px}
+  @media(max-width:720px){#lab{height:420px}}
+  .stage-tag{
+    position:absolute;top:14px;left:16px;z-index:5;font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:1px;
+    color:var(--cyan);background:rgba(5,8,16,.7);border:1px solid rgba(82,216,255,.3);
+    padding:5px 10px;border-radius:6px;backdrop-filter:blur(6px);
+  }
+  .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 8px var(--green);margin-right:7px;vertical-align:middle;animation:blink 1.6s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  .scene-caption{
+    position:absolute;bottom:14px;left:16px;right:16px;z-index:5;
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink);
+    background:rgba(5,8,16,.72);border:1px solid var(--panel-line);border-left:3px solid var(--amber);
+    padding:9px 14px;border-radius:8px;backdrop-filter:blur(6px);min-height:38px;
+    transition:opacity .3s;line-height:1.6;
+  }
+  .scene-caption b{color:var(--amber)}
+
+  /* control deck */
+  .deck{
+    margin:16px auto 0;display:grid;gap:10px;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  }
+  .toggle{
+    display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;
+    background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;
+    padding:12px 14px;transition:.18s;backdrop-filter:blur(8px);
+  }
+  .toggle:hover{border-color:rgba(82,216,255,.45);transform:translateY(-2px);background:rgba(28,34,54,.8)}
+  .sw{flex:0 0 auto;width:38px;height:22px;border-radius:20px;background:#2a2f44;position:relative;transition:.2s}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#727a93;transition:.2s}
+  .toggle.on .sw{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+  .toggle.on .sw::after{left:19px;background:#fff;box-shadow:0 0 10px var(--cyan)}
+  .toggle .lab-t{display:flex;flex-direction:column;line-height:1.25}
+  .toggle .lab-t .t1{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--ink)}
+  .toggle .lab-t .t2{font-size:11px;color:var(--ink-dim);font-family:"Noto Serif SC",serif}
+  .deck-note{grid-column:1/-1;font-size:12px;color:var(--ink-dim);text-align:center;margin-top:4px;font-family:"JetBrains Mono",monospace}
+  .deck-note b{color:var(--cyan)}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:70px 0 10px}
+  .sec-num{font-family:"Silkscreen",monospace;font-size:12px;color:var(--magenta);letter-spacing:2px;opacity:.8}
+  h2{font-family:"Silkscreen",monospace;font-weight:700;font-size:clamp(22px,3.6vw,34px);
+     margin:8px 0 8px;line-height:1.2;color:#fff}
+  .sec-sub{color:var(--ink-dim);font-size:16px;max-width:720px;margin-bottom:30px}
+  .reveal{opacity:0;transform:translateY(26px);transition:.7s cubic-bezier(.2,.7,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* sources grid */
+  .sources{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .src{
+    position:relative;background:var(--panel);border:1px solid var(--panel-line);border-radius:16px;
+    padding:22px 22px 20px;overflow:hidden;transition:.25s;backdrop-filter:blur(8px);
+  }
+  .src:hover{transform:translateY(-4px);border-color:var(--accent,var(--cyan));box-shadow:0 24px 60px -30px var(--accent,#000)}
+  .src::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent,var(--cyan))}
+  .src .badge{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:1px;color:var(--accent,var(--cyan));
+    border:1px solid currentColor;border-radius:20px;padding:3px 10px;display:inline-block;margin-bottom:14px}
+  .src h3{font-family:"JetBrains Mono",monospace;font-size:19px;color:#fff;margin-bottom:6px}
+  .src .pct{font-family:"Silkscreen",monospace;font-size:13px;color:var(--ink-dim);margin-bottom:12px}
+  .src p{font-size:14px;color:var(--ink-dim);line-height:1.8}
+  .src .ev{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--accent,var(--cyan));
+    background:rgba(0,0,0,.32);border-radius:8px;padding:8px 11px;word-break:break-all;border:1px solid rgba(255,255,255,.05)}
+  .src .ev span{color:var(--ink-faint);opacity:.6}
+
+  /* file census bars */
+  .census{margin-top:34px;background:var(--panel);border:1px solid var(--panel-line);border-radius:16px;padding:24px 26px;backdrop-filter:blur(8px)}
+  .census h4{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-dim);margin-bottom:18px;font-weight:500}
+  .census h4 b{color:var(--amber)}
+  .bar-row{display:flex;align-items:center;gap:14px;margin:9px 0;font-family:"JetBrains Mono",monospace;font-size:13px}
+  .bar-row .bl{width:64px;color:var(--ink);text-align:right;flex:0 0 auto}
+  .bar-track{flex:1;height:14px;background:rgba(255,255,255,.04);border-radius:7px;overflow:hidden}
+  .bar-fill{height:100%;width:0;border-radius:7px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+  .bar-row .bn{width:40px;color:var(--ink-dim);flex:0 0 auto}
+
+  /* recipe / layers */
+  .recipe{display:grid;gap:14px}
+  .layer{display:flex;gap:18px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-line);
+    border-radius:14px;padding:20px 22px;backdrop-filter:blur(8px);transition:.25s}
+  .layer:hover{transform:translateX(6px);border-color:rgba(82,216,255,.4)}
+  .layer .ix{font-family:"Silkscreen",monospace;font-size:26px;color:var(--blue);flex:0 0 auto;width:54px;text-shadow:0 0 20px rgba(74,158,255,.5)}
+  .layer h3{font-family:"JetBrains Mono",monospace;font-size:17px;color:#fff;margin-bottom:5px}
+  .layer h3 small{font-family:"Noto Serif SC";color:var(--ink-dim);font-size:13px;font-weight:400;margin-left:8px}
+  .layer p{font-size:14.5px;color:var(--ink-dim)}
+  .layer p code{font-family:"JetBrains Mono";background:rgba(82,216,255,.1);color:var(--cyan);padding:1px 6px;border-radius:5px;font-size:12.5px}
+
+  /* botmux flow */
+  .flow{display:grid;gap:14px;grid-template-columns:1fr 1fr 1fr;margin-top:8px}
+  @media(max-width:720px){.flow{grid-template-columns:1fr}}
+  .step{background:var(--panel);border:1px solid var(--panel-line);border-radius:14px;padding:20px;backdrop-filter:blur(8px);position:relative}
+  .step .sn{font-family:"Silkscreen";font-size:11px;color:var(--magenta)}
+  .step h3{font-family:"JetBrains Mono";font-size:15px;color:#fff;margin:8px 0 8px}
+  .step p{font-size:13.5px;color:var(--ink-dim);line-height:1.75}
+  .step p code{font-family:"JetBrains Mono";color:var(--cyan);font-size:12px}
+  .arrow{text-align:center;color:var(--blue);font-size:22px;opacity:.5;align-self:center}
+
+  blockquote{border-left:3px solid var(--amber);padding:14px 20px;margin:26px 0;background:rgba(255,178,74,.06);
+    border-radius:0 12px 12px 0;color:var(--ink);font-size:15px}
+  blockquote b{color:var(--amber)}
+
+  footer{padding:60px 0 80px;text-align:center;color:var(--ink-dim);font-size:13px;border-top:1px solid var(--panel-line);margin-top:60px}
+  footer .mono{font-size:12px;color:var(--ink-faint);opacity:.7;line-height:2}
+  footer b{color:var(--cyan)}
+  a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted rgba(82,216,255,.4)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">botmux · hd2d office · 技术拆解</div>
+    <h1>纸片人<span class="two">住进了</span><br>立体微缩办公室</h1>
+    <p class="lede">
+      你在 botmux 看板里点开的那个「机器人办公室」，是一套叫 <b>HD-2D</b> 的视觉技巧：
+      <b>真 3D 的立体布景</b> + <b>2D 贴纸做的角色</b>，再压上一层电影感的灯光和辉光。
+      下面这个画面<b>是真的在你浏览器里用 Three.js 现搭的</b>——拨动开关，亲手把 HD-2D 一层层拆开看。
+    </p>
+  </div>
+</header>
+
+<!-- ============ LIVE LAB ============ -->
+<div class="stage-shell">
+  <div class="stage-frame">
+    <div class="stage-tag"><span class="live-dot"></span>LIVE · THREE.JS</div>
+    <canvas id="lab"></canvas>
+    <div class="scene-caption" id="cap">拖动可旋转视角 · 用下面的开关拆解每一层 HD-2D 技术。</div>
+  </div>
+
+  <div class="deck" id="deck">
+    <label class="toggle on" data-k="billboard">
+      <div class="sw"></div>
+      <div class="lab-t"><span class="t1">2D 纸片角色</span><span class="t2">贴纸永远面向镜头</span></div>
+    </label>
+    <label class="toggle on" data-k="bloom">
+      <div class="sw"></div>
+      <div class="lab-t"><span class="t1">辉光 Bloom</span><span class="t2">"HD" 那层电影感</span></div>
+    </label>
+    <label class="toggle on" data-k="tilt">
+      <div class="sw"></div>
+      <div class="lab-t"><span class="t1">移轴景深</span><span class="t2">微缩模型质感</span></div>
+    </label>
+    <label class="toggle on" data-k="ortho">
+      <div class="sw"></div>
+      <div class="lab-t"><span class="t1">正交相机</span><span class="t2">压扁透视=俯瞰沙盘</span></div>
+    </label>
+    <label class="toggle on" data-k="nearest">
+      <div class="sw"></div>
+      <div class="lab-t"><span class="t1">像素采样</span><span class="t2">nearest=锐利不糊</span></div>
+    </label>
+    <label class="toggle on" data-k="spin">
+      <div class="sw"></div>
+      <div class="lab-t"><span class="t1">自动旋转</span><span class="t2">看清布景是立体的</span></div>
+    </label>
+    <div class="deck-note">关掉 <b>2D 纸片角色</b> 再旋转 → 你会看到贴纸"穿帮"成一张薄片，这正是 billboard 在偷偷帮它转身。</div>
+  </div>
+</div>
+
+<!-- ============ SOURCES ============ -->
+<section id="sources">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-num">01 / 模型从哪来</div>
+      <h2>模型不是一家产的</h2>
+      <p class="sec-sub">我把你下载的那 40MB <code class="mono">index.pck</code> 拆了——里头 469 张贴图、280 个 3D 模型，来自四个完全不同的渠道。文件命名就是指纹。</p>
+    </div>
+
+    <div class="sources reveal">
+      <div class="src" style="--accent:var(--magenta)">
+        <span class="badge">主角 · 大头</span>
+        <h3>AI 生成</h3>
+        <div class="pct">models/gen/ · ~60%</div>
+        <p>办公室家具和那些 bot 角色本体，是文字/图片→3D 流水线（Meshy / Tripo / Rodin 这一类）批量生成的：自动建模、自动绑骨、自动贴 PBR。</p>
+        <div class="ev">desk<span>_texture_pbr_v128</span>_normal.png<br>bot_m_<span>sad / jump / combo</span>.fbx</div>
+      </div>
+      <div class="src" style="--accent:var(--green)">
+        <span class="badge">道具 · CC0</span>
+        <h3>Kenney</h3>
+        <div class="pct">models/props/ · .obj</div>
+        <p>键盘、显示器、桌椅、厨房一整套小道具。Kenney 是著名的 CC0 免费素材作者，文件头直接写着出处。</p>
+        <div class="ev"><span># Exported using</span> Kenney Suite 1.2<br>computerScreen.obj · kitchenFridge.obj</div>
+      </div>
+      <div class="src" style="--accent:var(--amber)">
+        <span class="badge">家具 · CC0</span>
+        <h3>KayKit</h3>
+        <div class="pct">models/kaykit/</div>
+        <p>Kay Lousberg 的低多边形套件，这里用了它的家具包和餐厅包，给办公室加了点风格统一的大件。</p>
+        <div class="ev">kaykit/furniture/…<br>kaykit/restaurant/…</div>
+      </div>
+      <div class="src" style="--accent:var(--cyan)">
+        <span class="badge">彩蛋 · CC0</span>
+        <h3>Quaternius</h3>
+        <div class="pct">models/quaternius/</div>
+        <p>办公室里那只猫和狗。Quaternius 也是经典 CC0 模型作者，动物用的是它的图集贴图。</p>
+        <div class="ev">quaternius/cat_q_<span>Atlas</span>.png<br>roles/cat.png · roles/dog.png</div>
+      </div>
+    </div>
+
+    <div class="census reveal">
+      <h4><b>index.pck</b> 里数出来的家底（strings 取证，非估算）</h4>
+      <div class="bar-row"><span class="bl">.png</span><div class="bar-track"><div class="bar-fill" data-w="100" style="background:linear-gradient(90deg,#ff5d9e,#ff9a6b)"></div></div><span class="bn">469</span></div>
+      <div class="bar-row"><span class="bl">.gltf</span><div class="bar-track"><div class="bar-fill" data-w="37" style="background:linear-gradient(90deg,#52d8ff,#4a9eff)"></div></div><span class="bn">173</span></div>
+      <div class="bar-row"><span class="bl">.glb</span><div class="bar-track"><div class="bar-fill" data-w="23" style="background:linear-gradient(90deg,#52d8ff,#4a9eff)"></div></div><span class="bn">107</span></div>
+      <div class="bar-row"><span class="bl">.scn</span><div class="bar-track"><div class="bar-fill" data-w="17" style="background:linear-gradient(90deg,#7be08a,#52d8ff)"></div></div><span class="bn">78</span></div>
+      <div class="bar-row"><span class="bl">.obj</span><div class="bar-track"><div class="bar-fill" data-w="8" style="background:linear-gradient(90deg,#7be08a,#52d8ff)"></div></div><span class="bn">36</span></div>
+      <div class="bar-row"><span class="bl">.fbx</span><div class="bar-track"><div class="bar-fill" data-w="5" style="background:linear-gradient(90deg,#ffb24a,#ff9a6b)"></div></div><span class="bn">22</span></div>
+      <div class="bar-row"><span class="bl">.gd</span><div class="bar-track"><div class="bar-fill" data-w="4" style="background:linear-gradient(90deg,#9aa3bd,#5d6b8c)"></div></div><span class="bn">18</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RECIPE ============ -->
+<section id="recipe">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-num">02 / HD-2D 是什么</div>
+      <h2>三步配方</h2>
+      <p class="sec-sub">HD-2D 这个词是 Square Enix 在《歧路旅人》里叫响的。它不是某种引擎，而是一套"<b>立体布景 + 纸片人 + 灯光滤镜</b>"的混搭做法。拆成三层就懂了：</p>
+    </div>
+    <div class="recipe">
+      <div class="layer reveal"><div class="ix">3D</div><div>
+        <h3>立体布景 <small>真模型、真灯光</small></h3>
+        <p>地板、家具、墙——都是有厚度的真 3D 网格（<code>.glb / .obj</code>），吃真实的方向光、环境光和阴影。所以你旋转视角时，桌子会真的露出侧面。这是 "HD" 的底子。</p>
+      </div></div>
+      <div class="layer reveal"><div class="ix">2D</div><div>
+        <h3>纸片人 <small>billboard 公告板</small></h3>
+        <p>角色不是 3D 模型，而是一张 2D 贴纸，贴在一个永远旋转着<b>正对镜头</b>的小平面上（Godot 里叫 <code>Sprite3D + billboard</code>）。你怎么转，它都"扭头"看你，于是这张薄片看起来像个站着的小人。这是 "2D"。</p>
+      </div></div>
+      <div class="layer reveal"><div class="ix">FX</div><div>
+        <h3>灯光滤镜 <small>辉光 + 移轴 + 近邻采样</small></h3>
+        <p><b>辉光(Bloom)</b> 让亮处溢光，出电影感；<b>移轴景深</b> 把上下虚化、只留中间清晰，骗大脑"这是个微缩沙盘模型"；贴图用 <code>nearest</code> 近邻采样，让像素保持锐利不发糊。三件套一上，"塑料感"立刻变"高级感"。</p>
+      </div></div>
+    </div>
+    <blockquote>
+      一句话记牢：<b>HD-2D = 把 2D 贴纸角色，放进一个打了电影灯光的 3D 微缩模型里。</b>
+      上面那个 Live 画面，关掉「2D 纸片角色」就退回纯 3D，关掉「辉光/移轴」就退回塑料玩具——HD-2D 的魔法全在这几层的叠加。
+    </blockquote>
+  </div>
+</section>
+
+<!-- ============ BOTMUX FLOW ============ -->
+<section id="botmux">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-num">03 / botmux 怎么用它</div>
+      <h2>每个会话 = 一个上班的机器人</h2>
+      <p class="sec-sub">这套 HD-2D 场景在 botmux 里不是摆设，它实时映射你的 AI 会话状态。</p>
+    </div>
+    <div class="flow reveal">
+      <div class="step"><div class="sn">STEP 1</div><h3>会话 → 机器人</h3><p>每个活跃的 CLI 会话，在办公室里对应一个机器人工位。游戏每隔一会儿轮询 <code>/api/sessions</code> 同源接口拿状态。</p></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="sn">STEP 2</div><h3>角色 → 贴纸</h3><p>会话的角色（backend / frontend / pm / tester / 甚至 barista、gym）决定挂哪张 2D 贴纸和模型——就是 <code>roles/</code> 目录里那堆 png。</p></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="sn">STEP 3</div><h3>屏幕状态 → 动画</h3><p>会话在干活/发呆/出错，映射成机器人的动作。<code>.pck</code> 里那些 <code>jog / crouch / taichi / sad</code> 动画就是给不同状态准备的。</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div style="font-family:'Silkscreen';color:var(--blue);font-size:14px;margin-bottom:16px">◆ 技术栈 ◆</div>
+    <p class="mono">
+      引擎 <b>Godot 4.0.20</b> · Forward+ 渲染 → 导出 WebAssembly（<b>index.wasm 37.7MB</b> + <b>index.pck 40.5MB</b>）<br>
+      资源走 GitHub Release 按需下载，缓存在 <b>~/.botmux/cache/hd2d/</b>，不打进 npm 包<br>
+      模型 = AI 生成 + Kenney + KayKit + Quaternius（CC0）｜角色 = 2D billboard 贴纸<br>
+      <br>
+      本页是用 <b>Three.js</b> 对这套 HD-2D 技术的现场复刻讲解 · botmux v2.78.0 · 2026-06-16
+    </p>
+  </div>
+</footer>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const canvas = document.getElementById('lab');
+const cap = document.getElementById('cap');
+
+const STATE = { billboard:true, bloom:true, tilt:true, ortho:true, nearest:true, spin:true };
+
+// ---------- renderer ----------
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0a0c16');
+scene.fog = new THREE.Fog('#0a0c16', 16, 34);
+
+// ---------- cameras (persp + ortho share target) ----------
+function aspect(){ return canvas.clientWidth / canvas.clientHeight; }
+const persp = new THREE.PerspectiveCamera(42, aspect(), 0.1, 100);
+const D = 9;
+const ortho = new THREE.OrthographicCamera(-D*aspect(), D*aspect(), D, -D, 0.1, 100);
+let camera = ortho;
+const CAM_POS = new THREE.Vector3(11, 10.5, 11);
+persp.position.copy(CAM_POS); ortho.position.copy(CAM_POS);
+ortho.zoom = 1.15; ortho.updateProjectionMatrix();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.1, 0);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 6; controls.maxDistance = 26;
+controls.maxPolarAngle = Math.PI*0.49;
+controls.update();
+
+// ---------- lights ----------
+scene.add(new THREE.HemisphereLight('#9ec0ff', '#1a1320', 0.55));
+const key = new THREE.DirectionalLight('#ffd9a8', 2.1);
+key.position.set(8, 14, 6); key.castShadow = true;
+key.shadow.mapSize.set(1024,1024);
+key.shadow.camera.left=-14;key.shadow.camera.right=14;key.shadow.camera.top=14;key.shadow.camera.bottom=-14;
+key.shadow.bias=-0.0004;
+scene.add(key);
+const rim = new THREE.DirectionalLight('#4a9eff', 0.9); rim.position.set(-7,6,-8); scene.add(rim);
+const warm = new THREE.PointLight('#ff8a4a', 12, 16, 2); warm.position.set(-2.5,3,2.5); scene.add(warm);
+
+// ---------- floor: tiled diorama base ----------
+function tileTexture(){
+  const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d');
+  x.fillStyle='#1c2236'; x.fillRect(0,0,256,256);
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+    x.fillStyle = (i+j)%2 ? '#222a44' : '#1a2038';
+    x.fillRect(i*32,j*32,32,32);
+  }
+  x.strokeStyle='rgba(82,216,255,.12)'; x.lineWidth=2;
+  for(let i=0;i<=8;i++){x.beginPath();x.moveTo(i*32,0);x.lineTo(i*32,256);x.stroke();x.beginPath();x.moveTo(0,i*32);x.lineTo(256,i*32);x.stroke();}
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(2,2); return t;
+}
+const floorTex = tileTexture();
+const floor = new THREE.Mesh(
+  new THREE.BoxGeometry(18,0.6,18),
+  new THREE.MeshStandardMaterial({ map:floorTex, roughness:.85, metalness:.05 })
+);
+floor.position.y=-0.3; floor.receiveShadow=true; scene.add(floor);
+
+// low wall to give the diorama corners
+const wallMat = new THREE.MeshStandardMaterial({ color:'#161b2e', roughness:.95 });
+[[0,-9,18,0],[ -9,0,18,Math.PI/2]].forEach(([x,z,len,ry])=>{
+  const w=new THREE.Mesh(new THREE.BoxGeometry(len,3,0.4), wallMat);
+  w.position.set(x,1.2,z); w.rotation.y=ry; w.receiveShadow=true; w.castShadow=true; scene.add(w);
+});
+
+// ---------- furniture (low-poly primitives standing in for the kits) ----------
+const furniture = new THREE.Group(); scene.add(furniture);
+function box(w,h,d,color,rough=.7){ return new THREE.Mesh(new THREE.BoxGeometry(w,h,d), new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.1})); }
+function place(m,x,y,z){ m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; furniture.add(m); return m; }
+// desks with monitors
+const deskSpots=[[-4,-3,0],[4,-3,Math.PI],[-4,3,0],[4,3,Math.PI]];
+deskSpots.forEach(([x,z,r])=>{
+  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=r;
+  const d=box(2.4,0.18,1.2,'#6b4f37'); d.position.y=1.1; g.add(d);
+  [[-0.9],[0.9]].forEach(([lx])=>{const lg=box(0.16,1.1,1,'#4a3527');lg.position.set(lx,0.55,0);g.add(lg);});
+  const mon=box(1.3,0.8,0.1,'#0d1118'); mon.position.set(0,1.85,-0.35); g.add(mon);
+  const scr=box(1.15,0.62,0.04,'#1d6cff'); scr.position.set(0,1.85,-0.29);
+  scr.material.emissive=new THREE.Color('#2b7bff'); scr.material.emissiveIntensity=1.4; g.add(scr);
+  const stand=box(0.12,0.4,0.12,'#222'); stand.position.set(0,1.45,-0.35); g.add(stand);
+  const kb=box(0.9,0.06,0.32,'#cfd6e6'); kb.position.set(0,1.22,0.15); g.add(kb);
+  g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}}); furniture.add(g);
+});
+// a couch + plant + rug accent for a "lounge" corner
+place(box(2.2,0.7,1,'#3a4668'),0,0.55,-6.6);
+place(box(2.2,0.6,0.3,'#46557e'),0,1.05,-7.05);
+const plantPot=place(box(0.5,0.5,0.5,'#7a4b2e'),6.4,0.55,-6.4);
+const leaves=new THREE.Mesh(new THREE.IcosahedronGeometry(0.7,0),new THREE.MeshStandardMaterial({color:'#3f9d54',flatShading:true,roughness:.8}));
+leaves.position.set(6.4,1.4,-6.4); leaves.castShadow=true; furniture.add(leaves);
+
+// ---------- characters: paper-doll sprite  +  fallback 3D bot ----------
+function botSprite(role){
+  // draw a pixel robot on a small canvas, scaled with nearest filter
+  const S=48; const c=document.createElement('canvas'); c.width=c.height=S; const x=c.getContext('2d');
+  x.imageSmoothingEnabled=false; x.clearRect(0,0,S,S);
+  const body = role.body, accent = role.accent;
+  // antenna
+  x.fillStyle=accent; x.fillRect(22,4,4,6); x.fillRect(20,2,8,4);
+  // head
+  x.fillStyle=body; x.fillRect(13,9,22,16);
+  x.fillStyle='#0c1018'; x.fillRect(15,12,18,10); // screen face
+  // eyes
+  x.fillStyle=accent; x.fillRect(19,15,4,4); x.fillRect(27,15,4,4);
+  // mouth
+  x.fillStyle=accent; x.fillRect(21,19,8,2);
+  // body
+  x.fillStyle=body; x.fillRect(15,25,18,15);
+  x.fillStyle=accent; x.fillRect(15,25,18,3); // collar
+  // arms
+  x.fillStyle=body; x.fillRect(11,26,4,10); x.fillRect(33,26,4,10);
+  // legs
+  x.fillStyle='#2a3046'; x.fillRect(18,40,5,6); x.fillRect(25,40,5,6);
+  const t=new THREE.CanvasTexture(c);
+  t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter; t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+const ROLES=[
+  {name:'backend', body:'#5b7cff', accent:'#9ad0ff', pos:[-4,-3]},
+  {name:'frontend',body:'#ff7ab0', accent:'#ffd36b', pos:[4,-3]},
+  {name:'designer', body:'#7be08a', accent:'#d6ff8a', pos:[-4,3]},
+  {name:'pm',       body:'#ffb24a', accent:'#fff0b0', pos:[4,3]},
+];
+const chars=[]; // {plane, tex, baseY, role, label}
+ROLES.forEach(r=>{
+  const tex=botSprite(r);
+  const mat=new THREE.MeshBasicMaterial({map:tex, transparent:true, alphaTest:.5, side:THREE.DoubleSide});
+  const plane=new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.5), mat);
+  plane.position.set(r.pos[0], 1.05, r.pos[1]+0.9);
+  scene.add(plane);
+  // floor "shadow" disc so the paper-doll feels grounded
+  const sh=new THREE.Mesh(new THREE.CircleGeometry(0.55,20), new THREE.MeshBasicMaterial({color:'#000',transparent:true,opacity:.35}));
+  sh.rotation.x=-Math.PI/2; sh.position.set(r.pos[0],0.02,r.pos[1]+0.9); scene.add(sh);
+  chars.push({plane, tex, baseY:1.05, role:r});
+});
+
+// ---------- post processing ----------
+let composer, bloomPass, tiltPass;
+const TiltShader = {
+  uniforms:{ tDiffuse:{value:null}, amount:{value:1/560}, focus:{value:0.5}, span:{value:0.18} },
+  vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+  fragmentShader:`
+    uniform sampler2D tDiffuse; uniform float amount; uniform float focus; uniform float span;
+    varying vec2 vUv;
+    void main(){
+      float d = clamp((abs(vUv.y-focus)-span)/0.45, 0.0, 1.0);
+      float blur = d*amount*14.0;
+      vec4 sum = vec4(0.0);
+      sum += texture2D(tDiffuse, vUv + vec2(-blur,0.0))*0.15;
+      sum += texture2D(tDiffuse, vUv + vec2( blur,0.0))*0.15;
+      sum += texture2D(tDiffuse, vUv + vec2(0.0,-blur))*0.15;
+      sum += texture2D(tDiffuse, vUv + vec2(0.0, blur))*0.15;
+      sum += texture2D(tDiffuse, vUv)*0.40;
+      // slight desaturated vignette toward edges for diorama feel
+      gl_FragColor = sum;
+    }`
+};
+function buildComposer(){
+  composer = new EffectComposer(renderer);
+  composer.setPixelRatio(Math.min(devicePixelRatio,2));
+  composer.addPass(new RenderPass(scene, camera));
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(canvas.clientWidth,canvas.clientHeight), 0.62, 0.7, 0.82);
+  composer.addPass(bloomPass);
+  tiltPass = new ShaderPass(TiltShader);
+  composer.addPass(tiltPass);
+  composer.addPass(new OutputPass());
+}
+buildComposer();
+
+// ---------- resize ----------
+function resize(){
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  renderer.setSize(w,h,false); composer.setSize(w,h);
+  persp.aspect=w/h; persp.updateProjectionMatrix();
+  ortho.left=-D*(w/h); ortho.right=D*(w/h); ortho.top=D; ortho.bottom=-D; ortho.updateProjectionMatrix();
+  bloomPass.resolution.set(w,h);
+}
+new ResizeObserver(resize).observe(canvas); resize();
+
+// ---------- toggles ----------
+const CAPTIONS={
+  billboard_on:'<b>2D 纸片角色</b>开启：贴纸被 billboard 锁定，永远正对你——薄片看起来就成了立体小人。',
+  billboard_off:'<b>关掉 billboard</b>：贴纸停止"扭头"，旋转视角时它穿帮成一张纸 → 这就是 HD-2D 角色的真身。',
+  bloom_on:'<b>辉光 Bloom</b> 开启：屏幕和灯的亮处溢光，塑料感→电影感，这是 "HD" 的一半。',
+  bloom_off:'<b>关掉辉光</b>：高光不再溢出，画面立刻"干"了，像没打灯的玩具。',
+  tilt_on:'<b>移轴景深</b>开启：上下虚化、中间清晰，大脑被骗成"在看微缩沙盘模型"。',
+  tilt_off:'<b>关掉移轴</b>：全画面同样清晰，微缩模型的"小"感消失了。',
+  ortho_on:'<b>正交相机</b>：透视被压平，远近一样大 → 经典 HD-2D 俯瞰沙盘视角。',
+  ortho_off:'<b>透视相机</b>：恢复近大远小，更有纵深，但少了沙盘的工整感。',
+  nearest_on:'<b>近邻采样</b>：贴纸像素硬边锐利，符合 "2D 像素" 的味道。',
+  nearest_off:'<b>线性采样</b>：像素被插值糊掉，2D 角色失去手绘/像素质感。',
+  spin_on:'<b>自动旋转</b>开启：转一圈就能看清——布景是真 3D 立体的。',
+  spin_off:'<b>停止旋转</b>：你可以手动拖动观察任意角度。',
+};
+function setCap(html){ cap.innerHTML=html; }
+document.querySelectorAll('.toggle').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const k=t.dataset.k; STATE[k]=!STATE[k]; t.classList.toggle('on',STATE[k]);
+    apply(k);
+    setCap(CAPTIONS[k+'_'+(STATE[k]?'on':'off')]);
+  });
+});
+function apply(k){
+  if(k==='nearest'){
+    chars.forEach(c=>{ c.tex.magFilter = STATE.nearest?THREE.NearestFilter:THREE.LinearFilter; c.tex.needsUpdate=true; });
+    floorTex.magFilter = STATE.nearest?THREE.NearestFilter:THREE.LinearFilter; floorTex.needsUpdate=true;
+  }
+  if(k==='ortho'){
+    const newCam = STATE.ortho?ortho:persp;
+    newCam.position.copy(camera.position);
+    camera=newCam; controls.object=camera; controls.update();
+    composer.passes[0].camera=camera; // RenderPass camera swap
+  }
+  if(k==='bloom') bloomPass.enabled = STATE.bloom;
+  if(k==='tilt') tiltPass.enabled = STATE.tilt;
+}
+// initialize render-pass camera + filters
+composer.passes[0].camera = camera;
+apply('nearest');
+
+// ---------- animation loop ----------
+const clock=new THREE.Clock();
+function tick(){
+  const t=clock.getElapsedTime();
+  if(STATE.spin){
+    const a=t*0.15; const r=Math.hypot(CAM_POS.x,CAM_POS.z);
+    camera.position.x=Math.cos(a)*r; camera.position.z=Math.sin(a)*r; camera.position.y=CAM_POS.y;
+  }
+  // characters: bob + billboard + tiny "working" wiggle
+  chars.forEach((c,i)=>{
+    c.plane.position.y = c.baseY + Math.sin(t*2.2+i)*0.06;
+    if(STATE.billboard){
+      c.plane.lookAt(camera.position.x, c.plane.position.y, camera.position.z);
+    }else{
+      c.plane.rotation.set(0, 0, 0); // frozen flat → reveals it's a sheet
+    }
+  });
+  controls.update();
+  composer.render();
+  requestAnimationFrame(tick);
+}
+tick();
+
+// ---------- scroll reveals + bar fills ----------
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{ if(e.isIntersecting){
+    e.target.classList.add('in');
+    e.target.querySelectorAll?.('.bar-fill').forEach(b=>{ b.style.width=b.dataset.w+'%'; });
+    io.unobserve(e.target);
+  }});
+},{threshold:.18});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大流动性危机，要来了吗？— 大白话版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0f14;
+    --ink-2:#11161f;
+    --panel:#161d28;
+    --panel-2:#1b2330;
+    --line:#283142;
+    --text:#e9e6dd;
+    --text-dim:#9aa3b2;
+    --text-faint:#6b7585;
+    --water:#39c0b3;       /* 流动性=水 */
+    --water-deep:#1d8f86;
+    --gold:#e6b24c;        /* 黄金 */
+    --gold-soft:#f0cd86;
+    --danger:#e5544e;      /* 危机/警戒 */
+    --green:#52b788;       /* 安全/低概率 */
+    --amber:#e8983a;       /* 中等 */
+    --maxw:980px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:"Noto Sans SC",system-ui,sans-serif;
+    font-weight:300;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* 背景气氛：极淡的水蓝+金色辉光 + 颗粒 */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(70% 50% at 12% 8%, rgba(57,192,179,.10), transparent 60%),
+      radial-gradient(60% 45% at 92% 22%, rgba(230,178,76,.08), transparent 60%),
+      radial-gradient(80% 60% at 50% 110%, rgba(57,192,179,.06), transparent 55%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* ============ HERO ============ */
+  header.hero{
+    min-height:92vh;display:flex;flex-direction:column;justify-content:center;
+    padding:80px 24px 60px;max-width:var(--maxw);margin:0 auto;position:relative;
+  }
+  .kicker{
+    font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.32em;
+    color:var(--water);text-transform:uppercase;margin-bottom:28px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .kicker::before{content:"";width:42px;height:1px;background:var(--water);display:inline-block}
+  h1.title{
+    font-family:"Noto Serif SC",serif;font-weight:900;
+    font-size:clamp(40px,8vw,82px);line-height:1.06;letter-spacing:-.01em;
+    margin-bottom:30px;
+  }
+  h1.title .q{color:var(--gold);font-style:normal}
+  h1.title .strike{position:relative;white-space:nowrap}
+  .lede{
+    font-size:clamp(16px,2.3vw,20px);color:var(--text-dim);max-width:640px;
+    font-weight:300;line-height:1.9;
+  }
+  .lede b{color:var(--text);font-weight:500}
+  .verdict-chip{
+    margin-top:40px;display:inline-flex;align-items:center;gap:18px;
+    background:linear-gradient(135deg,rgba(82,183,136,.12),rgba(82,183,136,.04));
+    border:1px solid rgba(82,183,136,.34);border-radius:14px;padding:18px 26px;
+    max-width:600px;
+  }
+  .verdict-chip .dial{flex:none}
+  .verdict-chip .vt{font-size:14.5px;color:var(--text-dim);line-height:1.7}
+  .verdict-chip .vt b{color:var(--green);font-weight:700;font-size:15.5px}
+  .scrollhint{
+    position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.25em;
+    color:var(--text-faint);text-transform:uppercase;animation:bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+
+  /* ============ SECTIONS ============ */
+  section{padding:64px 0;position:relative}
+  .sec-num{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.3em;
+    color:var(--water);margin-bottom:14px;display:block;
+  }
+  h2{
+    font-family:"Noto Serif SC",serif;font-weight:700;
+    font-size:clamp(26px,4.6vw,40px);line-height:1.25;margin-bottom:22px;letter-spacing:-.01em;
+  }
+  h2 .hl{color:var(--gold)}
+  h2 .hlw{color:var(--water)}
+  p.body{font-size:16.5px;color:var(--text-dim);margin-bottom:18px;max-width:760px}
+  p.body b{color:var(--text);font-weight:500}
+  p.body .term{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--text-faint);
+    border:1px solid var(--line);border-radius:5px;padding:1px 6px;white-space:nowrap;font-weight:400}
+
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:8px 0}
+
+  /* 比喻卡：水 */
+  .metaphor{
+    background:linear-gradient(160deg,var(--panel),var(--ink-2));
+    border:1px solid var(--line);border-radius:20px;padding:34px 32px;margin:30px 0;
+    position:relative;overflow:hidden;
+  }
+  .metaphor::after{content:"";position:absolute;right:-40px;top:-40px;width:220px;height:220px;
+    background:radial-gradient(circle,rgba(57,192,179,.12),transparent 65%);}
+  .metaphor h3{font-family:"Noto Serif SC",serif;font-size:20px;font-weight:700;margin-bottom:14px;color:var(--water)}
+  .metaphor p{font-size:16px;color:var(--text-dim);position:relative;z-index:1}
+  .metaphor p + p{margin-top:12px}
+  .metaphor .eq{color:var(--gold-soft);font-weight:500}
+
+  /* 三个水库（水位对比） */
+  .reservoirs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:34px 0 6px}
+  .res{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 18px 22px;text-align:center}
+  .res .tank{
+    height:150px;border:2px solid var(--line);border-top:none;border-radius:0 0 12px 12px;
+    position:relative;overflow:hidden;background:rgba(255,255,255,.015);margin:0 auto 16px;max-width:120px;
+  }
+  .res .fill{position:absolute;left:0;right:0;bottom:0;height:0;
+    background:linear-gradient(180deg,var(--water),var(--water-deep));
+    transition:height 1.6s cubic-bezier(.2,.7,.2,1);}
+  .res .fill::before{content:"";position:absolute;top:-9px;left:0;width:200%;height:18px;
+    background:radial-gradient(circle at 10px 9px,var(--water) 9px,transparent 10px) repeat-x;
+    background-size:20px 18px;animation:wave 3.2s linear infinite;opacity:.85}
+  @keyframes wave{to{transform:translateX(-20px)}}
+  .res.in .fill{height:var(--lvl)}
+  .res .yr{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--text);font-weight:600;letter-spacing:.04em}
+  .res .st{font-size:13px;margin-top:4px;font-weight:500}
+  .res .st.ok{color:var(--green)}.res .st.warn{color:var(--danger)}.res .st.mid{color:var(--amber)}
+  .res .desc{font-size:12px;color:var(--text-faint);margin-top:7px;line-height:1.55}
+
+  /* 时间线 */
+  .timeline{margin:28px 0 0;position:relative;padding-left:34px}
+  .timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(180deg,var(--danger),var(--amber) 40%,var(--water));}
+  .tl-item{position:relative;padding:0 0 26px 8px}
+  .tl-item::before{content:"";position:absolute;left:-33px;top:4px;width:14px;height:14px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--water);box-shadow:0 0 0 4px rgba(57,192,179,.10)}
+  .tl-item.bad::before{border-color:var(--danger);box-shadow:0 0 0 4px rgba(229,84,78,.12)}
+  .tl-item.turn::before{border-color:var(--gold);box-shadow:0 0 0 4px rgba(230,178,76,.14);width:16px;height:16px;left:-34px}
+  .tl-date{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--water);letter-spacing:.05em;margin-bottom:5px;font-weight:500}
+  .tl-item.bad .tl-date{color:var(--danger)}
+  .tl-item.turn .tl-date{color:var(--gold)}
+  .tl-h{font-size:16.5px;color:var(--text);font-weight:500;margin-bottom:4px}
+  .tl-p{font-size:14.5px;color:var(--text-dim);line-height:1.7}
+  .tl-p .term{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--text-faint);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+
+  .turn-banner{background:linear-gradient(135deg,rgba(230,178,76,.13),rgba(230,178,76,.03));
+    border:1px solid rgba(230,178,76,.3);border-radius:14px;padding:18px 22px;margin:8px 0 26px;
+    font-size:15.5px;color:var(--gold-soft);line-height:1.75}
+  .turn-banner b{color:var(--gold);font-weight:700}
+
+  /* 三类危机 */
+  .types{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0}
+  .type{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column}
+  .type .ti{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--text-faint);margin-bottom:8px}
+  .type h4{font-family:"Noto Serif SC",serif;font-size:18.5px;font-weight:700;margin-bottom:10px;line-height:1.35}
+  .type p{font-size:14px;color:var(--text-dim);line-height:1.7;flex:1}
+  .type .prob{margin-top:16px;font-size:13px;font-weight:600;padding:7px 12px;border-radius:9px;text-align:center;letter-spacing:.02em}
+  .prob.low{background:rgba(82,183,136,.14);color:var(--green);border:1px solid rgba(82,183,136,.3)}
+  .prob.now{background:rgba(232,152,58,.14);color:var(--amber);border:1px solid rgba(232,152,58,.3)}
+  .prob.tail{background:rgba(229,84,78,.12);color:var(--danger);border:1px solid rgba(229,84,78,.28)}
+
+  /* 黄金 & A股 影响 */
+  .impact{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:30px 0}
+  .imp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 24px;position:relative;overflow:hidden}
+  .imp.gold{border-top:3px solid var(--gold)}
+  .imp.ash{border-top:3px solid var(--danger)}
+  .imp .ih{font-family:"Noto Serif SC",serif;font-size:21px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .imp.gold .ih{color:var(--gold)}.imp.ash .ih{color:#ff7a72}
+  .imp .isub{font-size:13px;color:var(--text-faint);margin-bottom:18px}
+  .chain{display:flex;flex-direction:column;gap:10px}
+  .step{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;color:var(--text-dim);line-height:1.6}
+  .step .n{flex:none;font-family:"IBM Plex Mono",monospace;font-size:11px;width:22px;height:22px;border-radius:50%;
+    display:grid;place-items:center;border:1px solid var(--line);color:var(--text-faint);margin-top:1px}
+  .step b{color:var(--text);font-weight:500}
+  .imp .takeaway{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);font-size:14px;line-height:1.7}
+  .imp.gold .takeaway{color:var(--gold-soft)}.imp.ash .takeaway{color:#ffaaa4}
+  .imp .takeaway b{font-weight:700}
+
+  /* 仪表盘 */
+  .gauges{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:30px 0}
+  .gauge{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .gauge .gh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;gap:10px}
+  .gauge .gname{font-size:15px;color:var(--text);font-weight:500}
+  .gauge .gcode{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--water)}
+  .gauge .gdesc{font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:14px}
+  .meter{height:9px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--amber) 62%,var(--danger));position:relative;opacity:.85}
+  .meter .mark{position:absolute;top:-4px;width:3px;height:17px;border-radius:2px;background:var(--text);
+    left:0;transition:left 1.4s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 8px rgba(0,0,0,.6)}
+  .gauge.in .mark{left:var(--pos)}
+  .meter-labels{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;color:var(--text-faint);margin-top:7px;letter-spacing:.03em}
+
+  /* 结论 */
+  .conclusion{background:linear-gradient(160deg,var(--panel-2),var(--ink-2));
+    border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:18px;padding:38px 34px;margin:24px 0}
+  .conclusion h3{font-family:"Noto Serif SC",serif;font-size:23px;font-weight:700;margin-bottom:18px;color:var(--gold-soft)}
+  .conclusion p{font-size:16px;color:var(--text-dim);line-height:1.85;margin-bottom:14px}
+  .conclusion p b{color:var(--text);font-weight:600}
+  .conclusion .last{color:var(--text);font-size:16.5px;font-weight:400;border-top:1px dashed var(--line);padding-top:18px;margin-top:6px}
+  .conclusion .last b{color:var(--gold-soft)}
+
+  .caveat{display:flex;gap:14px;align-items:flex-start;background:rgba(229,84,78,.06);
+    border:1px solid rgba(229,84,78,.22);border-radius:12px;padding:16px 18px;margin-top:22px}
+  .caveat .ic{font-size:18px;flex:none;line-height:1.4}
+  .caveat p{font-size:14px;color:var(--text-dim);line-height:1.7;margin:0}
+  .caveat b{color:#ff8c86;font-weight:600}
+
+  /* 页脚 */
+  footer{padding:50px 0 70px;border-top:1px solid var(--line);margin-top:40px}
+  footer .wrap{max-width:var(--maxw)}
+  .src-title{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.25em;color:var(--text-faint);text-transform:uppercase;margin-bottom:16px}
+  .srcs{display:flex;flex-wrap:wrap;gap:8px 10px;margin-bottom:26px}
+  .srcs a{font-size:12.5px;color:var(--text-dim);text-decoration:none;border:1px solid var(--line);
+    border-radius:20px;padding:5px 13px;transition:all .2s}
+  .srcs a:hover{border-color:var(--water);color:var(--water)}
+  .foot-meta{font-size:12.5px;color:var(--text-faint);line-height:1.8}
+  .foot-meta b{color:var(--text-dim)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:760px){
+    .reservoirs{grid-template-columns:1fr;gap:14px}
+    .res .tank{max-width:160px;height:120px}
+    .types{grid-template-columns:1fr}
+    .impact{grid-template-columns:1fr}
+    .gauges{grid-template-columns:1fr}
+    .verdict-chip{flex-direction:column;align-items:flex-start;gap:12px}
+    section{padding:48px 0}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="kicker reveal">FOMC · 流动性 · 大白话拆解</div>
+  <h1 class="title reveal" style="transition-delay:.08s">
+    <span class="q">大</span>流动性危机，<br>真的<span class="q">要来了</span>吗？
+  </h1>
+  <p class="lede reveal" style="transition-delay:.16s">
+    你跟踪的博主说"可能有大流动性危机"。这页用<b>最直白的话</b>把它拆开 ——
+    先搞懂"流动性"到底是啥，再看危机是真是假，最后说清楚它怎么砸到<b>黄金和 A 股</b>。
+  </p>
+
+  <div class="verdict-chip reveal" style="transition-delay:.24s">
+    <svg class="dial" width="74" height="74" viewBox="0 0 74 74">
+      <circle cx="37" cy="37" r="31" fill="none" stroke="#283142" stroke-width="7"/>
+      <circle cx="37" cy="37" r="31" fill="none" stroke="#52b788" stroke-width="7"
+        stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="160"
+        transform="rotate(-90 37 37)"/>
+      <text x="37" y="34" text-anchor="middle" fill="#52b788" font-family="IBM Plex Mono" font-size="15" font-weight="600">低</text>
+      <text x="37" y="49" text-anchor="middle" fill="#6b7585" font-family="IBM Plex Mono" font-size="8.5">概率</text>
+    </svg>
+    <div class="vt">一句话先给结论：<b>系统性"大钱荒"概率低</b>——<br>因为美联储 2025 年底已经先动手放水了。往下看为什么。</div>
+  </div>
+
+  <div class="scrollhint">↓ 往下滑</div>
+</header>
+
+<!-- 1. 流动性是什么 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">01 / 先搞懂一个词</span>
+    <h2>"流动性"，其实就是金融系统里的<span class="hlw">水</span></h2>
+    <p class="body">
+      别被这个词吓到。<b>流动性 = 银行之间能不能顺利地互相借到钱周转</b>。把整个金融系统想象成一套水管：
+    </p>
+    <div class="metaphor">
+      <h3>🚰 一个比喻就懂</h3>
+      <p><span class="eq">水 = 钱（现金）</span>。银行每天都要互相隔夜拆借周转，就像水在管道里流。</p>
+      <p><span class="eq">水够 → 一切顺畅</span>，借钱便宜、利率平稳，没人慌。</p>
+      <p><span class="eq">水不够 → "钱荒"</span>。大家抢着借现金，隔夜借钱的"加价"突然飙高，严重时管道堵死 —— 这就是所谓的<b style="color:var(--danger)">流动性危机</b>（2008、2020 年发生过）。</p>
+    </div>
+    <p class="body">
+      所以"会不会有大流动性危机" = <b>这套水管会不会突然没水、堵死</b>。下面三步看清楚。
+    </p>
+  </div>
+</section>
+
+<!-- 2. 为什么有人喊危机 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">02 / 担心从哪来</span>
+    <h2>2025 年底，水管<span class="hl">确实紧张过</span> —— 这不是瞎编</h2>
+    <p class="body">
+      唱衰的人不是空穴来风。去年下半年，水位真的降到了警戒线。三个信号（翻译成大白话）：
+    </p>
+    <div class="reservoirs">
+      <div class="res" data-lvl="86%">
+        <div class="tank"><div class="fill"></div></div>
+        <div class="yr">~2022</div>
+        <div class="st ok">水位充裕</div>
+        <div class="desc">大放水年代，<br>钱多到溢出来</div>
+      </div>
+      <div class="res" data-lvl="30%">
+        <div class="tank"><div class="fill"></div></div>
+        <div class="yr">2025 年底</div>
+        <div class="st warn">降到"刚够"</div>
+        <div class="desc">美联储持续"抽水"<br>（缩表/QT），缓冲垫抽干</div>
+      </div>
+      <div class="res" data-lvl="55%">
+        <div class="tank"><div class="fill"></div></div>
+        <div class="yr">现在</div>
+        <div class="st mid">回升中</div>
+        <div class="desc">美联储掉头放水，<br>水位重新往上走</div>
+      </div>
+    </div>
+    <p class="body" style="margin-top:26px">
+      最直接的报警信号：<b>2025 年 10 月 31 日，银行隔夜借钱的"加价"一度跳高</b>
+      <span class="term">SOFR−IORB +32bp</span> —— 翻译过来就是"现金突然变抢手"。同时，系统里多余现金的"蓄水池缓冲垫"
+      <span class="term">逆回购 RRP</span> 也几乎被抽干到零。<b>水位到警戒线，是事实。</b>
+    </p>
+  </div>
+</section>
+
+<!-- 3. Fed已经掉头 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">03 / 关键的后半段</span>
+    <h2>但故事没完：美联储<span class="hl">已经先放水了</span></h2>
+    <p class="body">
+      这是唱衰的人最常<b>不讲</b>的一半。看到水位告警后，美联储没坐着不动 —— 它提前掉头了：
+    </p>
+
+    <div class="timeline">
+      <div class="tl-item bad reveal">
+        <div class="tl-date">2025 下半年</div>
+        <div class="tl-h">水位告警</div>
+        <div class="tl-p">持续抽水（缩表）把准备金抽到"刚够"，隔夜利率跳高，蓄水池缓冲垫见底。</div>
+      </div>
+      <div class="tl-item turn reveal">
+        <div class="tl-date">2025 年 10 月</div>
+        <div class="tl-h">🔑 停止"抽水"</div>
+        <div class="tl-p">美联储决定<b style="color:var(--gold-soft)">停止缩表</b><span class="term">QT 结束</span>。不再往外抽水了。</div>
+      </div>
+      <div class="tl-item turn reveal">
+        <div class="tl-date">2025 年 12 月起</div>
+        <div class="tl-h">🔑 开始"放水"</div>
+        <div class="tl-p">反手每月买入约 <b style="color:var(--gold-soft)">400 亿美元</b>短期国债<span class="term">RMP 储备金管理购买</span>，主动往系统里注水到 2026 年春天。</div>
+      </div>
+      <div class="tl-item turn reveal">
+        <div class="tl-date">同期</div>
+        <div class="tl-h">🔑 架好"无限量应急水龙头"</div>
+        <div class="tl-p">把应急借钱工具改名<span class="term">SRF→SRP</span>并<b style="color:var(--gold-soft)">取消额度上限</b> —— 等于承诺"管道一缺水，随时无限量补"。</div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-date">2025/12/31 → 2026/1/2</div>
+        <div class="tl-h">一次"假警报"的验证</div>
+        <div class="tl-p">年底做账，应急水龙头用量一度冲到 <b>750 亿</b>，结果<b>两天后归零</b>。真危机不会 48 小时蒸发 —— 这只是过节临时挤一下，不是管道堵死。</div>
+      </div>
+    </div>
+
+    <div class="turn-banner reveal">
+      💡 和 2019 年那次真·钱荒最大的不同：<b>那时美联储手里没工具、被打懵；现在工具齐全、已经在放水、兜底还无上限。</b>这就是我把"系统性危机"概率往下压的最硬理由。
+    </div>
+  </div>
+</section>
+
+<!-- 4. 三类危机 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">04 / 别被一个大词糊住</span>
+    <h2>"危机"其实有<span class="hlw">三种</span>，混在一起讲最唬人</h2>
+    <p class="body">
+      博主嘴里的"大流动性危机"，往往把下面三件事打包成一个。拆开看，每件的真实概率完全不同：
+    </p>
+    <div class="types">
+      <div class="type reveal">
+        <div class="ti">① 水管冻结</div>
+        <h4>资金管道突然堵死</h4>
+        <p>隔夜借钱市场失控、利率失序（08/20 那种）。这才是真正的"流动性危机"本义。</p>
+        <div class="prob low">概率：低 ↓<br><span style="font-weight:400;font-size:11.5px">Fed 已停抽水 + 无限兜底</span></div>
+      </div>
+      <div class="type reveal" style="transition-delay:.1s">
+        <div class="ti">② 慢性收紧</div>
+        <h4>钱变贵，慢慢抽走风险资产的水</h4>
+        <p>强美元 + 高利率，让股市、新兴市场长期"缺水"。不轰然倒塌，而是阴跌承压。</p>
+        <div class="prob now">真实 · 正在发生<br><span style="font-weight:400;font-size:11.5px">就是 A 股/成长股的逆风</span></div>
+      </div>
+      <div class="type reveal" style="transition-delay:.2s">
+        <div class="ti">③ 被引爆</div>
+        <h4>别处的雷连环引爆</h4>
+        <p>日元套息平仓、私人信贷暴雷等，从外部点燃系统。火药桶在攒，但不在回购市场。</p>
+        <div class="prob tail">尾部风险 · 在攒<br><span style="font-weight:400;font-size:11.5px">盯日元 + 私人信贷</span></div>
+      </div>
+    </div>
+    <p class="body" style="margin-top:8px">
+      <b>一句话：博主把这三样打包成一个吓人的"大危机" —— 但 ① 被极度夸大，② 是本来就在的慢性病，③ 才真值得盯。</b>
+    </p>
+  </div>
+</section>
+
+<!-- 5. 对黄金、A股 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">05 / 砸到你的钱包</span>
+    <h2>那对<span class="hl">黄金</span>、<span style="color:#ff7a72">A 股</span>到底啥影响？</h2>
+    <div class="impact">
+      <div class="imp gold reveal">
+        <div class="ih">🪙 黄金</div>
+        <div class="isub">被两股力量来回拉扯，多半高位震荡</div>
+        <div class="chain">
+          <div class="step"><span class="n">压</span><span><b>高利率压它</b>：黄金不生息。利率高时，拿美元存款能稳吃 4%+ 利息，钱就懒得待在黄金上。</span></div>
+          <div class="step"><span class="n">撑</span><span><b>通胀+避险撑它</b>：物价高、中东打仗时，钱往黄金里躲。</span></div>
+          <div class="step"><span class="n">关</span><span><b>真正的底牌</b>：Fed 一见缺水就放水 → 长期利空"美元购买力" → 长期利多黄金。</span></div>
+        </div>
+        <div class="takeaway"><b>结论：</b>短期高位震荡；但"一出事就放水"的逻辑，让黄金成了对冲这套剧本的顺手工具。</div>
+      </div>
+      <div class="imp ash reveal" style="transition-delay:.1s">
+        <div class="ih">📉 A 股</div>
+        <div class="isub">Fed 是"外部添堵"，但内因才定生死</div>
+        <div class="chain">
+          <div class="step"><span class="n">1</span><span><b>卡住央行放水的手</b>：美元强 → 人民币有压力 → 咱们央行想降息刺激却投鼠忌器。这条最关键。</span></div>
+          <div class="step"><span class="n">2</span><span><b>外资懒得进</b>：美元资产收益又高又稳，外资（北向）更愿待在美国。</span></div>
+          <div class="step"><span class="n">3</span><span><b>先杀高估值成长股</b>：半导体、AI 这类最先挨打；高股息蓝筹（银行/电力/煤炭）相对抗跌。</span></div>
+        </div>
+        <div class="takeaway"><b>结论：</b>温和逆风，不是末日。A 股涨不涨，主要还看国内自己的货币财政政策 —— <b>外因添堵，内因定生死。</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 自查仪表盘 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">06 / 别靠氛围感</span>
+    <h2>博主再喊，你<span class="hlw">自己对这 6 个表</span>判真假</h2>
+    <p class="body">
+      不用信谁的"感觉"。下面 6 个指标就是水管的"体温计"，越往右红区=越缺水/越危险：
+    </p>
+    <div class="gauges">
+      <div class="gauge reveal" style="--pos:14%">
+        <div class="gh"><span class="gname">隔夜借钱"加价"</span><span class="gcode">SOFR−IORB</span></div>
+        <div class="gdesc">最干净的实时温度计。持续高过 10~20bp 才叫真紧。</div>
+        <div class="meter"><span class="mark"></span></div>
+        <div class="meter-labels"><span>平稳</span><span>偏紧</span><span>钱荒</span></div>
+      </div>
+      <div class="gauge reveal" style="--pos:20%;transition-delay:.06s">
+        <div class="gh"><span class="gname">应急水龙头用量</span><span class="gcode">SRP</span></div>
+        <div class="gdesc">非季末还在被持续使用 = 银行真缺现金（节假日尖峰不算数）。</div>
+        <div class="meter"><span class="mark"></span></div>
+        <div class="meter-labels"><span>没人用</span><span>偶发</span><span>常态化</span></div>
+      </div>
+      <div class="gauge reveal" style="--pos:38%;transition-delay:.12s">
+        <div class="gh"><span class="gname">银行准备金/GDP（水位）</span><span class="gcode">Reserves</span></div>
+        <div class="gdesc">Fed 心里的"充裕线"约 10~11%。跌破才叫稀缺。现在"刚够"。</div>
+        <div class="meter"><span class="mark"></span></div>
+        <div class="meter-labels"><span>充裕</span><span>刚够</span><span>稀缺</span></div>
+      </div>
+      <div class="gauge reveal" style="--pos:88%;transition-delay:.18s">
+        <div class="gh"><span class="gname">蓄水池缓冲垫</span><span class="gcode">ON RRP</span></div>
+        <div class="gdesc">已经≈0，缓冲垫没了 —— 这是唯一真正该担心的结构性事实。</div>
+        <div class="meter"><span class="mark"></span></div>
+        <div class="meter-labels"><span>厚</span><span>变薄</span><span>见底</span></div>
+      </div>
+      <div class="gauge reveal" style="--pos:46%;transition-delay:.24s">
+        <div class="gh"><span class="gname">日元汇率（套息扳机）</span><span class="gcode">USD/JPY</span></div>
+        <div class="gdesc">日元快速走强 = 全球"借低买高"的套息交易可能平仓 → 连锁抛售。</div>
+        <div class="meter"><span class="mark"></span></div>
+        <div class="meter-labels"><span>稳</span><span>敏感</span><span>平仓</span></div>
+      </div>
+      <div class="gauge reveal" style="--pos:34%;transition-delay:.3s">
+        <div class="gh"><span class="gname">债市波动 / 信用利差</span><span class="gcode">MOVE · IG/HY</span></div>
+        <div class="gdesc">风险传染的温度。飙升 = 钱在逃向安全资产。</div>
+        <div class="meter"><span class="mark"></span></div>
+        <div class="meter-labels"><span>低</span><span>升温</span><span>恐慌</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 结论 -->
+<section>
+  <div class="wrap reveal">
+    <span class="sec-num">07 / 收个尾</span>
+    <div class="conclusion">
+      <h3>那到底信不信"大流动性危机"？</h3>
+      <p><b>系统性大钱荒（①号）：概率低。</b>美联储已经停止抽水、反手放水、还架了无限量兜底。它已经证明"一缺水就补"，这托住了最坏的下尾。</p>
+      <p><b>但别松懈：</b>缓冲垫确实没了，系统比前几年脆，缴税日、季末、突发地缘冲击时，小尖峰会更频繁。真正的火药桶在<b>日元套息</b>和<b>私人信贷</b>，不在回购管道。</p>
+      <p class="last">所以更聪明的做法不是"等崩盘清仓"，而是 <b>配置端留一点黄金这类对冲，盯紧上面 6 个表 —— 而不是押一个具体的崩盘日期。</b></p>
+    </div>
+    <div class="caveat reveal">
+      <span class="ic">⚠️</span>
+      <p><b>带日期的崩盘预言，历史命中率极低</b> —— 这是个每年都循环的体裁（搜一下就能刷到一堆《预警！X 月全球金融危机要来了》）。要数据，不要氛围感。本页是科普梳理，<b>不构成投资建议</b>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+  <div class="wrap reveal">
+    <div class="src-title">数据来源 / Sources</div>
+    <div class="srcs">
+      <a href="https://wolfstreet.com/2026/01/05/feds-standing-repo-facility-srf-drops-to-zero-from-75-billion-on-the-last-balance-sheet-as-yearend-liquidity-turmoil-dissolves/" target="_blank" rel="noopener">Wolf Street · SRF 归零</a>
+      <a href="https://www.svb.com/market-insights/us-treasuries/the-federal-reserve-ends-qt-key-market-liquidity-insights/" target="_blank" rel="noopener">SVB · Fed 结束 QT</a>
+      <a href="https://am.gs.com/en-us/advisors/insights/article/2026/fed-balance-sheet-money-markets" target="_blank" rel="noopener">Goldman Sachs · 资产负债表</a>
+      <a href="https://www.federalreserve.gov/releases/h41/current/" target="_blank" rel="noopener">Fed H.4.1 · 2026-06-11</a>
+      <a href="https://www.fsb.org/uploads/P060526.pdf" target="_blank" rel="noopener">FSB · 私人信贷脆弱性</a>
+      <a href="https://www.imf.org/-/media/files/publications/gfsr/2026/april/english/ch1.pdf" target="_blank" rel="noopener">IMF · GFSR 2026-04</a>
+    </div>
+    <div class="foot-meta">
+      <b>更新于 2026-06-16</b> · 缘起：评估微博博主「谢佩德骨头」的"大流动性危机"说<br>
+      口径：时间线为可查证二手源；三类拆解与仪表盘为分析框架（非实时读数）。仅供学习，不构成投资建议。
+    </div>
+  </div>
+</footer>
+
+<script>
+  // reveal on scroll + 触发水库填充/仪表/时间线
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.18, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal,.res,.gauge,.tl-item').forEach(el=>io.observe(el));
+
+  // 水库水位：用 data-lvl 设置 CSS 变量
+  document.querySelectorAll('.res').forEach(r=>{ r.style.setProperty('--lvl', r.dataset.lvl); });
+
+  // hero 元素入场
+  window.addEventListener('load',()=>{
+    document.querySelectorAll('.hero .reveal').forEach(el=>el.classList.add('in'));
+  });
+</script>
+</body>
+</html>

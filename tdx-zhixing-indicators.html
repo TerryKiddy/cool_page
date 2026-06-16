@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知行指标重构 · 通达信公式三件套</title>
+<meta name="description" content="把通达信「知行短期趋势线 / 多空线 / 砖型图」拆成干净的三件套：DEMA 趋势 + SMI 动量 + 带趋势过滤的选股。含完整公式、新建流程与语法排雷。">
+<style>
+  :root{
+    --bg:#0b0f17; --bg-soft:#0e1420; --card:#131a26; --code:#0a0f1a;
+    --border:#222c3c; --border-soft:#1a2330;
+    --text:#e6edf3; --dim:#94a3b8; --faint:#64748b;
+    --gold:#f0b429; --up:#f04747; --down:#27c498; --blue:#58a6ff; --teal:#2dd4bf;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,"Segoe UI",sans-serif;
+    line-height:1.7; font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 500px at 80% -10%,rgba(240,180,41,.07),transparent 60%),radial-gradient(700px 400px at 0% 0%,rgba(88,166,255,.06),transparent 55%);
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px 90px}
+
+  /* hero */
+  header.hero{padding:54px 0 30px;text-align:center}
+  .kic{display:flex;gap:5px;justify-content:center;align-items:flex-end;height:46px;margin-bottom:22px;opacity:.9}
+  .kic i{display:block;width:7px;border-radius:2px;position:relative}
+  .kic i::before{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:1.5px;transform:translateX(-50%);background:inherit;opacity:.7}
+  .kic .u{background:var(--up)} .kic .d{background:var(--down)}
+  h1{font-size:2.05rem;line-height:1.25;letter-spacing:-.5px;font-weight:800}
+  h1 .hl{background:linear-gradient(100deg,var(--gold),#ffd86b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--dim);font-size:1.06rem;margin:14px auto 0;max-width:640px}
+  .meta{margin-top:18px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pill{font-size:.8rem;color:var(--dim);border:1px solid var(--border);background:var(--bg-soft);padding:4px 11px;border-radius:999px}
+  .pill b{color:var(--text);font-weight:600}
+
+  /* nav chips */
+  nav.toc{position:sticky;top:0;z-index:20;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    padding:13px 12px;margin:8px -20px 0;background:rgba(11,15,23,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-soft)}
+  nav.toc a{font-size:.86rem;color:var(--dim);text-decoration:none;padding:5px 12px;border-radius:8px;border:1px solid transparent;transition:.15s}
+  nav.toc a:hover{color:var(--text);background:var(--card);border-color:var(--border)}
+
+  section{margin-top:40px}
+  h2{font-size:1.4rem;font-weight:750;display:flex;align-items:center;gap:10px;margin-bottom:6px;scroll-margin-top:62px}
+  h2 .n{font-size:.85rem;color:var(--bg);background:var(--gold);font-weight:800;width:24px;height:24px;display:grid;place-items:center;border-radius:7px;flex:none}
+  .lead{color:var(--dim);margin-bottom:18px}
+
+  /* formula card */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  .card-top{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap}
+  .card-top .ttl{font-weight:700;font-size:1.04rem}
+  .badge{font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:7px;white-space:nowrap}
+  .b-main{background:rgba(240,72,72,.14);color:#ff8a8a;border:1px solid rgba(240,72,72,.35)}
+  .b-sub{background:rgba(39,196,152,.14);color:#5fe0bc;border:1px solid rgba(39,196,152,.32)}
+  .b-pick{background:rgba(88,166,255,.14);color:#8cc2ff;border:1px solid rgba(88,166,255,.32)}
+  .spacer{flex:1}
+  .copy{cursor:pointer;font:inherit;font-size:.83rem;color:var(--dim);background:var(--bg-soft);border:1px solid var(--border);
+    padding:6px 13px;border-radius:8px;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .copy:hover{color:var(--text);border-color:var(--gold)}
+  .copy.ok{color:var(--down);border-color:var(--down)}
+  pre{margin:0;padding:16px;overflow-x:auto;background:var(--code);font-size:13.5px;line-height:1.65}
+  code{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;color:#d7e0ea;white-space:pre}
+  .cmt{color:#5b6b7e;font-style:italic}
+  .note{padding:11px 16px;font-size:.9rem;color:var(--dim);border-top:1px solid var(--border-soft);background:var(--bg-soft)}
+  .note b{color:var(--text)}
+
+  /* tables */
+  .tbl{width:100%;border-collapse:collapse;font-size:.93rem;margin:6px 0 4px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .tbl th,.tbl td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--border-soft);vertical-align:top}
+  .tbl th{background:var(--bg-soft);color:var(--dim);font-weight:600;font-size:.84rem}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl td:first-child{color:var(--dim);white-space:nowrap}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ok-i{color:var(--up);font-weight:700} .no-i{color:var(--down);font-weight:700}
+  code.inline{background:var(--bg-soft);border:1px solid var(--border-soft);padding:1.5px 6px;border-radius:5px;font-size:.86em;color:#bcd3ea;white-space:normal}
+
+  /* steps */
+  ol.steps{list-style:none;counter-reset:s;margin:4px 0}
+  ol.steps li{counter-increment:s;position:relative;padding:9px 0 9px 42px;border-bottom:1px solid var(--border-soft)}
+  ol.steps li:last-child{border-bottom:none}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:27px;height:27px;background:var(--bg-soft);
+    border:1px solid var(--border);border-radius:50%;display:grid;place-items:center;font-size:.82rem;font-weight:700;color:var(--gold)}
+
+  /* callouts */
+  .call{border-radius:12px;padding:14px 16px 14px 18px;margin:16px 0;font-size:.94rem;border:1px solid var(--border);position:relative;padding-left:46px}
+  .call .ic{position:absolute;left:15px;top:14px;font-size:1.1rem}
+  .call.warn{background:rgba(240,180,41,.07);border-color:rgba(240,180,41,.3)}
+  .call.bad{background:rgba(240,72,72,.07);border-color:rgba(240,72,72,.3)}
+  .call.good{background:rgba(39,196,152,.07);border-color:rgba(39,196,152,.3)}
+  .call b{color:var(--text)}
+  .call h4{font-size:.98rem;margin-bottom:3px}
+
+  ul.tick{list-style:none;margin:8px 0}
+  ul.tick li{position:relative;padding:5px 0 5px 24px;color:var(--dim)}
+  ul.tick li::before{content:"›";position:absolute;left:6px;color:var(--gold);font-weight:800}
+  ul.tick li b{color:var(--text)}
+
+  footer{margin-top:54px;padding-top:24px;border-top:1px solid var(--border-soft);color:var(--faint);font-size:.84rem;text-align:center}
+  footer .dis{max-width:620px;margin:0 auto 14px;line-height:1.6}
+  a.up{color:var(--blue);text-decoration:none} a.up:hover{text-decoration:underline}
+
+  @media(max-width:620px){
+    h1{font-size:1.62rem} body{font-size:15px}
+    .card-top .ttl{width:100%;order:-1}
+    nav.toc{gap:5px;padding:10px 8px} nav.toc a{padding:4px 9px;font-size:.8rem}
+  }
+</style>
+</head>
+<body>
+<nav class="toc">
+  <a href="#tldr">核心改动</a>
+  <a href="#formulas">三个公式</a>
+  <a href="#setup">新建流程</a>
+  <a href="#syntax">语法排雷</a>
+  <a href="#tune">调参用法</a>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="kic" aria-hidden="true">
+      <i class="d" style="height:18px"></i><i class="u" style="height:30px"></i><i class="u" style="height:23px"></i>
+      <i class="d" style="height:14px"></i><i class="u" style="height:38px"></i><i class="u" style="height:28px"></i>
+      <i class="d" style="height:20px"></i><i class="u" style="height:34px"></i>
+    </div>
+    <h1>知行指标重构 · <span class="hl">通达信公式三件套</span></h1>
+    <p class="sub">把「知行短期趋势线 / 多空线 / 砖型图」那一大坨，拆成干净、对称、不撑爆主图的三件套：<b>DEMA 趋势</b> + <b>SMI 动量</b> + <b>带趋势过滤的选股</b>。</p>
+    <div class="meta">
+      <span class="pill">适用 <b>通达信 (TDX)</b></span>
+      <span class="pill">无未来函数 · <b>不重绘</b></span>
+      <span class="pill">点 <b>复制</b> 即可粘进公式编辑器</span>
+    </div>
+  </header>
+
+  <!-- TLDR -->
+  <section id="tldr">
+    <h2><span class="n">◆</span>核心改动 / 为什么更好</h2>
+    <p class="lead">原版框架（双均线 + 振荡器 + 拐点选股）是经典配方，问题全在执行：重复、混量纲、把简单 KDJ 包装得很玄、还残缺了空头侧。逐项收拾如下。</p>
+    <div class="scroll">
+    <table class="tbl">
+      <thead><tr><th>原问题</th><th>处理</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">EMA(EMA(C,10),10)</code> 双重平滑 = 纯加滞后</td><td>换 <b>DEMA</b> <code class="inline">2·EMA−EMA(EMA)</code>，平滑度不变、滞后约减半</td></tr>
+        <tr><td><code class="inline">MA1/MA2/BB</code> 死代码、全角 <code class="inline">；</code>、<code class="inline">红持绿空:=0</code> 画不出</td><td>全部删除 / 修正</td></tr>
+        <tr><td>砖型图：伪 Renko、<code class="inline">±100/−90</code> offset 全抵消、两变量互补不独立、<code class="inline">IF(&gt;4)</code> 砍掉空头侧</td><td>换成 <b>SMI（Blau 随机动量指数）</b>——它就是「平滑随机指标」的标准对称版，<b>0 轴对称、含空头侧</b></td></tr>
+        <tr><td>0~180 振荡器与价格同窗 → Y 轴被撑爆</td><td><b>拆三个公式</b>，振荡器进副图，互不干扰量纲</td></tr>
+        <tr><td>两条均线类指标功能重叠</td><td>改成 <b>快(DEMA10)+慢(EMA55)配对</b>，靠交叉定方向，不再冗余</td></tr>
+        <tr><td>XG 单凭动能拐头 → 震荡市满屏假信号</td><td>加 <b>趋势过滤</b>（<code class="inline">C&gt;EMA55</code>）+ 限定 <b>零轴下方金叉</b>，大幅降 whipsaw</td></tr>
+        <tr><td>概念串过长压住 K 线</td><td>板块文字拆成两行显示</td></tr>
+        <tr><td>无未来函数（原版唯一优点）</td><td><b>保留</b> —— 新版同样全因果、不重绘</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- FORMULAS -->
+  <section id="formulas">
+    <h2><span class="n">1</span>三个公式（点右上角复制）</h2>
+    <p class="lead">三段分别贴到 <b>不同窗口</b>，<u>千万别合并成一个</u>——那正是原版最大的实操坑（量纲撑爆主图）。</p>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="ttl">① 知行 · 趋势系统</span>
+        <span class="badge b-main">贴到：技术指标公式 · 勾「主图叠加」✅</span>
+        <span class="spacer"></span>
+        <button class="copy" data-copy="main"><span class="ci">⧉</span><span class="ct">复制</span></button>
+      </div>
+      <pre><code id="code-main"></code></pre>
+      <div class="note"><b>DEMA</b> 快线 + <b>EMA55</b> 慢线（多空分界），金叉↑/死叉↓ 自动打标；板块文字拆两行防溢出。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="ttl">② 知行 · SMI 动量</span>
+        <span class="badge b-sub">贴到：技术指标公式 · 不勾叠加（副图）❌</span>
+        <span class="spacer"></span>
+        <button class="copy" data-copy="sub"><span class="ci">⧉</span><span class="ct">复制</span></button>
+      </div>
+      <pre><code id="code-sub"></code></pre>
+      <div class="note">SMI = <b>−100~+100 对称</b>的双平滑随机动量；<b>HIST</b> 红柱=动能转强、绿柱=转弱；超买/超卖 ±40。这就是「砖型图」的正确形态。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="ttl">③ 知行 · 选股</span>
+        <span class="badge b-pick">贴到：条件选股公式 · 参数须与②一致</span>
+        <span class="spacer"></span>
+        <button class="copy" data-copy="pick"><span class="ci">⧉</span><span class="ct">复制</span></button>
+      </div>
+      <pre><code id="code-pick"></code></pre>
+      <div class="note"><b>上升趋势中的回踩金叉</b>：SMI 在零轴下方上穿信号线、且价在 EMA55 之上。想要突破型买点就删掉 <code class="inline">SMI&lt;0</code>（信号变多、需控仓）。</div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="setup">
+    <h2><span class="n">2</span>通达信里怎么新建</h2>
+    <p class="lead">入口：菜单 <code class="inline">功能 → 公式系统 → 公式管理器</code>。左侧是分类树，三段属于两个类别。</p>
+
+    <div class="scroll">
+    <table class="tbl">
+      <thead><tr><th>公式</th><th>建在哪</th><th>关键设置</th></tr></thead>
+      <tbody>
+        <tr><td>① 趋势系统</td><td><code class="inline">技术指标公式</code> → 新建</td><td><span class="ok-i">必须勾「主图叠加」✅</span></td></tr>
+        <tr><td>② SMI 动量</td><td><code class="inline">技术指标公式</code> → 新建</td><td><span class="no-i">不要勾「主图叠加」❌</span>（默认副图）</td></tr>
+        <tr><td>③ 选股</td><td><code class="inline">条件选股公式</code> → 新建</td><td>无叠加选项</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 style="margin:22px 0 4px;font-size:1rem">每个公式的新建流程</h4>
+    <ol class="steps">
+      <li>选好分类 → 点 <b>新建</b>，弹出编辑窗口。</li>
+      <li><b>公式名称</b> 填英文/数字（如 <code class="inline">ZXTREND</code>、<code class="inline">ZXSMI</code>、<code class="inline">ZXXG</code>）。注意：公式名本身只能字母数字；但代码里 <code class="inline">短期趋势线:</code>、<code class="inline">多空线:</code> 这种<b>输出行用中文是允许的</b>。</li>
+      <li>把对应那段代码粘进 <b>公式编辑</b> 大文本框。</li>
+      <li>点 <b>测试公式</b> 做语法检查 → 没报错 → <b>确定</b>。</li>
+    </ol>
+
+    <h4 style="margin:22px 0 4px;font-size:1rem">调出来看</h4>
+    <ul class="tick">
+      <li><b>① 主图叠加：</b>保存后在 K 线图上<b>敲公式名 <code class="inline">ZXTREND</code> 回车</b>，白/黄线就叠到 K 线上。</li>
+      <li><b>② 副图：</b>副图区域右键 → <code class="inline">选择指标公式</code> → 找到 <code class="inline">ZXSMI</code>；或副图敲名字回车。</li>
+      <li><b>③ 选股：</b>菜单 <code class="inline">功能 → 选股器 → 条件选股</code>，选中 <code class="inline">ZXXG</code> → 执行选股。</li>
+    </ul>
+
+    <div class="call warn"><span class="ic">⚠️</span>
+      <h4>这一步是「量纲坑」的根治点</h4>
+      <b>① 勾主图叠加、② 千万别勾。</b> 勾反了：SMI（−100~+100）要么飘在 K 线上方一团乱，要么趋势线被丢进一个跟价格脱节的小副图里。
+    </div>
+
+    <p style="color:var(--dim);font-size:.92rem"><b style="color:var(--text)">参数：</b>代码里 <code class="inline">N:=14;</code> 这些已写死，粘进去就能用，不必填参数表。想用滑块调，就删掉那行 <code class="inline">:=</code> 定义，改在上方「参数」表里建 <code class="inline">N</code> 并设缺省值。</p>
+  </section>
+
+  <!-- SYNTAX -->
+  <section id="syntax">
+    <h2><span class="n">3</span>这些备注会不会报错？</h2>
+    <div class="call good"><span class="ic">✅</span>
+      <h4>不会。</h4>
+      代码里所有注释用的都是 <code class="inline">{ ... }</code>，这是通达信<b>官方注释符</b>，单行/多行、行尾跟在 <code class="inline">;</code> 后都合法。注释里的中文、<code class="inline">↑↓</code>、<code class="inline">[贴到:…]</code> 路由提示都只是文本，安全。看完想删也行。
+    </div>
+    <p class="lead" style="margin-top:6px">真正会报错的是这几样（顺手排雷，按概率）：</p>
+    <div class="call bad"><span class="ic">①</span>
+      <b>全角标点混进代码区。</b> 这是原版踩过的坑（那个全角 <code class="inline">；</code>）。本页代码 <code class="inline">; , ( ) :</code> 全是半角；从网页/聊天复制时偶尔会被转成全角 <code class="inline">；，（）</code>——<b>粘进去前扫一眼</b>，连大括号 <code class="inline">{ }</code> 也要半角。
+    </div>
+    <div class="call bad"><span class="ic">②</span>
+      <b><code class="inline">//</code> 双斜杠注释老版本不认</b>会报错。所以本页全程没用 <code class="inline">//</code>，统一 <code class="inline">{ }</code>，最稳。
+    </div>
+    <p style="color:var(--dim);font-size:.92rem">一句话：注释放心留着，唯一要盯的是别让全角符号溜进代码本身。粘完点一次 <b style="color:var(--text)">测试公式</b>，通过就万事大吉。</p>
+  </section>
+
+  <!-- TUNE -->
+  <section id="tune">
+    <h2><span class="n">4</span>调参 & 变体</h2>
+    <ul class="tick">
+      <li><b>更灵敏：</b>减小 <code class="inline">N/R/S</code>（如 10/2/2）；<b>更稳：</b>加大（如 21/5/3）。超买超卖线 ±40 可按品种改 ±50。</li>
+      <li><b>连续突破型买点：</b>把 ③ 选股里的 <code class="inline">SMI&lt;0</code> 删掉即可（信号变多，需自行控仓）。</li>
+      <li><b>慢线换回四均线复合：</b>把 <code class="inline">EMA(CLOSE,55)</code> 换成 <code class="inline">(MA(C,5)+MA(C,10)+MA(C,20)+MA(C,60))/4</code>，①②③ 三处保持一致即可。</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="dis">⚠️ 仅为技术指标的工程化重构与个人研究记录，<b>不构成任何投资建议</b>。指标只是观察工具，不预测未来；任何买卖决策与盈亏自负。</p>
+    <p>知行指标重构 · 通达信公式三件套 — 2026-06 · 自用整理</p>
+  </footer>
+</div>
+
+<script>
+const FORMULAS = {
+main:
+`{===== 知行·趋势系统  [贴到: 主图叠加] =====}
+N1:=10;
+E1:=EMA(CLOSE,N1);
+短期趋势线:2*E1-EMA(E1,N1),COLORWHITE,LINETHICK1;   {DEMA: 同样平滑、滞后减半}
+多空线:EMA(CLOSE,55),COLORYELLOW,LINETHICK2;          {慢线作多空分界}
+
+DRAWICON(CROSS(短期趋势线,多空线),LOW*0.99,1);         {金叉 ↑}
+DRAWICON(CROSS(多空线,短期趋势线),HIGH*1.01,2);        {死叉 ↓}
+
+{板块文字拆两行, 防止概念串过长压住K线}
+DRAWTEXT_FIX(ISLASTBAR,0,0,0,STRCAT(STRCAT(HYBLOCK,'  '),DYBLOCK)),COLOR00C0C0;
+DRAWTEXT_FIX(ISLASTBAR,0,0.04,0,GNBLOCK),COLOR00C0C0;`,
+sub:
+`{===== 知行·SMI动量  [贴到: 副图] =====}
+N:=14; R:=3; S:=3; SIG:=9;
+HH:=HHV(HIGH,N);  LL:=LLV(LOW,N);
+D:=CLOSE-(HH+LL)/2;          {价格距区间中轴, 可正可负}
+HL:=HH-LL;
+DS:=EMA(EMA(D,R),S);          {双平滑距离}
+HLS:=EMA(EMA(HL/2,R),S);      {双平滑半区间}
+SMI:IF(HLS=0,0,100*DS/HLS),COLORWHITE,LINETHICK2;   {-100~+100, 0轴对称}
+SIGNAL:EMA(SMI,SIG),COLORYELLOW;
+
+HIST:=SMI-SIGNAL;             {动能柱: 红=动能转强, 绿=转弱}
+STICKLINE(HIST>=0,HIST,0,2,0),COLORRED;
+STICKLINE(HIST<0,HIST,0,2,0),COLOR00FF00;
+
+零轴:0,COLORGRAY;
+超买:40,COLORGRAY,DOTLINE;
+超卖:-40,COLORGRAY,DOTLINE;`,
+pick:
+`{===== 知行·选股  [贴到: 条件选股] · 参数须与副图一致 =====}
+N:=14; R:=3; S:=3; SIG:=9;
+HH:=HHV(HIGH,N);  LL:=LLV(LOW,N);
+D:=CLOSE-(HH+LL)/2;  HL:=HH-LL;
+DS:=EMA(EMA(D,R),S);  HLS:=EMA(EMA(HL/2,R),S);
+SMI:=IF(HLS=0,0,100*DS/HLS);
+SIGNAL:=EMA(SMI,SIG);
+多空线:=EMA(CLOSE,55);
+XG:CROSS(SMI,SIGNAL) AND SMI<0 AND CLOSE>多空线;   {上升趋势中的回踩动能金叉}`
+};
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function render(s){return esc(s).replace(/\{[^}]*\}/g, m => '<span class="cmt">'+m+'</span>');}
+
+Object.keys(FORMULAS).forEach(k=>{
+  const el = document.getElementById('code-'+k);
+  if(el) el.innerHTML = render(FORMULAS[k]);
+});
+
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    let ok=false; try{ ok=document.execCommand('copy'); }catch(_){}
+    document.body.removeChild(ta); return ok;
+  }
+}
+document.querySelectorAll('.copy').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    const ok = await copyText(FORMULAS[btn.dataset.copy]);
+    const ct = btn.querySelector('.ct'), ci = btn.querySelector('.ci');
+    if(ok){
+      btn.classList.add('ok'); ci.textContent='✓'; ct.textContent='已复制';
+      setTimeout(()=>{ btn.classList.remove('ok'); ci.textContent='⧉'; ct.textContent='复制'; },1600);
+    }else{ ct.textContent='复制失败,请手动选'; }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REALITY dest 撞 8192 字节 · 代理玄学断流 — 网友讨论</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b22; --panel-2:#1c2230; --border:#2a3240;
+    --txt:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --accent-2:#3fb950;
+    --warn:#f0883e; --danger:#ff7b72; --chip:#21262d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Sans SC',system-ui,-apple-system,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%,#13203a 0%,var(--bg) 55%);
+    color:var(--txt); line-height:1.7; min-height:100vh;
+    padding:32px 16px 80px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+
+  header.thread{margin-bottom:24px}
+  .crumb{font-size:13px;color:var(--muted);margin-bottom:10px;letter-spacing:.02em}
+  .crumb a{color:var(--accent);text-decoration:none}
+  h1{font-size:clamp(22px,4vw,30px);font-weight:700;line-height:1.35;letter-spacing:-.01em}
+  .tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .tag{font-size:12px;color:var(--accent);background:var(--chip);border:1px solid var(--border);
+       padding:3px 10px;border-radius:999px;font-weight:500}
+  .meta-line{margin-top:12px;font-size:13px;color:var(--muted)}
+
+  .card{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:20px 22px;margin-top:18px;position:relative;
+    box-shadow:0 1px 0 rgba(255,255,255,.02), 0 8px 30px rgba(0,0,0,.25);
+  }
+  .card.op{border-color:#2d4163;background:linear-gradient(180deg,#16203180 0%,var(--panel) 40%)}
+  .who{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .avatar{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;
+    font-weight:700;font-size:16px;color:#0e1117}
+  .a1{background:linear-gradient(135deg,#58a6ff,#3fb950)}
+  .a2{background:linear-gradient(135deg,#f0883e,#ff7b72)}
+  .a3{background:linear-gradient(135deg,#bc8cff,#58a6ff)}
+  .a4{background:linear-gradient(135deg,#3fb950,#56d4dd)}
+  .name{font-weight:600;font-size:15px}
+  .badge{font-size:11px;color:var(--accent-2);border:1px solid #2ea04340;background:#2ea04318;
+    padding:1px 7px;border-radius:6px;margin-left:8px;font-weight:500}
+  .floor{margin-left:auto;font-size:12px;color:var(--muted)}
+  .body{font-size:15.5px;color:#d7dee6}
+  .body p{margin:0 0 10px}
+  .body p:last-child{margin-bottom:0}
+  .body strong{color:#fff;font-weight:700}
+  code{font-family:'JetBrains Mono',monospace;background:#0d1117;border:1px solid var(--border);
+    border-radius:5px;padding:1px 6px;font-size:13.5px;color:#a5d6ff}
+  .lead{font-size:16.5px;color:#fff;font-weight:500;margin-bottom:12px}
+
+  .symptoms{list-style:none;margin:8px 0 0;border-left:2px solid var(--danger);padding:2px 0 2px 0}
+  .symptoms li{font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#ffb4ab;
+    padding:4px 0 4px 14px;position:relative}
+  .symptoms li::before{content:'›';position:absolute;left:2px;color:var(--danger)}
+
+  .reply-rail{margin-top:8px;padding-left:18px;border-left:2px dashed var(--border)}
+  .reply-rail .card{margin-top:14px}
+
+  .num{font-size:13px;color:var(--muted);font-weight:500;margin:26px 4px 4px;
+       text-transform:uppercase;letter-spacing:.08em}
+
+  footer.note{margin-top:30px;font-size:12.5px;color:var(--muted);text-align:center;
+    border-top:1px solid var(--border);padding-top:18px;line-height:1.7}
+  footer.note .pill{display:inline-block;background:var(--chip);border:1px solid var(--border);
+    border-radius:6px;padding:2px 8px;color:var(--muted);font-size:11.5px;margin:0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="thread">
+    <div class="crumb"><a href="./">cool_page</a> &nbsp;/&nbsp; 网络 · 代理 · 折腾</div>
+    <h1>自建代理这几天突然变慢/断流?可能是 REALITY 的 dest 撞上了 8192 字节</h1>
+    <div class="tags">
+      <span class="tag">#VLESS</span>
+      <span class="tag">#REALITY</span>
+      <span class="tag">#Vision</span>
+      <span class="tag">#Xray</span>
+      <span class="tag">#dest/SNI</span>
+    </div>
+    <div class="meta-line">论坛讨论整理 · 楼主帖 + 3 条回复</div>
+  </header>
+
+  <!-- 主帖 -->
+  <article class="card op">
+    <div class="who">
+      <div class="avatar a1">楼</div>
+      <div>
+        <span class="name">楼主</span><span class="badge">原帖</span>
+      </div>
+      <span class="floor">#1</span>
+    </div>
+    <div class="body">
+      <p class="lead">这几天如果你自建的代理突然变慢 / 断流,并且你用的是 <strong>VLESS + REALITY + Vision</strong>,SNI / dest 还在用 <code>www.microsoft.com</code> —— 改了吧!立马就恢复。</p>
+      <p><strong>原因:</strong>微软站点返回的 TLS 证书记录变大了。Xray / REALITY 里有个 <strong>8192 字节</strong>的限制,而现在 <code>www.microsoft.com</code> 某些情况下会返回 <strong>8273 字节</strong>左右,超过限制后就会握手失败。</p>
+      <p>表现很像玄学:</p>
+      <ul class="symptoms">
+        <li>网页突然变慢</li>
+        <li>偶发 EOF</li>
+        <li>connection reset by peer</li>
+        <li>handshake did not complete successfully</li>
+      </ul>
+    </div>
+  </article>
+
+  <div class="num">回复</div>
+
+  <div class="reply-rail">
+    <!-- 回复 1 -->
+    <article class="card">
+      <div class="who">
+        <div class="avatar a2">A</div>
+        <div><span class="name">网友 A</span></div>
+        <span class="floor">#2</span>
+      </div>
+      <div class="body">
+        <p>没法完美的,比如我每天高强度地看 YouTube、上 X。</p>
+      </div>
+    </article>
+
+    <!-- 回复 2 -->
+    <article class="card">
+      <div class="who">
+        <div class="avatar a3">B</div>
+        <div><span class="name">网友 B</span></div>
+        <span class="floor">#3</span>
+      </div>
+      <div class="body">
+        <p>不上国内站的人,选小众的一眼假啊!</p>
+      </div>
+    </article>
+
+    <!-- 回复 3 -->
+    <article class="card">
+      <div class="who">
+        <div class="avatar a4">C</div>
+        <div><span class="name">网友 C</span></div>
+        <span class="floor">#4</span>
+      </div>
+      <div class="body">
+        <p>只能尽量,比如我目前主要是使用 cf 的某个子域名;注意一个问题 —— 包括但不限于 <code>apple.com</code> 哦。</p>
+      </div>
+    </article>
+  </div>
+
+  <footer class="note">
+    本页为网友论坛讨论的原文整理,仅作记录,内容未经逐条复核。<br>
+    <span class="pill">VLESS + REALITY + Vision</span><span class="pill">dest / SNI 选择</span><span class="pill">Xray-core 8192 限制</span>
+  </footer>
+
+</div>
+</body>
+</html>

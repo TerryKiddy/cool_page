@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rubric · 结构化评价工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4efe4;
+    --paper-2:#efe8d8;
+    --ink:#1c1a17;
+    --ink-soft:#5b554c;
+    --line:#cdc3ad;
+    --line-soft:#ddd4c0;
+    --red:#d6361f;
+    --red-deep:#a3220f;
+    --blue:#274060;
+    --green:#3f6b4a;
+    --gold:#b07c1d;
+    --disp:"Fraunces",Georgia,serif;
+    --body:"Newsreader",Georgia,serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.65;
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--line-soft) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:28px 28px;
+    background-position:-1px -1px;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* subtle paper grain via radial noise */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background:radial-gradient(circle at 20% 10%,rgba(214,54,31,.05),transparent 40%),
+               radial-gradient(circle at 85% 80%,rgba(39,64,96,.05),transparent 45%);
+  }
+  .wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:0 28px}
+
+  a{color:var(--red-deep)}
+  ::selection{background:var(--red);color:var(--paper)}
+
+  .mono{font-family:var(--mono);font-size:.72em;letter-spacing:.12em;text-transform:uppercase}
+
+  /* ---- staggered reveal ---- */
+  .rise{opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ============ MASTHEAD ============ */
+  header.mast{padding:64px 0 30px;border-bottom:3px double var(--ink)}
+  .mast .kicker{display:flex;justify-content:space-between;align-items:baseline;
+    font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:26px}
+  .mast .kicker .red{color:var(--red)}
+  h1{font-family:var(--disp);font-weight:900;font-size:clamp(48px,11vw,118px);line-height:.9;
+    margin:0;letter-spacing:-.03em}
+  h1 em{font-style:italic;font-weight:500;color:var(--red)}
+  .mast .sub{display:grid;grid-template-columns:1fr 1.4fr;gap:30px;margin-top:30px;align-items:end}
+  @media(max-width:680px){.mast .sub{grid-template-columns:1fr;gap:16px}}
+  .mast .sub .def{font-family:var(--disp);font-size:clamp(19px,2.4vw,24px);font-weight:400;line-height:1.45}
+  .mast .sub .def b{font-weight:600;background:linear-gradient(transparent 62%,rgba(214,54,31,.28) 0)}
+  .mast .sub .meta{font-family:var(--mono);font-size:12.5px;line-height:2;color:var(--ink-soft);
+    border-left:2px solid var(--red);padding-left:16px}
+  .mast .sub .meta span{color:var(--ink)}
+
+  /* ============ section frame ============ */
+  section{padding:54px 0;border-bottom:1px solid var(--line)}
+  .sec-no{font-family:var(--mono);font-size:13px;letter-spacing:.2em;color:var(--red);
+    display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .sec-no::after{content:"";flex:1;height:1px;background:var(--line)}
+  h2{font-family:var(--disp);font-weight:600;font-size:clamp(30px,5vw,46px);line-height:1.05;
+    margin:0 0 8px;letter-spacing:-.02em}
+  .lead{font-size:19px;color:var(--ink-soft);max-width:62ch;margin:0 0 26px}
+  p{margin:0 0 16px}
+
+  /* ============ four parts ============ */
+  .parts{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1.5px solid var(--ink);background:var(--paper)}
+  @media(max-width:680px){.parts{grid-template-columns:1fr}}
+  .part{padding:26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;
+    transition:background .25s}
+  .part:nth-child(2n){border-right:none}
+  .part:nth-child(n+3){border-bottom:none}
+  @media(max-width:680px){.part{border-right:none}.part:nth-child(3){border-bottom:1px solid var(--line)}}
+  .part:hover{background:var(--paper-2)}
+  .part .tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--red)}
+  .part .axis{font-family:var(--mono);font-size:11px;color:var(--ink-soft);float:right}
+  .part h3{font-family:var(--disp);font-size:25px;font-weight:600;margin:10px 0 6px}
+  .part h3 .en{font-style:italic;font-weight:400;color:var(--ink-soft);font-size:.62em;margin-left:6px}
+  .part p{font-size:16px;color:var(--ink-soft);margin:0}
+
+  /* ============ matrix / ledger ============ */
+  .ledger-wrap{overflow-x:auto;border:1.5px solid var(--ink);background:var(--paper)}
+  table.ledger{width:100%;border-collapse:collapse;min-width:680px;font-size:15.5px}
+  table.ledger th,table.ledger td{border:1px solid var(--line);padding:13px 15px;vertical-align:top;text-align:left}
+  table.ledger thead th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+    text-transform:uppercase;background:var(--ink);color:var(--paper);font-weight:500}
+  table.ledger thead th:first-child{background:var(--paper);color:var(--ink-soft)}
+  table.ledger .crit{font-family:var(--disp);font-weight:600;font-size:17px;width:150px;background:var(--paper-2)}
+  table.ledger .crit small{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;
+    color:var(--red);margin-top:5px;letter-spacing:.05em}
+  table.ledger td small{display:block;color:var(--ink-soft);font-size:13.5px;margin-top:3px}
+  .score{font-family:var(--mono);font-weight:600}
+  .s4{color:var(--green)} .s3{color:var(--blue)} .s2{color:var(--gold)} .s1{color:var(--red)}
+  .formula{font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-top:14px;
+    background:var(--paper-2);border-left:3px solid var(--red);padding:12px 16px;line-height:1.7}
+  .formula b{color:var(--ink)}
+
+  /* ============ types ============ */
+  .types{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:720px){.types{grid-template-columns:1fr}}
+  .type{border:1.5px solid var(--ink);padding:22px;background:var(--paper);position:relative;overflow:hidden}
+  .type .big{font-family:var(--disp);font-weight:900;font-size:62px;line-height:1;color:var(--line);
+    position:absolute;right:14px;top:6px}
+  .type .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--red);text-transform:uppercase}
+  .type h3{font-family:var(--disp);font-size:23px;font-weight:600;margin:6px 0 8px}
+  .type p{font-size:15px;color:var(--ink-soft);margin:0;position:relative}
+  .type .when{display:block;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--ink);
+    border-top:1px dashed var(--line);padding-top:10px}
+
+  /* ============ pros / cons ============ */
+  .pc{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:680px){.pc{grid-template-columns:1fr}}
+  .col{border-top:3px solid var(--ink);padding-top:16px}
+  .col.good{border-color:var(--green)}
+  .col.bad{border-color:var(--red)}
+  .col h3{font-family:var(--disp);font-size:22px;font-weight:600;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+  .col h3 .m{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink-soft)}
+  .col ul{list-style:none;margin:0;padding:0}
+  .col li{padding:9px 0 9px 26px;border-bottom:1px dotted var(--line);font-size:16px;position:relative}
+  .col li:last-child{border-bottom:none}
+  .col li b{font-weight:600}
+  .col.good li::before{content:"+";position:absolute;left:4px;color:var(--green);font-family:var(--mono);font-weight:600}
+  .col.bad li::before{content:"!";position:absolute;left:6px;color:var(--red);font-family:var(--mono);font-weight:600}
+
+  /* ============ steps ============ */
+  .steps{counter-reset:st;display:grid;gap:0;border-left:2px solid var(--ink);margin-left:6px}
+  .step{counter-increment:st;position:relative;padding:18px 0 18px 64px}
+  .step:not(:last-child){border-bottom:1px solid var(--line)}
+  .step::before{content:counter(st,decimal-leading-zero);position:absolute;left:-15px;top:18px;
+    width:30px;height:30px;background:var(--red);color:var(--paper);font-family:var(--mono);
+    font-size:12px;font-weight:600;display:grid;place-items:center;border-radius:50%}
+  .step h3{font-family:var(--disp);font-size:21px;font-weight:600;margin:0 0 3px}
+  .step p{font-size:15.5px;color:var(--ink-soft);margin:0}
+
+  /* ============ applications ============ */
+  .apps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+  .chip{font-family:var(--mono);font-size:13px;border:1.5px solid var(--ink);padding:8px 14px;background:var(--paper);
+    transition:.2s}
+  .chip:hover{background:var(--ink);color:var(--paper)}
+  .ai-note{border:1.5px solid var(--red);background:var(--paper);padding:22px 24px;position:relative}
+  .ai-note .badge{position:absolute;top:-12px;left:20px;background:var(--red);color:var(--paper);
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;padding:3px 10px;text-transform:uppercase}
+  .ai-note p{margin:6px 0 0;font-size:16.5px}
+  .ai-note .dims{font-family:var(--mono);font-size:13px;color:var(--red-deep)}
+
+  /* ============ footer ============ */
+  footer{padding:48px 0 70px;text-align:center}
+  footer .eq{font-family:var(--disp);font-style:italic;font-size:clamp(22px,4vw,34px);line-height:1.4}
+  footer .eq b{font-style:normal;font-weight:600;color:var(--red);background:linear-gradient(transparent 60%,rgba(214,54,31,.2) 0)}
+  footer .sig{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--ink-soft);
+    text-transform:uppercase;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="mast">
+    <div class="kicker rise" style="animation-delay:.0s">
+      <span>评价方法 · 手册</span>
+      <span class="red">No. 01 / RUBRIC</span>
+    </div>
+    <h1 class="rise" style="animation-delay:.08s">Rubric<em>，量规</em></h1>
+    <div class="sub">
+      <p class="def rise" style="animation-delay:.18s">
+        一种<b>结构化的评价工具</b>——把“评什么”和“评得怎么样”拆进一张矩阵，
+        让主观判断变得有据可依、可复现、可解释。
+      </p>
+      <div class="meta rise" style="animation-delay:.26s">
+        本质 ／ <span>评价维度 × 表现水平 × 描述符</span><br>
+        作用 ／ <span>模糊的好坏 → 可对齐的评分</span><br>
+        场域 ／ <span>教育 · 面试 · 评审 · AI 评测</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ 01 定义 ============ -->
+  <section>
+    <div class="sec-no">01 — 它解决什么问题</div>
+    <h2>当“好”与“不好”太模糊时</h2>
+    <p class="lead">评一篇作文、一个项目、一次面试，甚至一个 AI 模型的回答，最大的难题是标准说不清、换个人就变样。
+      Rubric 的办法是：<b>提前把判断标准写成一张二维表格</b>，由四个零件构成——</p>
+
+    <div class="parts">
+      <div class="part">
+        <span class="tag">ZERO 1</span><span class="axis">→ 行 / 纵向</span>
+        <h3>评价维度<span class="en">Criteria</span></h3>
+        <p>把整体拆成可独立评判的几个方面，如「内容 / 逻辑 / 表达 / 格式」。</p>
+      </div>
+      <div class="part">
+        <span class="tag">ZERO 2</span><span class="axis">→ 列 / 横向</span>
+        <h3>表现水平<span class="en">Levels</span></h3>
+        <p>每个维度划出由低到高的若干等级，如「优秀 / 良好 / 合格 / 待改进」。</p>
+      </div>
+      <div class="part">
+        <span class="tag">ZERO 3</span><span class="axis">→ 格 / 交叉</span>
+        <h3>描述符<span class="en">Descriptors</span></h3>
+        <p>每个单元格写明“达到该等级的具体表现”——这是量规的灵魂，越具体评分越一致。</p>
+      </div>
+      <div class="part">
+        <span class="tag">ZERO 4</span><span class="axis">→ 汇总 / 权重</span>
+        <h3>分值<span class="en">Scoring</span></h3>
+        <p>给每个等级赋分，并可为不同维度设权重，最终得到可汇总、可比较的结果。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 实例 ============ -->
+  <section>
+    <div class="sec-no">02 — 一张真实的量规</div>
+    <h2>实例：评价一份课堂报告</h2>
+    <p class="lead">纵向是评价维度，横向是表现水平，交叉格里写描述符与分值。读法是：每个维度横向挑出最贴近的那一格。</p>
+
+    <div class="ledger-wrap">
+      <table class="ledger">
+        <thead>
+          <tr>
+            <th>维度 ＼ 水平</th>
+            <th>优秀 · 4</th>
+            <th>良好 · 3</th>
+            <th>合格 · 2</th>
+            <th>待改进 · 1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="crit">内容深度<small>权重 40%</small></td>
+            <td><span class="score s4">4</span> 观点深刻，有独立分析<small>论据充分</small></td>
+            <td><span class="score s3">3</span> 观点清晰，论据较充分</td>
+            <td><span class="score s2">2</span> 有基本观点，论据偏少</td>
+            <td><span class="score s1">1</span> 仅罗列信息，缺观点</td>
+          </tr>
+          <tr>
+            <td class="crit">结构逻辑<small>权重 30%</small></td>
+            <td><span class="score s4">4</span> 层次分明，过渡自然</td>
+            <td><span class="score s3">3</span> 结构完整，逻辑较顺</td>
+            <td><span class="score s2">2</span> 结构成立<small>个别跳跃</small></td>
+            <td><span class="score s1">1</span> 结构混乱，难以跟随</td>
+          </tr>
+          <tr>
+            <td class="crit">表达呈现<small>权重 30%</small></td>
+            <td><span class="score s4">4</span> 语言精准，有感染力</td>
+            <td><span class="score s3">3</span> 流畅，少有错误</td>
+            <td><span class="score s2">2</span> 能说清，偶有错漏</td>
+            <td><span class="score s1">1</span> 含糊，错误较多</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="formula">
+      总分 = Σ（各维度等级分 × 权重）　例：内容 4×0.4 + 结构 3×0.3 + 表达 3×0.3 = <b>3.4 / 4.0</b><br>
+      描述符越可观察，不同评委的结果越接近 —— 这正是量规“可复现”的来源。
+    </div>
+  </section>
+
+  <!-- ============ 03 类型 ============ -->
+  <section>
+    <div class="sec-no">03 — 三种常见形态</div>
+    <h2>按颗粒度，选一种</h2>
+    <div class="types">
+      <div class="type">
+        <span class="big">A</span>
+        <span class="lbl">Analytic</span>
+        <h3>分析型</h3>
+        <p>逐维度分别打分（如上表）。反馈最细、最能指导改进。</p>
+        <span class="when">用于 ／ 需要详细反馈、正式评分</span>
+      </div>
+      <div class="type">
+        <span class="big">H</span>
+        <span class="lbl">Holistic</span>
+        <h3>整体型</h3>
+        <p>不拆维度，对整体表现给一个综合等级。评分最快。</p>
+        <span class="when">用于 ／ 大批量初筛、快速分等</span>
+      </div>
+      <div class="type">
+        <span class="big">S</span>
+        <span class="lbl">Single-Point</span>
+        <h3>单点型</h3>
+        <p>只写“合格线”一栏，左记不足、右记亮点，鼓励个性化反馈。</p>
+        <span class="when">用于 ／ 成长型反馈、鼓励超纲</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 优缺点 ============ -->
+  <section>
+    <div class="sec-no">04 — 为什么有用 & 别踩坑</div>
+    <h2>它的力量与它的边界</h2>
+    <div class="pc">
+      <div class="col good">
+        <h3>优势 <span class="m">why it works</span></h3>
+        <ul>
+          <li><b>一致性</b>　不同评委、不同时间，标准不漂移。</li>
+          <li><b>透明性</b>　被评者事先就知道“怎样算好”。</li>
+          <li><b>可反馈</b>　分数落到具体维度，知道往哪改。</li>
+          <li><b>可复现</b>　换人按同一张表，结果接近。</li>
+          <li><b>可汇总</b>　天然产出结构化数据，便于统计。</li>
+        </ul>
+      </div>
+      <div class="col bad">
+        <h3>陷阱 <span class="m">watch out</span></h3>
+        <ul>
+          <li><b>描述符模糊</b>　写“较好/一般”等于没写，要可观察。</li>
+          <li><b>维度过多</b>　超过 4–6 个会让评分变成负担。</li>
+          <li><b>过于僵化</b>　可能压抑表格之外的亮点。</li>
+          <li><b>权重失衡</b>　权重设错会系统性带偏结论。</li>
+          <li><b>制定成本</b>　好量规需反复打磨与试评。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 制作 ============ -->
+  <section>
+    <div class="sec-no">05 — 动手做一张</div>
+    <h2>五步法</h2>
+    <div class="steps">
+      <div class="step"><h3>明确对象与目的</h3><p>是诊断改进，还是分等排序？目的决定形态选择。</p></div>
+      <div class="step"><h3>提炼评价维度</h3><p>列出真正重要、且能相互独立的 3–5 个方面。</p></div>
+      <div class="step"><h3>划分水平等级</h3><p>通常 3–5 档；偶数档可避免“都打中间分”。</p></div>
+      <div class="step"><h3>撰写描述符</h3><p>每格用可观察、可区分的语言，避免主观形容词。</p></div>
+      <div class="step"><h3>试评与校准</h3><p>拿真实样本试打分、对齐分歧，再迭代修订。</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 06 应用 ============ -->
+  <section style="border-bottom:none">
+    <div class="sec-no">06 — 它出现在哪里</div>
+    <h2>凡需“公平又一致的主观判断”</h2>
+    <div class="apps">
+      <span class="chip">📚 教育评分</span>
+      <span class="chip">🧑‍💼 面试 / 绩效</span>
+      <span class="chip">🏆 竞赛 · 路演评审</span>
+      <span class="chip">🔍 内容审核 / 质检</span>
+      <span class="chip">📝 同行评审</span>
+      <span class="chip">✅ 招聘结构化筛选</span>
+      <span class="chip">🤖 AI / LLM 输出评测</span>
+    </div>
+    <div class="ai-note">
+      <span class="badge">前沿用法</span>
+      <p>在 AI 领域，<b>Rubric 正成为评测模型输出质量的主流方法</b>：把“回答好不好”拆成
+        <span class="dims">准确性 / 完整性 / 相关性 / 安全性</span> 等维度逐项打分，
+        让自动评估（LLM-as-judge）或人工评估都更可靠、可对比、可追溯。</p>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p class="eq">Rubric ＝ <b>维度</b> × <b>水平</b> × <b>描述符</b><br>把模糊的好坏，变成人人能对齐的评分表。</p>
+    <p class="sig">— 评价方法手册 · 完 —</p>
+  </footer>
+
+</div>
+</body>
+</html>

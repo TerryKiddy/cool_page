@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>创新药为什么在涨 — 破"美股映射论"</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Noto+Serif+SC:wght@400;600;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4ede0;
+    --paper-2:#ece2d2;
+    --ink:#23201b;
+    --ink-soft:#5a5346;
+    --rule:#cbbfa8;
+    --ox:#9c2a23;       /* oxblood — 破论强调 */
+    --ox-deep:#6e1c18;
+    --pharma:#2f5d4f;   /* deep clinical green */
+    --gold:#b07d34;
+    --shadow:rgba(40,30,15,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Noto Serif SC","Fraunces",Georgia,serif;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(156,42,35,.05), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(47,93,79,.06), transparent 42%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+  ::selection{background:var(--ox);color:var(--paper)}
+  .wrap{max-width:860px;margin:0 auto;padding:0 28px}
+
+  /* ---------- Masthead ---------- */
+  header.mast{padding:64px 0 30px;border-bottom:3px double var(--ink);position:relative}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--ox);font-weight:600;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+  .kicker .r{color:var(--ink-soft)}
+  h1{
+    font-family:"Fraunces","Noto Serif SC",serif;
+    font-weight:900;font-size:clamp(38px,7vw,76px);line-height:.98;
+    letter-spacing:-.02em;margin:22px 0 6px;
+    text-wrap:balance;
+  }
+  h1 .em{color:var(--ox);font-style:italic;position:relative;white-space:nowrap}
+  h1 .em::after{content:"";position:absolute;left:0;right:0;bottom:.08em;height:5px;background:var(--ox);opacity:.22}
+  .dek{font-size:clamp(17px,2.4vw,21px);color:var(--ink-soft);max-width:62ch;font-weight:400;margin-top:14px}
+  .byline{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft);margin-top:18px;letter-spacing:.04em}
+
+  /* ---------- The claim ---------- */
+  .claim{
+    margin:46px 0;padding:30px 34px;background:var(--paper-2);
+    border-left:5px solid var(--ink);position:relative;box-shadow:6px 6px 0 var(--shadow);
+  }
+  .claim .q{font-size:21px;font-style:italic;font-family:"Fraunces","Noto Serif SC",serif;font-weight:500}
+  .claim .src{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);margin-top:10px;letter-spacing:.05em}
+  .verdict{
+    margin-top:18px;padding-top:16px;border-top:1px dashed var(--rule);
+    font-size:18px;font-weight:600;
+  }
+  .verdict b{color:var(--ox);font-family:"Fraunces",serif;font-style:italic;font-weight:900;font-size:1.15em}
+
+  /* ---------- Section ---------- */
+  section{padding:42px 0;border-bottom:1px solid var(--rule)}
+  .sec-no{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ox);letter-spacing:.2em;font-weight:600}
+  h2{font-family:"Fraunces","Noto Serif SC",serif;font-weight:900;font-size:clamp(26px,4vw,38px);line-height:1.1;margin:6px 0 16px;letter-spacing:-.01em}
+  p{margin:0 0 14px;font-size:17px}
+  p .hl{background:linear-gradient(transparent 62%, rgba(176,125,52,.4) 62%);padding:0 2px}
+  strong{color:var(--ox-deep)}
+
+  /* ---------- Drivers ---------- */
+  .drivers{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  .drv{background:var(--paper-2);border:1px solid var(--rule);padding:22px 22px 20px;position:relative;transition:transform .25s ease,box-shadow .25s ease}
+  .drv:hover{transform:translateY(-4px);box-shadow:5px 7px 0 var(--shadow)}
+  .drv.hero{grid-column:1/-1;border-left:5px solid var(--ox);background:linear-gradient(110deg,#f6efe2,#efe5d3)}
+  .drv .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;color:var(--ink-soft);text-transform:uppercase}
+  .drv h3{font-family:"Fraunces","Noto Serif SC",serif;font-size:22px;font-weight:900;margin:4px 0 8px}
+  .drv.hero h3{color:var(--ox)}
+  .drv p{font-size:15px;margin:0;color:var(--ink-soft)}
+  .drv .big{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--ox);font-size:13px;display:inline-block;margin-top:10px;border:1px solid var(--ox);padding:2px 8px;border-radius:2px}
+
+  /* ---------- Transmission chain ---------- */
+  .chain{margin:24px 0 4px}
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  .node{
+    flex:1;min-width:150px;background:var(--paper-2);border:2px solid var(--ink);
+    padding:16px 14px;position:relative;text-align:center;
+  }
+  .node.cause{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .node.cause .lbl{color:var(--gold)}
+  .node.pivot{border-color:var(--ox);background:#f7ece4}
+  .node.pivot .lbl{color:var(--ox)}
+  .node .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:block;margin-bottom:6px}
+  .node .t{font-family:"Fraunces","Noto Serif SC",serif;font-weight:600;font-size:16px;line-height:1.3}
+  .node .s{font-size:12.5px;color:var(--ink-soft);margin-top:5px;display:block}
+  .node.cause .s{color:#cbb98f}
+  .arrow{display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--ox);padding:0 6px;font-family:"IBM Plex Mono",monospace}
+  .chain-note{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft);margin-top:16px;text-align:center;font-style:italic}
+  .chain-note b{color:var(--ox);font-style:normal}
+
+  /* split row for the two parallel chains */
+  .chain-label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;color:var(--ox);text-transform:uppercase;margin:22px 0 10px;font-weight:600}
+
+  /* ---------- Glossary ---------- */
+  .gloss dl{margin-top:8px}
+  .gloss .row{display:grid;grid-template-columns:170px 1fr;gap:18px;padding:15px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+  .gloss dt{font-family:"Fraunces","Noto Serif SC",serif;font-weight:900;font-size:18px;color:var(--ox-deep)}
+  .gloss dt .en{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;color:var(--ink-soft);letter-spacing:.04em;margin-top:2px}
+  .gloss dd{font-size:15.5px;color:var(--ink)}
+  .gloss dd .pop{color:var(--pharma);font-weight:600}
+
+  /* ---------- One-liner pull ---------- */
+  .pull{margin:40px 0;text-align:center}
+  .pull .mark{font-family:"Fraunces",serif;font-size:60px;color:var(--ox);line-height:0;display:block;height:30px;opacity:.5}
+  .pull p{font-family:"Fraunces","Noto Serif SC",serif;font-style:italic;font-size:clamp(20px,3.2vw,28px);font-weight:500;line-height:1.4;max-width:24ch;margin:18px auto}
+  .pull .em{color:var(--ox);font-weight:900}
+
+  /* ---------- Footer ---------- */
+  footer{padding:40px 0 70px;color:var(--ink-soft)}
+  .disc{font-size:13px;line-height:1.7;background:var(--paper-2);border:1px dashed var(--rule);padding:18px 20px}
+  .disc b{color:var(--ox-deep)}
+  .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;margin-top:18px;letter-spacing:.04em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .rv.in{opacity:1;transform:none}
+
+  @media(max-width:680px){
+    .drivers{grid-template-columns:1fr}
+    .gloss .row{grid-template-columns:1fr;gap:4px}
+    .flow{flex-direction:column}
+    .arrow{transform:rotate(90deg);padding:4px 0}
+    .claim{padding:24px 22px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="kicker">
+      <span>研究手记 / EQUITY NOTE</span>
+      <span class="r">板块叙事 · 创新药 / BIOTECH</span>
+    </div>
+    <h1>创新药为什么在涨<br>——破<span class="em">"美股映射论"</span></h1>
+    <p class="dek">"因为 XBI 涨得好，A 股还是太多美股映射了。" 这句话对了一半，但因果讲反了。两边同涨，不是 A 股抄美股，而是踩在同一条真实的现金流逻辑上。</p>
+    <p class="byline">2026-06-29 · 结构性分析（非荐股）· 据 kb/finance/innovative-drug-bd-thesis</p>
+  </header>
+
+  <div class="claim rv">
+    <div class="q">"因为 XBI 涨得好，A 股还是太多美股映射了。"</div>
+    <div class="src">— 市场流传的一种说法</div>
+    <div class="verdict">判定：<b>对了一半，因果讲反了。</b> 不是单向跟随，而是中美两边被同一个买方 + 同一个宏观按钮同时点着。</div>
+  </div>
+
+  <section class="rv">
+    <span class="sec-no">01 / 误区</span>
+    <h2>"映射论"错在哪</h2>
+    <p>A 股确实有大量纯映射行情——典型是算力链<span class="hl">看英伟达隔夜涨跌做 T</span>。但把这套套到创新药，是把<strong>共同驱动</strong>误读成<strong>单向跟随</strong>。</p>
+    <p><strong>XBI</strong>（美国一篮子中小创新药公司的 ETF）对利率极度敏感——生物科技是典型久期资产，估值＝远期管线贴现。降息预期一来，XBI、港股 18A、A 股创新药，是被<span class="hl">同一个宏观因子（美元流动性 / 降息）同时点着</span>的，不是 A 抄 US。</p>
+    <p>真正把中美创新药绑在一根绳上的，是 <strong>BD 出海（License-out）</strong>——而且传导方向是<em>反的</em>：是海外大药企在"映射"中国的研发性价比。</p>
+  </section>
+
+  <section class="rv">
+    <span class="sec-no">02 / 真因</span>
+    <h2>创新药的四条独立逻辑</h2>
+    <p>中国 biotech 现在不是"对标"海外管线，而是越来越多地<strong>成为全球大药企的管线来源</strong>。撑住股价的是这四条，跟 XBI 涨不涨没有逻辑上的从属关系：</p>
+    <div class="drivers">
+      <div class="drv hero">
+        <span class="tag">核心 · The Engine</span>
+        <h3>① BD 出海 / License-out</h3>
+        <p>把自研新药授权给海外大药企做全球开发、销售。"我生孩子，你抱走养大、分我钱。" 首付款＋里程碑动辄数十亿美金——<strong>真金白银进表</strong>，直接验证管线估值。</p>
+        <span class="big">首付款 + 里程碑 ≈ 数十亿美金 / 笔</span>
+      </div>
+      <div class="drv">
+        <span class="tag">政策 · Policy</span>
+        <h3>② 本土催化</h3>
+        <p>丙类目录（商保创新药目录）、医保谈判转暖、港股 IPO 窗口重开——纯本土变量，与美股无关。</p>
+      </div>
+      <div class="drv">
+        <span class="tag">事件 · Catalyst</span>
+        <h3>③ 数据读出</h3>
+        <p>ASCO 等大会公布临床数据，各自管线的事件驱动 ≈ 创新药的"财报 + 发布会"。</p>
+      </div>
+      <div class="drv">
+        <span class="tag">宏观 · Macro</span>
+        <h3>④ 利率 / 降息</h3>
+        <p>降息周期利好久期资产。与 XBI 是<strong>共因</strong>，不是从属——同一个按钮，两边一起响。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="rv chain">
+    <span class="sec-no">03 / 机制</span>
+    <h2>传导链：谁在给两边定价</h2>
+
+    <div class="chain-label">链路一 · 基本面：全球药企买方在出手</div>
+    <div class="flow">
+      <div class="node cause">
+        <span class="lbl">根因 / Cause</span>
+        <span class="t">大药企管线饥渴</span>
+        <span class="s">专利悬崖 + 并购活跃</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node pivot">
+        <span class="lbl">同时表现为 / Pivot</span>
+        <span class="t">来中国扫货 (BD)</span>
+        <span class="s">＋ 海外 biotech 情绪回暖</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <span class="lbl">结果 / Effect</span>
+        <span class="t">中国创新药 ↑ ＆ XBI ↑</span>
+        <span class="s">同涨：同一买方所致</span>
+      </div>
+    </div>
+
+    <div class="chain-label">链路二 · 估值：同一个降息按钮</div>
+    <div class="flow">
+      <div class="node cause">
+        <span class="lbl">根因 / Cause</span>
+        <span class="t">降息预期</span>
+        <span class="s">美元流动性宽松</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node pivot">
+        <span class="lbl">作用于 / Pivot</span>
+        <span class="t">久期资产重估</span>
+        <span class="s">未来现金流更值钱</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <span class="lbl">结果 / Effect</span>
+        <span class="t">XBI ＆ A/H 创新药 ↑</span>
+        <span class="s">共因，非 A 抄 US</span>
+      </div>
+    </div>
+
+    <p class="chain-note">两边同涨的根子，是<b>同一个全球药企买方在出手</b> + <b>同一个降息按钮</b>——不是 A 股在做情绪映射。</p>
+  </section>
+
+  <div class="pull rv">
+    <span class="mark">&ldquo;</span>
+    <p>创新药和 XBI 同涨，不是 A 股映射美股，是全球大药企在<span class="em">同时给两边定价</span>——降息给了估值，BD 出海给了基本面。</p>
+  </div>
+
+  <section class="rv gloss">
+    <span class="sec-no">04 / 速查</span>
+    <h2>名词大白话对照</h2>
+    <dl>
+      <div class="row"><dt>创新药 / biotech<span class="en">innovative drug</span></dt><dd>研发<span class="pop">新药</span>的公司（区别于抄专利过期药的仿制药）。烧十几年、几十亿，成则印钞、败则归零＝高赔率赌管线。</dd></div>
+      <div class="row"><dt>管线<span class="en">pipeline</span></dt><dd>一家药企在研所有药品的清单。投创新药＝给"还没上市的药"的成功概率定价。管线值钱＝公司值钱。</dd></div>
+      <div class="row"><dt>XBI<span class="en">SPDR S&amp;P Biotech ETF</span></dt><dd>美国一篮子<span class="pop">中小</span>创新药公司的基金＝美国创新药板块温度计。"等权重"＝各家占比相近，反映群体情绪而非几个巨头。</dd></div>
+      <div class="row"><dt>映射<span class="en">mapping</span></dt><dd>A 股看美股对应板块脸色炒（英伟达涨→买 A 股算力）。"太多美股映射"＝批评 A 股没独立逻辑、纯抄作业。</dd></div>
+      <div class="row"><dt>BD 出海 / License-out<span class="en">对外授权</span></dt><dd>中国药企把新药授权给海外大药企做全球开发 / 销售。<span class="pop">首付款</span>＝签约当场到账的钱（真金白银进表）；<span class="pop">里程碑</span>＝后续每过一阶段（临床 / 上市 / 销量）再分批给钱。一笔大单常达数十亿美金。</dd></div>
+      <div class="row"><dt>NewCo<span class="en">换壳出海</span></dt><dd>把某个药单独拆成新公司、引海外资本持股、在海外上市 / 卖掉。</dd></div>
+      <div class="row"><dt>专利悬崖<span class="en">patent cliff</span></dt><dd>海外大药企重磅老药专利将到期→收入要崩→急着买新管线补血＝它们来中国扫货的动机（本波买方需求的根子）。</dd></div>
+      <div class="row"><dt>18A<span class="en">HKEX Ch.18A</span></dt><dd>港交所允许<span class="pop">未盈利</span>生科公司上市的规则。"港股 18A"≈港股创新药板块。</dd></div>
+      <div class="row"><dt>丙类目录 / 医保谈判<span class="en">reimbursement</span></dt><dd>医保谈判＝药进国家医保（可报销）前与政府谈价，砍太狠压利润。丙类目录＝走<span class="pop">商业保险</span>报销的创新药清单，给高价创新药不被砍价的出路＝利好。</dd></div>
+      <div class="row"><dt>ASCO<span class="en">美国临床肿瘤学会年会</span></dt><dd>全球最大癌症治疗学术大会，药企在上面公布临床数据→直接刺激股价 ≈ 创新药的"财报 + 发布会"。</dd></div>
+      <div class="row"><dt>久期资产 / 远期贴现<span class="en">long-duration</span></dt><dd>赚钱在很远的未来→对利率极敏感。降息＝未来的钱更值钱→涨。故降息时 XBI 与中国创新药被同一个按钮同点，非 A 抄 US。</dd></div>
+    </dl>
+  </section>
+
+  <footer class="rv">
+    <div class="disc">
+      <b>关于本页 ·</b> 内容为结构性逻辑分析，<b>非投资建议、非荐股</b>。文中"首付款＋里程碑数十亿美金""大药企管线饥渴"等为框架性判断（inferred）；具体 License-out 交易公司与金额未逐笔核验，引用前请自行实证。降息 / 利率路径属宏观假设，会变。
+    </div>
+    <div class="meta">
+      <span>SOURCE · kb/finance/innovative-drug-bd-thesis.md</span>
+      <span>GEN · 2026-06-29 · self-evolving agent</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.12});
+  document.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i,3)*60)+'ms';io.observe(el)});
+</script>
+
+</body>
+</html>

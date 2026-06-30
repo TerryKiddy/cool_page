@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KDJ(9,3,3) 是怎么一步步算出来的</title>
+<meta name="description" content="深入浅出拆解 KDJ 指标：RSV→K→D→J 的逐步公式，用世纪华通 002602 J=108.7 的真实数字演算；含'J 为何能破100'和'RSV 被窗口滚动推高'两个非显然要点。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Noto+Serif+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#f4eee1; --paper-2:#efe7d6; --ink:#211d18; --ink-soft:#4a443b;
+    --faint:#8a8170; --rule:#d8cdb6; --vermillion:#a92019; --ochre:#9a7022;
+    --green:#3f6b3a; --blue:#3a6ea5; --maxw:780px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:radial-gradient(140% 120% at 50% -10%, #f8f2e6 0%, var(--paper) 46%, var(--paper-2) 100%) fixed;
+    color:var(--ink);font-family:"Noto Serif SC",serif;line-height:1.8;font-size:17.5px;-webkit-font-smoothing:antialiased;}
+  ::selection{background:rgba(169,32,25,.16);}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px 90px;}
+  header.mast{max-width:var(--maxw);margin:0 auto;padding:42px 22px 0;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--vermillion);border-bottom:1.5px solid var(--ink);padding-bottom:10px;}
+  h1{font-weight:900;font-size:clamp(30px,6vw,46px);line-height:1.14;letter-spacing:-.01em;margin:.4em 0 0;}
+  h1 .en{display:block;font-family:"Fraunces",serif;font-weight:400;font-style:italic;font-size:.42em;color:var(--ink-soft);margin-top:.5em;}
+  .lede{margin:26px 0 0;font-size:19px;border-left:3px solid var(--vermillion);padding-left:18px;}
+  .chain{margin:30px 0 0;font-family:"IBM Plex Mono",monospace;font-size:14px;background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;line-height:2;letter-spacing:.01em;}
+  .chain b{color:var(--vermillion);}
+  .chain .a{color:var(--faint);}
+  section{margin-top:46px;}
+  .secnum{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.22em;color:var(--vermillion);text-transform:uppercase;display:block;margin-bottom:7px;}
+  h2{font-weight:700;font-size:clamp(21px,4.2vw,26px);margin:0 0 14px;letter-spacing:-.005em;}
+  p{margin:0 0 15px;}
+  /* table */
+  .tbl{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:13.5px;margin:6px 0 4px;}
+  .tbl th{background:var(--ink);color:var(--paper);font-weight:500;padding:7px 6px;text-align:right;font-size:12px;letter-spacing:.02em;}
+  .tbl th:first-child{text-align:left;}
+  .tbl td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--rule);}
+  .tbl td:first-child{text-align:left;color:var(--ink-soft);}
+  .tbl tr.hot td{background:rgba(169,32,25,.08);font-weight:600;}
+  .tbl .jcol{color:var(--vermillion);font-weight:600;}
+  .cap{font-size:12.5px;color:var(--faint);margin-top:4px;}
+  /* step cards */
+  .step{border:1px solid var(--rule);border-left:4px solid var(--ochre);border-radius:6px;padding:18px 20px;margin:16px 0;background:rgba(255,253,248,.5);}
+  .step .lab{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;color:var(--ochre);text-transform:uppercase;font-weight:600;}
+  .step h3{font-weight:700;font-size:19px;margin:3px 0 10px;}
+  .step .ren{margin:12px 0;overflow-x:auto;}
+  .step .human{background:var(--paper-2);border-radius:5px;padding:10px 13px;font-size:15.5px;margin:10px 0;}
+  .step .human b{color:var(--vermillion);}
+  .step .calc{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--ink-soft);}
+  .step .calc b{color:var(--ink);}
+  .step.jstep{border-left-color:var(--vermillion);}
+  .step.jstep .lab{color:var(--vermillion);}
+  /* insight */
+  .insight{background:rgba(154,112,34,.07);border:1px solid var(--rule);border-left:4px solid var(--vermillion);border-radius:5px;padding:18px 20px;margin:16px 0;}
+  .insight h4{margin:0 0 8px;font-size:17px;font-weight:700;color:var(--vermillion);}
+  .insight p{margin:0 0 8px;font-size:15.5px;}
+  .insight p:last-child{margin:0;}
+  .sum{margin-top:30px;font-size:18px;background:var(--paper-2);border:1px dashed var(--rule);border-radius:6px;padding:18px 20px;}
+  footer{margin-top:50px;padding-top:20px;border-top:1.5px solid var(--ink);font-size:13px;color:var(--faint);font-family:"IBM Plex Mono",monospace;line-height:1.7;}
+  .katex{font-size:1.12em;}
+  @media (max-width:560px){body{font-size:16.5px;}.tbl{font-size:12px;}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="kicker">指标拆解 · 深入浅出</div>
+  <h1>KDJ 是怎么一步步算出来的
+    <span class="en">RSV → K → D → J, step by step</span>
+  </h1>
+  <p class="lede">用世纪华通 002602 在 6/30 把 <b>J 顶到 108.7</b> 的真实数字，把这条计算链一步步拆开——顺便讲清两个"懂的人才知道"的要点。</p>
+  <div class="chain">
+    <span class="a">原料</span> <b>RSV</b>（吃价格）<span class="a"> → 平滑¹ </span> <b>K</b><span class="a"> → 平滑² </span> <b>D</b><span class="a"> → 放大 K−D </span> <b>J</b><br />
+    <span class="a">越往后越慢、越稳；唯独 J 反着来——最快、最猛、能破界。</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <span class="secnum">00 / 真实演算</span>
+    <h2>002602 最近几天的 KDJ</h2>
+    <table class="tbl">
+      <thead><tr><th>日期</th><th>收</th><th>9日低</th><th>9日高</th><th>RSV</th><th>K</th><th>D</th><th>J</th></tr></thead>
+      <tbody>
+        <tr><td>6/25</td><td>13.74</td><td>12.61</td><td>15.35</td><td>41.2</td><td>26.0</td><td>21.6</td><td class="jcol">34.8</td></tr>
+        <tr><td>6/26</td><td>13.67</td><td>12.61</td><td>14.62</td><td>52.7</td><td>34.9</td><td>26.0</td><td class="jcol">52.7</td></tr>
+        <tr><td>6/29</td><td>13.87</td><td>12.61</td><td>14.13</td><td>82.9</td><td>50.9</td><td>34.3</td><td class="jcol">84.1</td></tr>
+        <tr class="hot"><td>6/30</td><td>14.10</td><td>12.61</td><td>14.15</td><td>96.8</td><td>66.2</td><td>44.9</td><td class="jcol">108.7</td></tr>
+      </tbody>
+    </table>
+    <p class="cap">下面四步，就是把"6/30"这一行从最左算到最右。数据=腾讯日线实测，KDJ(9,3,3) 标准公式。</p>
+  </section>
+
+  <section>
+    <span class="secnum">01 / 原料</span>
+    <h2>RSV —— 唯一吃价格的一步</h2>
+    <div class="step">
+      <div class="lab">第 ① 步 · RSV</div>
+      <h3>收盘价在近 9 天区间里站多高</h3>
+      <div class="ren">$$ RSV = \frac{C - L_{9}}{H_{9} - L_{9}} \times 100 $$</div>
+      <div class="human">人话：今天收盘价 <b>C</b>，在最近 9 天的最低 <b>L₉</b> ~ 最高 <b>H₉</b> 区间里的位置（0~100）。<b>贴顶=100，贴底=0。</b></div>
+      <div class="calc">6/30 实算：<b>(14.10 − 12.61) ÷ (14.15 − 12.61) × 100 = 96.8</b> → 站在区间 97% 高度。</div>
+    </div>
+  </section>
+
+  <section>
+    <span class="secnum">02 / 两道平滑</span>
+    <h2>K 与 D —— 把毛刺抹平</h2>
+    <div class="step">
+      <div class="lab">第 ② 步 · K</div>
+      <h3>平滑一道的 RSV</h3>
+      <div class="ren">$$ K = \frac{2\,K_{昨} + RSV}{3} \quad(\text{种子 } K=50) $$</div>
+      <div class="human">RSV 天天乱跳，K 用"<b>⅓ 新 + ⅔ 旧</b>"把它抹平 → K 是慢一拍、更稳的 RSV。</div>
+      <div class="calc">6/30 实算：<b>(2 × 50.9 + 96.8) ÷ 3 = 66.2</b></div>
+    </div>
+    <div class="step">
+      <div class="lab">第 ③ 步 · D</div>
+      <h3>再平滑一道的 K</h3>
+      <div class="ren">$$ D = \frac{2\,D_{昨} + K}{3} \quad(\text{种子 } D=50) $$</div>
+      <div class="human">把 K 再抹一次 → D 比 K 更钝。<b>涨时 D 落在 K 后面（D&lt;K），跌时 D 浮在 K 上面（D&gt;K）。</b> K、D 都被锁死在 0~100。</div>
+      <div class="calc">6/30 实算：<b>(2 × 34.3 + 66.2) ÷ 3 = 44.9</b></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="secnum">03 / 放大器</span>
+    <h2>J —— 为什么能冲过 100</h2>
+    <div class="step jstep">
+      <div class="lab">第 ④ 步 · J</div>
+      <h3>把 K 领先 D 的差，放大三倍</h3>
+      <div class="ren">$$ J = 3K - 2D = D + 3\,(K - D) $$</div>
+      <div class="human">关键变形：<b>J = D 再加上"K 领先 D 的差距 × 3"</b>。涨势 K&gt;D 时 J 冲到 K 上方破 100；跌势 K&lt;D 时砸进负数。所以 J 故意不被锁在 0~100——专门用超调来"喊"超买超卖。</div>
+      <div class="calc">6/30 实算：<b>3 × 66.2 − 2 × 44.9 = 108.7</b>　（K 才 66 没到超买区，但 K 比 D 领先 21，×3 一放大 J 就破百）</div>
+    </div>
+  </section>
+
+  <section>
+    <span class="secnum">04 / 两个非显然要点</span>
+    <h2>讲清这两点才算真懂</h2>
+    <div class="insight">
+      <h4>① J 的极值，是"K 持续压 D"被放大，不是"价格猛"</h4>
+      <p>6/30 的 K 只有 66.2（连 80 超买线都没到），J 却 108.7。差距全在 <b>K 比 D 领先 21</b>，被 ×3 放大。所以 <b>J=−13 那种深负也一样</b>：要前面 D 顶得高、再急跌，J 才砸得深 —— J 深负的深度 ≈ 前面那波动能/买量的强度。</p>
+    </div>
+    <div class="insight">
+      <h4>② RSV 会被"9 日窗口滚动"推高，不只价格涨</h4>
+      <p>看表：6/26→6/30 价格才涨 3%（13.67→14.10），RSV 却从 52 飙到 97。<b>一半原因是"9 日最高"从 15.35（6/12 老高）滚出了 9 天窗口、掉到 14.15</b> —— 天花板自己降下来贴住收盘价，RSV 自然显高。<b>读 J 高低，先分清是真涨还是窗口滚的。</b></p>
+    </div>
+    <div class="insight">
+      <h4>③ 整条链路里，没有任何一步吃成交量</h4>
+      <p>RSV / K / D / J 全是价格的函数。<b>所以"缩量 + J 超买"能并存</b>（价升量缩背离）：J 只说"位置到顶了"，它不知道也不在乎这波是放量真涨还是缩量虚冲。<b>J 必须叠量价一起读，别只看 J 高就以为强。</b></p>
+    </div>
+  </section>
+
+  <div class="sum">
+    <b>一句话：</b>RSV（生肉，吃价格）→ K（炖一道）→ D（炖两道）→ J（加味精提鲜）。J 上穿/下穿就是 KDJ 金叉/死叉的<b>提前预警线</b>。参数 (9,3,3) = RSV 回看 9 天、K 平滑 3、D 平滑 3。
+  </div>
+
+  <footer>
+    数据＝腾讯日线实测（002602，2026-06-30，含盘中）· KDJ(9,3,3) 标准公式自算 · 公式渲染 KaTeX<br />
+    distilled from kb/finance/tdx-indicator-formula-critique.md · 自演化个人 agent · 教学用途·非荐股
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.renderMathInElement) {
+      renderMathInElement(document.body, {
+        delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+</body>
+</html>

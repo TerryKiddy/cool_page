@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>6·29 国常会 · "非 AI 科技方向"读法</title>
+<meta name="description" content="6月29日国务院常务会议(人工智能专题)与博主口中'非AI科技方向'的板块映射拆解：通稿不点名概念，市场如何二次映射；附'国常会→板块'正确读法与当日盘面诚实闸口。非荐股。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Noto+Serif+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f4eee1;
+    --paper-2:#efe7d6;
+    --ink:#211d18;
+    --ink-soft:#4a443b;
+    --faint:#8a8170;
+    --rule:#d8cdb6;
+    --vermillion:#a92019;
+    --vermillion-2:#c4352b;
+    --ochre:#9a7022;
+    --green:#3f6b3a;
+    --maxw:760px;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(140% 120% at 50% -10%, #f8f2e6 0%, var(--paper) 46%, var(--paper-2) 100%) fixed;
+    color:var(--ink);
+    font-family:"Noto Serif SC", serif;
+    font-weight:400;
+    line-height:1.78;
+    font-size:17.5px;
+    letter-spacing:.005em;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(169,32,25,.16);}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px 96px;}
+
+  /* ---- masthead ---- */
+  header.mast{
+    max-width:var(--maxw);margin:0 auto;padding:40px 22px 0;
+  }
+  .gazette{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--faint);
+    border-bottom:1.5px solid var(--ink);
+    padding-bottom:8px;
+  }
+  .gazette .seal{color:var(--vermillion);font-weight:600;}
+  .kicker{
+    margin:26px 0 0;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--vermillion);
+  }
+  h1{
+    font-family:"Noto Serif SC", serif;
+    font-weight:900;
+    font-size:clamp(31px, 6.4vw, 47px);
+    line-height:1.14;
+    letter-spacing:-.01em;
+    margin:.28em 0 0;
+  }
+  h1 .en{
+    display:block;
+    font-family:"Fraunces", serif;
+    font-weight:400;font-style:italic;
+    font-size:.44em;
+    color:var(--ink-soft);
+    letter-spacing:.01em;
+    margin-top:.5em;
+  }
+  .byline{
+    margin:18px 0 0;
+    font-size:14px;color:var(--ink-soft);
+    display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;
+    font-family:"IBM Plex Mono", monospace;
+    letter-spacing:.02em;
+  }
+  .byline b{color:var(--vermillion);font-weight:600;}
+  .lede{
+    margin:30px 0 0;
+    font-size:20px;line-height:1.7;
+    color:var(--ink);
+    border-left:3px solid var(--vermillion);
+    padding-left:18px;
+  }
+  .lede b{font-weight:700;}
+
+  /* ---- sections ---- */
+  section{margin-top:54px;}
+  .secnum{
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px;letter-spacing:.22em;color:var(--vermillion);
+    text-transform:uppercase;display:block;margin-bottom:7px;
+  }
+  h2{
+    font-family:"Noto Serif SC", serif;font-weight:700;
+    font-size:clamp(22px,4.4vw,27px);line-height:1.25;
+    margin:0 0 16px;letter-spacing:-.005em;
+    position:relative;
+  }
+  p{margin:0 0 16px;}
+  strong{font-weight:700;}
+  em{font-style:italic;color:var(--ink-soft);}
+
+  /* agenda list */
+  ol.agenda{list-style:none;counter-reset:ag;margin:0;padding:0;}
+  ol.agenda li{
+    counter-increment:ag;position:relative;
+    padding:14px 0 14px 52px;border-top:1px solid var(--rule);
+  }
+  ol.agenda li:last-child{border-bottom:1px solid var(--rule);}
+  ol.agenda li::before{
+    content:counter(ag);position:absolute;left:0;top:13px;
+    width:34px;height:34px;border-radius:50%;
+    border:1.5px solid var(--ink);
+    font-family:"Fraunces",serif;font-size:16px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);
+  }
+  ol.agenda li.star::before{
+    border-color:var(--vermillion);color:#fff;background:var(--vermillion);
+  }
+  ol.agenda b{font-weight:700;}
+  .tag{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;
+    font-size:11px;letter-spacing:.04em;color:var(--vermillion);
+    border:1px solid rgba(169,32,25,.4);border-radius:3px;
+    padding:1px 7px;margin-left:6px;vertical-align:1px;white-space:nowrap;
+  }
+
+  /* insight callout */
+  .insight{
+    background:rgba(154,112,34,.07);
+    border:1px solid var(--rule);
+    border-left:4px solid var(--ochre);
+    padding:22px 24px;border-radius:4px;
+    font-size:18px;
+  }
+  .insight .big{font-weight:700;color:var(--ochre);}
+
+  /* ledger / mapping table */
+  .ledger{border-top:2px solid var(--ink);margin-top:8px;}
+  .row{
+    display:grid;grid-template-columns:1fr;gap:4px;
+    padding:18px 0;border-bottom:1px solid var(--rule);
+  }
+  .row .dir{
+    font-family:"Noto Serif SC",serif;font-weight:700;font-size:20px;
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  }
+  .row .dir .strength{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+    letter-spacing:.06em;padding:2px 8px;border-radius:99px;color:#fff;
+    white-space:nowrap;transform:translateY(-2px);
+  }
+  .s-hard{background:var(--vermillion);}
+  .s-mid{background:var(--ochre);}
+  .s-soft{background:#9a958a;}
+  .row .meta{font-size:15px;color:var(--ink-soft);line-height:1.62;}
+  .row .meta .lbl{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;
+    letter-spacing:.08em;color:var(--vermillion);text-transform:uppercase;
+    margin-right:6px;
+  }
+  .updown{color:var(--green);font-weight:700;}
+
+  /* reading method steps */
+  ol.method{list-style:none;counter-reset:m;margin:0;padding:0;}
+  ol.method li{
+    counter-increment:m;position:relative;padding:0 0 22px 46px;
+  }
+  ol.method li::before{
+    content:counter(m,decimal-leading-zero);
+    position:absolute;left:0;top:-2px;
+    font-family:"Fraunces",serif;font-style:italic;font-size:22px;
+    color:var(--vermillion);font-weight:600;
+  }
+  ol.method li::after{
+    content:"";position:absolute;left:11px;top:30px;bottom:6px;width:1px;
+    background:var(--rule);
+  }
+  ol.method li:last-child::after{display:none;}
+  ol.method b{font-weight:700;}
+
+  /* honesty stamp */
+  .stamp{
+    position:relative;margin-top:8px;
+    border:1.5px solid var(--vermillion);
+    background:rgba(169,32,25,.04);
+    padding:24px 24px 20px;border-radius:5px;
+  }
+  .stamp .badge{
+    position:absolute;top:-13px;left:20px;background:var(--paper);
+    color:var(--vermillion);font-family:"IBM Plex Mono",monospace;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    padding:2px 12px;border:1.5px solid var(--vermillion);border-radius:3px;
+  }
+  .stamp p{margin:0 0 12px;font-size:16px;}
+  .stamp p:last-child{margin-bottom:0;}
+  .stamp .ok{color:var(--green);font-weight:700;}
+  .stamp .no{color:var(--vermillion);font-weight:700;}
+
+  /* footer */
+  footer{
+    margin-top:64px;padding-top:24px;border-top:1.5px solid var(--ink);
+    font-size:13.5px;color:var(--ink-soft);line-height:1.7;
+  }
+  footer .disc{
+    font-family:"Noto Serif SC",serif;font-weight:500;
+    background:var(--paper-2);border:1px dashed var(--rule);
+    padding:14px 16px;border-radius:4px;margin-bottom:18px;color:var(--ink);
+  }
+  footer .src{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.01em;}
+  footer .src a{color:var(--vermillion);text-decoration:none;border-bottom:1px solid rgba(169,32,25,.3);}
+  footer .src a:hover{border-bottom-color:var(--vermillion);}
+  footer .colophon{margin-top:18px;color:var(--faint);font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
+
+  @media (max-width:560px){
+    body{font-size:16.5px;}
+    .lede{font-size:18px;}
+    ol.agenda li{padding-left:46px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="gazette">
+    <span>国务院常务会议 · 解读笔记</span>
+    <span class="seal">2026-06-30</span>
+  </div>
+  <p class="kicker">会议主题是 AI，真正大涨的却是这些</p>
+  <h1>6·29 国常会与<br />"非 AI 科技方向"
+    <span class="en">When the headline is AI, the rally isn't.</span>
+  </h1>
+  <div class="byline">
+    <span><b>6/29 晚</b> 李强主持 · 6/30 见报</span>
+    <span>四项议程</span>
+    <span>非荐股</span>
+  </div>
+  <p class="lede">博主说"今天国常会点名的那几个<b>非 AI</b> 的科技方向都涨得很好"。核查后要先泼一盆冷水：<b>会议通稿根本没"点名"任何具体概念</b>——所谓"点名 XX 方向"，几乎全是市场对通稿的二次映射。下面把事实和映射拆开摆。</p>
+</header>
+
+<div class="wrap">
+
+  <section class="reveal">
+    <span class="secnum">01 / 会上到底说了什么</span>
+    <h2>四项议程，AI 只占一项</h2>
+    <ol class="agenda">
+      <li class="star"><b>听取人工智能发展情况汇报</b> <span class="tag">AI 主线</span><br />深入实施"人工智能+"行动；通稿只有宏观表述——加快关键技术攻关、超大规模智算集群、高质量数据供给、规模化商用、守牢安全底线。<b>没有逐个点名"商业航天""核聚变"这些词。</b></li>
+      <li>研究当前外贸形势、贸易强国建设有关工作。</li>
+      <li class="star">审议通过<b>《"十五五"碳达峰行动方案》</b> <span class="tag">能源科技</span></li>
+      <li class="star">审议通过<b>《国民健康"十五五"规划》</b> <span class="tag">医药科技</span></li>
+    </ol>
+    <p style="margin-top:18px;color:var(--ink-soft);font-size:15px;">所以"非 AI 科技方向"的真正出处，是后两份<b>审议通过的"十五五"文件</b>，加上一整片"新质生产力 / 未来产业"主题——不是 AI 那段通稿里的字。</p>
+  </section>
+
+  <section class="reveal">
+    <span class="secnum">02 / 关键洞察</span>
+    <h2>通稿不点名，市场自己映射</h2>
+    <div class="insight">
+      国常会通稿是<span class="big">宏观语言</span>。把它读成"点名了某板块"，是市场把<b>抽象政策 → 具体筹码</b>的二次翻译。看懂这一步，就不会被"国常会点名 XX"这种二手转述牵着走——<b>先回原文，再看映射。</b>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <span class="secnum">03 / 那"几个非 AI 方向"指什么</span>
+    <h2>板块映射台账</h2>
+    <p style="margin-bottom:6px;color:var(--ink-soft);font-size:15px;">按与本次会议的对应强度排序。右侧标签＝映射的"硬度"。</p>
+    <div class="ledger">
+
+      <div class="row">
+        <div class="dir">创新药 / 医药 <span class="strength s-hard">对应最硬</span></div>
+        <div class="meta"><span class="lbl">对应文件</span>《国民健康"十五五"规划》</div>
+        <div class="meta"><span class="lbl">叠加催化</span>6/29 当天公示 2026 国家医保目录初审：<b>557 个药过初审、54 个进商保创新药目录</b>。医药一批 <span class="updown">20cm 涨停</span>——三生国健、舒泰神、广生堂、凯莱英、百奥赛图。<em>（6/29 已核实）</em></div>
+      </div>
+
+      <div class="row">
+        <div class="dir">核电 · 可控核聚变 · 新型电力系统 · 储能 <span class="strength s-mid">中等</span></div>
+        <div class="meta"><span class="lbl">对应文件</span>《"十五五"碳达峰行动方案》</div>
+        <div class="meta"><span class="lbl">逻辑</span>非化石能源（核 / 风 / 光 / 储）从"配角"转"主角"，是碳达峰路径的供给侧主力。</div>
+      </div>
+
+      <div class="row">
+        <div class="dir">商业航天 · 脑机接口 · 机器人 / 具身智能 <span class="strength s-soft">借势</span></div>
+        <div class="meta"><span class="lbl">对应文件</span>—— 非本次通稿直接对应</div>
+        <div class="meta"><span class="lbl">逻辑</span>借"未来产业 / 新质生产力"风口同涨。博主口语里大概率把这几个也一并算进了"非 AI 科技方向"。</div>
+      </div>
+
+    </div>
+    <p style="margin-top:22px;font-size:18px;"><b>一句话答案：</b>创新药 / 医药、可控核聚变（核电）、商业航天、脑机接口——共性是"会议主题是 AI，真正大涨的却是这些非 AI 的硬科技 / 生物科技"。</p>
+  </section>
+
+  <section class="reveal">
+    <span class="secnum">04 / 方法论</span>
+    <h2>"国常会 → 板块"的正确读法</h2>
+    <ol class="method">
+      <li><b>先抓通稿原文议程</b>——几项、审议通过了哪些文件。别信"某会点名某概念"的二手转述。</li>
+      <li>通稿是宏观语言时，<b>板块映射来自"审议通过的具体规划"</b>：碳达峰 → 能源科技（核电 / 核聚变 / 新能源 / 储能 / 特高压）；国民健康规划 → 医药（创新药 / 器械 / 商保创新药）；"人工智能+" → AI 应用 / 算力。</li>
+      <li>把<b>"通稿直接对应"</b>和<b>"借势同涨但不对应"</b>分两栏，别混为一谈。</li>
+      <li>当日盘面验证要用<b>带日期戳的中文源</b>，警惕主题重复导致的跨月数据串台（见下方编者注）。</li>
+    </ol>
+  </section>
+
+  <section class="reveal">
+    <span class="secnum">05 / 编者注</span>
+    <h2>哪些坐实了，哪些没有</h2>
+    <div class="stamp">
+      <span class="badge">诚实闸口</span>
+      <p><span class="ok">✓ 能确证：</span>国常会四项议程与文件名（人民网 / 新华社 / 新浪 / 每经一致）；创新药 6/29 已成批涨停（医保目录初审催化）。</p>
+      <p><span class="no">✗ 未坐实：</span>6/30 当日精确盘面（板块排名 / 涨幅）拿不到干净数据。所用搜索为美国节点，对 A 股当日收盘抓得差；且 <b>2026-01-12 那波行情的领涨板块（AI 应用 / 商业航天 / 核聚变）与 6 月几乎一模一样</b>，搜索反复把 1 月（沪指 4165、成交 3.64 万亿那天）串成 6 月。已剔除污染，但 6/30 涨幅无法独立证实。</p>
+      <p style="font-size:14px;color:var(--ink-soft);">要钉死博主具体点的哪几个，最快＝拿到原帖逐条比对盘面。</p>
+    </div>
+  </section>
+
+  <footer class="reveal">
+    <div class="disc">⚠️ 本页为政策解读笔记，非投资建议、非荐股。所列个股仅为当日盘面记录，不构成买卖依据。市场有风险，决策请独立判断。</div>
+    <div class="src">
+      Sources ——<br />
+      · <a href="http://politics.people.com.cn/n1/2026/0630/c1024-40750235.html">人民网 · 李强主持召开国务院常务会议</a><br />
+      · <a href="https://finance.sina.com.cn/jjxw/2026-06-30/doc-inifcmee5091366.shtml">新浪财经 · 听取人工智能发展情况汇报</a><br />
+      · <a href="https://www.nbd.com.cn/articles/2026-06-29/4440915.html">每经 · 国务院常务会议</a><br />
+      · <a href="https://m.10jqka.com.cn/20260629/c677809879.shtml">同花顺 · CRO、创新药估值修复行情（6/29）</a>
+    </div>
+    <div class="colophon">distilled from kb/finance/guocanhui-2026-06-29-ai-meeting.md · 自演化个人 agent · 2026-06-30</div>
+  </footer>
+
+</div>
+
+<script>
+  (function(){
+    var els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+    },{threshold:.12});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+</body>
+</html>

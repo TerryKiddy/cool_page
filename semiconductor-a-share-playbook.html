@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>半导体 A 股打法 · 主板约束下的四腿深挖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Serif+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5efe3; --paper2:#efe7d6; --ink:#2a2622; --ink2:#5a5044;
+    --line:#d8ccb4; --rule:#cdbfa3;
+    --up:#c0392b;        /* A股红=涨 */
+    --down:#2e7d52;      /* A股绿=跌 */
+    --oxblood:#8c2f25; --gold:#9a7b3f; --slate:#46566a;
+    --hi:#b23b2e; --watch:#b07d2a; --run:#2f6d57;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--paper);
+    color:var(--ink); font-family:'Noto Serif SC',serif; line-height:1.75;
+    background-image:radial-gradient(transparent 1px, transparent 1px),linear-gradient(var(--paper),var(--paper));
+  }
+  .wrap{max-width:880px; margin:0 auto; padding:64px 26px 120px;}
+  .num,.tag,code{font-family:'IBM Plex Mono',monospace;}
+  /* header */
+  header{border-bottom:3px double var(--rule); padding-bottom:30px; margin-bottom:14px;}
+  .kicker{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--oxblood); margin-bottom:18px;}
+  h1{font-family:'Fraunces',serif; font-weight:900; font-size:clamp(30px,5.6vw,50px); line-height:1.08; margin:0 0 14px; letter-spacing:-.01em;}
+  h1 .sub{display:block; font-family:'Noto Serif SC',serif; font-weight:500; font-size:clamp(15px,2.4vw,19px); color:var(--ink2); margin-top:12px; letter-spacing:.02em;}
+  .meta{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink2); margin-top:18px; display:flex; gap:18px; flex-wrap:wrap;}
+  .meta span::before{content:"·"; margin-right:8px; color:var(--rule);}
+  .meta span:first-child::before{content:"";margin:0;}
+  /* tldr */
+  .tldr{background:linear-gradient(180deg,#fbf6ec,#f0e7d4); border:1px solid var(--line); border-left:5px solid var(--oxblood); border-radius:4px; padding:22px 26px; margin:34px 0 8px; box-shadow:0 1px 0 #fff inset;}
+  .tldr b{color:var(--oxblood);}
+  /* sections */
+  section{margin-top:54px;}
+  h2{font-family:'Fraunces',serif; font-weight:700; font-size:25px; margin:0 0 6px; display:flex; align-items:baseline; gap:12px;}
+  h2 .no{font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--oxblood); font-weight:600;}
+  h2::after{content:""; flex:1; border-bottom:1px solid var(--line); transform:translateY(-5px);}
+  .lead{color:var(--ink2); font-size:15px; margin:.4em 0 1.2em;}
+  h3{font-family:'Fraunces',serif; font-weight:600; font-size:18.5px; margin:30px 0 4px; color:var(--oxblood);}
+  p{margin:.7em 0;}
+  strong{font-weight:700;}
+  .em{background:linear-gradient(transparent 62%, #efd9a0 62%); padding:0 1px;}
+  ul{margin:.6em 0; padding-left:1.15em;} li{margin:.34em 0;}
+  /* tables */
+  .tw{overflow-x:auto; margin:18px 0; border:1px solid var(--line); border-radius:5px;}
+  table{border-collapse:collapse; width:100%; font-size:13.5px; background:#fbf7ee; min-width:560px;}
+  th,td{padding:9px 11px; text-align:left; border-bottom:1px solid #e7dcc6;}
+  thead th{background:#ece0c8; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:11.5px; letter-spacing:.04em; color:#54472f; text-transform:uppercase; border-bottom:2px solid var(--rule);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#f5ecda;}
+  td .num{font-size:13px;}
+  .up{color:var(--up); font-weight:600;} .down{color:var(--down); font-weight:600;}
+  .code{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--slate);}
+  /* badges */
+  .b{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; padding:2px 8px; border-radius:11px; white-space:nowrap; line-height:1.5;}
+  .b-hi{background:#f6dcd6; color:var(--hi); border:1px solid #e7b6ac;}
+  .b-watch{background:#f5e8c9; color:var(--watch); border:1px solid #e3cf9b;}
+  .b-run{background:#d8ebe0; color:var(--run); border:1px solid #aed4c0;}
+  .b-no{background:#e6e1d6; color:#7a6f5c; border:1px solid #cfc4ad;}
+  .pill{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11px; padding:1px 7px; border-radius:4px; background:#ece2cd; color:var(--slate); border:1px solid var(--line);}
+  /* callout */
+  .call{border:1px solid var(--line); border-radius:5px; padding:16px 20px; margin:18px 0; background:#f3ead8;}
+  .call.warn{border-left:4px solid var(--up); background:#f8eee4;}
+  .call.key{border-left:4px solid var(--gold); background:#f7f0db;}
+  .call .h{font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; margin-bottom:4px;}
+  /* stage cards */
+  .legrow{display:grid; grid-template-columns:1fr; gap:0; margin:16px 0;}
+  /* reveal */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:none;}
+  /* footer */
+  footer{margin-top:70px; padding-top:24px; border-top:3px double var(--rule); font-size:12.5px; color:var(--ink2);}
+  .disc{background:#efe7d6; border:1px dashed var(--rule); border-radius:5px; padding:16px 20px; font-size:13px; color:var(--ink2); margin-top:26px;}
+  .disc b{color:var(--oxblood);}
+  a{color:var(--oxblood);}
+  @media(max-width:600px){ .wrap{padding:40px 16px 90px;} .meta{gap:10px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="reveal">
+  <div class="kicker">投研笔记 · A 股半导体 · 主板视角</div>
+  <h1>半导体 A 股打法
+    <span class="sub">没有双创权限，只能在主板里选 —— 四条腿摊开，哪条值得做、哪个能买、现在该不该等</span>
+  </h1>
+  <div class="meta">
+    <span>2026-06-30 收盘</span>
+    <span>行情=腾讯 gtimg 实测</span>
+    <span>非荐股 · 仅作研究</span>
+  </div>
+</header>
+
+<div class="tldr reveal">
+  起因是一次<b>"价值 → 成长"风格切换</b>：当天红利、银行、有色、工程机械齐跌，成长与半导体齐涨。问题随之而来——既然要往半导体补，<b>怎么做？</b>
+  一句话先行：这是一次<b>"卖水人"调研</b>。最想要的两条还在走的腿（算力、设备）纯标的几乎全在你买不了的科创板；主板能买的，要么是卖水人（整机 / PCB / 设备 / 封测），要么是 ETF。
+  而当日战法层显示，<b class="em">主板半导体几乎全员高位、零干净买点</b>——此刻该空仓等，这是数据，不是判断。
+</div>
+
+<section class="reveal">
+  <h2><span class="no">01</span> 两个硬约束（先卡死，决定一切）</h2>
+  <h3>① 没有双创权限 → 半数标的直接出局</h3>
+  <p>中芯国际 <span class="code">688981</span>、寒武纪 <span class="code">688256</span>、海光 <span class="code">688041</span>、中微 <span class="code">688012</span>、拓荆 <span class="code">688072</span>（科创 688），以及北京君正 <span class="code">300223</span>、卓胜微 <span class="code">300782</span>（创业 300）—— <strong>个股一律买不了</strong>。半导体的纯标的大半在科创板，universe 被砍掉一半。</p>
+  <p>绕道只有一条：<strong>ETF 不需要双创权限</strong>，是够到科创制造端的唯一通道（见末节 ETF 总表）。</p>
+  <h3>② 你的战法在强主线大概率"踏空"</h3>
+  <p>你的买点战法是<span class="em">"放大量（买量）→ 缩半量回调 → KDJ 的 J 深负"</span>抄超跌反转。半导体是当下最强主线、缩量创新高，根本给不出干净回调 —— <strong>追=接最后一棒，等=持续踏空</strong>。诚实的路只有两条：当配置用 ETF（不择时），或盯一个自带"砸坑催化"的主板个股。</p>
+</section>
+
+<section class="reveal">
+  <h2><span class="no">02</span> 当前阶段：别看 ETF，要看龙头</h2>
+  <p class="lead">ETF 是一篮子，会把龙头的"放量见顶"签名平滑掉。换成龙头个股 18 日实测，主线其实<strong>已经内部分化</strong>——一个 ETF 完全看不出来的关键事实。</p>
+  <div class="tw">
+  <table>
+    <thead><tr><th>龙头</th><th>腿</th><th>今日</th><th>现状</th><th>阶段</th></tr></thead>
+    <tbody>
+      <tr><td>中际旭创 <span class="code">300308</span></td><td>光模块</td><td class="up">+4.1%</td><td>较高点 −8%、连续低高点、跌日放量</td><td><span class="b b-hi">见顶后走弱</span></td></tr>
+      <tr><td>新易盛 <span class="code">300502</span></td><td>光模块</td><td class="up">+9.0%</td><td>6/25 冲高放量 → 次日放量杀 −7.3%</td><td><span class="b b-hi">高位对倒派发</span></td></tr>
+      <tr><td>寒武纪 <span class="code">688256</span></td><td>AI 算力</td><td class="up">+7.7%</td><td><strong>今创新高 1595</strong></td><td><span class="b b-run">拉升中段</span></td></tr>
+      <tr><td>海光 <span class="code">688041</span></td><td>AI 算力</td><td class="up">+4.4%</td><td><strong>今创新高 370</strong></td><td><span class="b b-run">拉升中段</span></td></tr>
+      <tr><td>中芯国际 <span class="code">688981</span></td><td>代工</td><td class="up">+5.2%</td><td><strong>今创新高 158.8</strong></td><td><span class="b b-run">拉升中段</span></td></tr>
+      <tr><td>北方华创 <span class="code">002371</span></td><td>设备</td><td class="up">+2.8%</td><td><strong>今创新高 884、整段无大阴</strong></td><td><span class="b b-run">拉升最干净</span></td></tr>
+      <tr><td>兆易创新 <span class="code">603986</span></td><td>存储</td><td class="down">−3.0%</td><td>垂直加速后首阴（十天 +62%）</td><td><span class="b b-hi">见顶预警</span></td></tr>
+      <tr><td>长电科技 <span class="code">600584</span></td><td>封测</td><td class="up">+0.3%</td><td>涨停后开板放量、高位滞涨</td><td><span class="b b-hi">加速末端</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="call key">
+    <div class="h">关键结论（ETF 给不出）</div>
+    <p style="margin:.3em 0"><strong>① 光模块龙头已先见顶派发</strong>：中际旭创 8 个交易日没创新高、跌日放量，新易盛高位对倒——且是<strong>"放量"派发，不是缩量</strong>。ETF 当天"创新高"是篮子假象，核心龙头并没有。</p>
+    <p style="margin:.3em 0"><strong>② 算力 / 制造腿仍在拉升中段</strong>：寒武纪、海光、中芯、北方华创当天全部创新高、无放量滞涨顶，北方华创最干净。</p>
+    <p style="margin:.3em 0"><strong>③ 钱在内部轮动</strong>：从光模块腿切向算力 / 国产制造腿。调研重心据此压在<span class="em">国产算力 · 设备</span>——还在走，且主板有北方华创可买。</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <h2><span class="no">03</span> 四条腿，逐条摊开</h2>
+
+  <h3>算力 —— 主板买不到纯芯片，认清这点最重要</h3>
+  <p>寒武纪、海光、龙芯、芯原、沐曦、摩尔线程全在科创 688，景嘉微在创业 300，壁仞在港股。这条腿业绩正在兑现（寒武纪 26Q1 营收 +159.6%、已实质盈利），但<strong>估值已极高、政策反复是主要风险</strong>。主板上"沾算力"只有三种方式：</p>
+  <ul>
+    <li><strong>整机卖水人</strong>：中科曙光 <span class="code">603019</span>、紫光股份 <span class="code">000938</span>（新华三）、浪潮信息 <span class="code">000977</span>、拓维信息 <span class="code">002261</span>（昇腾绑定最深）。</li>
+    <li><strong>中游 PCB / 材料</strong>：沪电股份 <span class="code">002463</span>、生益科技 <span class="code">600183</span>。</li>
+    <li><strong>直接吃芯片弹性 → 只能 ETF</strong>：科创 AI 589520（寒武纪权重最高、最进攻）、科创芯片 588200。</li>
+  </ul>
+
+  <h3>设备 —— 重点腿，结论很干脆：主板就北方华创一根独苗</h3>
+  <p>各细分纯龙头——刻蚀（中微）、薄膜（拓荆）、清洗（盛美）、CMP（华海清科）——全在科创，买不了。主板另外三个（先导基电＝原万业改名、已变亏损材料股；至纯＝困境反转；盛剑＝厂务边角料）都不干净。</p>
+  <div class="call">
+    <strong>北方华创 002371</strong>：国产设备绝对龙头、2025 营收 393.5 亿（+31%）、<strong>在手订单 &gt;200 亿、排期到 2027 Q1</strong>、PE 115。是这条腿里唯一"龙头 + 盈利 + 纯设备"三占全的干净标的——长鑫扩产（募资 295 亿）的直接"卖铲人"。要细分弹性只能走 <span class="code">159516</span> 设备主题 ETF。<br><span style="color:var(--up)">⚠ 注意：561980 名叫"半导体设备 ETF"，第一权重却是寒武纪 14%，名实不符。</span>
+  </div>
+
+  <h3>存储 —— 主板有 4 张牌，给你排好序</h3>
+  <p>DDR5 现货从 5.5 美元涨破 40 美元、HBM 挤占产能、长鑫 7–8 月挂牌（募 295 亿、科创史上第二大 IPO）。涨价至少持续到 2026 年底。主板能直接下单的纯存储四张牌：</p>
+  <ul>
+    <li><strong>深科技 <span class="code">000021</span></strong>：性价比最优的"三料"——存储封测 + <strong>绑长鑫最深</strong>（包揽 60%+ 委外封测）+ 唯一英伟达认证 HBM3 封装，PE 84，远比兆易合理。</li>
+    <li><strong>德明利 <span class="code">001309</span></strong>：颗粒涨价<strong>业绩弹性最大</strong>（机构预增 1584%）、PE 52、不绑长鑫的纯颗粒赌注。</li>
+    <li><strong>太极实业 <span class="code">600667</span></strong>：绑<strong>海外原厂</strong>（海力士 DRAM、美光 NAND 在华封测），原厂赚翻的稳健受益。</li>
+    <li><strong>兆易创新 <span class="code">603986</span></strong>：长鑫故事唯一主板载体，但 <strong>PE 199 + 减持窗口压到 7/29 + 垂直加速</strong>，三料最贵最危险——<span class="em">盯它的崩，不是追它的涨</span>。</li>
+  </ul>
+  <p style="font-size:13.5px;color:var(--ink2)">弹性最大的江波龙、佰维、普冉、北京君正全在双创，买不了；长鑫本体在 688，只能借 588200 间接持。</p>
+
+  <h3>封测 —— 这条腿对你最友好，主板全可买</h3>
+  <p>台积电 CoWoS 被英伟达锁到 2027、缺口外溢 OSAT、HBM 全线售罄。主板抓手齐全：<strong>长电 <span class="code">600584</span>（订单 496 亿排到 2027）、通富 <span class="code">002156</span>（AMD 绑定 80%+、5nm Chiplet 量产）、华天 <span class="code">002185</span>、深科技 <span class="code">000021</span></strong>。定位是"AI-capex 弹性腿"，估值中等。</p>
+
+  <h3>光模块 —— 龙头买不了，且正在派发</h3>
+  <p>中际旭创、新易盛、天孚全在创业板，且 6 月已高位放量派发（中际从 6/18 高点回撤约 14%）。主板代偿只有<strong>光迅 <span class="code">002281</span></strong>（最接近算力光模块、国资光芯片）和<strong>剑桥 <span class="code">603083</span></strong>（800G 已发货、CPO 在研、弹性大）；或 <span class="code">515880</span> 通信 ETF（光模块 &gt;50%，一键买你买不了的中际 / 新易盛——但它也会跟着龙头回撤）。</p>
+</section>
+
+<section class="reveal">
+  <h2><span class="no">04</span> 主板可买 × 战法位置</h2>
+  <p class="lead">把"基本面 + 能不能买 + 现在该不该等"并到一张表。战法层为 gtimg 日线自算（KDJ-J / 60 日位置 / 近 5 日量向）。<span class="b b-hi">高位无买点</span> · <span class="b b-watch">观察</span></p>
+  <div class="tw">
+  <table>
+    <thead><tr><th>标的</th><th>腿</th><th>一句基本面</th><th class="num">J</th><th class="num">60位%</th><th>该不该等</th></tr></thead>
+    <tbody>
+      <tr><td>北方华创 <span class="code">002371</span></td><td>设备</td><td>唯一干净设备龙头，订单到 27Q1</td><td class="num">94</td><td class="num">96</td><td><span class="b b-hi">高位无买点</span></td></tr>
+      <tr><td>深科技 <span class="code">000021</span></td><td>存储×封测</td><td>绑长鑫最深 + HBM3 封装，PE84</td><td class="num">102</td><td class="num">99</td><td><span class="b b-hi">极致超买</span></td></tr>
+      <tr><td>兆易创新 <span class="code">603986</span></td><td>存储</td><td>长鑫唯一载体，PE199 + 减持到 7/29</td><td class="num">98</td><td class="num">95</td><td><span class="b b-hi">最贵最危险</span></td></tr>
+      <tr><td>德明利 <span class="code">001309</span></td><td>存储</td><td>模组弹性最大（预增 1584%），PE52</td><td class="num">97</td><td class="num">94</td><td><span class="b b-hi">高位</span></td></tr>
+      <tr><td>长电科技 <span class="code">600584</span></td><td>封测</td><td>HBM 订单 496 亿排到 2027</td><td class="num">88</td><td class="num">92</td><td><span class="b b-hi">高位 + 跌日放量</span></td></tr>
+      <tr><td>通富微电 <span class="code">002156</span></td><td>封测</td><td>AMD 绑定 80%+，5nm Chiplet</td><td class="num">77</td><td class="num">91</td><td><span class="b b-hi">高位</span></td></tr>
+      <tr><td>华天科技 <span class="code">002185</span></td><td>封测</td><td>综合封测前三 + 存储封测扩产</td><td class="num">79</td><td class="num">88</td><td><span class="b b-hi">高位</span></td></tr>
+      <tr><td>中科曙光 <span class="code">603019</span></td><td>算力·整机</td><td>海光生态整机 / 液冷超节点</td><td class="num">98</td><td class="num">100</td><td><span class="b b-hi">今涨停顶</span></td></tr>
+      <tr><td>紫光股份 <span class="code">000938</span></td><td>算力·整机</td><td>新华三（鲲鹏 + 昇腾 + x86）</td><td class="num">74</td><td class="num">47</td><td><span class="b b-watch">回中位 · 放量跌</span></td></tr>
+      <tr><td>拓维信息 <span class="code">002261</span></td><td>算力·整机</td><td>昇腾整机、华为绑定最深</td><td class="num">6</td><td class="num">11</td><td><span class="b b-watch">深跌 · 卖量陷阱</span></td></tr>
+      <tr><td>工业富联 <span class="code">601138</span></td><td>算力·代工</td><td>AI 服务器代工（偏英伟达链）</td><td class="num">27</td><td class="num">62</td><td><span class="b b-watch">回调 · 放量跌</span></td></tr>
+      <tr><td>光迅科技 <span class="code">002281</span></td><td>光（代偿）</td><td>国资光芯片 / 硅光 / CPO</td><td class="num">39</td><td class="num">89</td><td><span class="b b-watch">今放量冲高</span></td></tr>
+      <tr><td>剑桥科技 <span class="code">603083</span></td><td>光（代偿）</td><td>800G 发货 / 1.6T 送样 / CPO 在研</td><td class="num">87</td><td class="num">95</td><td><span class="b b-hi">高位</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="reveal">
+  <h2><span class="no">05</span> 战法纪律：最硬的一层</h2>
+  <div class="call warn">
+    <div class="h">别被"看着低"骗了 —— 卖量陷阱</div>
+    <p style="margin:.3em 0">拓维（位 11 / J 6）、工业富联（位 62 / J 27）、亨通（J 23）、中天（J 43）看着跌透，但<strong>近 5 日最大量全是卖量</strong>——这是中铝式的<strong>自由落体陷阱</strong>：前面放量跌＝下来没人接，J 往负走是自由落体，不是洗盘底。<span class="em">位置低 + J 低 ≠ 可抄</span>。</p>
+  </div>
+  <h3>同一个"缩量"，三个阶段意思相反</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>阶段</th><th>量价签名</th><th>缩量含义</th></tr></thead>
+    <tbody>
+      <tr><td>拉升段（现在）</td><td>涨缩量、跌放量浅回调，新高在创</td><td><strong>惜售锁筹</strong>（看涨）</td></tr>
+      <tr><td>派发顶（还没到）</td><td>高位放量滞涨、量增价平、巨量长上影</td><td>—（顶部是<strong>放量</strong>，不是缩量）</td></tr>
+      <tr><td>下跌段（更没到）</td><td>放量破位 → 缩量阴跌</td><td><strong>无人接</strong>（"等接盘"真发生处）</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>"持续缩量＝主力等散户接盘"是逻辑矛盾</strong>：派发必须放量——主力要把大堆筹码卖给散户，得有人接，盘面上就是放量。所以缩量创新高＝没人在大规模出货＝惜售锁筹。真要"等散户接盘"，那一刻一定放量。</p>
+  <p><strong>你的买点长这样（等它，别追）</strong>：龙头先<span class="em">放量见顶</span>（量比 ≥1.5 收阴 / 长上影）→ <span class="em">缩量惜售回踩</span> → <span class="em">J 深负</span>。在这之前，缩量新高一律不动。</p>
+</section>
+
+<section class="reveal">
+  <h2><span class="no">06</span> 实操排序 & ETF 总表</h2>
+  <p class="lead">作为没双创、只能主板的账户，想接"还在走的算力 · 设备"这条最优主线：</p>
+  <ul>
+    <li>① 最干净的单一主板标的＝<strong>北方华创</strong>（设备国家队），但今天 J94 高位，等回踩。</li>
+    <li>② 想要算力芯片本身的弹性＝<strong>ETF</strong>（589520 / 588200），不择时分批补"缺成长腿"。</li>
+    <li>③ 存储优先 <strong>深科技 &gt; 德明利</strong>（性价比 / 弹性），兆易留作"盯崩"不追。</li>
+    <li>④ 封测一篮子（长电 / 通富 / 华天）当 AI-capex beta，同样等回踩。</li>
+  </ul>
+  <div class="tw">
+  <table>
+    <thead><tr><th>ETF</th><th>代码</th><th>装的是什么</th></tr></thead>
+    <tbody>
+      <tr><td>科创人工智能</td><td class="code">589520</td><td>寒武纪权重最高，最进攻</td></tr>
+      <tr><td>科创芯片</td><td class="code">588200</td><td>海光 + 寒武纪 + 芯原一篮子（含长鑫上市后承接）</td></tr>
+      <tr><td>半导体设备</td><td class="code">159516</td><td>最纯设备主题，打包中微 / 拓荆 / 盛美</td></tr>
+      <tr><td>通信</td><td class="code">515880</td><td>光模块 &gt;50%，一键买中际 / 新易盛</td></tr>
+      <tr><td>芯片</td><td class="code">512760</td><td>含存储兆易 / 澜起 / 佰维</td></tr>
+      <tr><td style="color:var(--up)">561980 ⚠</td><td class="code">561980</td><td>名叫"设备 ETF"实为寒武纪 14%，名实不符</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<footer class="reveal">
+  <p>研究脉络：账户约束 / 风格切换 → 主线阶段（龙头分化）→ 四腿基本面 → 主板可买映射 → 战法买点纪律。</p>
+  <div class="disc">
+    <b>免责声明</b>：本页为个人投资研究笔记，<b>非荐股、非投资建议</b>。所有价格、估值、量价为 2026-06-30 时点的公开行情 / 媒体数据，会随时间变动；板块前缀（688 / 300 / 600 / 000 等）决定能否下单，交易前请自行复核当日实际可买性。文中"阶段 / 派发 / 买点"为基于量价的定性判断，非确定结论。据此操作，盈亏自负。
+  </div>
+</footer>
+
+</div>
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

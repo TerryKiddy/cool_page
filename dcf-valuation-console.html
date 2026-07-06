@@ -1,0 +1,427 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>估值台 · 紫金矿业 / 厦门钨业 DCF</title>
+<style>
+  :root {
+    --bg: #F4F5F6; --surface: #FFFFFF; --surface-2: #ECEEF0; --ink: #14171A;
+    --ink-2: #4A5057; --ink-3: #7C848C; --line: #DCDFE3; --line-2: #C7CCD1;
+    --accent: #B5762E; --accent-soft: #F0E3D2;
+    --good: #2E8B6B; --good-soft: #DCEEE6; --bad: #C0524A; --bad-soft: #F3DFDD;
+    --shadow: 0 1px 2px rgba(20,23,26,.06), 0 8px 24px rgba(20,23,26,.05);
+    --mono: ui-monospace, "SF Mono", "Menlo", "Cascadia Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14181D; --surface: #1C2127; --surface-2: #232A31; --ink: #E8EAED;
+      --ink-2: #AEB6BE; --ink-3: #79828B; --line: #2C333B; --line-2: #3A424B;
+      --accent: #D69A4F; --accent-soft: #33291A;
+      --good: #4FB58C; --good-soft: #1B2E28; --bad: #DB6A61; --bad-soft: #331F1D;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:#F4F5F6;--surface:#FFF;--surface-2:#ECEEF0;--ink:#14171A;--ink-2:#4A5057;--ink-3:#7C848C;
+    --line:#DCDFE3;--line-2:#C7CCD1;--good:#2E8B6B;--good-soft:#DCEEE6;--bad:#C0524A;--bad-soft:#F3DFDD;
+    --shadow:0 1px 2px rgba(20,23,26,.06),0 8px 24px rgba(20,23,26,.05);
+  }
+  :root[data-theme="dark"] {
+    --bg:#14181D;--surface:#1C2127;--surface-2:#232A31;--ink:#E8EAED;--ink-2:#AEB6BE;--ink-3:#79828B;
+    --line:#2C333B;--line-2:#3A424B;--good:#4FB58C;--good-soft:#1B2E28;--bad:#DB6A61;--bad-soft:#331F1D;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  :root { --warn:#9A6A1C; --warn-soft:#F3E7CE; }
+  @media (prefers-color-scheme: dark){ :root { --warn:#D6A24F; --warn-soft:#2C2413; } }
+  :root[data-theme="light"] { --warn:#9A6A1C; --warn-soft:#F3E7CE; }
+  :root[data-theme="dark"] { --warn:#D6A24F; --warn-soft:#2C2413; }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:960px; margin:0 auto; padding:0 20px 96px; }
+  .num { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+
+  /* header + tabs */
+  header { padding:52px 0 28px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 14px; display:flex; align-items:center; gap:10px; }
+  .eyebrow::before { content:""; width:26px; height:2px; background:var(--accent); }
+  h1 { font-size:clamp(26px,4.6vw,38px); line-height:1.1; letter-spacing:-.02em; font-weight:800; margin:0 0 10px; text-wrap:balance; }
+  .lede { font-size:16.5px; color:var(--ink-2); max-width:64ch; margin:0; }
+
+  .tabs { display:flex; gap:8px; margin:26px 0 0; border-bottom:1px solid var(--line); }
+  .tab { appearance:none; border:none; background:none; cursor:pointer; font-family:var(--sans); font-size:15px; font-weight:600; color:var(--ink-3); padding:12px 18px 14px; border-bottom:2.5px solid transparent; margin-bottom:-1px; display:flex; align-items:baseline; gap:9px; transition:color .15s; }
+  .tab .code { font-family:var(--mono); font-size:12px; color:var(--ink-3); }
+  .tab[aria-selected="true"] { color:var(--ink); border-bottom-color:var(--accent); }
+  .tab[aria-selected="true"] .code { color:var(--accent); }
+  .tab:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+  /* snapshot KPI row */
+  .snap { display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-top:22px; box-shadow:var(--shadow); }
+  @media (max-width:720px){ .snap { grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:420px){ .snap { grid-template-columns:repeat(2,1fr); } }
+  .snap .cell { background:var(--surface); padding:14px 15px; }
+  .snap .l { font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); }
+  .snap .v { font-family:var(--mono); font-size:20px; font-weight:800; margin-top:5px; font-variant-numeric:tabular-nums; }
+  .snap .u { font-size:11px; color:var(--ink-3); }
+  .thesis { margin:16px 0 0; font-size:15px; color:var(--ink-2); display:flex; gap:9px; }
+  .thesis .co { color:var(--accent); font-weight:700; flex:none; }
+
+  /* caveat box */
+  .caveat { margin-top:18px; padding:16px 18px; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; background:var(--surface); font-size:14.5px; color:var(--ink-2); box-shadow:var(--shadow); }
+  .caveat b { color:var(--ink); }
+  .caveat .h { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:7px; }
+
+  /* steps */
+  .step { padding:42px 0; border-bottom:1px solid var(--line); }
+  .step-head { display:flex; align-items:baseline; gap:15px; }
+  .step-n { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--surface); background:var(--accent); width:29px; height:29px; border-radius:8px; display:grid; place-items:center; flex:none; }
+  h2 { font-size:23px; letter-spacing:-.01em; font-weight:750; margin:0; text-wrap:balance; }
+  .step-sub { color:var(--ink-2); margin:8px 0 24px 44px; font-size:15px; }
+  @media (max-width:560px){ .step-sub { margin-left:0; } }
+
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px; box-shadow:var(--shadow); }
+  .card + .card { margin-top:18px; }
+  .card-title { font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin:0 0 16px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:720px){ .grid2 { grid-template-columns:1fr; } }
+
+  /* tables */
+  .tbl-scroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th,td { padding:9px 12px; text-align:right; white-space:nowrap; }
+  th:first-child,td:first-child { text-align:left; }
+  thead th { font-family:var(--mono); font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-3); font-weight:600; border-bottom:1px solid var(--line-2); }
+  tbody td { border-bottom:1px solid var(--line); font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  tbody td:first-child { font-family:var(--sans); color:var(--ink-2); }
+  tbody tr:last-child td { border-bottom:none; }
+  tr.total td { font-weight:700; color:var(--ink); border-top:2px solid var(--line-2); }
+  .pos { color:var(--good); } .neg { color:var(--bad); }
+
+  /* controls */
+  .controls { display:flex; flex-direction:column; gap:16px; }
+  .ctrl label { display:flex; justify-content:space-between; align-items:baseline; font-size:14px; margin-bottom:7px; }
+  .ctrl label .lname { color:var(--ink-2); }
+  .ctrl label .lval { font-family:var(--mono); font-weight:700; color:var(--accent); font-size:15px; }
+  input[type="range"] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px; background:var(--surface-2); outline:none; margin:0; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; border:3px solid var(--surface); box-shadow:0 0 0 1px var(--line-2); }
+  input[type="range"]::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; border:3px solid var(--surface); box-shadow:0 0 0 1px var(--line-2); }
+  input[type="range"]:focus-visible { box-shadow:0 0 0 3px var(--accent-soft); }
+  .hint { font-size:12px; color:var(--ink-3); margin:5px 0 0; }
+  .breakdown { font-size:14px; }
+  .breakdown div { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px dashed var(--line); }
+  .breakdown div:last-child { border-bottom:none; }
+  .breakdown .k { color:var(--ink-2); } .breakdown .v { font-family:var(--mono); color:var(--ink); }
+  .wacc-big { margin-top:6px; text-align:center; padding:18px; border-radius:10px; background:var(--accent-soft); border:1px solid var(--line); }
+  .wacc-big .lab { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+  .wacc-big .big { font-family:var(--mono); font-size:38px; font-weight:800; color:var(--accent); line-height:1.1; font-variant-numeric:tabular-nums; }
+
+  /* verdict */
+  .verdict { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px; }
+  @media (max-width:560px){ .verdict { grid-template-columns:1fr; } }
+  .kpi { background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .kpi .kl { font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); }
+  .kpi .kv { font-family:var(--mono); font-size:26px; font-weight:800; margin-top:6px; font-variant-numeric:tabular-nums; }
+  .kpi .ku { font-size:12px; color:var(--ink-3); }
+  .banner { margin-top:16px; padding:16px 20px; border-radius:10px; font-size:15px; font-weight:600; display:flex; align-items:center; gap:12px; }
+  .banner.good { background:var(--good-soft); color:var(--good); border:1px solid var(--good); }
+  .banner.bad { background:var(--bad-soft); color:var(--bad); border:1px solid var(--bad); }
+  .banner.warn { background:var(--warn-soft); color:var(--warn); border:1px solid var(--warn); }
+  .banner .tag { font-family:var(--mono); font-size:22px; }
+
+  /* sensitivity */
+  .sens td { text-align:center; font-family:var(--mono); font-variant-numeric:tabular-nums; border:1px solid var(--bg); font-size:13.5px; }
+  .sens th { text-align:center; font-size:11px; }
+  .sens td.axis,.sens th.axis { background:var(--surface-2); color:var(--ink-2); font-weight:700; }
+  .sens .corner { background:transparent; color:var(--ink-3); font-family:var(--mono); font-size:10.5px; }
+  .sens td.here { outline:2.5px solid var(--ink); outline-offset:-2.5px; font-weight:800; }
+  .legend { display:flex; align-items:center; gap:10px; margin-top:14px; font-size:12px; color:var(--ink-3); font-family:var(--mono); }
+  .legend .bar { height:10px; width:140px; border-radius:3px; background:linear-gradient(90deg,var(--bad),var(--surface-2),var(--good)); }
+
+  footer { padding-top:32px; color:var(--ink-3); font-size:13px; }
+  footer a { color:var(--accent); }
+  .flag { display:inline-block; font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:5px; background:var(--bad-soft); color:var(--bad); border:1px solid var(--bad); letter-spacing:.03em; }
+
+  @media (prefers-reduced-motion:no-preference){ .kpi .kv,.wacc-big .big,.snap .v { transition:color .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">现金流折现 · 估值台</p>
+    <h1>两只持仓的 DCF 估值,一套可拖动的模型</h1>
+    <p class="lede">同一套"预测自由现金流 → 定 WACC → 折现加总"的框架,套在两家生意完全不同的公司上。切换标的,拖动假设,看每股内在价值怎么随之而动——并读懂 DCF 在每家身上各自的局限。</p>
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" aria-selected="true" data-co="zijin">紫金矿业 <span class="code">601899</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-co="xiamen">厦门钨业 <span class="code">600549</span></button>
+    </div>
+  </header>
+
+  <div class="snap" id="snap"></div>
+  <p class="thesis" id="thesis"></p>
+  <div class="caveat" id="caveat"></div>
+
+  <!-- STEP 1 -->
+  <section class="step">
+    <div class="step-head"><span class="step-n">1</span><h2>预测自由现金流(FCFF)</h2></div>
+    <p class="step-sub" id="s1sub"></p>
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title">基准年 FCFF 拆解 · 单位:亿元</p>
+        <div class="tbl-scroll"><table><tbody id="fcffBuild"></tbody></table></div>
+      </div>
+      <div class="card">
+        <p class="card-title">5 年预测 · 增速逐年收敛</p>
+        <div class="tbl-scroll"><table><thead><tr><th>年</th><th>增速</th><th>FCFF(亿)</th></tr></thead><tbody id="fcfProj"></tbody></table></div>
+        <p class="hint" id="s1hint"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step">
+    <div class="step-head"><span class="step-n">2</span><h2>确定折现率 WACC</h2></div>
+    <p class="step-sub">WACC 是公司的综合资金成本,也是未来现金流的"风险折扣率"。股东的钱(贵)+ 借的钱(便宜、利息抵税),按市值权重加权。拖动假设,右边实时重算。</p>
+    <div class="grid2">
+      <div class="card controls">
+        <p class="card-title">股权成本 = 无风险利率 + β × 市场风险溢价</p>
+        <div class="ctrl"><label><span class="lname">无风险利率 R<sub>f</sub>(10Y 国债)</span><span class="lval" id="rfV"></span></label><input type="range" id="rf" min="1.5" max="4" step="0.1"></div>
+        <div class="ctrl"><label><span class="lname">Beta(β)</span><span class="lval" id="betaV"></span></label><input type="range" id="beta" min="0.6" max="1.6" step="0.05"></div>
+        <div class="ctrl"><label><span class="lname">市场风险溢价 ERP</span><span class="lval" id="erpV"></span></label><input type="range" id="erp" min="4" max="7" step="0.1"></div>
+        <p class="card-title" style="margin-top:6px">资本结构与债务</p>
+        <div class="ctrl"><label><span class="lname">债务成本 R<sub>d</sub>(税前)</span><span class="lval" id="rdV"></span></label><input type="range" id="rd" min="2.5" max="6" step="0.1"></div>
+        <div class="ctrl"><label><span class="lname">股权占比 E /(E+D)</span><span class="lval" id="weV"></span></label><input type="range" id="we" min="50" max="98" step="1"></div>
+      </div>
+      <div class="card">
+        <p class="card-title">WACC 拆解</p>
+        <div class="breakdown">
+          <div><span class="k">股权成本 r<sub>e</sub> = R<sub>f</sub> + β·ERP</span><span class="v" id="reV"></span></div>
+          <div><span class="k">税后债务成本 r<sub>d</sub>·(1−税率)</span><span class="v" id="rdatV"></span></div>
+          <div><span class="k">股权贡献</span><span class="v" id="ecV"></span></div>
+          <div><span class="k">债务贡献</span><span class="v" id="dcV"></span></div>
+        </div>
+        <div class="wacc-big"><div class="lab">加权平均资金成本</div><div class="big" id="waccBig"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step">
+    <div class="step-head"><span class="step-n">3</span><h2>折现 + 终值 → 每股价值</h2></div>
+    <p class="step-sub">每年 FCFF 用 WACC 折回今天;第 5 年之后用永续增长压成终值再折现。加总得企业价值,减净负债得股权价值,除以股本得每股内在价值。</p>
+    <div class="card">
+      <div class="ctrl" style="max-width:440px;margin-bottom:20px"><label><span class="lname">永续增长率 g(终值假设)</span><span class="lval" id="gV"></span></label><input type="range" id="g" min="0.5" max="4" step="0.1"><p class="hint">g 必须 &lt; WACC,且不该超过长期名义 GDP 增速。终值往往占估值一大半——g 拨一下,结论天翻地覆,这是 DCF 最大的敏感点。</p></div>
+      <div class="tbl-scroll"><table><thead><tr><th>年</th><th>FCFF(亿)</th><th>折现因子</th><th>现值 PV(亿)</th></tr></thead><tbody id="pvTbl"></tbody></table></div>
+    </div>
+    <div class="card"><p class="card-title">从企业价值到每股价值 · 单位:亿元</p><div class="tbl-scroll"><table><tbody id="bridge"></tbody></table></div></div>
+    <div class="verdict">
+      <div class="kpi"><div class="kl">每股内在价值</div><div class="kv" id="ivPer" style="color:var(--accent)"></div><div class="ku">元 / 股</div></div>
+      <div class="kpi"><div class="kl">当前股价</div><div class="kv num" id="pxPer"></div><div class="ku">元 / 股</div></div>
+      <div class="kpi"><div class="kl">安全边际</div><div class="kv" id="mos"></div><div class="ku">内在价值 vs 股价</div></div>
+    </div>
+    <div class="banner" id="banner"><span class="tag" id="bTag"></span><span id="bText"></span></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step">
+    <div class="step-head"><span class="step-n">4</span><h2>敏感性分析:别信单一数字</h2></div>
+    <p class="step-sub">DCF 的输出是假设的放大器。同一套现金流,WACC 与 g 各挪一点,每股价值就是一片区间。看的是"在什么假设下便宜、什么假设下贵",当前假设用黑框标出。</p>
+    <div class="card">
+      <p class="card-title">每股内在价值(元) · 行 = WACC,列 = 永续增长 g</p>
+      <div class="tbl-scroll"><table class="sens"><thead id="sensHead"></thead><tbody id="sensBody"></tbody></table></div>
+      <div class="legend"><span>低估值</span><span class="bar"></span><span>高估值</span><span style="margin-left:auto">对比当前股价 <span class="num" id="legPx"></span> 元着色</span></div>
+    </div>
+  </section>
+
+  <section class="step" style="border-bottom:none">
+    <div class="step-head"><span class="step-n">✦</span><h2>两家对照,看清 DCF 的边界</h2></div>
+    <p class="step-sub">同一框架、两种生意:紫金的估值几乎等于对金/铜价的判断,厦钨的价值散在三块增速迥异的业务里。DCF 给的是"假设→价值"的传导器,不是水晶球。</p>
+    <div class="card" id="compareCard"></div>
+    <footer id="foot"></footer>
+  </section>
+</div>
+
+<script>
+(function(){
+  // ================= DATA (⚠ PLACEHOLDER — 待真实财报替换) =================
+  // 每家一套 DCF 输入。fcff0 = 基准年自由现金流(亿元)；build = 拆解展示行。
+  const COMPANIES = {
+    zijin: {
+      name:'紫金矿业', code:'601899', metal:'黄金 + 铜',
+      accent:'#B5762E', accentDark:'#D69A4F', accentSoft:'#F0E3D2', accentSoftDark:'#33291A',
+      price:28.41, shares:265.9, netDebt:686, mktcap:7554, pe:12.25, pb:5.64,
+      tax:0.21, parentShare:0.811,
+      build:[ ['营业利润+财务费用 EBIT',830,''],['− 税(21%)',-174,'neg'],['税后经营利润 NOPAT',656,'t'],
+              ['+ 折旧摊销 D&A',162,'pos'],['− 资本开支 Capex',-310,'neg'],['− 营运资金增加 ΔNWC',-48,'neg'],
+              ['自由现金流 FCFF₀',460,'total'] ],
+      fcff0:460, growth:[0.12,0.09,0.07,0.05,0.04],
+      wacc:{rf:2.5,beta:0.95,erp:5.5,rd:4.0,we:88}, g:2.5,
+      thesis:'黄金+铜矿龙头(2025 营收 3491亿/归母 518亿)。股价驱动 = 金价 × 铜价 × 产量 × 估值,真正的命门是商品价格,不是股市情绪。',
+      caveatH:'DCF 适用性 · 中',
+      caveat:'紫金的 DCF <b>本质是一张对金/铜价的赌注</b>。未来现金流几乎全由商品均价决定,而金铜价格无法预测——所以这里的估值区间,读法是"<b>在什么金铜价假设下值这个价</b>",不是精确答案。周期股用 DCF 要格外保守:别把周期高点的现金流当永续。少数股东占净利约 19%,已在下方乘"归母比例"扣除。',
+      s1sub:'紫金折现的是企业自由现金流。2025 基准年从营业利润出发,加回折旧、扣掉资本开支(矿山扩产 310亿)与营运资金,得 FCFF ≈ 460亿,再按逐年收敛的增速外推——增速就是对金铜量价的隐含假设。',
+      s1hint:'增速逐年降到 4%,内含"金铜价不会永远单边上行"的保守。2026 产量指引 铜120万吨/金105吨仍是增长,但这条曲线本身就是最该被质疑的假设。',
+      compare:'紫金:低 PE(~12)、高 ROE 的周期龙头。DCF 把"金铜价×产量"的判断翻译成价格锚,卖方一致目标价约 48.7 元。但输入端不确定性极高——真正的功课是对商品价格周期有独立判断。'
+    },
+    xiamen: {
+      name:'厦门钨业', code:'600549', metal:'钨 + 锂电正极 + 稀土',
+      accent:'#3E6B8C', accentDark:'#6F9BC4', accentSoft:'#DEE9F1', accentSoftDark:'#182634',
+      price:71.24, shares:15.876, netDebt:74, mktcap:1131, pe:37.28, pb:5.18,
+      tax:0.175, parentShare:0.689, dcfWeak:true,
+      build:[ ['营业利润 EBIT',41.0,''],['− 税(17.5%)',-7.2,'neg'],['税后经营利润 NOPAT',33.8,'t'],
+              ['+ 折旧摊销 D&A',13.8,'pos'],['− 资本开支 Capex',-19.9,'neg'],['− 营运资金增加 ΔNWC',-14.9,'neg'],
+              ['自由现金流 FCFF₀',12.8,'total'] ],
+      fcff0:12.8, growth:[0.30,0.20,0.12,0.08,0.05],
+      wacc:{rf:2.5,beta:0.87,erp:5.5,rd:4.2,we:90}, g:3.0,
+      thesis:'三块生意拼一起:钨钼(硬质合金/光伏钨丝/军工,约占利润 75%)+ 厦钨新能(锂电正极)+ 稀土磁材。2025 营收 463亿/归母 23亿,2026Q1 归母 +189%。',
+      caveatH:'DCF 适用性 · 弱 → 看 SOTP',
+      caveat:'厦钨是<b>高 PE(~37)、多分部成长股</b>,纯 FCFF-DCF 对它会系统性偏低——原因有三:①2025 自由现金流仅约 13亿(被锂电扩产和钨价上行期的营运资金占用吃掉),而市场定价的是 2026 净利跳增到 <b>52–59亿</b>的盈利;②少数股东占净利约 <b>31%</b>(厦钨新能非全资、已独立上市 688778),必须扣;③三块业务经济属性迥异。<b>更合适的是 SOTP 分部估值</b>:钨钼给周期资源 PE、厦钨新能按持股比例算市值、稀土单独看,再加总。下方 DCF 仅作"薄 FCF 情形的下限参照",别当估值结论。',
+      s1sub:'厦钨的自由现金流被高资本开支(锂电正极扩产)和营运资金占用大量吃掉——利润高但 FCF 常年偏薄,2025 FCFF 仅约 13亿,远低于 23亿归母净利。这正是成长期制造业的典型,也是 DCF 在它身上失灵的根源。',
+      s1hint:'首年增速给到 30% 反映 2026 钨价高位 + 正极放量,但快速收敛。注意:即便给激进增速,用薄 FCF 折现仍远低于股价——不是"该跌",而是 DCF 抓不住它的盈利弹性。',
+      compare:'厦钨:高 PE 反映成长预期,不是贵。DCF 对它偏弱——价值散在三块增速迥异的业务、FCF 被扩产吃掉、少数股东占 1/3。正确姿势是 SOTP:分部给不同估值再加总,DCF 仅作总量级旁证。中金即用"DCF+PE 综合",目标价 72–75 元。'
+    }
+  };
+  const ORDER = ['zijin','xiamen'];
+  const TAX = 0.15;
+  let active = 'zijin';
+
+  const $ = id => document.getElementById(id);
+  const pct = x => (x*100).toFixed(2)+'%';
+  const isDark = () => {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t) return t==='dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  };
+
+  function applyAccent(co){
+    const c = COMPANIES[co];
+    const root = document.documentElement;
+    root.style.setProperty('--accent', isDark()? c.accentDark : c.accent);
+    root.style.setProperty('--accent-soft', isDark()? c.accentSoftDark : c.accentSoft);
+  }
+
+  function projFcf(c){ const a=[]; let f=c.fcff0; for(const g of c.growth){ f=f*(1+g); a.push(f); } return a; }
+
+  function valuePerShare(c, fcf, wacc, g){
+    let pv=0; for(let t=1;t<=5;t++) pv+=fcf[t-1]/Math.pow(1+wacc,t);
+    const tv=fcf[4]*(1+g)/(wacc-g);
+    const pvTv=tv/Math.pow(1+wacc,5);
+    const ev=pv+pvTv, equity=ev-c.netDebt;
+    const ps=(c.parentShare!=null?c.parentShare:1), parentEquity=equity*ps;
+    return {pv,tv,pvTv,ev,equity,parentEquity,per:parentEquity/c.shares};
+  }
+
+  function seedControls(c){
+    $('rf').value=c.wacc.rf; $('beta').value=c.wacc.beta; $('erp').value=c.wacc.erp;
+    $('rd').value=c.wacc.rd; $('we').value=c.wacc.we; $('g').value=c.g;
+  }
+
+  function renderStatic(c){
+    // snapshot
+    $('snap').innerHTML = [
+      ['现价', c.price.toFixed(2), '元'],
+      ['总市值', c.mktcap.toLocaleString(), '亿元'],
+      ['总股本', c.shares.toFixed(1), '亿股'],
+      ['PE(TTM)', c.pe.toFixed(1), '倍'],
+      ['PB', c.pb.toFixed(2), '倍'],
+      ['净负债', c.netDebt.toLocaleString(), '亿元'],
+    ].map(([l,v,u])=>`<div class="cell"><div class="l">${l}</div><div class="v">${v}</div><div class="u">${u}</div></div>`).join('');
+    $('thesis').innerHTML = `<span class="co">${c.name}</span><span>${c.thesis}</span>`;
+    $('caveat').innerHTML = `<span class="h">${c.caveatH}</span>${c.caveat}`;
+    $('s1sub').textContent = c.s1sub;
+    $('s1hint').textContent = c.s1hint;
+
+    // FCFF build
+    $('fcffBuild').innerHTML = c.build.map(([k,v,cls])=>{
+      const sign = v>=0?'':'−'; const av=Math.abs(v);
+      const numcls = cls==='pos'?'pos':cls==='neg'?'neg':'';
+      const rowcls = cls==='total'?'total':'';
+      return `<tr class="${rowcls}"><td>${k}</td><td class="num ${numcls}">${sign}${av}</td></tr>`;
+    }).join('');
+
+    // projection
+    const fcf = projFcf(c);
+    $('fcfProj').innerHTML = c.growth.map((g,i)=>`<tr><td>${2026+i}E</td><td class="num">${(g*100).toFixed(0)}%</td><td class="num">${fcf[i].toFixed(1)}</td></tr>`).join('');
+
+    // compare + footer
+    $('compareCard').innerHTML = `<p class="card-title">${c.name} · DCF 的边界</p><p style="margin:0;color:var(--ink-2);font-size:15px">${c.compare}</p>`;
+    $('foot').innerHTML = `财务数据:公司 2025 年报 / 2026Q1 季报(紫金 zjky.cn 公告、厦钨 新浪财经结构化报表)· 行情为 2026-07-06 腾讯 API 实测 · EBIT / D&A / Capex / ΔNWC 含估算口径(详见配套笔记)。<br>教学模型 · 参数可拖动实时重算 · <b>不构成投资建议</b>。配套 kb/finance/valuation-dcf-wacc.md · 顶部 tab 切换标的。`;
+    return fcf;
+  }
+
+  let curFcf = [];
+
+  function renderModel(){
+    const c = COMPANIES[active];
+    const p = { rf:+$('rf').value/100, beta:+$('beta').value, erp:+$('erp').value/100, rd:+$('rd').value/100, we:+$('we').value/100, g:+$('g').value/100 };
+    $('rfV').textContent=pct(p.rf); $('betaV').textContent=p.beta.toFixed(2); $('erpV').textContent=pct(p.erp);
+    $('rdV').textContent=pct(p.rd); $('weV').textContent=(p.we*100).toFixed(0)+'%'; $('gV').textContent=pct(p.g);
+
+    const re=p.rf+p.beta*p.erp, rdat=p.rd*(1-c.tax), ec=p.we*re, dc=(1-p.we)*rdat, wacc=ec+dc;
+    $('reV').textContent=pct(re); $('rdatV').textContent=pct(rdat); $('ecV').textContent=pct(ec); $('dcV').textContent=pct(dc);
+    $('waccBig').textContent=pct(wacc);
+
+    const gEff = Math.min(p.g, wacc-0.005);
+    const v = valuePerShare(c, curFcf, wacc, gEff);
+
+    let rows='';
+    for(let t=1;t<=5;t++){ const df=1/Math.pow(1+wacc,t); rows+=`<tr><td>${2026+t-1}E</td><td class="num">${curFcf[t-1].toFixed(1)}</td><td class="num">${df.toFixed(4)}</td><td class="num">${(curFcf[t-1]*df).toFixed(1)}</td></tr>`; }
+    const dfTv=1/Math.pow(1+wacc,5);
+    rows+=`<tr><td>终值 TV(第5年末)</td><td class="num">${v.tv.toFixed(0)}</td><td class="num">${dfTv.toFixed(4)}</td><td class="num">${v.pvTv.toFixed(1)}</td></tr>`;
+    rows+=`<tr class="total"><td>企业价值 EV</td><td></td><td></td><td class="num">${v.ev.toFixed(0)}</td></tr>`;
+    $('pvTbl').innerHTML=rows;
+
+    const psLine = (c.parentShare!=null && c.parentShare<0.999)
+      ? `<tr><td>× 归母比例(扣少数股东)</td><td class="num">${(c.parentShare*100).toFixed(1)}%</td></tr><tr class="total"><td>归母股权价值</td><td class="num">${v.parentEquity.toFixed(0)}</td></tr>`
+      : '';
+    $('bridge').innerHTML = `
+      <tr><td>企业价值 EV</td><td class="num">${v.ev.toFixed(0)}</td></tr>
+      <tr><td>− 净负债</td><td class="num neg">−${c.netDebt}</td></tr>
+      <tr class="total"><td>全部股权价值</td><td class="num">${v.equity.toFixed(0)}</td></tr>
+      ${psLine}
+      <tr><td>÷ 股本(亿股)</td><td class="num">${c.shares.toFixed(2)}</td></tr>
+      <tr class="total"><td>每股内在价值(元)</td><td class="num">${v.per.toFixed(2)}</td></tr>`;
+
+    $('ivPer').textContent=v.per.toFixed(2); $('pxPer').textContent=c.price.toFixed(2);
+    const mos=(v.per-c.price)/c.price;
+    const mosEl=$('mos'); mosEl.textContent=(mos>=0?'+':'')+(mos*100).toFixed(1)+'%'; mosEl.className='kv '+(mos>=0?'pos':'neg');
+    const banner=$('banner');
+    if(c.dcfWeak){
+      banner.className='banner warn'; $('bTag').textContent='◆';
+      $('bText').innerHTML=`按 2025 薄 FCF 折现得每股约 <b>${v.per.toFixed(1)}</b> 元,远低于股价 ${c.price.toFixed(2)}——这不是"该跌 ${Math.round(-mos*100)}%",而是 DCF 抓不住厦钨的盈利弹性与分部价值。<b>结论看 SOTP / PE,别用这个数字当估值。</b>`;
+    } else if(mos>=0){ banner.className='banner good'; $('bTag').textContent='▲'; $('bText').textContent=`内在价值高于股价约 ${(mos*100).toFixed(0)}% —— 在这套假设下 DCF 认为被低估,存在安全边际。`; }
+    else { banner.className='banner bad'; $('bTag').textContent='▼'; $('bText').textContent=`内在价值低于股价约 ${(-mos*100).toFixed(0)}% —— 在这套假设下 DCF 认为偏贵,缺乏安全边际。`; }
+
+    renderSens(c, wacc, gEff);
+  }
+
+  function renderSens(c, waccC, gC){
+    const waccs=[-0.01,-0.005,0,0.005,0.01].map(d=>waccC+d);
+    const gs=[-0.01,-0.005,0,0.005,0.01].map(d=>gC+d);
+    $('legPx').textContent=c.price.toFixed(1);
+    let head='<tr><th class="corner">WACC ＼ g</th>'; gs.forEach(g=>head+=`<th class="axis">${(g*100).toFixed(1)}%</th>`); head+='</tr>';
+    $('sensHead').innerHTML=head;
+    let vals=[]; waccs.forEach(wc=>gs.forEach(g=>{ const gg=Math.min(g,wc-0.005); vals.push(valuePerShare(c,curFcf,wc,gg).per); }));
+    const lo=Math.min(...vals), hi=Math.max(...vals);
+    const color=v=>{ const span=Math.max(hi-c.price,c.price-lo,0.01); const t=Math.max(-1,Math.min(1,(v-c.price)/span));
+      const a=(0.12+Math.abs(t)*0.45)*100; return `background:color-mix(in srgb, var(--${t>=0?'good':'bad'}) ${a.toFixed(0)}%, var(--surface));`; };
+    let body='';
+    waccs.forEach((wc,ri)=>{ body+=`<tr><td class="axis">${(wc*100).toFixed(2)}%</td>`;
+      gs.forEach((g,ci)=>{ const gg=Math.min(g,wc-0.005); const per=valuePerShare(c,curFcf,wc,gg).per;
+        body+=`<td class="${ri===2&&ci===2?'here':''}" style="${color(per)}">${per.toFixed(1)}</td>`; }); body+='</tr>'; });
+    $('sensBody').innerHTML=body;
+  }
+
+  function switchTo(co){
+    active=co; const c=COMPANIES[co];
+    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', t.dataset.co===co?'true':'false'));
+    applyAccent(co); seedControls(c); curFcf=renderStatic(c); renderModel();
+  }
+
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTo(t.dataset.co)));
+  ['rf','beta','erp','rd','we','g'].forEach(id=>$(id).addEventListener('input',renderModel));
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>applyAccent(active));
+  const mo=new MutationObserver(()=>applyAccent(active));
+  mo.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+  switchTo('zijin');
+})();
+</script>

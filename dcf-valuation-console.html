@@ -136,6 +136,11 @@
   .sens td.here { outline:2.5px solid var(--ink); outline-offset:-2.5px; font-weight:800; }
   .legend { display:flex; align-items:center; gap:10px; margin-top:14px; font-size:12px; color:var(--ink-3); font-family:var(--mono); }
   .legend .bar { height:10px; width:140px; border-radius:3px; background:linear-gradient(90deg,var(--bad),var(--surface-2),var(--good)); }
+  .sens td.clamped { opacity:.5; font-style:italic; }
+  .clampnote { color:var(--warn); font-size:11px; font-weight:600; }
+  .tp { color:var(--ink-3); font-size:12.5px; }
+  td.mi-note { font-family:var(--sans); font-size:11.5px; color:var(--ink-3); text-align:left; white-space:normal; line-height:1.45; padding-top:10px; border:none; }
+  .foot-note { font-size:11.5px; color:var(--ink-3); margin:8px 0 0; }
 
   footer { padding-top:32px; color:var(--ink-3); font-size:13px; }
   footer a { color:var(--accent); }
@@ -228,6 +233,7 @@
       <p class="card-title">每股内在价值(元) · 行 = WACC,列 = 永续增长 g</p>
       <div class="tbl-scroll"><table class="sens"><thead id="sensHead"></thead><tbody id="sensBody"></tbody></table></div>
       <div class="legend"><span>低估值</span><span class="bar"></span><span>高估值</span><span style="margin-left:auto">对比当前股价 <span class="num" id="legPx"></span> 元着色</span></div>
+      <p class="foot-note" id="sensFoot"></p>
     </div>
   </section>
 
@@ -241,14 +247,14 @@
 
 <script>
 (function(){
-  // ================= DATA (⚠ PLACEHOLDER — 待真实财报替换) =================
+  // ================= DATA — 2025年报/2026Q1 实数(来源见页脚),行情 2026-07-06 =================
   // 每家一套 DCF 输入。fcff0 = 基准年自由现金流(亿元)；build = 拆解展示行。
   const COMPANIES = {
     zijin: {
       name:'紫金矿业', code:'601899', metal:'黄金 + 铜',
       accent:'#B5762E', accentDark:'#D69A4F', accentSoft:'#F0E3D2', accentSoftDark:'#33291A',
       price:28.41, shares:265.9, netDebt:686, mktcap:7554, pe:12.25, pb:5.64,
-      tax:0.21, parentShare:0.811,
+      tax:0.21, parentShare:0.811, cyclical:true,
       build:[ ['营业利润+财务费用 EBIT',830,''],['− 税(21%)',-174,'neg'],['税后经营利润 NOPAT',656,'t'],
               ['+ 折旧摊销 D&A',162,'pos'],['− 资本开支 Capex',-310,'neg'],['− 营运资金增加 ΔNWC',-48,'neg'],
               ['自由现金流 FCFF₀',460,'total'] ],
@@ -259,7 +265,7 @@
       caveat:'紫金的 DCF <b>本质是一张对金/铜价的赌注</b>。未来现金流几乎全由商品均价决定,而金铜价格无法预测——所以这里的估值区间,读法是"<b>在什么金铜价假设下值这个价</b>",不是精确答案。周期股用 DCF 要格外保守:别把周期高点的现金流当永续。少数股东占净利约 19%,已在下方乘"归母比例"扣除。',
       s1sub:'紫金折现的是企业自由现金流。2025 基准年从营业利润出发,加回折旧、扣掉资本开支(矿山扩产 310亿)与营运资金,得 FCFF ≈ 460亿,再按逐年收敛的增速外推——增速就是对金铜量价的隐含假设。',
       s1hint:'增速逐年降到 4%,内含"金铜价不会永远单边上行"的保守。2026 产量指引 铜120万吨/金105吨仍是增长,但这条曲线本身就是最该被质疑的假设。',
-      compare:'紫金:低 PE(~12)、高 ROE 的周期龙头。DCF 把"金铜价×产量"的判断翻译成价格锚,卖方一致目标价约 48.7 元。但输入端不确定性极高——真正的功课是对商品价格周期有独立判断。'
+      compare:'紫金:低 PE(~12)、高 ROE 的周期龙头。DCF 把"金铜价×产量"的判断翻译成价格锚。输入端不确定性极高——真正的功课是对商品价格周期有独立判断。<span class="tp">(旁注:第三方卖方一致目标价约 48.7 元,是别人的模型输出、非本页结论,勿当背书。)</span>'
     },
     xiamen: {
       name:'厦门钨业', code:'600549', metal:'钨 + 锂电正极 + 稀土',
@@ -276,7 +282,7 @@
       caveat:'厦钨是<b>高 PE(~37)、多分部成长股</b>,纯 FCFF-DCF 对它会系统性偏低——原因有三:①2025 自由现金流仅约 13亿(被锂电扩产和钨价上行期的营运资金占用吃掉),而市场定价的是 2026 净利跳增到 <b>52–59亿</b>的盈利;②少数股东占净利约 <b>31%</b>(厦钨新能非全资、已独立上市 688778),必须扣;③三块业务经济属性迥异。<b>更合适的是 SOTP 分部估值</b>:钨钼给周期资源 PE、厦钨新能按持股比例算市值、稀土单独看,再加总。下方 DCF 仅作"薄 FCF 情形的下限参照",别当估值结论。',
       s1sub:'厦钨的自由现金流被高资本开支(锂电正极扩产)和营运资金占用大量吃掉——利润高但 FCF 常年偏薄,2025 FCFF 仅约 13亿,远低于 23亿归母净利。这正是成长期制造业的典型,也是 DCF 在它身上失灵的根源。',
       s1hint:'首年增速给到 30% 反映 2026 钨价高位 + 正极放量,但快速收敛。注意:即便给激进增速,用薄 FCF 折现仍远低于股价——不是"该跌",而是 DCF 抓不住它的盈利弹性。',
-      compare:'厦钨:高 PE 反映成长预期,不是贵。DCF 对它偏弱——价值散在三块增速迥异的业务、FCF 被扩产吃掉、少数股东占 1/3。正确姿势是 SOTP:分部给不同估值再加总,DCF 仅作总量级旁证。中金即用"DCF+PE 综合",目标价 72–75 元。'
+      compare:'厦钨:高 PE 反映的是市场对成长的预期,<b>不必然等于"贵"——但也不等于"安全"</b>:成长一旦不及预期,高 PE 会双杀。DCF 对它偏弱——价值散在三块增速迥异的业务、FCF 被扩产吃掉、少数股东占 1/3。正确姿势是 SOTP:分部给不同估值再加总,DCF 仅作总量级旁证。<span class="tp">(旁注:第三方中金用"DCF+PE 综合"给目标价 72–75 元,非本页结论。)</span>'
     }
   };
   const ORDER = ['zijin','xiamen'];
@@ -353,13 +359,17 @@
     const c = COMPANIES[active];
     const p = { rf:+$('rf').value/100, beta:+$('beta').value, erp:+$('erp').value/100, rd:+$('rd').value/100, we:+$('we').value/100, g:+$('g').value/100 };
     $('rfV').textContent=pct(p.rf); $('betaV').textContent=p.beta.toFixed(2); $('erpV').textContent=pct(p.erp);
-    $('rdV').textContent=pct(p.rd); $('weV').textContent=(p.we*100).toFixed(0)+'%'; $('gV').textContent=pct(p.g);
+    $('rdV').textContent=pct(p.rd); $('weV').textContent=(p.we*100).toFixed(0)+'%';
 
     const re=p.rf+p.beta*p.erp, rdat=p.rd*(1-c.tax), ec=p.we*re, dc=(1-p.we)*rdat, wacc=ec+dc;
     $('reV').textContent=pct(re); $('rdatV').textContent=pct(rdat); $('ecV').textContent=pct(ec); $('dcV').textContent=pct(dc);
     $('waccBig').textContent=pct(wacc);
 
     const gEff = Math.min(p.g, wacc-0.005);
+    // g 必须 < WACC:若滑块 g 触顶被钳制,标签显示实际用的 gEff 而非原始 g,避免"显示≠计算"
+    $('gV').innerHTML = (p.g > gEff + 1e-9)
+      ? `${pct(gEff)} <span class="clampnote">(受 WACC 限;输入 ${pct(p.g)})</span>`
+      : pct(p.g);
     const v = valuePerShare(c, curFcf, wacc, gEff);
 
     let rows='';
@@ -370,7 +380,10 @@
     $('pvTbl').innerHTML=rows;
 
     const psLine = (c.parentShare!=null && c.parentShare<0.999)
-      ? `<tr><td>× 归母比例(扣少数股东)</td><td class="num">${(c.parentShare*100).toFixed(1)}%</td></tr><tr class="total"><td>归母股权价值</td><td class="num">${v.parentEquity.toFixed(0)}</td></tr>`
+      ? `<tr><td>× 归母比例(近似扣少数股东)</td><td class="num">${(c.parentShare*100).toFixed(1)}%</td></tr><tr class="total"><td>归母股权价值</td><td class="num">${v.parentEquity.toFixed(0)}</td></tr>`
+      : '';
+    const miNote = (c.parentShare!=null && c.parentShare<0.999)
+      ? `<tr><td colspan="2" class="mi-note">※ 归母比例 = 归母净利 / 含少数股东净利,是"净利占比"<b>近似</b>扣除;严格做法应按子公司(如厦钨新能 688778)市值或公允少数股东权益单独扣,量级相近但非等同。</td></tr>`
       : '';
     $('bridge').innerHTML = `
       <tr><td>企业价值 EV</td><td class="num">${v.ev.toFixed(0)}</td></tr>
@@ -378,7 +391,8 @@
       <tr class="total"><td>全部股权价值</td><td class="num">${v.equity.toFixed(0)}</td></tr>
       ${psLine}
       <tr><td>÷ 股本(亿股)</td><td class="num">${c.shares.toFixed(2)}</td></tr>
-      <tr class="total"><td>每股内在价值(元)</td><td class="num">${v.per.toFixed(2)}</td></tr>`;
+      <tr class="total"><td>每股内在价值(元)</td><td class="num">${v.per.toFixed(2)}</td></tr>
+      ${miNote}`;
 
     $('ivPer').textContent=v.per.toFixed(2); $('pxPer').textContent=c.price.toFixed(2);
     const mos=(v.per-c.price)/c.price;
@@ -387,8 +401,11 @@
     if(c.dcfWeak){
       banner.className='banner warn'; $('bTag').textContent='◆';
       $('bText').innerHTML=`按 2025 薄 FCF 折现得每股约 <b>${v.per.toFixed(1)}</b> 元,远低于股价 ${c.price.toFixed(2)}——这不是"该跌 ${Math.round(-mos*100)}%",而是 DCF 抓不住厦钨的盈利弹性与分部价值。<b>结论看 SOTP / PE,别用这个数字当估值。</b>`;
-    } else if(mos>=0){ banner.className='banner good'; $('bTag').textContent='▲'; $('bText').textContent=`内在价值高于股价约 ${(mos*100).toFixed(0)}% —— 在这套假设下 DCF 认为被低估,存在安全边际。`; }
-    else { banner.className='banner bad'; $('bTag').textContent='▼'; $('bText').textContent=`内在价值低于股价约 ${(-mos*100).toFixed(0)}% —— 在这套假设下 DCF 认为偏贵,缺乏安全边际。`; }
+    } else {
+      const cycNote = c.cyclical ? ` <b>⚠ 但基准年为金铜价格高位,周期股把高点现金流增长成永续会高估——此判定是"给定假设下的结果",不是买入信号。</b>` : '';
+      if(mos>=0){ banner.className='banner good'; $('bTag').textContent='▲'; $('bText').innerHTML=`内在价值高于股价约 ${(mos*100).toFixed(0)}% —— 在这套假设下 DCF 认为被低估,存在安全边际。${cycNote}`; }
+      else { banner.className='banner bad'; $('bTag').textContent='▼'; $('bText').innerHTML=`内在价值低于股价约 ${(-mos*100).toFixed(0)}% —— 在这套假设下 DCF 认为偏贵,缺乏安全边际。${cycNote}`; }
+    }
 
     renderSens(c, wacc, gEff);
   }
@@ -403,11 +420,13 @@
     const lo=Math.min(...vals), hi=Math.max(...vals);
     const color=v=>{ const span=Math.max(hi-c.price,c.price-lo,0.01); const t=Math.max(-1,Math.min(1,(v-c.price)/span));
       const a=(0.12+Math.abs(t)*0.45)*100; return `background:color-mix(in srgb, var(--${t>=0?'good':'bad'}) ${a.toFixed(0)}%, var(--surface));`; };
-    let body='';
+    let body='', anyClamped=false;
     waccs.forEach((wc,ri)=>{ body+=`<tr><td class="axis">${(wc*100).toFixed(2)}%</td>`;
-      gs.forEach((g,ci)=>{ const gg=Math.min(g,wc-0.005); const per=valuePerShare(c,curFcf,wc,gg).per;
-        body+=`<td class="${ri===2&&ci===2?'here':''}" style="${color(per)}">${per.toFixed(1)}</td>`; }); body+='</tr>'; });
+      gs.forEach((g,ci)=>{ const clamped = g >= wc-0.005; if(clamped) anyClamped=true; const gg=Math.min(g,wc-0.005); const per=valuePerShare(c,curFcf,wc,gg).per;
+        const cls=[ri===2&&ci===2?'here':'', clamped?'clamped':''].filter(Boolean).join(' ');
+        body+=`<td class="${cls}" style="${color(per)}"${clamped?' title="g≥WACC,终值无意义,已按 WACC−0.5% 上限折算"':''}>${per.toFixed(1)}${clamped?'*':''}</td>`; }); body+='</tr>'; });
     $('sensBody').innerHTML=body;
+    $('sensFoot').innerHTML = anyClamped ? '<span class="clampnote">*</span> 该格 g≥WACC,永续增长模型无意义,已按 WACC−0.5% 上限折算(仅占位,勿解读)。' : '';
   }
 
   function switchTo(co){

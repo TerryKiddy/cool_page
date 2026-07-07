@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>战法探索报告 · 从 J&lt;20 到完整闭环</title>
+<style>
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --ink:#22262E; --ink2:#5A6170; --ink3:#8B92A0;
+  --line:#DDE1E8; --line2:#EBEEF3;
+  --up:#C2402F; --dn:#23784E; --acc:#2E6CA8; --acc-dim:#2E6CA81A;
+  --ref:#9AA0AB; --seal:#C2402F;
+  --chip:#EEF1F5;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14171C; --card:#1B1F26; --ink:#E4E7EC; --ink2:#A8AFBC; --ink3:#7A8290;
+    --line:#2E333C; --line2:#252A32;
+    --up:#DF6353; --dn:#3EA96F; --acc:#588FE0; --acc-dim:#588FE026;
+    --ref:#6E7480; --seal:#DF6353;
+    --chip:#242932;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171C; --card:#1B1F26; --ink:#E4E7EC; --ink2:#A8AFBC; --ink3:#7A8290;
+  --line:#2E333C; --line2:#252A32;
+  --up:#DF6353; --dn:#3EA96F; --acc:#588FE0; --acc-dim:#588FE026;
+  --ref:#6E7480; --seal:#DF6353;
+  --chip:#242932;
+}
+:root[data-theme="light"]{
+  --bg:#F5F6F8; --card:#FFFFFF; --ink:#22262E; --ink2:#5A6170; --ink3:#8B92A0;
+  --line:#DDE1E8; --line2:#EBEEF3;
+  --up:#C2402F; --dn:#23784E; --acc:#2E6CA8; --acc-dim:#2E6CA81A;
+  --ref:#9AA0AB; --seal:#C2402F;
+  --chip:#EEF1F5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.75;}
+.wrap{max-width:920px;margin:0 auto;padding:40px 20px 80px}
+.serif{font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif}
+.mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,"Courier New",monospace;font-variant-numeric:tabular-nums}
+a{color:var(--acc)}
+h1,h2,h3{text-wrap:balance;line-height:1.3}
+h1{font-size:30px;margin:8px 0 6px;font-weight:700}
+h2{font-size:21px;margin:0 0 4px;font-weight:700}
+h3{font-size:16.5px;margin:22px 0 8px}
+.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--ink3);text-transform:uppercase}
+.kicker{color:var(--ink2);margin:0 0 10px}
+.sec{margin-top:46px;padding-top:8px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:16px}
+.sec-no{font-size:26px;font-weight:700;color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin:14px 0}
+.grid{display:grid;gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.tile .v{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.tile .k{font-size:12px;color:var(--ink3);margin-top:2px}
+.up{color:var(--up)} .dn{color:var(--dn)}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:26px 28px;margin-top:18px;position:relative;overflow:hidden}
+.hero .rule{font-size:17px;line-height:2.1}
+.rulebox{display:inline-block;border:1.5px solid var(--ink);border-radius:4px;padding:1px 9px;margin:0 3px;font-weight:600;white-space:nowrap}
+.seal{position:absolute;right:22px;top:20px;width:64px;height:64px;border:2.5px solid var(--seal);border-radius:6px;
+  color:var(--seal);display:flex;align-items:center;justify-content:center;flex-direction:column;
+  font-weight:700;transform:rotate(8deg);opacity:.85;font-size:13px;line-height:1.35;text-align:center}
+.note{font-size:13px;color:var(--ink2)}
+.small{font-size:12.5px;color:var(--ink3)}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;white-space:nowrap}
+th{font-size:12px;color:var(--ink3);font-weight:600;text-align:right;padding:9px 12px;border-bottom:1px solid var(--line);letter-spacing:.04em}
+th:first-child{text-align:left}
+td{padding:7px 12px;border-bottom:1px solid var(--line2);text-align:right}
+td:first-child{text-align:left}
+tr:last-child td{border-bottom:none}
+tr.hl td{background:var(--acc-dim)}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.chip{border:1px solid var(--line);background:var(--chip);color:var(--ink2);border-radius:999px;
+  padding:3px 14px;font-size:13px;cursor:pointer;user-select:none}
+.chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.verdict{display:inline-block;border:1px solid var(--line);border-radius:3px;font-size:11.5px;padding:0 7px;margin-right:8px;color:var(--ink2);vertical-align:1px}
+.verdict.win{border-color:var(--up);color:var(--up)}
+.verdict.lose{border-color:var(--ink3);color:var(--ink3);text-decoration:none}
+ul.tight{margin:8px 0;padding-left:20px}
+ul.tight li{margin:7px 0}
+.lesson{border-left:3px solid var(--acc);padding:2px 0 2px 14px;margin:14px 0}
+.lesson b{display:block}
+figure{margin:16px 0}
+figcaption{font-size:12.5px;color:var(--ink3);margin-top:6px}
+svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+.tooltip{position:fixed;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:5px;
+  padding:8px 11px;font-size:12.5px;box-shadow:0 4px 14px rgba(0,0,0,.13);z-index:9;display:none;line-height:1.6;max-width:280px;white-space:nowrap}
+.legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink2);margin:4px 2px}
+.legend .sw{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:3px;margin-right:6px}
+.dict td{white-space:normal;text-align:left;line-height:1.7;vertical-align:top}
+.dict td.id{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-weight:600;white-space:nowrap;padding-right:4px}
+.dict tr.fam td{background:var(--chip);color:var(--ink2);font-size:12px;letter-spacing:.06em;font-weight:600;padding:6px 12px}
+.dict .res{font-size:12px;color:var(--ink3)}
+.footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:12.5px;color:var(--ink3);line-height:2}
+.warnbar{border:1px solid var(--line);border-left:3px solid var(--up);background:var(--card);border-radius:4px;padding:10px 16px;margin:14px 0;font-size:13.5px;color:var(--ink2)}
+@media (prefers-reduced-motion:no-preference){
+  .bar{transition:opacity .15s}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow serif">个人量化底稿 · 2026-07-07 · 仅研究 · 非荐股</div>
+  <h1 class="serif">从「J&lt;20」到一套完整闭环：战法探索报告</h1>
+  <p class="kicker">126 只热点池 × 250 个交易日 × 30+ 个战法变体，跨两晚。起点是线上买点扫描器被回测证伪；中点是一套两条件进场、两条件出场的冠军闭环；终点是盘问出它的盲点后，用你自己的盘感补上的第二件——以及一路上被证伪的东西，它们和结论一样值钱。</p>
+</header>
+
+<div class="hero">
+  <div class="seal serif"><span>全窗口</span><span>为　正</span></div>
+  <div class="eyebrow">最终结论 · 冠军闭环</div>
+  <div class="rule serif" style="margin-top:8px">
+    进场：<span class="rulebox">J &lt; −10（深负）</span> 且 <span class="rulebox">板块RS20 ≥ 0（主线活着）</span><br>
+    出场：<span class="rulebox">J &gt; 80 兑现</span> 或 <span class="rulebox">收盘创20日新低止损</span>（20日封顶）
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="v up">66%</div><div class="k">胜率（全窗口 n=145）</div></div>
+    <div class="tile"><div class="v up">+5.7%</div><div class="k">单笔中位收益</div></div>
+    <div class="tile"><div class="v">2.8%</div><div class="k">深亏（&lt;−10%）占比</div></div>
+    <div class="tile"><div class="v">7.2 日</div><div class="k">平均持有</div></div>
+    <div class="tile"><div class="v up">+0.69%</div><div class="k">日均资金效率</div></div>
+  </div>
+  <div class="note">拉升段（3/31–6/30）中位 <b class="up">+10.7%</b>／胜率 76%；非拉升段（之前 ~8 个月）中位 <b class="up">+2.8%</b>／胜率 61%／深亏仅 1%——<b>第一晚 24 个变体里唯一双 regime 都干净的完整战法</b>（第二晚的点火模块成为第二个，见 §7）。买入端与卖出端说同一种语言（KDJ 一进一出），与你 7/2 定的卖出铁律「J 回 80+ 兑现」严丝合缝。</div>
+  <div class="note" style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">最终系统是<b>两件套</b>：主线活着时，冠军闭环管「深度回调」；板块被砸出深坑、RS 失明时，<b>⛏坑底点火</b>模块管「V型反转」——它由 §6 的盘问暴露盲点、§7 用你自己的盘感补上，两者互补成对，都已上线扫描器。</div>
+</div>
+
+<div class="warnbar">⚠️ 读数前提：票池是 6/30–7/2 按「当时什么热」选的，全窗口回测自带后视偏差，<b>绝对数字虚高，只有组间相对比较可信</b>；数据为近一年偏牛段，变熊会变脸。本报告所有百分比均为「信号日次晚→次日开盘介入」口径、同票同策略 5 日冷却去重、10 日持有（除注明外）。</div>
+
+<!-- ═══════ 0 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">0</span><h2 class="serif">起点：给线上扫描器验尸</h2></div>
+  <p>「🎯 次日开盘买点扫描」跑了一周（6/30–7/7，5 张卡片）。回测重放引擎与实发卡片逐日全等后，得到四条尸检结论：</p>
+  <ul class="tight">
+    <li><b>J&lt;20 本身没有超额</b>——10 日中位 +0.1%，还不如全池随机日的 +0.8%。绝对收益全是热点池的牛市 β。</li>
+    <li><b>「排卖量」「缩量」过滤器把自己的设计目标案例 100% 滤掉了</b>：兆易 3 月底那批 10 日 +4~15% 的肥信号，一根都没进 Tier2——J 砸到 20 以下的过程几乎必带放量阴线，「近5日最大量」必落其上、必判卖量。</li>
+    <li><b>板块 RS20 是唯一有区分力的层</b>，但线上只是个 ⚠ 角标。</li>
+    <li><b>卡片写的「破 MA20 放弃」止损不可执行</b>——20 日内触发率 86%，把胜率从 49% 砍到 25%。</li>
+  </ul>
+  <p class="note">于是有了这次探索：既然最简陋的 J&lt;20 没有超额、现有过滤器全是负资产，那就从零开始，一层层加特征，看哪些真加分；再跳出超跌反转框架另辟蹊径。</p>
+</section>
+
+<!-- ═══════ 1 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">1</span><h2 class="serif">评测台：先立口径，再谈战法</h2></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+    <div class="card"><b>统一进出场口径</b><br><span class="note">信号日收盘判定（对应扫描器 18:30 跑）→ 次日开盘介入；收益 = 10 日后收盘 / 进场开盘 − 1。同票同策略 5 日冷却去重。</span></div>
+    <div class="card"><b>三窗口分段</b><br><span class="note">PRE（&lt;3/31，含急跌与横盘 ~8 个月）／RALLY（3/31–6/30 拉升段）／ALL。<b>PRE 是照妖镜</b>：拉升段人人都是股神。</span></div>
+    <div class="card"><b>全池漂移基线</b><br><span class="note">「随便哪天买随便哪只」的 10 日收益：ALL 中位 +0.8%／RALLY 中位 <b class="up">+5.4%</b>、胜率 65%。战法必须赢过它才叫有超额。</span></div>
+    <div class="card"><b>每个特征配反面对照</b><br><span class="note">测「缩量」就同时测「放量」；测「前波买量」就同时测「前波卖量」。只看正面组，池子 β 会假扮成特征有效。</span></div>
+  </div>
+</section>
+
+<!-- ═══════ 2 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">2</span><h2 class="serif">特征阶梯：一层层往 J&lt;20 上加东西</h2></div>
+  <p>横轴是相对全池基线的<b>中位超额</b>（同窗口对比，单位 pp）。切换窗口看稳健性——RALLY 好看不算本事，PRE 还站得住才算。所有编号是探索时的流水号，含义见下方词典（图上悬停也带白话解释）。</p>
+
+  <h3 class="serif" id="dict">战法编号词典</h3>
+  <p class="note">命名规则：<b>L</b>＝特征阶梯（Ladder，从最简版逐层加特征；数字=层级，尾缀 b/c＝同层变体或<b>反面对照组</b>）；<b>B</b>＝组合确认轮（把验证有效的特征拼装选优，数字只是轮次）；<b>C</b>＝另辟蹊径（Creative，跳出超跌反转框架的其它家族）；<b>REF</b>＝线上扫描器 v2 旧规则参照。★＝最终胜出。</p>
+  <div class="tablebox"><table class="dict">
+    <tbody>
+      <tr class="fam"><td colspan="2">L 系列 · 特征阶梯（超跌反转族，逐层加条件）</td></tr>
+      <tr><td class="id">L0a</td><td><b>J&lt;20</b>——最简陋版（探索起点）：KDJ 的 J 值跌进 20 以下（超卖区）就当买点、次日开盘进，什么过滤都不加。<span class="res">＝线上扫描器的核心条件。判定：无超额。</span></td></tr>
+      <tr><td class="id">L0c</td><td><b>J&lt;0</b>——同 L0a，只把阈值收紧到 J 跌破 0（深超卖）。<span class="res">判定：略好于 L0a，梯度开始显现。</span></td></tr>
+      <tr><td class="id">L0d</td><td><b>J&lt;−10</b>——阈值再收紧到深负。对应你 6/17 的洞察「J 探负的深度≈前面买量的强度」：深负＝前面动能足、被急跌狠狠拽下来的票。<span class="res">判定：唯一全窗口为正的单条件，深亏仅 3%。</span></td></tr>
+      <tr><td class="id">L1</td><td><b>J&lt;20 ＋ RS20≥0</b>——加第一层过滤「主线活着」：该票所在板块近 20 日平均涨幅不输沪深300。<span class="res">判定：有效，「主线&gt;J深浅」的自动化。</span></td></tr>
+      <tr><td class="id">L1c</td><td><b>J&lt;20 ＋ RS20&lt;0</b>——L1 的<b>反面对照</b>：板块已跑输沪深300 时的超卖信号。<span class="res">判定：拉升段 −4.5pp——主线死了，J 低是陷阱不是回调。</span></td></tr>
+      <tr><td class="id">L2a</td><td><b>L1 ＋ 60日位置&lt;40</b>——再加「真超跌」：现价落在近 60 日最高–最低区间的下四成。防的是光迅 7/2 那种「高位泡沫破裂中段的假超卖」。<span class="res">判定：有效，非拉升段最稳的一层。</span></td></tr>
+      <tr><td class="id">L3</td><td><b>L1 ＋ 前波买量</b>——你「放大量必须是买量」的修正版机械化：跳过最近 5 天、往前看 t−20..t−6，那段里量最大的一天收涨才算数（＝下跌开始<b>前</b>的吸筹波是买方向）。<span class="res">判定：证伪，不加分。</span></td></tr>
+      <tr><td class="id">L3b</td><td><b>L1 ＋ 前波卖量</b>——L3 的<b>反面对照</b>：前波最大量日收跌。<span class="res">判定：反而更好（拉升段胜率 79%）——被暴力砸出来的坑弹得更猛。量方向 proxy 因此正式放弃。</span></td></tr>
+      <tr><td class="id">L4</td><td><b>L1 ＋ 当日缩量</b>——信号日量比≤0.9：今天成交量不超过前 5 日均量的九成（缩量惜售，没人砸了）。<span class="res">判定：有效（在 RS≥0 前提下 +3.3pp）。</span></td></tr>
+      <tr><td class="id">L4b</td><td><b>L1 ＋ 当日放量</b>——L4 的<b>反面对照</b>：量比&gt;1.2（放量下杀）。<span class="res">判定：比 L4 差 6pp，反证缩量层有效。</span></td></tr>
+      <tr class="fam"><td colspan="2">B 系列 · 组合确认轮（拼装有效特征选最优；编号=轮次非层级）</td></tr>
+      <tr><td class="id">B1</td><td><b>J&lt;20 ＋ RS≥0 ＋ 缩量 ＋ 位置&lt;40</b>——四条件防守版。<span class="res">判定：非拉升段最稳（PRE +2.3pp、深亏 3%），但拉升段弹性不如深负版。</span></td></tr>
+      <tr><td class="id">B2</td><td><b>J&lt;0 ＋ RS≥0 ＋ 缩量</b>——三条件进攻版。<span class="res">判定：拉升段中位 +11.5%/胜率 70%。</span></td></tr>
+      <tr><td class="id">B3</td><td><b>J&lt;−10 ＋ RS20≥0 ★冠军</b>——「深负×主线」，只有两个条件：J 砸到 −10 以下（深负）且板块近 20 日跑赢沪深300（主线活着）。<span class="res">判定：全场最佳（ALL 中位 +4.0%/胜率 67%/深亏 3%），已做成扫描器 v3 主档。</span></td></tr>
+      <tr><td class="id">B6</td><td><b>J&lt;0 ＋ 缩量（无RS）</b>——<b>对照组</b>：把 RS 这层抽掉。<span class="res">判定：拉升段超额 +6.1pp 塌到 −0.7pp——证明 RS 是承重墙。</span></td></tr>
+      <tr class="fam"><td colspan="2">C 系列 · 另辟蹊径（跳出超跌反转框架）</td></tr>
+      <tr><td class="id">C1</td><td><b>J&gt;80 ＋ RS≥0</b>——强者恒强/追高动量：J 已超买还买，赌趋势延续。<span class="res">判定：真赚钱（+2.5pp、样本最大）但深亏 13%＝左尾是超跌族的 4 倍，且配任何止损都变差。</span></td></tr>
+      <tr><td class="id">C2</td><td><b>收盘创 20 日新高 ＋ RS≥0</b>——突破追新高。<span class="res">判定：只在拉升段成立，深亏 15%。</span></td></tr>
+      <tr><td class="id">C3</td><td><b>放量突破</b>——量比≥1.5 ＋ 当日涨&gt;3% ＋ 价在 MA20 上。<span class="res">判定：非拉升段转负，纯 regime 产物。</span></td></tr>
+      <tr><td class="id">C4</td><td><b>MA20 上升回踩</b>——MA20 向上、价回踩到 MA20±2% 以内不破（agent 旧「两棒」框架的机械版）。<span class="res">判定：证伪，无超额。</span></td></tr>
+      <tr><td class="id">C5</td><td><b>深负后确认 ★次优</b>——近 3 日内 J 曾跌破 0、今天收在 MA5 上方、RS≥0：不接刀，等右侧第一根企稳再进。<span class="res">判定：拉升段中位 +10.8%/胜率 76%，与 B3 同一个坑的右侧下法。</span></td></tr>
+      <tr><td class="id">C6</td><td><b>暴跌次日</b>——单日跌超 7% 次日就买（<b>裸接刀对照组</b>）。<span class="res">判定：无超额——「跌狠了」本身不是买点，结构（J深度×主线）才是。</span></td></tr>
+      <tr class="fam"><td colspan="2">REF · 线上扫描器 v2 旧规则（参照系，7/8 起已降为对照组）</td></tr>
+      <tr><td class="id">REF1</td><td><b>线上 Tier1</b>——J&lt;20 ＋ 站上 MA20（容忍 −2%）＋ 近 5 日最大量是买量。<span class="res">判定：全家族最差之一，站线要求拉升段 −3.0pp。</span></td></tr>
+      <tr><td class="id">REF2</td><td><b>线上 Tier2</b>——J&lt;20 ＋ 破 MA20 ＋ 买量 ＋ 缩量（量比≤0.9）。<span class="res">判定：无超额，且设计目标案例（兆易 3 月底）召回率 0。</span></td></tr>
+      <tr class="fam"><td colspan="2">D 系列 · 坑底点火（第二晚补充的发现模块，源自用户盘感，见 §7）</td></tr>
+      <tr><td class="id">D1b</td><td><b>大买量点火</b>——近 10 日 J 曾&lt;5 ＋ 当日放量上攻（涨≥2.5% 且量比≥1.2）＋ 此前未大涨（昨收/6日前收≤+3%）。<span class="res">判定：深V段均值 +9.2%、兆易 4/1 单测✓，但 PRE 段为负——需要坑深闸门。</span></td></tr>
+      <tr><td class="id">D1e′</td><td><b>D1b ＋ 坑深≥15%（近25日最高收盘回撤）★定型版</b>——已上线扫描器 v3.1「⛏坑底点火」模块。<span class="res">判定：全窗中位 +4.7%/胜率 66%/深亏 8%，PRE 段转正。另测过吸筹背离 D1a / 买量聚集 D1c / 背离＋大买量 D1d 三个变体，全因 PRE 不过关落选。</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="serif">指标口径</h3>
+  <ul class="tight note">
+    <li><b>J 值</b>：KDJ(9,3,3) 的 J＝3K−2D，与线上扫描器一致用 70 根日线窗口计算；&lt;20 超卖、&lt;0 深超卖、&lt;−10 深负、&gt;80 超买。</li>
+    <li><b>RS20（板块相对强度）</b>：板块成员近 20 日平均涨幅 − 沪深300 同期涨幅；≥0＝主线活着，&lt;0＝⚠主线弱。</li>
+    <li><b>量比 vr</b>：今日成交量 ÷ 前 5 日均量；≤0.9 记缩量、&gt;1.2 记放量。</li>
+    <li><b>60日位置</b>：现价在近 60 日最低–最高区间中的百分位；&lt;40 算超跌区。</li>
+    <li><b>中位 / 均值</b>：单笔 10 日收益的中位数/平均数（进场价＝信号次日开盘）。中位比均值诚实——均值会被右尾几只妖股拉高。</li>
+    <li><b>超额（pp）</b>：战法中位收益 − 同窗口「全池随便买」基线中位，单位百分点。</li>
+    <li><b>胜率 / 深亏</b>：10 日后收益为正的占比 ／ 10 日后仍亏超 10% 的占比（左尾风险）。</li>
+  </ul>
+
+  <div class="chiprow" id="winchips" role="group" aria-label="窗口切换">
+    <button class="chip" data-w="ALL" aria-pressed="true">全窗口</button>
+    <button class="chip" data-w="PRE" aria-pressed="false">PRE 非拉升段</button>
+    <button class="chip" data-w="RALLY" aria-pressed="false">RALLY 拉升段</button>
+  </div>
+  <figure><div id="barchart"></div>
+  <figcaption>10 日持有中位收益 − 同窗口全池基线中位（pp）。红=跑赢基线，绿=跑输（A股红涨绿跌语义；正负同时由条形方向与符号编码）。悬停看明细。★=最终胜出。</figcaption></figure>
+
+  <h3 class="serif">过程结论（B 阶段）</h3>
+  <ul class="tight">
+    <li><span class="verdict win">有效</span><b>J 的深度梯度真实存在</b>：J&lt;20 → J&lt;0 → J&lt;−10 单调改善，J&lt;−10 是唯一全窗口为正的单特征（深亏仅 3%）。你 6/17 那句「J 探负深度 ≈ 前面买量强度」被数据背书——<b>深度本身已经把量的信息吃进去了</b>。</li>
+    <li><span class="verdict win">有效</span><b>板块 RS20≥0 是承重墙</b>：同一规则去掉 RS（B6），RALLY 从 +6.1pp 跌回 −0.7pp。「主线&gt;J深浅」第三次独立验证。但 RS≥5 反而比 RS≥0 差——过严截断，别贪。</li>
+    <li><span class="verdict win">有效</span><b>60日位置&lt;40（真超跌）</b>：加分且 PRE 段最稳（+1.6pp）——防「光迅式高位泡沫破裂」正是靠这条。</li>
+    <li><span class="verdict win">有效</span><b>当日缩量（vr≤0.9）在 RS≥0 条件下加分</b>（RALLY +3.3pp），放量反面组差 6pp。注意：上一轮无 RS 条件时缩量看似无效——<b>特征之间有交互，单测下结论会翻车</b>。</li>
+    <li><span class="verdict lose">证伪</span><b>「前波买量」两种窗口都不成立</b>：近5日窗口（线上版）证伪后，我把窗口修到 t−20..t−6（下跌起点之前的吸筹波）——照样不加分，反面「前波卖量」组 RALLY 反而胜率 79%。<b>被暴力砸出来的坑，弹得更猛</b>。「放大量必须是买量」的洞察在人眼个案层面可能仍真，但日线量方向的机械化两次都失败，正式放弃这个 proxy。</li>
+    <li><span class="verdict lose">证伪</span><b>线上 Tier1／Tier2 是全家族最差的两个</b>——「站上 MA20」的要求在拉升段 −3.0pp：肥信号本来就长在破线深洗里。</li>
+  </ul>
+  <div class="tablebox"><table id="tbl-ladder"></table></div>
+  <p class="small">B1–B3 为组合确认轮：B3「J&lt;−10 ＋ RS≥0」以两个条件拿下全场最佳（ALL 中位 +4.0%、胜率 67%、深亏 3%）——比五个条件的线上版少三个条件、多 4pp 超额。<b>简单是特征，不是缺陷。</b></p>
+</section>
+
+<!-- ═══════ 3 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">3</span><h2 class="serif">另辟蹊径：跳出超跌反转框架</h2></div>
+  <p class="note">C 系列编号的完整定义见 <a href="#dict">§2 战法编号词典</a>。</p>
+  <ul class="tight">
+    <li><span class="verdict win">有效</span><b>C5「深负后确认」是第二明星</b>：近3日曾 J&lt;0、今天收上 MA5、RS≥0——不接刀、等右侧确认再进。RALLY 中位 +10.8%／胜率 76%。和 B3 收益相当，心理路径完全相反：B3 是左侧接飞刀，C5 是右侧等企稳。<b>同一个坑，两种下法</b>——§6 会证明，3 月底真正接住兆易的正是它。</li>
+    <li><span class="verdict win">有效</span><b>C1「强者恒强」（J&gt;80 ＋ RS≥0）确实赚钱</b>（ALL +2.5pp、n=1396 全场最大样本）——但深亏 13%，左尾是超跌族的 4 倍。「追高能赚，摔得也重」，7/7 厦钨 P-1 回测的结论在这里复现。</li>
+    <li><span class="verdict lose">弱</span><b>新高突破／放量突破只在拉升段成立</b>，PRE 段归零或转负，且深亏 15%——纯 regime 产物。</li>
+    <li><span class="verdict lose">证伪</span><b>C4 回踩 MA20 企稳（我自己的旧「两棒」框架）无超额</b>——这轮被证伪的不只你的 proxy，也有我的框架。</li>
+    <li><span class="verdict lose">证伪</span><b>C6 裸接刀（单日暴跌&gt;7% 次日就买）无超额</b>——J 深负有效不等于「跌狠了就能买」，<b>结构（J深度 × 主线RS）才是有效成分</b>，单纯的暴跌不是。</li>
+  </ul>
+  <div class="tablebox"><table id="tbl-creative"></table></div>
+
+  <h3 class="serif">C7 板块轮动（组合级换血，不选个股）</h3>
+  <p class="note">每 5 日按 RS20 重选前 2 强板块、持有全部成员等权。一年 +97.7% vs 全池等权 +82.1%——赢了终点，但 1 月和 4–6 月两度落后，单 regime 单样本，<b>只能算「值得继续观察」，不算证实</b>。</p>
+  <div class="legend"><span><span class="sw" style="background:var(--acc)"></span>RS 前2板块轮动</span><span><span class="sw" style="background:var(--ref)"></span>全池等权（基线）</span></div>
+  <figure><div id="rotchart"></div>
+  <figcaption>2025-09 → 2026-07 累计收益（日收益等权复利，未计交易成本——每5日整组换血的成本不可忽略）。悬停看逐日数值。</figcaption></figure>
+</section>
+
+<!-- ═══════ 4 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">4</span><h2 class="serif">退出矩阵：同一批进场，八种走法</h2></div>
+  <p>入场解决「赚不赚」，出场决定「留下多少」。对三个胜出入场（B3 深负左侧 / C5 确认右侧 / C1 动量追高，定义见 <a href="#dict">§2 词典</a>）各测 8 种退出（20 日封顶，触发日收盘离场）：</p>
+  <div class="chiprow" id="exitchips" role="group" aria-label="入场切换">
+    <button class="chip" data-e="B3" aria-pressed="true">B3 深负左侧</button>
+    <button class="chip" data-e="C5" aria-pressed="false">C5 确认右侧</button>
+    <button class="chip" data-e="C1" aria-pressed="false">C1 动量追高</button>
+  </div>
+  <div class="tablebox"><table id="tbl-exits"></table></div>
+  <h3 class="serif">过程结论（D 阶段）</h3>
+  <ul class="tight">
+    <li><b>低位进场贴均线止损＝自杀</b>：B3 配「跌破 MA10」平均 1.2 天就被扫掉，收益归零——深负 J 的票天然趴在均线下面，这正是线上卡片止损 86% 触发率的镜像。</li>
+    <li><b>「J&gt;80 兑现」是 B3 的天作之合</b>：中位 +6.5%、胜率 77%——买在 J 深负、卖在 J 超买，一进一出全是 KDJ 语言，与你的卖出端铁律同源。加上「20日新低止损」风险腿后深亏压到 3%，代价是均值略降——保险费。</li>
+    <li><b>动量仓别止损</b>：C1 配任何止损都变差，它的命就是拿住不动、用 19% 的深亏尾巴换右尾——这也说明动量和超跌是两套完全不同的风控哲学，不能共用一张止损表。</li>
+    <li><b>+10% 止盈中位最高（+10.5%）但砍掉右尾</b>——P-1 回测「止盈帽毁期望」的结论在所有入场上复现。</li>
+  </ul>
+</section>
+
+<!-- ═══════ 5 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">5</span><h2 class="serif">冠军战法卡 · 白话版</h2></div>
+  <div class="card">
+    <b class="serif" style="font-size:17px">什么时候买：</b>热点池里某票 J 砸到 <b>−10 以下</b>（不是 20 以下——要那种前面动能足、被急跌狠狠拽下来的深负），<b>且它所在板块近20日还跑赢沪深300</b>（主线没死）。次日开盘进。<br>
+    <b class="serif" style="font-size:17px">什么时候卖：</b>J 回到 <b>80 以上</b>那天收盘兑现（通常 7–10 天）；如果没等到，<b>收盘创出20日新低就认错走人</b>；最多拿 20 天。<br>
+    <span class="note">止损腿真正兜住的是「主线死在持有期里」的场景——RS 是进场那天的快照，止损是持有期的保险。它管不了的场景只有一种：板块级急跌后的 V 型反转（RS 在坑底必然为负、主档必然缺席）——下面两节，一节把这个洞盘问出来，一节把它补上。</span>
+  </div>
+  <div class="tablebox"><table id="tbl-champ"></table></div>
+  <figure><div id="distchart"></div>
+  <figcaption>B3 全部 148 次信号的 10 日收益分布（未配出场规则的原始分布）。左尾短、右尾长——期望的形状比均值更能说明这个战法的性格。</figcaption></figure>
+
+  <h3 class="serif">现役信号（7/7 收盘触发，7/8 开盘可执行口径）</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>标的</th><th>代码</th><th>J</th><th>板块RS20</th><th>板块</th></tr></thead>
+    <tbody>
+      <tr><td>兆易创新</td><td class="mono">603986</td><td class="mono">−17.3</td><td class="mono up">+49.2</td><td>半导体·存储</td></tr>
+      <tr><td>凯美特气</td><td class="mono">002549</td><td class="mono">−17.2</td><td class="mono up">+42.7</td><td>半导体·材料/特气</td></tr>
+      <tr><td>剑桥科技</td><td class="mono">603083</td><td class="mono">−17.8</td><td class="mono up">+2.8</td><td>AI算力·光/PCB</td></tr>
+      <tr><td>时代电气</td><td class="mono">688187</td><td class="mono">−15.9</td><td class="mono up">+25.4</td><td>半导体·功率（需ETF）</td></tr>
+      <tr><td>科华数据</td><td class="mono">002335</td><td class="mono">−14.8</td><td class="mono up">+2.8</td><td>AI算力·光/PCB</td></tr>
+      <tr><td>立昂微</td><td class="mono">605358</td><td class="mono">−11.5</td><td class="mono up">+42.7</td><td>半导体·材料/特气</td></tr>
+      <tr><td>华特气体</td><td class="mono">688268</td><td class="mono">−11.2</td><td class="mono up">+42.7</td><td>半导体·材料/特气（需ETF）</td></tr>
+      <tr><td>澜起科技</td><td class="mono">688008</td><td class="mono">−10.9</td><td class="mono up">+49.2</td><td>半导体·存储（需ETF）</td></tr>
+      <tr><td>宏微科技</td><td class="mono">688711</td><td class="mono">−10.3</td><td class="mono up">+25.4</td><td>半导体·功率（需ETF）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">被 RS 过滤器排掉的两只：<b>宗申动力</b>（J−11.6，低空经济 RS −7.3）——正是 6/30 卡片里那只到今天 −9.7% 的票，规则在当下盘面上自洽；三祥新材（J−17.5，RS −1.2）。兆易本尊 J−17.3 回归信号池，颇有宿命感。<b>以上是回测口径的机械输出，不是操作建议</b>——尤其当下是 7/1 天量冲顶后的退潮段，主线 RS 快照可能失真。</p>
+</section>
+
+<!-- ═══════ 6 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">6</span><h2 class="serif">盘问冠军：为什么是 RS20？兆易挑得出来吗？</h2></div>
+  <p>冠军立起来之后，两个追问把它按回审讯椅：<b>「RS 的 20 日窗口凭什么？」</b>（它是沿用扫描器旧口径，立冠军时没调过参——§9 局限里承认的欠账）；<b>「3 月底的兆易，它挑得出来吗？」</b>（把规则按到自己的血统案例上做单测）。两问都问对了地方。</p>
+
+  <h3 class="serif">RS 窗口敏感性（入场固定 J&lt;−10，只换 RS 回看窗口）</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>RS 窗口</th><th>n</th><th>ALL 中位</th><th>ALL 超额</th><th>胜率</th><th>深V段均值*</th></tr></thead>
+    <tbody>
+      <tr><td>RS3</td><td class="mono">42</td><td class="mono up">+0.7%</td><td class="mono dn">−0.1pp</td><td class="mono">55%</td><td class="mono dn">−4.0% (n=1)</td></tr>
+      <tr><td>RS5</td><td class="mono">31</td><td class="mono up">+1.9%</td><td class="mono up">+1.1pp</td><td class="mono">61%</td><td class="mono up">+30.4% (n=1)</td></tr>
+      <tr><td>RS10</td><td class="mono">71</td><td class="mono up">+0.4%</td><td class="mono dn">−0.4pp</td><td class="mono">55%</td><td class="mono up">+3.6% (n=4)</td></tr>
+      <tr class="hl"><td>RS20（现行）</td><td class="mono">148</td><td class="mono up">+4.0%</td><td class="mono up">+3.2pp</td><td class="mono">67%</td><td class="mono up">+0.5% (n=4)</td></tr>
+      <tr><td>RS40</td><td class="mono">197</td><td class="mono up">+2.2%</td><td class="mono up">+1.4pp</td><td class="mono">65%</td><td class="mono up">+0.5% (n=4)</td></tr>
+      <tr><td>无 RS（对照）</td><td class="mono">264</td><td class="mono up">+1.2%</td><td class="mono up">+0.4pp</td><td class="mono">59%</td><td class="mono up">+11.2% (n=8)</td></tr>
+      <tr><td>RS20∪RS5（候选补丁）</td><td class="mono">154</td><td class="mono up">+3.9%</td><td class="mono up">+3.1pp</td><td class="mono">66%</td><td class="mono up">+6.5% (n=5)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">*深V段 = 2026-03-20 ~ 04-15（三月坑）内该规则信号的 10 日均值——这是冠军盲区的压力窗。</p>
+  <p><b>20 碰巧就是最优，且不是险胜。</b>机制：RS 的职责是判「主线死没死」——以月计的状态。RS3 三天窗全是噪音（一次板块普涨/普跌日就翻号），RS40 又太钝。但要说实话：沿用的默认恰好压中最优是运气不是流程，这笔敏感性欠账是被追问逼着还上的。</p>
+
+  <h3 class="serif">盲点档案：板块级急跌后的 V 反</h3>
+  <ul class="tight">
+    <li><b>机制</b>：RS20 后视 20 日、把崩跌本身算进分子 → <b>恰好在坑底转负</b>。存储板块实测：3/31 RS20 还是 +7.0，4/2 起 −3.6~−6.3——V 反刚要开始，过滤器把门关上了。</li>
+    <li><b>深V段压力测试</b>：冠军只发 4 个信号且 3 个亏（3/23 崩跌早段接刀）；被 RS20 滤掉的 4 个 J&lt;−10 反而 +1%~+30%（凯莱英 +30／佰维 +27／江波龙 +29）——<b>那一段它滤反了</b>。无RS对照同段均值 +11.2% vs 冠军 +0.5%。</li>
+    <li><b>兆易本尊挑不出来，而且先卡在 J 门槛</b>：那波 J 最低只到 −2.9（3/31），从没碰过 −10——它的肥是 J&lt;20 层面的信号。真正在坑底接住它的是 <b>C5 确认式</b>：3/31 J 转负 → 4/1 收上 MA5、RS20 当天 +0.5 擦线为正 → 4/2 开盘进≈坑底，10 日约 +11%。<b>兆易案例的传承者是 C5，不是冠军</b>；晚一天 RS 转负就没了，擦线通过。</li>
+  </ul>
+  <div class="card"><b>性格档案定稿</b>：冠军吃「主线活着时的深度回调」，挡「阴跌不止的死主线」（宗申 −9.7% 被正确拦下），<b>缺席「板块急跌后的 V 反」</b>——而那正是兆易 3 月底那类肥肉。候选补丁 RS20∪RS5（全年几乎不损、深V段 +0.5%→+6.5%）因单事件小样本仅列观察；真正的解法在下一节：不修冠军，补一个专吃这个场景的模块。</div>
+</section>
+
+<!-- ═══════ 7 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">7</span><h2 class="serif">补上盲区：⛏坑底点火——把盘感变成模块</h2></div>
+  <p>规格不是我发明的，来自你当时的肉眼观察：<b>「坑底好几天都是买量，虽然涨的不多；有一天甚至出现了底部大买量。」</b>先拿数据核这句话——兆易坑底逐日签名，每一条都对得上：</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>日期</th><th>涨跌</th><th>量比</th><th>J</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="mono">03-24</td><td class="mono up">+0.1%</td><td class="mono">0.98</td><td class="mono">17.5</td><td style="text-align:left" class="small">小阳 ①</td></tr>
+      <tr><td class="mono">03-25</td><td class="mono up">+1.7%</td><td class="mono">0.85</td><td class="mono">23.3</td><td style="text-align:left" class="small">小阳 ②</td></tr>
+      <tr><td class="mono">03-26</td><td class="mono dn">−5.9%</td><td class="mono">1.15</td><td class="mono">5.1</td><td style="text-align:left" class="small">砸坑</td></tr>
+      <tr><td class="mono">03-27</td><td class="mono dn">−1.3%</td><td class="mono">0.93</td><td class="mono">9.9</td><td style="text-align:left" class="small"></td></tr>
+      <tr><td class="mono">03-30</td><td class="mono dn">−1.1%</td><td class="mono">0.70</td><td class="mono">10.8</td><td style="text-align:left" class="small">缩量</td></tr>
+      <tr><td class="mono">03-31</td><td class="mono dn">−7.0%</td><td class="mono">1.45</td><td class="mono">−2.9</td><td style="text-align:left" class="small">最后一跌，J 转负</td></tr>
+      <tr class="hl"><td class="mono">04-01</td><td class="mono up">+7.1%</td><td class="mono">1.24</td><td class="mono">10.4</td><td style="text-align:left" class="small"><b>← 底部大买量（点火日）</b></td></tr>
+      <tr><td class="mono">04-02</td><td class="mono dn">−3.2%</td><td class="mono">0.76</td><td class="mono">14.0</td><td style="text-align:left" class="small">缩量回踩</td></tr>
+      <tr><td class="mono">04-03</td><td class="mono up">+0.9%</td><td class="mono">0.63</td><td class="mono">19.7</td><td style="text-align:left" class="small">小阳 ③</td></tr>
+      <tr><td class="mono">04-07</td><td class="mono up">+0.2%</td><td class="mono">0.67</td><td class="mono">23.7</td><td style="text-align:left" class="small">小阳 ④</td></tr>
+      <tr class="hl"><td class="mono">04-08</td><td class="mono up">+2.5%</td><td class="mono">2.57</td><td class="mono">52.0</td><td style="text-align:left" class="small"><b>← 巨量确认，此后 237→815</b></td></tr>
+    </tbody>
+  </table></div>
+  <p>把这套签名翻译成 4+2 个机械变体，同口径回测（设计案例当单测、深V段当压力窗）：</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>变体</th><th>ALL 中位</th><th>PRE 中位</th><th>RALLY 中位</th><th>深V均值</th><th>兆易单测</th></tr></thead>
+    <tbody>
+      <tr><td>D1a 吸筹背离（涨日量&gt;1.3×跌日量+横住）</td><td class="mono up">+0.6%</td><td class="mono dn">−0.4%</td><td class="mono up">+6.5%</td><td class="mono up">+7.6%</td><td class="mono">✓04-09 晚</td></tr>
+      <tr><td>D1b 大买量点火（当日放量上攻）</td><td class="mono up">+1.6%</td><td class="mono dn">−0.9%</td><td class="mono up">+6.7%</td><td class="mono up">+9.2%</td><td class="mono">✓04-01</td></tr>
+      <tr><td>D1c 买量聚集（近5日≥3天收涨）</td><td class="mono up">+0.4%</td><td class="mono dn">−0.5%</td><td class="mono up">+6.3%</td><td class="mono up">+7.5%</td><td class="mono">✓04-09 晚</td></tr>
+      <tr><td>D1d 背离＋大买量</td><td class="mono up">+0.6%</td><td class="mono dn">−1.9%</td><td class="mono up">+5.5%</td><td class="mono up">+8.7%</td><td class="mono">✓04-09 晚</td></tr>
+      <tr><td>D1e ＝D1b＋坑深≥12%</td><td class="mono up">+3.1%</td><td class="mono dn">−0.2%</td><td class="mono up">+8.2%</td><td class="mono up">+9.5%</td><td class="mono">✓04-01</td></tr>
+      <tr class="hl"><td>D1e′ ＝D1b＋坑深≥15% ★定型</td><td class="mono up">+4.7%</td><td class="mono up">+1.2%</td><td class="mono up">+7.9%</td><td class="mono up">+8.8%</td><td class="mono">✓04-01</td></tr>
+    </tbody>
+  </table></div>
+  <div class="card">
+    <b class="serif" style="font-size:17px">定型规则（⛏坑底点火，已上线扫描器 v3.1）：</b><br>
+    <span class="rulebox">坑深≥15%（近25日最高收盘回撤）</span> ＋ <span class="rulebox">近10日 J 曾&lt;5</span> ＋ <span class="rulebox">当日放量上攻（涨≥2.5% 且量比≥1.2）</span> ＋ <span class="rulebox">此前未大涨</span><br>
+    <span class="note">坑深闸门是关键增益（12%→15%：中位 +3.1%→+4.7%，PRE 转正）——同一根大买量，出现在浅沟里是噪音，出现在深坑里才是信号。左侧属性：点火≠V底确认，小仓/观察，止损参考＝点火日最低。</span>
+  </div>
+  <ul class="tight">
+    <li><b>板块也找得到</b>：「🔥板块蓄势」聚集规则（同板块 3 日内 ≥3 只点火）打出的旗子就是行情叙事本身：10/21-24 十月坑底 → 12/08 存储 → <b>3/25 材料 → 4/1 设备 → 4/3 设计 → 4/8 存储×5／光PCB×6</b>（三月坑底半导体子板块依次点火的完整时序）→ 6/11-15 六月回调坑。</li>
+    <li><b>与冠军互补成对</b>：冠军要 RS≥0（主线活着）、抓回调；点火不看 RS、专吃深坑 V 反；触发日也天然错开（冠军＝J 深负当日，点火＝放量反转日）。两件套合起来，兆易 3 月底与低空经济陷阱都各有其主。</li>
+    <li><b>07-07 dry 实测</b>：当日点火 0 只——7/1 天量顶之后坑深还没挖到 15%，等这轮退潮挖够深、哪天出现放量上攻，它会开口。</li>
+  </ul>
+</section>
+
+<!-- ═══════ 8 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">8</span><h2 class="serif">探索经验：可复用的方法论</h2></div>
+  <div class="lesson"><b>① 重放引擎先和实盘产物对账，再读任何结论。</b>本次重放的 T1/T2 数量与 5 张实发卡片逐日全等之后，组间比较才有资格被相信。对不上＝你测的是近似，不是本体。</div>
+  <div class="lesson"><b>② 每个特征配反面对照组，用全池漂移当地板。</b>拉升段全池随便买中位 +5.4%——不设基线，任何过滤器都显得「有效」。中位比均值诚实：均值被右尾几只妖股绑架。</div>
+  <div class="lesson"><b>③ 拿设计动机案例当单测。</b>Tier2 因兆易而生，却一根兆易信号都接不到，带病上线 5 天无人察觉。规则因案例 X 而立，上线前先跑 X。</div>
+  <div class="lesson"><b>④ 特征有交互，单测下结论会翻车。</b>「缩量」在无 RS 条件下看似无效、在 RS≥0 条件下 +3.3pp；「买量」修完窗口依然反向。加特征的顺序不是免费的。</div>
+  <div class="lesson"><b>⑤ 分 regime 窗口是照妖镜。</b>新高突破、放量突破在 RALLY 段风光、PRE 段现形；全场 24 个变体只有一个在两段都干净。只报全窗口数字＝把 β 卖成 α。</div>
+  <div class="lesson"><b>⑥ 简单是特征。</b>两个条件的 B3 打败五个条件的线上版 4pp。每加一个条件都是一次「在拉升段样本上过拟合」的机会——条件越多，越像是在描述这一轮行情本身。</div>
+  <div class="lesson"><b>⑦ 用户的盘感是最好的特征来源。</b>我自己发明的 proxy（近5日买量旗、两棒回踩）全被证伪；而「坑底好几天买量＋有一天大买量」这句口述，机械化后全窗中位 +4.7% 且通过设计案例单测。流程：先拉案例数据核实口述 → 翻成多个机械变体（点火/背离/聚集版结局迥异）→ 案例当单测＋盲区窗口当压力测试 → 按定位裁剪（补充模块≠普适战法，坑深这类上下文闸门比全天候调参更对路）。</div>
+  <div class="lesson"><b>⑧「局限」一节不是免责声明，是待办清单。</b>冠军立档时「参数未扫敏感性」写在局限里，第一个追问就精准落在那里——被逼着补扫后才发现 RS20 是运气压中的最优，而「设计案例当单测」也要沿血统一路追到最终规则（B3 在兆易案例上部分失效，才挖出盲点档案）。</div>
+</section>
+
+<!-- ═══════ 9 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">9</span><h2 class="serif">局限与下一步</h2></div>
+  <ul class="tight">
+    <li><b>后视票池</b>：池子按 6/30「什么热」编成，PRE 窗口的正超额部分来自「这些票后来会热」的天启。绝对数字全部打折读。</li>
+    <li><b>单 regime</b>：250 日 ≈ 一段横盘 + 一波大拉升。没有熊市样本，「RS≥0」在系统性下跌里可能整月无信号（这是特性还是缺陷，要熊市才知道）。</li>
+    <li><b>未计成本与容量</b>：滑点、手续费、多信号并发时的资金分配都没模拟；B3 平均每周 ~3 个信号，真实资金接不满。</li>
+    <li><b>参数敏感性部分补扫</b>：RS 窗口已扫（§6，20 恰好最优）；坑深只扫了 12%/15% 两档；−10、80、20日新低仍是整数直觉值，别当精确真理。</li>
+    <li><b>样本量</b>：冠军 n=145（RALLY 段 n=46，胜率 76% 置信区间不小）；点火模块深V压力窗只有三月底一次事件。</li>
+  </ul>
+  <p><b>下一步：</b>① ✅已落地——扫描器 v3 主档「深负×主线」+ 旧 Tier 降对照组并行攒新旧对照（07-08 起）；② ✅已落地——v3.1「⛏坑底点火」+ 板块蓄势聚集；③ ☐ 两模块先<b>纸面跟踪两周</b>，攒出与对照组的分化再考虑接真钱；④ ☐ 月度复跑本报告脚本，看结论是否随 regime 漂移；⑤ ☐ 混合 RS 补丁（RS20∪RS5）待裁决。</p>
+</section>
+
+<div class="footer">
+  数据：腾讯 fqkline 前复权日线（260根，取至 2026-07-07 收盘）· 票池 = scan_buypoints.py SECTORS v2（124/126 只取数成功）+ 沪深300 基准<br>
+  脚本：scripts/backtest_scan_buypoints.py（扫描器验尸，scripts 仓 e699e6d）· 探索评测台 harness.py / ladder.py / creative.py / exits.py / final_data.py<br>
+  口径：次日开盘介入 · 5日冷却去重 · 三窗口（PRE &lt; 2026-03-31 ≤ RALLY ≤ 2026-06-30）· 全池漂移基线<br>
+  本页为个人研究底稿，不构成任何投资建议。生成于 2026-07-07。
+</div>
+</div>
+
+<div class="tooltip" id="tip"></div>
+
+<script>
+const DATA = {"baseline":{"ALL":{"n":22283,"med":0.007699369243981291,"mean":0.030494880431591896,"win":0.5290131490373827,"deep":0.10752591661804964},"PRE":{"n":15473,"med":-0.005649717514124353,"mean":0.007826135693145003,"win":0.47405157370904155,"deep":0.11070897692755122},"RALLY":{"n":6810,"med":0.05350702000178864,"mean":0.08200053202307336,"win":0.6538913362701909,"deep":0.10029368575624083}},"meta":{"n_stocks":124,"last_bar":"2026-07-07","first_bar":"2025-05-27"},"groups":{"ladder":[{"id":"L0a","label":"J<20（线上最简版）","windows":{"ALL":{"n":1872,"med":0.000999833361106539,"mean":0.02254972815077048,"win":0.5042735042735043,"deep":0.07478632478632478,"excess_med":-0.006699535882874752},"PRE":{"n":1383,"med":-0.00552968568102441,"mean":0.007836723925339434,"win":0.4699927693420101,"deep":0.064352856109906,"excess_med":0.00012003183309994281},"RALLY":{"n":489,"med":0.038928571428571423,"mean":0.06416135359815521,"win":0.6012269938650306,"deep":0.10429447852760736,"excess_med":-0.014578448573217218}}},{"id":"L0c","label":"J<0","windows":{"ALL":{"n":885,"med":0.00905660377358486,"mean":0.028532364889520444,"win":0.5378531073446328,"deep":0.05536723163841808,"excess_med":0.0013572345296035682},"PRE":{"n":678,"med":0.0021813649111870337,"mean":0.014963353988303972,"win":0.5132743362831859,"deep":0.04424778761061947,"excess_med":0.007831082425311386},"RALLY":{"n":207,"med":0.059960707269155256,"mean":0.07297579189930194,"win":0.6183574879227053,"deep":0.09178743961352658,"excess_med":0.006453687267366615}}},{"id":"L0d","label":"J<−10（深负）","windows":{"ALL":{"n":264,"med":0.01172047766475015,"mean":0.0384908241784425,"win":0.5871212121212122,"deep":0.030303030303030304,"excess_med":0.00402110842076886},"PRE":{"n":192,"med":0.0037701763342889993,"mean":0.01949596680393589,"win":0.5572916666666666,"deep":0.03125,"excess_med":0.009419893848413352},"RALLY":{"n":72,"med":0.07062600321027279,"mean":0.08914377717712679,"win":0.6666666666666666,"deep":0.027777777777777776,"excess_med":0.01711898320848415}}},{"id":"L1","label":"J<20 ＋RS20≥0","windows":{"ALL":{"n":912,"med":0.011472982975573531,"mean":0.03916130085996759,"win":0.5471491228070176,"deep":0.07456140350877193,"excess_med":0.0037736137315922402},"PRE":{"n":652,"med":0.00048367593712206336,"mean":0.014932235021009255,"win":0.5,"deep":0.06901840490797546,"excess_med":0.006133393451246416},"RALLY":{"n":260,"med":0.07107075767063242,"mean":0.09992034288689389,"win":0.6653846153846154,"deep":0.08846153846153847,"excess_med":0.017563737668843782}}},{"id":"L1c","label":"J<20 ＋RS20<0（反面）","windows":{"ALL":{"n":1198,"med":-0.0005479452054795164,"mean":0.012258427503432888,"win":0.493322203672788,"deep":0.0642737896494157,"excess_med":-0.008247314449460807},"PRE":{"n":945,"med":-0.0029100529100528627,"mean":0.008663305788851647,"win":0.4835978835978836,"deep":0.050793650793650794,"excess_med":0.00273966460407149},"RALLY":{"n":253,"med":0.008372770294867049,"mean":0.025686846555920143,"win":0.5296442687747036,"deep":0.11462450592885376,"excess_med":-0.04513424970692159}}},{"id":"L2a","label":"L1 ＋60日位置<40","windows":{"ALL":{"n":382,"med":0.022058823529411686,"mean":0.036165955833739445,"win":0.5680628272251309,"deep":0.060209424083769635,"excess_med":0.014359454285430395},"PRE":{"n":275,"med":0.010551703346397323,"mean":0.019532521653923277,"win":0.5418181818181819,"deep":0.04727272727272727,"excess_med":0.016201420860521676},"RALLY":{"n":107,"med":0.06862238304471435,"mean":0.07891543620242586,"win":0.6355140186915887,"deep":0.09345794392523364,"excess_med":0.015115363042925711}}},{"id":"L3","label":"L1 ＋前波买量(t-20..t-6)","windows":{"ALL":{"n":749,"med":0.011378848728246238,"mean":0.0368964335506447,"win":0.5487316421895861,"deep":0.07343124165554073,"excess_med":0.003679479484264947},"PRE":{"n":549,"med":0.0036072772898370076,"mean":0.01607718188815649,"win":0.5191256830601093,"deep":0.0692167577413479,"excess_med":0.00925699480396136},"RALLY":{"n":200,"med":0.06807084729535662,"mean":0.09404527936417488,"win":0.63,"deep":0.085,"excess_med":0.014563827293567977}}},{"id":"L3b","label":"L1 ＋前波卖量（反面）","windows":{"ALL":{"n":216,"med":0.026549166155390713,"mean":0.05890315318315636,"win":0.5879629629629629,"deep":0.08333333333333333,"excess_med":0.018849796911409422},"PRE":{"n":141,"med":-0.002897350993377401,"mean":0.018033906795688004,"win":0.48226950354609927,"deep":0.0851063829787234,"excess_med":0.0027523665207469517},"RALLY":{"n":75,"med":0.10617572569647393,"mean":0.13573733639159685,"win":0.7866666666666666,"deep":0.08,"excess_med":0.05266870569468529}}},{"id":"L4","label":"L1 ＋当日缩量vr≤0.9","windows":{"ALL":{"n":732,"med":0.017479045008540917,"mean":0.040577944655130524,"win":0.5614754098360656,"deep":0.06830601092896176,"excess_med":0.009779675764559626},"PRE":{"n":535,"med":0.00402083173776524,"mean":0.019425374610342987,"win":0.5233644859813084,"deep":0.056074766355140186,"excess_med":0.009670549251889593},"RALLY":{"n":197,"med":0.0865646258503403,"mean":0.09802274147726926,"win":0.6649746192893401,"deep":0.10152284263959391,"excess_med":0.03305760584855166}}},{"id":"L4b","label":"L1 ＋当日放量vr>1.2（反面）","windows":{"ALL":{"n":177,"med":-0.0033207547169811225,"mean":0.03346964824646276,"win":0.4971751412429379,"deep":0.11299435028248588,"excess_med":-0.011020123960962414},"PRE":{"n":117,"med":-0.013859327822600687,"mean":0.008984009272268856,"win":0.46153846153846156,"deep":0.08547008547008547,"excess_med":-0.008209610308476334},"RALLY":{"n":60,"med":0.021797666367483037,"mean":0.08121664424614088,"win":0.5666666666666667,"deep":0.16666666666666666,"excess_med":-0.031709353634305604}}},{"id":"REF1","label":"线上Tier1（站MA20+近5日买量）","windows":{"ALL":{"n":365,"med":-0.0003597044668099958,"mean":0.027561191096807186,"win":0.4931506849315068,"deep":0.07945205479452055,"excess_med":-0.008059073710791287},"PRE":{"n":262,"med":-0.004448398576512469,"mean":0.01371992440862974,"win":0.4580152671755725,"deep":0.08015267175572519,"excess_med":0.0012013189376118838},"RALLY":{"n":103,"med":0.02355143220910705,"mean":0.06276907335217118,"win":0.5825242718446602,"deep":0.07766990291262135,"excess_med":-0.029955587792681593}}},{"id":"REF2","label":"线上Tier2（破线+买量+缩量）","windows":{"ALL":{"n":589,"med":-0.0020788530465949417,"mean":0.023929198145006415,"win":0.4872665534804754,"deep":0.06960950764006792,"excess_med":-0.009778222290576233},"PRE":{"n":432,"med":-0.01144586860899599,"mean":0.00408744308766562,"win":0.44212962962962965,"deep":0.06712962962962964,"excess_med":-0.005796151094871638},"RALLY":{"n":157,"med":0.04773595199127123,"mean":0.07852561970405879,"win":0.6114649681528662,"deep":0.07643312101910828,"excess_med":-0.005771068010517411}}}],"combos":[{"id":"B1","label":"J<20＋RS≥0＋缩量＋位置<40","windows":{"ALL":{"n":291,"med":0.025357607282184613,"mean":0.04370161794094305,"win":0.6219931271477663,"deep":0.044673539518900345,"excess_med":0.017658238038203322},"PRE":{"n":207,"med":0.017270194986072518,"mean":0.0251206419642725,"win":0.5990338164251208,"deep":0.033816425120772944,"excess_med":0.02291991250019687},"RALLY":{"n":84,"med":0.0865646258503403,"mean":0.08949045159773834,"win":0.6785714285714286,"deep":0.07142857142857142,"excess_med":0.03305760584855166}}},{"id":"B2","label":"J<0＋RS≥0＋缩量","windows":{"ALL":{"n":359,"med":0.024973672333383323,"mean":0.051810295310359744,"win":0.5988857938718662,"deep":0.06406685236768803,"excess_med":0.017274303089402032},"PRE":{"n":270,"med":0.016304347826086918,"mean":0.03026099590603837,"win":0.5666666666666667,"deep":0.05185185185185185,"excess_med":0.02195406534021127},"RALLY":{"n":89,"med":0.11456953642384127,"mean":0.11718457440212121,"win":0.6966292134831461,"deep":0.10112359550561797,"excess_med":0.061062516422052626}}},{"id":"B3","label":"J<−10＋RS≥0 ★","windows":{"ALL":{"n":148,"med":0.03973105134474331,"mean":0.06095581734964665,"win":0.668918918918919,"deep":0.02702702702702703,"excess_med":0.032031682100762016},"PRE":{"n":99,"med":0.01057692307692304,"mean":0.029138300755101258,"win":0.5959595959595959,"deep":0.020202020202020204,"excess_med":0.016226640591047392},"RALLY":{"n":49,"med":0.12299773641488487,"mean":0.1252401876120955,"win":0.8163265306122449,"deep":0.04081632653061224,"excess_med":0.06949071641309623}}},{"id":"B6","label":"J<0＋缩量（无RS,对照）","windows":{"ALL":{"n":688,"med":0.009672305208500154,"mean":0.029544266613951736,"win":0.5465116279069767,"deep":0.055232558139534885,"excess_med":0.0019729359645188627},"PRE":{"n":533,"med":0.005587346145540906,"mean":0.01633199843627385,"win":0.525328330206379,"deep":0.0450281425891182,"excess_med":0.011237063659665258},"RALLY":{"n":155,"med":0.04627892432770486,"mean":0.07497742105719246,"win":0.6193548387096774,"deep":0.09032258064516129,"excess_med":-0.007228095674083779}}}],"creative":[{"id":"C1","label":"J>80＋RS≥0（超买动量）","windows":{"ALL":{"n":1396,"med":0.03262202599950936,"mean":0.054089421007064244,"win":0.5909742120343839,"deep":0.12535816618911175,"excess_med":0.024922656755528072},"PRE":{"n":813,"med":0.007756948933419494,"mean":0.02439696381513839,"win":0.5166051660516605,"deep":0.14268142681426815,"excess_med":0.013406666447543847},"RALLY":{"n":583,"med":0.06808134394341292,"mean":0.09549588360918383,"win":0.6946826758147513,"deep":0.10120068610634649,"excess_med":0.014574323941624279}}},{"id":"C2","label":"收盘创20日新高＋RS≥0","windows":{"ALL":{"n":801,"med":0.027044276027124114,"mean":0.05056543459113403,"win":0.5792759051186017,"deep":0.14856429463171036,"excess_med":0.019344906783142823},"PRE":{"n":441,"med":-0.0008763729843421775,"mean":0.02039014365800107,"win":0.4965986394557823,"deep":0.14965986394557823,"excess_med":0.004773344529782175},"RALLY":{"n":360,"med":0.06762865090403336,"mean":0.0875301659842219,"win":0.6805555555555556,"deep":0.14722222222222223,"excess_med":0.01412163090224472}}},{"id":"C3","label":"放量突破(vr≥1.5+涨>3%+线上)","windows":{"ALL":{"n":874,"med":0.01385319627369097,"mean":0.037177942231854166,"win":0.545766590389016,"deep":0.14073226544622425,"excess_med":0.00615382702970968},"PRE":{"n":564,"med":-0.011309181521947598,"mean":0.009857144555384932,"win":0.46099290780141844,"deep":0.15780141843971632,"excess_med":-0.005659464007823245},"RALLY":{"n":310,"med":0.06953880585085126,"mean":0.08688416768194658,"win":0.7,"deep":0.10967741935483871,"excess_med":0.01603178584906262}}},{"id":"C4","label":"MA20上升回踩±2%＋RS≥0","windows":{"ALL":{"n":534,"med":0.005359712230215807,"mean":0.0332952412207329,"win":0.5262172284644194,"deep":0.09363295880149813,"excess_med":-0.0023396570137654837},"PRE":{"n":385,"med":0.0015188335358444771,"mean":0.01657801543349579,"win":0.509090909090909,"deep":0.08311688311688312,"excess_med":0.00716855104996883},"RALLY":{"n":149,"med":0.04354838709677411,"mean":0.07649075751661402,"win":0.5704697986577181,"deep":0.12080536912751678,"excess_med":-0.00995863290501453}}},{"id":"C5","label":"近3日J<0→收上MA5＋RS≥0 ★","windows":{"ALL":{"n":355,"med":0.026064291920069538,"mean":0.05331669766757444,"win":0.5943661971830986,"deep":0.08732394366197183,"excess_med":0.018364922676088247},"PRE":{"n":241,"med":0.003008604609182175,"mean":0.02181906771348093,"win":0.5145228215767634,"deep":0.07883817427385892,"excess_med":0.008658322123306528},"RALLY":{"n":114,"med":0.10794719130209685,"mean":0.11990379257052651,"win":0.7631578947368421,"deep":0.10526315789473684,"excess_med":0.054440171300308204}}},{"id":"C6","label":"单日暴跌>7%次日（裸接刀对照）","windows":{"ALL":{"n":366,"med":0.014575235980011092,"mean":0.049363961028100894,"win":0.5546448087431693,"deep":0.10382513661202186,"excess_med":0.006875866736029801},"PRE":{"n":224,"med":0.0002811014935506506,"mean":0.022740062594097256,"win":0.5044642857142857,"deep":0.07589285714285714,"excess_med":0.005930819007675003},"RALLY":{"n":142,"med":0.05768959783558336,"mean":0.09136222334652917,"win":0.6338028169014085,"deep":0.14788732394366197,"excess_med":0.004182577833794721}}}]},"exits":{"B3":[{"id":"hold10","label":"持10日","n":145,"med":0.0388235294117647,"mean":0.05913944413872657,"win":0.6620689655172414,"deep":0.027586206896551724,"hold":10.0,"per_day":0.0059139444138726575},{"id":"hold20","label":"持20日","n":145,"med":0.023022944098399556,"mean":0.1293266972241882,"win":0.5724137931034483,"deep":0.10344827586206896,"hold":20.0,"per_day":0.006466334861209409},{"id":"j80","label":"J>80兑现","n":145,"med":0.06469500924214433,"mean":0.05830486641055953,"win":0.7724137931034483,"deep":0.06896551724137931,"hold":10.16551724137931,"per_day":0.0057355533443223415},{"id":"ma10","label":"跌破MA10","n":145,"med":0.004897959183673528,"mean":0.006768230046847639,"win":0.5793103448275863,"deep":0.0,"hold":1.2137931034482758,"per_day":0.00557609861814152},{"id":"trail8","label":"峰值回撤8%","n":145,"med":-0.00476758045292025,"mean":0.05395024785059956,"win":0.4827586206896552,"deep":0.034482758620689655,"hold":12.8,"per_day":0.004214863113328091},{"id":"lo20","label":"20日新低止损","n":145,"med":-0.024402774210120826,"mean":0.10681420143053824,"win":0.42758620689655175,"deep":0.04827586206896552,"hold":14.317241379310344,"per_day":0.007460529483346842},{"id":"tp10","label":"+10%止盈或20日","n":145,"med":0.1049347702779353,"mean":0.06087672847490161,"win":0.6482758620689655,"deep":0.0896551724137931,"hold":13.317241379310344,"per_day":0.004571271687654445},{"id":"j80lo20","label":"J>80兑现∪新低止损","n":145,"med":0.05663716814159292,"mean":0.04926700150993334,"win":0.6551724137931034,"deep":0.027586206896551724,"hold":7.158620689655172,"per_day":0.006882191925761402}],"C5":[{"id":"hold10","label":"持10日","n":329,"med":0.022764493940386377,"mean":0.040622122228188486,"win":0.574468085106383,"deep":0.09422492401215805,"hold":10.0,"per_day":0.004062212222818848},{"id":"hold20","label":"持20日","n":329,"med":0.023830680992002584,"mean":0.0716677611921366,"win":0.5379939209726444,"deep":0.1337386018237082,"hold":20.0,"per_day":0.0035833880596068297},{"id":"j80","label":"J>80兑现","n":329,"med":0.03241863433312053,"mean":0.024339077862689486,"win":0.7355623100303952,"deep":0.0790273556231003,"hold":7.322188449848024,"per_day":0.0033240168604503286},{"id":"ma10","label":"跌破MA10","n":329,"med":-0.006681502475927581,"mean":0.01185802845825109,"win":0.3890577507598784,"deep":0.0121580547112462,"hold":4.033434650455927,"per_day":0.002939933204796238},{"id":"trail8","label":"峰值回撤8%","n":329,"med":-0.017616092095290803,"mean":0.038468454359791564,"win":0.425531914893617,"deep":0.0851063829787234,"hold":11.966565349544073,"per_day":0.0032146612863529146},{"id":"lo20","label":"20日新低止损","n":329,"med":-0.03010752688172047,"mean":0.05139346296635621,"win":0.44984802431610943,"deep":0.14285714285714285,"hold":15.27659574468085,"per_day":0.0033641960437586936},{"id":"tp10","label":"+10%止盈或20日","n":329,"med":0.10163749294184088,"mean":0.036045893626940134,"win":0.5866261398176292,"deep":0.1337386018237082,"hold":13.94224924012158,"per_day":0.002585371485341902},{"id":"j80lo20","label":"J>80兑现∪新低止损","n":329,"med":0.028120259810975767,"mean":0.01838546628770925,"win":0.6778115501519757,"deep":0.0911854103343465,"hold":5.079027355623101,"per_day":0.0036198793588607674}],"C1":[{"id":"hold10","label":"持10日","n":1268,"med":0.02608695652173898,"mean":0.0431028099775272,"win":0.5772870662460567,"deep":0.1309148264984227,"hold":10.0,"per_day":0.0043102809977527195},{"id":"hold20","label":"持20日","n":1268,"med":0.04229607250755274,"mean":0.0801424786670033,"win":0.582807570977918,"deep":0.19479495268138802,"hold":20.0,"per_day":0.004007123933350165},{"id":"j80","label":"J>80兑现","n":1268,"med":0.009476031215161607,"mean":0.010995947506457602,"win":0.6246056782334385,"deep":0.0473186119873817,"hold":3.356466876971609,"per_day":0.003276048270250996},{"id":"ma10","label":"跌破MA10","n":1268,"med":-0.014958465997411019,"mean":0.04232392522927687,"win":0.4250788643533123,"deep":0.061514195583596214,"hold":8.102523659305994,"per_day":0.005223548490434405},{"id":"trail8","label":"峰值回撤8%","n":1268,"med":-0.0056803734980822584,"mean":0.056698297858639404,"win":0.4865930599369085,"deep":0.0804416403785489,"hold":11.347791798107256,"per_day":0.004996416824293194},{"id":"lo20","label":"20日新低止损","n":1268,"med":0.03389625325343504,"mean":0.0773190741952332,"win":0.5615141955835962,"deep":0.20741324921135645,"hold":18.285488958990538,"per_day":0.004228438975224519},{"id":"tp10","label":"+10%止盈或20日","n":1268,"med":0.10519788748957648,"mean":0.04060244610844145,"win":0.6451104100946372,"deep":0.1829652996845426,"hold":13.307570977917981,"per_day":0.0030510786811368826},{"id":"j80lo20","label":"J>80兑现∪新低止损","n":1268,"med":0.009294380667688396,"mean":0.010175075238044177,"win":0.6198738170347003,"deep":0.0528391167192429,"hold":2.9574132492113563,"per_day":0.0034405321071573377}]},"champion":{"roundtrip":{"ALL":{"n":145,"med":0.05663716814159292,"mean":0.04926700150993334,"win":0.6551724137931034,"deep":0.027586206896551724,"hold":7.158620689655172},"PRE":{"n":99,"med":0.027980303470961587,"mean":0.033654495543293035,"win":0.6060606060606061,"deep":0.010101010101010102,"hold":7.212121212121212},"RALLY":{"n":46,"med":0.10740376146313668,"mean":0.08286782956857226,"win":0.7608695652173914,"deep":0.06521739130434782,"hold":7.043478260869565}},"dist_f10":[-0.124,-0.1166,-0.1064,-0.1045,-0.0997,-0.0936,-0.0934,-0.0928,-0.0913,-0.0864,-0.0829,-0.0815,-0.0786,-0.0784,-0.077,-0.0746,-0.0726,-0.071,-0.0671,-0.0641,-0.0637,-0.0621,-0.0522,-0.0403,-0.0381,-0.034,-0.034,-0.0338,-0.0332,-0.0285,-0.0218,-0.0198,-0.0197,-0.0166,-0.0138,-0.013,-0.0094,-0.008,-0.0079,-0.0051,-0.0046,-0.0045,-0.0045,-0.0034,-0.0012,-0.0008,-0.0007,0.0,0.0,0.0004,0.0006,0.0019,0.0022,0.0026,0.003,0.0034,0.0037,0.0038,0.0077,0.0106,0.0117,0.0124,0.0143,0.0177,0.0215,0.022,0.0274,0.0277,0.0305,0.0336,0.0353,0.0377,0.0388,0.0395,0.0397,0.0417,0.0429,0.0437,0.0438,0.0444,0.0447,0.048,0.0494,0.0504,0.0508,0.0564,0.0586,0.0606,0.0614,0.0647,0.0661,0.0698,0.0706,0.0719,0.073,0.0744,0.0772,0.0809,0.0849,0.0852,0.0873,0.0901,0.1,0.1015,0.1016,0.1021,0.1086,0.111,0.1146,0.118,0.1209,0.1226,0.123,0.1279,0.1294,0.1296,0.1373,0.14,0.1466,0.1491,0.1505,0.1676,0.1763,0.1779,0.1806,0.1813,0.1817,0.1822,0.1909,0.1993,0.2044,0.2052,0.2095,0.2132,0.2289,0.2421,0.2597,0.271,0.2727,0.2985,0.3117,0.3122,0.3238,0.3305,0.3382,0.3799,0.4084,0.4278],"recent":{"B3":[{"date":"2026-07-06","name":"斯达半导","code":"sh603290","J":-11.6,"sector":"半导体·功率"},{"date":"2026-07-06","name":"时代电气","code":"sh688187","J":-12.4,"sector":"半导体·功率"},{"date":"2026-07-02","name":"宗申动力","code":"sz001696","J":-18.0,"sector":"低空经济"},{"date":"2026-06-12","name":"华天科技","code":"sz002185","J":-12.2,"sector":"半导体·封装"},{"date":"2026-06-26","name":"拓维信息","code":"sz002261","J":-14.8,"sector":"AI算力·光/PCB/服务器/液冷"},{"date":"2026-06-11","name":"天孚通信","code":"sz300394","J":-10.3,"sector":"AI算力·光/PCB/服务器/液冷"}],"C5":[{"date":"2026-06-23","name":"人福医药","code":"sh600079","J":66.0,"sector":"创新药/CXO"},{"date":"2026-06-30","name":"拓普集团","code":"sh601689","J":33.9,"sector":"机器人·人形"},{"date":"2026-06-30","name":"鸣志电器","code":"sh603728","J":45.6,"sector":"机器人·人形"},{"date":"2026-07-03","name":"万丰奥威","code":"sz002085","J":16.6,"sector":"低空经济"},{"date":"2026-07-02","name":"山河智能","code":"sz002097","J":21.0,"sector":"低空经济"},{"date":"2026-06-30","name":"拓维信息","code":"sz002261","J":6.0,"sector":"AI算力·光/PCB/服务器/液冷"},{"date":"2026-06-30","name":"双环传动","code":"sz002472","J":39.6,"sector":"机器人·人形"},{"date":"2026-06-30","name":"中大力德","code":"sz002896","J":43.4,"sector":"机器人·人形"},{"date":"2026-06-30","name":"兆威机电","code":"sz003021","J":30.6,"sector":"机器人·人形"},{"date":"2026-06-30","name":"胜宏科技","code":"sz300476","J":29.9,"sector":"AI算力·光/PCB/服务器/液冷"},{"date":"2026-06-16","name":"宁德时代","code":"sz300750","J":44.4,"sector":"固态电池/锂电"}]}}};
+const CURVE = [["2025-09-10",1.0209,1.0037],["2025-09-11",1.0938,1.045],["2025-09-12",1.1012,1.0596],["2025-09-15",1.1035,1.0663],["2025-09-16",1.1212,1.082],["2025-09-17",1.119,1.0946],["2025-09-18",1.1273,1.1013],["2025-09-19",1.1346,1.0966],["2025-09-22",1.1574,1.127],["2025-09-23",1.1544,1.1344],["2025-09-24",1.2076,1.1779],["2025-09-25",1.1961,1.1865],["2025-09-26",1.1712,1.1597],["2025-09-29",1.2268,1.1814],["2025-09-30",1.298,1.2036],["2025-10-09",1.35,1.2295],["2025-10-10",1.2607,1.179],["2025-10-13",1.2699,1.1916],["2025-10-14",1.2204,1.1377],["2025-10-15",1.2412,1.1562],["2025-10-16",1.2483,1.1497],["2025-10-17",1.1912,1.1036],["2025-10-20",1.1882,1.1163],["2025-10-21",1.2196,1.1436],["2025-10-22",1.2059,1.1337],["2025-10-23",1.2027,1.1232],["2025-10-24",1.2855,1.1684],["2025-10-27",1.3469,1.2003],["2025-10-28",1.3235,1.1976],["2025-10-29",1.3364,1.214],["2025-10-30",1.3134,1.1889],["2025-10-31",1.253,1.1617],["2025-11-03",1.2636,1.1562],["2025-11-04",1.2502,1.1343],["2025-11-05",1.2427,1.1302],["2025-11-06",1.2819,1.1596],["2025-11-07",1.2996,1.1522],["2025-11-10",1.3116,1.152],["2025-11-11",1.2937,1.1348],["2025-11-12",1.2932,1.1243],["2025-11-13",1.3546,1.1443],["2025-11-14",1.2898,1.1128],["2025-11-17",1.308,1.114],["2025-11-18",1.2655,1.1121],["2025-11-19",1.2546,1.1037],["2025-11-20",1.2245,1.0897],["2025-11-21",1.1352,1.0468],["2025-11-24",1.1309,1.0546],["2025-11-25",1.1517,1.0672],["2025-11-26",1.1638,1.08],["2025-11-27",1.1662,1.0793],["2025-11-28",1.1705,1.0927],["2025-12-01",1.178,1.1101],["2025-12-02",1.159,1.0969],["2025-12-03",1.1446,1.0878],["2025-12-04",1.1529,1.1004],["2025-12-05",1.1608,1.1037],["2025-12-08",1.2102,1.1289],["2025-12-09",1.2468,1.1306],["2025-12-10",1.2245,1.1309],["2025-12-11",1.1929,1.1171],["2025-12-12",1.2036,1.1345],["2025-12-15",1.1725,1.1105],["2025-12-16",1.1488,1.0914],["2025-12-17",1.1985,1.118],["2025-12-18",1.1641,1.106],["2025-12-19",1.1632,1.1075],["2025-12-22",1.2066,1.1371],["2025-12-23",1.2173,1.1434],["2025-12-24",1.2512,1.1605],["2025-12-25",1.2443,1.1669],["2025-12-26",1.2329,1.1632],["2025-12-29",1.2379,1.1598],["2025-12-30",1.2389,1.1714],["2025-12-31",1.2253,1.162],["2026-01-05",1.2404,1.2036],["2026-01-06",1.2357,1.2256],["2026-01-07",1.2332,1.249],["2026-01-08",1.2231,1.2494],["2026-01-09",1.2385,1.2599],["2026-01-12",1.2446,1.2765],["2026-01-13",1.2006,1.2411],["2026-01-14",1.2172,1.2529],["2026-01-15",1.2688,1.2789],["2026-01-16",1.3202,1.3123],["2026-01-19",1.3241,1.3107],["2026-01-20",1.3566,1.2986],["2026-01-21",1.4214,1.3259],["2026-01-22",1.4145,1.3201],["2026-01-23",1.3931,1.331],["2026-01-26",1.3632,1.2995],["2026-01-27",1.4414,1.3236],["2026-01-28",1.4883,1.3309],["2026-01-29",1.4316,1.2924],["2026-01-30",1.4796,1.2967],["2026-02-02",1.3511,1.2405],["2026-02-03",1.3933,1.2722],["2026-02-04",1.3472,1.2585],["2026-02-05",1.318,1.2404],["2026-02-06",1.296,1.2393],["2026-02-09",1.3465,1.2723],["2026-02-10",1.3381,1.2758],["2026-02-11",1.3191,1.2657],["2026-02-12",1.3587,1.2866],["2026-02-13",1.3656,1.2881],["2026-02-24",1.4101,1.2987],["2026-02-25",1.3965,1.317],["2026-02-26",1.4114,1.3297],["2026-02-27",1.3927,1.3177],["2026-03-02",1.3519,1.2962],["2026-03-03",1.3006,1.2362],["2026-03-04",1.2983,1.236],["2026-03-05",1.3154,1.2532],["2026-03-06",1.3335,1.2604],["2026-03-09",1.319,1.2429],["2026-03-10",1.3636,1.2786],["2026-03-11",1.3605,1.2728],["2026-03-12",1.3469,1.2594],["2026-03-13",1.3239,1.2465],["2026-03-16",1.3325,1.2644],["2026-03-17",1.2895,1.2309],["2026-03-18",1.3598,1.2551],["2026-03-19",1.3341,1.2261],["2026-03-20",1.3086,1.213],["2026-03-23",1.2328,1.1623],["2026-03-24",1.255,1.1794],["2026-03-25",1.2918,1.2042],["2026-03-26",1.2485,1.1826],["2026-03-27",1.2382,1.2002],["2026-03-30",1.2313,1.1985],["2026-03-31",1.2156,1.1684],["2026-04-01",1.2566,1.1994],["2026-04-02",1.2499,1.1691],["2026-04-03",1.2193,1.1663],["2026-04-07",1.2169,1.1757],["2026-04-08",1.2444,1.2404],["2026-04-09",1.2445,1.2408],["2026-04-10",1.2478,1.266],["2026-04-13",1.2383,1.2671],["2026-04-14",1.257,1.2996],["2026-04-15",1.2574,1.2854],["2026-04-16",1.2699,1.3],["2026-04-17",1.2848,1.3078],["2026-04-20",1.2975,1.3266],["2026-04-21",1.2852,1.3217],["2026-04-22",1.3391,1.3516],["2026-04-23",1.3289,1.3328],["2026-04-24",1.288,1.3369],["2026-04-27",1.3111,1.3717],["2026-04-28",1.2792,1.3517],["2026-04-29",1.2817,1.3607],["2026-04-30",1.285,1.3818],["2026-05-06",1.3217,1.4225],["2026-05-07",1.347,1.4475],["2026-05-08",1.345,1.438],["2026-05-11",1.4252,1.4957],["2026-05-12",1.4239,1.4931],["2026-05-13",1.5072,1.5406],["2026-05-14",1.4776,1.511],["2026-05-15",1.4466,1.5165],["2026-05-18",1.4664,1.5297],["2026-05-19",1.4886,1.5558],["2026-05-20",1.5281,1.5845],["2026-05-21",1.4244,1.531],["2026-05-22",1.4613,1.5682],["2026-05-25",1.595,1.6252],["2026-05-26",1.5898,1.6146],["2026-05-27",1.5316,1.5946],["2026-05-28",1.5699,1.6072],["2026-05-29",1.4748,1.54],["2026-06-01",1.3876,1.4938],["2026-06-02",1.4088,1.5126],["2026-06-03",1.4624,1.539],["2026-06-04",1.5402,1.5651],["2026-06-05",1.4492,1.5326],["2026-06-08",1.3899,1.4785],["2026-06-09",1.4899,1.5485],["2026-06-10",1.5457,1.541],["2026-06-11",1.6471,1.5537],["2026-06-12",1.54,1.5443],["2026-06-15",1.6109,1.6152],["2026-06-16",1.6448,1.6366],["2026-06-17",1.7203,1.6889],["2026-06-18",1.7326,1.7273],["2026-06-22",1.8193,1.7645],["2026-06-23",1.8043,1.7509],["2026-06-24",1.8988,1.8092],["2026-06-25",2.016,1.857],["2026-06-26",2.0528,1.8181],["2026-06-29",2.1985,1.8767],["2026-06-30",2.2612,1.9546],["2026-07-01",2.2906,1.9466],["2026-07-02",2.1243,1.8519],["2026-07-03",2.0526,1.8548],["2026-07-06",1.9958,1.8324],["2026-07-07",1.9768,1.8215]];
+
+const tip = document.getElementById('tip');
+function showTip(html, x, y){
+  tip.innerHTML = html; tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(x + 14, innerWidth - w - 10) + 'px';
+  tip.style.top = Math.max(8, Math.min(y + 14, innerHeight - h - 10)) + 'px';
+}
+function hideTip(){ tip.style.display = 'none'; }
+const pct = (x, d=1) => (x >= 0 ? '+' : '') + (x * 100).toFixed(d) + '%';
+const pp = x => (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + 'pp';
+
+/* ── 条形图：策略 × 中位超额 ─────────────────────────── */
+const BAR_IDS = [
+  ["L0a","ladder"],["L0c","ladder"],["L0d","ladder"],["L1","ladder"],["L1c","ladder"],
+  ["L2a","ladder"],["L3","ladder"],["L3b","ladder"],["L4","ladder"],["L4b","ladder"],
+  ["REF1","ladder"],["REF2","ladder"],
+  ["B1","combos"],["B2","combos"],["B3","combos"],["B6","combos"],
+  ["C1","creative"],["C2","creative"],["C3","creative"],["C4","creative"],["C5","creative"],["C6","creative"],
+];
+const DESC = {
+  L0a: "最简版：J跌破20（超卖）就买",
+  L0c: "阈值收紧：J跌破0（深超卖）",
+  L0d: "阈值再紧：J深负（<−10）",
+  L1:  "超卖＋板块近20日跑赢沪深300",
+  L1c: "反面对照：板块已跑输（主线弱）",
+  L2a: "L1再加真超跌（60日区间下四成）",
+  L3:  "L1加前波吸筹是买量（修正窗口）",
+  L3b: "反面对照：前波是卖量——反而更好",
+  L4:  "L1加当日缩量（量比≤0.9惜售）",
+  L4b: "反面对照：当日放量下杀",
+  B1:  "四条件防守版（加位置<40）",
+  B2:  "J<0＋主线＋缩量 三条件",
+  B3:  "冠军：J深负×主线活着，仅两条件",
+  B6:  "对照：抽掉RS——立刻塌，RS是承重墙",
+  C1:  "强者恒强：J超买还买，赌趋势延续",
+  C2:  "突破：收盘创20日新高",
+  C3:  "放量突破：量比≥1.5＋涨>3%＋线上",
+  C4:  "趋势回踩：MA20上升中回踩不破",
+  C5:  "深负后等右侧确认：J曾<0→收上MA5",
+  C6:  "裸接刀对照：单日暴跌>7%次日买",
+  REF1: "线上旧Tier1：站MA20＋近5日买量",
+  REF2: "线上旧Tier2：破线＋买量＋缩量",
+};
+function strat(id){
+  for (const g of Object.values(DATA.groups)){ const r = g.find(x => x.id === id); if (r) return r; }
+}
+let curWin = 'ALL';
+function drawBars(){
+  const rows = BAR_IDS.map(([id]) => strat(id)).filter(r => r && r.windows[curWin])
+    .map(r => ({r, v: r.windows[curWin].excess_med}))
+    .sort((a, b) => b.v - a.v);
+  const W = 880, rowH = 26, padL = 265, padR = 60, H = rows.length * rowH + 30;
+  const maxAbs = Math.max(...rows.map(d => Math.abs(d.v)), 0.005);
+  const x0 = padL + (W - padL - padR) / 2;
+  const sc = (W - padL - padR) / 2 / maxAbs;
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="策略中位超额条形图">`;
+  s += `<line x1="${x0}" y1="8" x2="${x0}" y2="${H - 18}" stroke="var(--line)" stroke-width="1"/>`;
+  s += `<text x="${x0}" y="${H - 4}" text-anchor="middle" font-size="10" fill="var(--ink3)">0（全池基线）</text>`;
+  rows.forEach((d, i) => {
+    const y = 12 + i * rowH, v = d.v, bw = Math.abs(v) * sc;
+    const x = v >= 0 ? x0 : x0 - bw;
+    const star = (d.r.id === 'B3' || d.r.id === 'C5') ? ' ★' : '';
+    const cls = v >= 0 ? 'var(--up)' : 'var(--dn)';
+    s += `<g class="bar" data-i="${d.r.id}">`;
+    s += `<text x="${padL - 8}" y="${y + 13}" text-anchor="end" font-size="11.5" fill="var(--ink2)">${d.r.id}${star} ${d.r.label.length > 16 ? d.r.label.slice(0, 16) + '…' : d.r.label}</text>`;
+    s += `<rect x="${x}" y="${y}" width="${Math.max(bw, 1)}" height="17" rx="2" fill="${cls}" opacity="${d.r.id.startsWith('REF') ? .45 : .88}"/>`;
+    s += `<text x="${v >= 0 ? x0 + bw + 5 : x0 - bw - 5}" y="${y + 13}" text-anchor="${v >= 0 ? 'start' : 'end'}" font-size="11" fill="${cls}">${pp(v)}</text>`;
+    s += `<rect x="${padL - 260}" y="${y - 2}" width="${W - padL + 200}" height="${rowH - 4}" fill="transparent" data-hit="${d.r.id}"/></g>`;
+  });
+  s += `</svg>`;
+  const el = document.getElementById('barchart');
+  el.innerHTML = s;
+  el.querySelectorAll('[data-hit]').forEach(r => {
+    const id = r.getAttribute('data-hit'), st = strat(id);
+    r.addEventListener('mousemove', ev => {
+      const w = st.windows;
+      let h = `<b>${st.id} ${st.label}</b>`;
+      if (DESC[st.id]) h += `<br><span style="color:var(--ink3)">${DESC[st.id]}</span>`;
+      for (const k of ['ALL', 'PRE', 'RALLY']){
+        if (!w[k]) continue;
+        h += `<br>${k}: n=${w[k].n} 中位<b>${pct(w[k].med)}</b> 胜率${Math.round(w[k].win * 100)}% 深亏${Math.round(w[k].deep * 100)}% 超额${pp(w[k].excess_med)}`;
+      }
+      showTip(h, ev.clientX, ev.clientY);
+    });
+    r.addEventListener('mouseleave', hideTip);
+  });
+}
+document.getElementById('winchips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  document.querySelectorAll('#winchips .chip').forEach(c => c.setAttribute('aria-pressed', c === b));
+  curWin = b.dataset.w; drawBars();
+});
+drawBars();
+
+/* ── 表：阶梯 & 另辟蹊径 ─────────────────────────────── */
+function stratTable(elId, ids, hl){
+  const el = document.getElementById(elId);
+  let h = `<thead><tr><th>战法</th><th>n</th><th>ALL 中位</th><th>ALL 超额</th><th>PRE 超额</th><th>RALLY 超额</th><th>胜率</th><th>深亏</th></tr></thead><tbody>`;
+  ids.forEach(id => {
+    const r = strat(id); if (!r) return;
+    const A = r.windows.ALL, P = r.windows.PRE, R = r.windows.RALLY;
+    const c = v => `<span class="${v >= 0 ? 'up' : 'dn'}">${pp(v)}</span>`;
+    h += `<tr${hl.includes(id) ? ' class="hl"' : ''}><td>${r.id} ${r.label}</td><td class="mono">${A.n}</td><td class="mono ${A.med >= 0 ? 'up' : 'dn'}">${pct(A.med)}</td><td class="mono">${c(A.excess_med)}</td><td class="mono">${P ? c(P.excess_med) : '—'}</td><td class="mono">${R ? c(R.excess_med) : '—'}</td><td class="mono">${Math.round(A.win * 100)}%</td><td class="mono">${Math.round(A.deep * 100)}%</td></tr>`;
+  });
+  el.innerHTML = h + '</tbody>';
+}
+stratTable('tbl-ladder', ['L0a','L0c','L0d','L1','L1c','L2a','L3','L3b','L4','L4b','B1','B2','B3','B6','REF1','REF2'], ['B3']);
+stratTable('tbl-creative', ['C1','C2','C3','C4','C5','C6'], ['C5']);
+
+/* ── 退出矩阵 ─────────────────────────────────────────── */
+let curEntry = 'B3';
+const CHAMP_EXIT = 'j80lo20';
+function drawExits(){
+  const rows = DATA.exits[curEntry];
+  const el = document.getElementById('tbl-exits');
+  let h = `<thead><tr><th>退出规则</th><th>中位</th><th>均值</th><th>胜率</th><th>深亏</th><th>均持</th><th>日均</th></tr></thead><tbody>`;
+  rows.forEach(r => {
+    const hl = (curEntry === 'B3' && r.id === CHAMP_EXIT) ? ' class="hl"' : '';
+    h += `<tr${hl}><td>${r.label}</td><td class="mono ${r.med >= 0 ? 'up' : 'dn'}">${pct(r.med)}</td><td class="mono ${r.mean >= 0 ? 'up' : 'dn'}">${pct(r.mean)}</td><td class="mono">${Math.round(r.win * 100)}%</td><td class="mono">${Math.round(r.deep * 100)}%</td><td class="mono">${r.hold.toFixed(1)}日</td><td class="mono ${r.per_day >= 0 ? 'up' : 'dn'}">${pct(r.per_day, 2)}</td></tr>`;
+  });
+  el.innerHTML = h + '</tbody>';
+}
+document.getElementById('exitchips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  document.querySelectorAll('#exitchips .chip').forEach(c => c.setAttribute('aria-pressed', c === b));
+  curEntry = b.dataset.e; drawExits();
+});
+drawExits();
+
+/* ── 冠军闭环分窗口表 ─────────────────────────────────── */
+(function(){
+  const el = document.getElementById('tbl-champ');
+  const names = {ALL: '全窗口', PRE: 'PRE 非拉升段', RALLY: 'RALLY 拉升段'};
+  let h = `<thead><tr><th>窗口</th><th>n</th><th>中位</th><th>均值</th><th>胜率</th><th>深亏</th><th>均持</th></tr></thead><tbody>`;
+  for (const k of ['ALL', 'PRE', 'RALLY']){
+    const r = DATA.champion.roundtrip[k]; if (!r) continue;
+    h += `<tr><td>${names[k]}</td><td class="mono">${r.n}</td><td class="mono ${r.med >= 0 ? 'up' : 'dn'}">${pct(r.med)}</td><td class="mono ${r.mean >= 0 ? 'up' : 'dn'}">${pct(r.mean)}</td><td class="mono">${Math.round(r.win * 100)}%</td><td class="mono">${Math.round(r.deep * 100)}%</td><td class="mono">${r.hold.toFixed(1)}日</td></tr>`;
+  }
+  el.innerHTML = h + '</tbody>';
+})();
+
+/* ── 轮动曲线 ─────────────────────────────────────────── */
+(function(){
+  const W = 880, H = 300, padL = 52, padR = 96, padT = 14, padB = 30;
+  const pts = CURVE;
+  const ymax = Math.max(...pts.map(p => Math.max(p[1], p[2]))) - 1;
+  const ymin = Math.min(...pts.map(p => Math.min(p[1], p[2]))) - 1;
+  const sx = i => padL + i / (pts.length - 1) * (W - padL - padR);
+  const sy = v => padT + (1 - ((v - 1) - ymin) / (ymax - ymin)) * (H - padT - padB);
+  let grid = '';
+  for (let g = 0; g <= 4; g++){
+    const v = ymin + g / 4 * (ymax - ymin), y = sy(v + 1);
+    grid += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--line2)"/>` +
+            `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="var(--ink3)">${Math.round(v * 100)}%</text>`;
+  }
+  let ticks = '';
+  for (let i = 0; i < pts.length; i += 40){
+    ticks += `<text x="${sx(i)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="var(--ink3)">${pts[i][0].slice(2, 7)}</text>`;
+  }
+  const path = k => pts.map((p, i) => (i ? 'L' : 'M') + sx(i).toFixed(1) + ' ' + sy(p[k]).toFixed(1)).join('');
+  const last = pts[pts.length - 1];
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="轮动与全池累计收益曲线">${grid}${ticks}`;
+  s += `<path d="${path(2)}" fill="none" stroke="var(--ref)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  s += `<path d="${path(1)}" fill="none" stroke="var(--acc)" stroke-width="2"/>`;
+  s += `<circle cx="${sx(pts.length - 1)}" cy="${sy(last[1])}" r="3.5" fill="var(--acc)"/>`;
+  s += `<text x="${sx(pts.length - 1) + 7}" y="${sy(last[1]) + 4}" font-size="11" fill="var(--acc)">轮动 ${pct(last[1] - 1, 1)}</text>`;
+  s += `<text x="${sx(pts.length - 1) + 7}" y="${sy(last[2]) + 4}" font-size="11" fill="var(--ref)">全池 ${pct(last[2] - 1, 1)}</text>`;
+  s += `<line id="rot-x" x1="0" y1="${padT}" x2="0" y2="${H - padB}" stroke="var(--ink3)" stroke-width="1" opacity="0"/>`;
+  s += `<rect x="${padL}" y="${padT}" width="${W - padL - padR}" height="${H - padT - padB}" fill="transparent" id="rot-hit"/></svg>`;
+  const el = document.getElementById('rotchart');
+  el.innerHTML = s;
+  const hit = el.querySelector('#rot-hit'), xl = el.querySelector('#rot-x'), svg = el.querySelector('svg');
+  hit.addEventListener('mousemove', ev => {
+    const r = svg.getBoundingClientRect();
+    const fx = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((fx - padL) / (W - padL - padR) * (pts.length - 1))));
+    xl.setAttribute('x1', sx(i)); xl.setAttribute('x2', sx(i)); xl.setAttribute('opacity', .5);
+    showTip(`<b>${pts[i][0]}</b><br>轮动 <b>${pct(pts[i][1] - 1)}</b> · 全池 ${pct(pts[i][2] - 1)}`, ev.clientX, ev.clientY);
+  });
+  hit.addEventListener('mouseleave', () => { xl.setAttribute('opacity', 0); hideTip(); });
+})();
+
+/* ── 冠军收益分布直方图 ───────────────────────────────── */
+(function(){
+  const xs = DATA.champion.dist_f10;
+  const BIN = 0.025;
+  const lo = Math.floor(Math.min(...xs) / BIN) * BIN, hi = Math.ceil(Math.max(...xs) / BIN) * BIN;
+  const nb = Math.round((hi - lo) / BIN);
+  const bins = Array.from({length: nb}, () => 0);
+  xs.forEach(x => bins[Math.max(0, Math.min(nb - 1, Math.floor((x - lo) / BIN)))]++);
+  const W = 880, H = 220, padL = 36, padR = 12, padT = 12, padB = 30;
+  const bw = (W - padL - padR) / nb, mx = Math.max(...bins);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="B3信号10日收益分布直方图">`;
+  const zx = padL + (0 - lo) / (hi - lo) * (W - padL - padR);
+  bins.forEach((c, i) => {
+    const x = padL + i * bw, h = c / mx * (H - padT - padB);
+    const mid = lo + (i + .5) * BIN;
+    s += `<rect x="${x + 1}" y="${H - padB - h}" width="${bw - 2}" height="${Math.max(h, c ? 2 : 0)}" rx="2" fill="${mid >= 0 ? 'var(--up)' : 'var(--dn)'}" opacity=".85" data-bin="${i}"/>`;
+  });
+  s += `<line x1="${zx}" y1="${padT}" x2="${zx}" y2="${H - padB + 4}" stroke="var(--ink3)" stroke-dasharray="3 3"/>`;
+  s += `<text x="${zx}" y="${H - 8}" text-anchor="middle" font-size="10" fill="var(--ink3)">0</text>`;
+  for (const v of [-0.1, 0.1, 0.2, 0.3]){
+    if (v <= lo || v >= hi) continue;
+    const x = padL + (v - lo) / (hi - lo) * (W - padL - padR);
+    s += `<text x="${x}" y="${H - 8}" text-anchor="middle" font-size="10" fill="var(--ink3)">${Math.round(v * 100)}%</text>`;
+  }
+  s += `</svg>`;
+  const el = document.getElementById('distchart');
+  el.innerHTML = s;
+  el.querySelectorAll('[data-bin]').forEach(r => {
+    r.addEventListener('mousemove', ev => {
+      const i = +r.getAttribute('data-bin');
+      const a = lo + i * BIN, b = a + BIN;
+      showTip(`10日收益 ${pct(a, 1)} ~ ${pct(b, 1)}<br>信号数 <b>${bins[i]}</b> / ${xs.length}`, ev.clientX, ev.clientY);
+    });
+    r.addEventListener('mouseleave', hideTip);
+  });
+})();
+</script>
+
+</body>
+</html>

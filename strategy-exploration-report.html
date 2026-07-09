@@ -108,7 +108,7 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
 <body>
 <div class="wrap">
 <header>
-  <div class="eyebrow serif">个人量化底稿 · 2026-07-07 · 仅研究 · 非荐股</div>
+  <div class="eyebrow serif">个人量化底稿 · 2026-07-07 起 · 07-09 无幸存者偏差复检 · 仅研究 · 非荐股</div>
   <h1 class="serif">从「J&lt;20」到一套完整闭环：战法探索报告</h1>
   <p class="kicker">126 只热点池 × 250 个交易日 × 30+ 个战法变体，跨两晚。起点是线上买点扫描器被回测证伪；中点是一套两条件进场、两条件出场的冠军闭环；终点是盘问出它的盲点后，用你自己的盘感补上的第二件——以及一路上被证伪的东西，它们和结论一样值钱。</p>
 </header>
@@ -129,9 +129,10 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
   </div>
   <div class="note">拉升段（3/31–6/30）中位 <b class="up">+10.7%</b>／胜率 76%；非拉升段（之前 ~8 个月）中位 <b class="up">+2.8%</b>／胜率 61%／深亏仅 1%——<b>第一晚 24 个变体里唯一双 regime 都干净的完整战法</b>（第二晚的点火模块成为第二个，见 §7）。买入端与卖出端说同一种语言（KDJ 一进一出），与你 7/2 定的卖出铁律「J 回 80+ 兑现」严丝合缝。</div>
   <div class="note" style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">最终系统是<b>两件套</b>：主线活着时，冠军闭环管「深度回调」；板块被砸出深坑、RS 失明时，<b>⛏坑底点火</b>模块管「V型反转」——它由 §6 的盘问暴露盲点、§7 用你自己的盘感补上，两者互补成对，都已上线扫描器。</div>
+  <div class="note" style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">⟶ <b>已被第六次盘问校准（见 §8）</b>：上方全是 124 只热点池的<b>后视</b>口径。2026-07-09 把 B3 放进无幸存者偏差的全 A 宽池（490 交易日、退市在池），全窗超额只剩 <b class="dn">+0.18pp、p=0.80</b>——这 66% 胜率主要是「选对池」和 regime 给的，B3 的<b>独立 alpha 未被证实、定位下修</b>；真正在宽池站住的超额来自点火的「<b>冷板块 × 群火</b>」形态（+2.63pp，同样未过 5% 显著，仅作观察仓）。</div>
 </div>
 
-<div class="warnbar">⚠️ 读数前提：票池是 6/30–7/2 按「当时什么热」选的，全窗口回测自带后视偏差，<b>绝对数字虚高，只有组间相对比较可信</b>；数据为近一年偏牛段，变熊会变脸。本报告所有百分比均为「信号日次晚→次日开盘介入」口径、同票同策略 5 日冷却去重、10 日持有（除注明外）。</div>
+<div class="warnbar">⚠️ 读数前提：票池是 6/30–7/2 按「当时什么热」选的，全窗口回测自带后视偏差，<b>绝对数字虚高，只有组间相对比较可信</b>；数据为近一年偏牛段，变熊会变脸。本报告所有百分比均为「信号日次晚→次日开盘介入」口径、同票同策略 5 日冷却去重、10 日持有（除注明外）。 ｜ <b>§8 第六次盘问</b>已消除<b>价格样本</b>幸存者偏差（退市全程在池）并把选池偏差定量——绝对数字虚高的根源就此坐实，但结论方向仍未过统计显著。</div>
 
 <!-- ═══════ 0 ═══════ -->
 <section class="sec">
@@ -220,7 +221,7 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
   <h3 class="serif">过程结论（B 阶段）</h3>
   <ul class="tight">
     <li><span class="verdict win">有效</span><b>J 的深度梯度真实存在</b>：J&lt;20 → J&lt;0 → J&lt;−10 单调改善，J&lt;−10 是唯一全窗口为正的单特征（深亏仅 3%）。你 6/17 那句「J 探负深度 ≈ 前面买量强度」被数据背书——<b>深度本身已经把量的信息吃进去了</b>。</li>
-    <li><span class="verdict win">有效</span><b>板块 RS20≥0 是承重墙</b>：同一规则去掉 RS（B6），RALLY 从 +6.1pp 跌回 −0.7pp。「主线&gt;J深浅」第三次独立验证。但 RS≥5 反而比 RS≥0 差——过严截断，别贪。</li>
+    <li><span class="verdict win">有效</span><b>板块 RS20≥0 是承重墙</b>：同一规则去掉 RS（B6），RALLY 从 +6.1pp 跌回 −0.7pp。「主线&gt;J深浅」第三次独立验证。但 RS≥5 反而比 RS≥0 差——过严截断，别贪。<b>⟶ 已被第六次盘问修正（§8）</b>：这是<b>热点池内 B3</b> 的结论；在无幸存者偏差宽池里，把 RS≥0 当<b>点火</b>的加分项时它反而是<b>负贡献</b>（冷板块 +1.81pp vs 热板块 −0.13pp），B3 的 RS gate 挡掉的那半边也更好（+0.41 vs +0.17pp）——「追热＝alpha」在宽池不成立，是行业事件密度（cluster）而非近 20 日已涨幅（RS）在承重。</li>
     <li><span class="verdict win">有效</span><b>60日位置&lt;40（真超跌）</b>：加分且 PRE 段最稳（+1.6pp）——防「光迅式高位泡沫破裂」正是靠这条。</li>
     <li><span class="verdict win">有效</span><b>当日缩量（vr≤0.9）在 RS≥0 条件下加分</b>（RALLY +3.3pp），放量反面组差 6pp。注意：上一轮无 RS 条件时缩量看似无效——<b>特征之间有交互，单测下结论会翻车</b>。</li>
     <li><span class="verdict lose">证伪</span><b>「前波买量」两种窗口都不成立</b>：近5日窗口（线上版）证伪后，我把窗口修到 t−20..t−6（下跌起点之前的吸筹波）——照样不加分，反面「前波卖量」组 RALLY 反而胜率 79%。<b>被暴力砸出来的坑，弹得更猛</b>。「放大量必须是买量」的洞察在人眼个案层面可能仍真，但日线量方向的机械化两次都失败，正式放弃这个 proxy。</li>
@@ -244,7 +245,7 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
   <div class="tablebox"><table id="tbl-creative"></table></div>
 
   <h3 class="serif">C7 板块轮动（组合级换血，不选个股）</h3>
-  <p class="note">每 5 日按 RS20 重选前 2 强板块、持有全部成员等权。一年 +97.7% vs 全池等权 +82.1%——赢了终点，但 1 月和 4–6 月两度落后，单 regime 单样本，<b>只能算「值得继续观察」，不算证实</b>。</p>
+  <p class="note">每 5 日按 RS20 重选前 2 强板块、持有全部成员等权。一年 +97.7% vs 全池等权 +82.1%——赢了终点，但 1 月和 4–6 月两度落后，单 regime 单样本，<b>只能算「值得继续观察」，不算证实</b>。<span class="small">（⟶ §8：RS 热度追逐在无幸存者偏差宽池被证伪为负贡献，C7 这种「持 RS 前 2 热板块」的前提同样存疑——真正加分的是冷板块里的群火密度。）</span></p>
   <div class="legend"><span><span class="sw" style="background:var(--acc)"></span>RS 前2板块轮动</span><span><span class="sw" style="background:var(--ref)"></span>全池等权（基线）</span></div>
   <figure><div id="rotchart"></div>
   <figcaption>2025-09 → 2026-07 累计收益（日收益等权复利，未计交易成本——每5日整组换血的成本不可忽略）。悬停看逐日数值。</figcaption></figure>
@@ -296,13 +297,13 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
       <tr><td>宏微科技</td><td class="mono">688711</td><td class="mono">−10.3</td><td class="mono up">+25.4</td><td>半导体·功率（需ETF）</td></tr>
     </tbody>
   </table></div>
-  <p class="note">被 RS 过滤器排掉的两只：<b>宗申动力</b>（J−11.6，低空经济 RS −7.3）——正是 6/30 卡片里那只到今天 −9.7% 的票，规则在当下盘面上自洽；三祥新材（J−17.5，RS −1.2）。兆易本尊 J−17.3 回归信号池，颇有宿命感。<b>以上是回测口径的机械输出，不是操作建议</b>——尤其当下是 7/1 天量冲顶后的退潮段，主线 RS 快照可能失真。</p>
+  <p class="note">被 RS 过滤器排掉的两只：<b>宗申动力</b>（J−11.6，低空经济 RS −7.3）——正是 6/30 卡片里那只到今天 −9.7% 的票，规则在当下盘面上自洽；三祥新材（J−17.5，RS −1.2）。兆易本尊 J−17.3 回归信号池，颇有宿命感。<b>以上是回测口径的机械输出，不是操作建议</b>——尤其当下是 7/1 天量冲顶后的退潮段，主线 RS 快照可能失真。<b>⟶ §8</b>：宽池复检显示 B3 的 RS≥0 gate 在全市场近乎无 alpha（+0.18pp/p=0.80），这批信号的「主线活着」前提要打折看。</p>
 </section>
 
 <!-- ═══════ 6 ═══════ -->
 <section class="sec">
   <div class="sec-head"><span class="sec-no serif">6</span><h2 class="serif">盘问冠军：为什么是 RS20？兆易挑得出来吗？</h2></div>
-  <p>冠军立起来之后，两个追问把它按回审讯椅：<b>「RS 的 20 日窗口凭什么？」</b>（它是沿用扫描器旧口径，立冠军时没调过参——§9 局限里承认的欠账）；<b>「3 月底的兆易，它挑得出来吗？」</b>（把规则按到自己的血统案例上做单测）。两问都问对了地方。</p>
+  <p>冠军立起来之后，两个追问把它按回审讯椅：<b>「RS 的 20 日窗口凭什么？」</b>（它是沿用扫描器旧口径，立冠军时没调过参——§10 局限里承认的欠账）；<b>「3 月底的兆易，它挑得出来吗？」</b>（把规则按到自己的血统案例上做单测）。两问都问对了地方。</p>
 
   <h3 class="serif">RS 窗口敏感性（入场固定 J&lt;−10，只换 RS 回看窗口）</h3>
   <div class="tablebox"><table>
@@ -367,15 +368,79 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
     <span class="note">坑深闸门是关键增益（12%→15%：中位 +3.1%→+4.7%，PRE 转正）——同一根大买量，出现在浅沟里是噪音，出现在深坑里才是信号。左侧属性：点火≠V底确认，小仓/观察，止损参考＝点火日最低。</span>
   </div>
   <ul class="tight">
-    <li><b>板块也找得到</b>：「🔥板块蓄势」聚集规则（同板块 3 日内 ≥3 只点火）打出的旗子就是行情叙事本身：10/21-24 十月坑底 → 12/08 存储 → <b>3/25 材料 → 4/1 设备 → 4/3 设计 → 4/8 存储×5／光PCB×6</b>（三月坑底半导体子板块依次点火的完整时序）→ 6/11-15 六月回调坑。</li>
+    <li><b>板块也找得到</b>：「🔥板块蓄势」聚集规则（同板块 3 日内 ≥3 只点火）打出的旗子就是行情叙事本身：10/21-24 十月坑底 → 12/08 存储 → <b>3/25 材料 → 4/1 设备 → 4/3 设计 → 4/8 存储×5／光PCB×6</b>（三月坑底半导体子板块依次点火的完整时序）→ 6/11-15 六月回调坑。<b>⟶ 已被第六次盘问升级（§8）</b>：这条从「叙事佐证」升级成点火的<b>唯一核心 alpha</b>——宽池无幸存者偏差下 cluster≥4 群火超额 +2.30pp，而单发（cluster 1–3）全部跑输基线；<b>群火才是信号，单火是噪声</b>。</li>
     <li><b>与冠军互补成对</b>：冠军要 RS≥0（主线活着）、抓回调；点火不看 RS、专吃深坑 V 反；触发日也天然错开（冠军＝J 深负当日，点火＝放量反转日）。两件套合起来，兆易 3 月底与低空经济陷阱都各有其主。</li>
     <li><b>07-07 dry 实测</b>：当日点火 0 只——7/1 天量顶之后坑深还没挖到 15%，等这轮退潮挖够深、哪天出现放量上攻，它会开口。</li>
   </ul>
 </section>
 
-<!-- ═══════ 8 ═══════ -->
+<!-- ═══════ 8 · 第六次盘问（无幸存者偏差宽池三维度） ═══════ -->
 <section class="sec">
-  <div class="sec-head"><span class="sec-no serif">8</span><h2 class="serif">探索经验：可复用的方法论</h2></div>
+  <div class="sec-head"><span class="sec-no serif">8</span><h2 class="serif">第六次盘问：把两件套放进「无幸存者偏差」的宽池</h2></div>
+  <p>前七节的绝对数字都带同一条原罪：票池按 6/30「什么热」编、只有 124 只、行情走腾讯前复权。<b>2026-07-09 换口径重测</b>——tushare 全市 <b>490 个交易日</b>（退市股全程留池，<b>价格样本的幸存者偏差被消除</b>）、全 A 剔 ST／次新／北交所后 <b>4978 只</b>、主窗 2024-09-24 起、全池「随便哪天买随便哪只」10 日中位基线 <b>+0.41%</b>（n=205 万）。把冠军 B3 与点火模块放进这个宽池，沿<b>板块（D2）／板块聚类（D3）／二者交叉</b>三个维度重新拷问。触发问是你那句「基于宽池、分板块、分板块聚类三个维度，拿数据优化战法」。</p>
+  <div class="tiles">
+    <div class="tile"><div class="v">490</div><div class="k">tushare 交易日（退市在池）</div></div>
+    <div class="tile"><div class="v">4978</div><div class="k">全A 只数（剔ST/次新/北交所）</div></div>
+    <div class="tile"><div class="v">+0.41%</div><div class="k">全池漂移基线（n=205万）</div></div>
+    <div class="tile"><div class="v">13726</div><div class="k">⛏点火事件</div></div>
+    <div class="tile"><div class="v">11799</div><div class="k">🏆B3 事件</div></div>
+  </div>
+  <p class="note">口径残余诚实交代：行业映射用<b>现今</b>东财分类、ST 按现名、市值前 800 对照池用 07-09 快照代理时点股本——这三处的幸存者偏差没消，本轮只消掉了「价格样本」那一层（相对第五次盘问的核心升级）。</p>
+
+  <h3 class="serif">三维度速览：点火有超额，B3 近乎没有</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>维度</th><th>结论</th><th>关键数（对基线超额）</th></tr></thead>
+    <tbody>
+      <tr><td>D1 全池</td><td style="text-align:left">⛏点火全 A 有超额、胜率过半；🏆B3 近乎无 alpha</td><td>点火 <span class="up">+1.31pp</span>/胜58%；B3 <span class="dn">+0.18pp</span> p=0.80</td></tr>
+      <tr><td>D2 分板块</td><td style="text-align:left">「追热」翻车——冷板块才是点火 alpha 所在，热度 gating 是负贡献</td><td>冷板块 <span class="up">+1.81pp</span> vs 热板块 <span class="dn">−0.13pp</span></td></tr>
+      <tr><td>D3 聚类</td><td style="text-align:left">群火（cluster≥4）是点火唯一核心 alpha，单发（1–3）全跑输</td><td>cluster≥4 <span class="up">+2.30pp</span>；1–3 全 <span class="dn">为负</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">点火在市值前 800 大票池超额 <b class="up">+1.49pp</b>（比全 A 更干净，剔掉了小票噪声）。B3 的问题更深：2026 至今该规则信号中位 <b class="dn">−0.90%</b>，第三次盘问那个「顶塌镜像盲点」（退潮段的深负 J＝接飞刀）在宽池直接现形——B3 依赖「主线活着」的池内前提，离开热点池就失重。</p>
+
+  <h3 class="serif">D2 行业互补：点火吃硬科技制造链，B3 吃消费医药</h3>
+  <p>点火的超额高度集中在<b>硬科技制造链</b>，在资源／防御板块显著为负；B3 的行业序几乎<b>反向</b>（医药商业 +2.5／一般零售 +2.5／医疗服务 +2.1）——两战法行业不重叠、天然互补。下图是点火两极代表行业的<b>行业内基线超额</b>（红＝跑赢本行业基线、绿＝跑输，A股语义；全表 97 个 n≥30 行业里取两极代表）。</p>
+  <div class="legend"><span><span class="sw" style="background:var(--up)"></span>硬科技制造链（正）</span><span><span class="sw" style="background:var(--dn)"></span>资源/防御（负）</span></div>
+  <figure><div id="indchart"></div>
+  <figcaption>⛏点火 · 分行业中位超额（对行业内全票 10 日基线，pp）。悬停看 n 与行业内中位。</figcaption></figure>
+
+  <h3 class="serif">D3 聚类边际曲线：群火单调加分，单火是噪声</h3>
+  <p>按「同行业近 3 日窗口点火只数」给每条信号定 cluster 级别。<b>单发（cluster=1）到三连发（=3）全部跑输基线</b>（−0.4~−0.8pp），只有 <b>cluster≥4 的群火才转正、且高达 +2.30pp</b>；边际曲线（≥阈值）单调平滑爬升，回归里 cluster 是点火的<b>第一特征</b>（β +1.35pp/σ），形状不像过拟合。第五次盘问「cluster 是宽池最强特征」在这里升级定档。</p>
+  <div class="legend"><span><span class="sw" style="background:var(--up)"></span>⛏点火 ≥阈值</span><span><span class="sw" style="background:var(--ref)"></span>🏆B3 ≥阈值</span></div>
+  <figure><div id="cluchart"></div>
+  <figcaption>cluster ≥ 阈值 的中位超额曲线（pp），⛏点火 vs 🏆B3。悬停看该档 n 与胜率。B3 即便群火也只 +0.49pp。</figcaption></figure>
+
+  <h3 class="serif">本轮头牌：「冷板块 × 群火」的真交互效应</h3>
+  <p>D2 说冷板块好、D3 说群火好——把两者交叉成 2×2，才看清<b>两个单变量结论其实都由同一格驱动</b>：单开任一条件都不灵，只有<b>冷板块（RS20&lt;0）× 同业 3 日 cluster≥4</b> 这一格独自扛起全部超额。</p>
+  <figure><div id="crosschart"></div>
+  <figcaption>⛏点火 2×2：板块热度（冷/热）× 群火密度（≤3/≥4）的中位超额（pp）。格内是超额与胜率、色深＝幅度，A股红涨绿跌。悬停看 n。</figcaption></figure>
+  <p>这格不是拟合出来的幸运角落：<b>三段 regime 全为正</b>（2024-09 暴涨段 +0.69／2025 结构市 +3.39／2026 至今 +2.57pp），尤其 <b>2026 段幸免于打分模型失效</b>——那一季全池基线胜率只有 43%，这一格仍有 55%。阈值也不脆弱（放宽到 cluster≥3 仍 +2.36pp、形状不变）。产能日均 16.2 条信号，够生产用。</p>
+  <div class="legend"><span><span class="sw" style="background:var(--up);opacity:.42"></span>⛏点火 · 全A</span><span><span class="sw" style="background:var(--up)"></span>冷板块 × 群火（cluster≥4）</span></div>
+  <figure><div id="regchart"></div>
+  <figcaption>三段 regime 内的中位超额（段内基线，pp）：⛏点火全 A vs「冷×群火」这一格——两者三段全正，冷×群火在结构市与 2026 退潮段都明显更肥。</figcaption></figure>
+
+  <div class="warnbar">⚠️ 诚实短板必须显著说、不许只报好消息：把 1.37 万条点火事件按<b>自然周整块重采样</b>（同周同板块高度相关，坍缩成 ~69–90 个周块），<b>所有 headline 超额都过不了 5% 显著性</b>——点火全 A +1.31pp <b>p=0.27</b>、点火前 800 +1.49pp p=0.10、B3 p≥0.6，连本轮头牌「冷×群火」+2.63pp 也是 <b>p=0.102</b>（95%CI 下缘 −0.68pp、69 周块、2025 结构市贡献过半）。方向一致，但统计上排除不了「周级 regime 运气」。<b>所以它的定位是「观察仓规则、先纸面跟踪」，不是高置信度上产线的信号。</b></div>
+
+  <h3 class="serif">参数网格：train 最优在 test 崩盘，现行参数反而最稳</h3>
+  <p>把点火阈值做全网格搜索，train（2024-09~2025 年底）选参、test（2026 起）只报一次：train 最优组合 <span class="mono">pit20/vr1.5/minJ10</span> 在 train +3.12pp、到 test <b class="dn">崩至 +0.03pp</b>（教科书式过拟合）；<b>现行的 15%/2.5%/1.2/5 在 test 反而最稳（+1.18pp）</b>。B3 更糟——train 最优 <span class="mono">(J&lt;−15, RS≥−5)</span> 到 test 直接<b class="dn">转负（−0.56pp）</b>，而现行参数 test +0.54pp。<b>这就是「现行点火参数不动」的实证依据：不是没搜，是搜完发现动了更差。</b></p>
+  <p class="note">另一处警报：走向前逐季 IC 到 <b class="dn">2026Q2 转负（点火 −0.144）</b>——最近一季打分模型方向反了。工业富联在新模型里落 70 百分位（预测 f10 +3.13%），但要按近季 IC 打折读。</p>
+
+  <h3 class="serif">参数裁决表（待你逐条定夺，生产扫描器一行未动）</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>项</th><th>动作提案</th><th>依据 / 保留意见</th></tr></thead>
+    <tbody>
+      <tr><td>① 冷×群火</td><td style="text-align:left">给「冷板块×cluster≥4」加复合过滤或标<b>观察仓</b>标记（信号量 13726→6816）</td><td style="text-align:left" class="small">超额 +1.31→+2.63pp；但周块 p=0.102 未过 5%，<b>只作观察仓、先纸面跟踪</b></td></tr>
+      <tr><td>② RS20 加分项</td><td style="text-align:left"><b>停用</b>「RS20≥0＝主线主档」当点火加分项（数据说反了）</td><td style="text-align:left" class="small">与「主线主档」直觉冲突，<b>建议先抽实例复核</b>再动手</td></tr>
+      <tr><td>③ 点火阈值</td><td style="text-align:left"><b>保持不动</b>（pit15/chg2.5/vr1.2/minJ5）</td><td style="text-align:left" class="small">网格过拟合实证：train 最优 test 崩盘，现行最稳</td></tr>
+      <tr><td>④ B3</td><td style="text-align:left"><b>降权/降预期</b>（近乎无 alpha），RS gate 可放宽至 ≥−5 但意义有限</td><td style="text-align:left" class="small">全窗 +0.18pp、p=0.80、2026 至今中位 −0.90%</td></tr>
+    </tbody>
+  </table></div>
+  <div class="card"><b>口径底线（原样保留）：</b>本轮把「价格样本幸存者偏差」消了、把三维度定了档、给了 p 值背书，但<b>所有 headline 仍过不了 5% 显著性</b>。结论只能说到这一句——<b class="serif">「还没证明有用」≠「证明了没用」</b>：方向性证据在（冷×群火三段全正、边际单调、行业自洽），统计学盖章还差更长的历史，尤其一段真正的熊市。两件套维持纸面跟踪、真金为 0 的纪律不变。</div>
+</section>
+
+<!-- ═══════ 9 ═══════ -->
+<section class="sec">
+  <div class="sec-head"><span class="sec-no serif">9</span><h2 class="serif">探索经验：可复用的方法论</h2></div>
   <div class="lesson"><b>① 重放引擎先和实盘产物对账，再读任何结论。</b>本次重放的 T1/T2 数量与 5 张实发卡片逐日全等之后，组间比较才有资格被相信。对不上＝你测的是近似，不是本体。</div>
   <div class="lesson"><b>② 每个特征配反面对照组，用全池漂移当地板。</b>拉升段全池随便买中位 +5.4%——不设基线，任何过滤器都显得「有效」。中位比均值诚实：均值被右尾几只妖股绑架。</div>
   <div class="lesson"><b>③ 拿设计动机案例当单测。</b>Tier2 因兆易而生，却一根兆易信号都接不到，带病上线 5 天无人察觉。规则因案例 X 而立，上线前先跑 X。</div>
@@ -384,26 +449,28 @@ svg text{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-variant-numeric
   <div class="lesson"><b>⑥ 简单是特征。</b>两个条件的 B3 打败五个条件的线上版 4pp。每加一个条件都是一次「在拉升段样本上过拟合」的机会——条件越多，越像是在描述这一轮行情本身。</div>
   <div class="lesson"><b>⑦ 用户的盘感是最好的特征来源。</b>我自己发明的 proxy（近5日买量旗、两棒回踩）全被证伪；而「坑底好几天买量＋有一天大买量」这句口述，机械化后全窗中位 +4.7% 且通过设计案例单测。流程：先拉案例数据核实口述 → 翻成多个机械变体（点火/背离/聚集版结局迥异）→ 案例当单测＋盲区窗口当压力测试 → 按定位裁剪（补充模块≠普适战法，坑深这类上下文闸门比全天候调参更对路）。</div>
   <div class="lesson"><b>⑧「局限」一节不是免责声明，是待办清单。</b>冠军立档时「参数未扫敏感性」写在局限里，第一个追问就精准落在那里——被逼着补扫后才发现 RS20 是运气压中的最优，而「设计案例当单测」也要沿血统一路追到最终规则（B3 在兆易案例上部分失效，才挖出盲点档案）。</div>
+  <div class="lesson"><b>⑨ 后视池的绝对数字要靠无幸存者偏差宽池校准；群体不独立时，朴素显著性是假阳性。</b>热点池点火超额 +4.7% 到全 A 宽池只剩 +0.4pp——alpha 大头是「选对池」不是特征本身。而 1.37 万条事件同日同板块高度相关，坍缩成 ~90 个周块后，block bootstrap 让所有 headline 都过不了 5%。别把名义 n 当有效 n；方向性证据 ≠ 统计学盖章——「还没证明有用」也 ≠「证明了没用」。</div>
 </section>
 
-<!-- ═══════ 9 ═══════ -->
+<!-- ═══════ 10 ═══════ -->
 <section class="sec">
-  <div class="sec-head"><span class="sec-no serif">9</span><h2 class="serif">局限与下一步</h2></div>
+  <div class="sec-head"><span class="sec-no serif">10</span><h2 class="serif">局限与下一步</h2></div>
   <ul class="tight">
-    <li><b>后视票池</b>：池子按 6/30「什么热」编成，PRE 窗口的正超额部分来自「这些票后来会热」的天启。绝对数字全部打折读。</li>
+    <li><b>后视票池</b>：池子按 6/30「什么热」编成，PRE 窗口的正超额部分来自「这些票后来会热」的天启。绝对数字全部打折读。<b>⟶ §8 已部分还账</b>：无幸存者偏差宽池实测「选池偏差」＝点火超额从热点池 +4.7% 塌到全 A +0.4pp（大头是池子×regime）；<b>价格样本</b>幸存者偏差已消（退市全程留池），但行业映射／ST 名／市值池仍是现今口径，这层残余还在。</li>
     <li><b>单 regime</b>：250 日 ≈ 一段横盘 + 一波大拉升。没有熊市样本，「RS≥0」在系统性下跌里可能整月无信号（这是特性还是缺陷，要熊市才知道）。</li>
     <li><b>未计成本与容量</b>：滑点、手续费、多信号并发时的资金分配都没模拟；B3 平均每周 ~3 个信号，真实资金接不满。</li>
-    <li><b>参数敏感性部分补扫</b>：RS 窗口已扫（§6，20 恰好最优）；坑深只扫了 12%/15% 两档；−10、80、20日新低仍是整数直觉值，别当精确真理。</li>
+    <li><b>参数敏感性部分补扫</b>：RS 窗口已扫（§6，20 恰好最优）；点火/B3 阈值网格也扫过（§8：train 最优 test 崩盘，现行参数反而最稳，故按兵不动）；坑深只扫了 12%/15% 两档；退出参数（80／20日新低）未扫；−10、80 仍是整数直觉值，别当精确真理。</li>
     <li><b>样本量</b>：冠军 n=145（RALLY 段 n=46，胜率 76% 置信区间不小）；点火模块深V压力窗只有三月底一次事件。</li>
   </ul>
-  <p><b>下一步：</b>① ✅已落地——扫描器 v3 主档「深负×主线」+ 旧 Tier 降对照组并行攒新旧对照（07-08 起）；② ✅已落地——v3.1「⛏坑底点火」+ 板块蓄势聚集；③ ☐ 两模块先<b>纸面跟踪两周</b>，攒出与对照组的分化再考虑接真钱；④ ☐ 月度复跑本报告脚本，看结论是否随 regime 漂移；⑤ ☐ 混合 RS 补丁（RS20∪RS5）待裁决。</p>
+  <p><b>下一步：</b>① ✅已落地——扫描器 v3 主档「深负×主线」+ 旧 Tier 降对照组并行攒新旧对照（07-08 起）；② ✅已落地——v3.1「⛏坑底点火」+ 板块蓄势聚集；③ ☐ 两模块先<b>纸面跟踪两周</b>，攒出与对照组的分化再考虑接真钱；④ ☐ 月度复跑本报告脚本，看结论是否随 regime 漂移；⑤ ☐ 混合 RS 补丁（RS20∪RS5）待裁决；⑥ ✅已跑——无幸存者偏差宽池三维度复检（§8），产出「冷板块×群火」候选<b>观察仓</b>规则 + 4 条参数裁决表，全部<b>待你逐条裁决、生产扫描器未动</b>。</p>
 </section>
 
 <div class="footer">
   数据：腾讯 fqkline 前复权日线（260根，取至 2026-07-07 收盘）· 票池 = scan_buypoints.py SECTORS v2（124/126 只取数成功）+ 沪深300 基准<br>
   脚本：scripts/backtest_scan_buypoints.py（扫描器验尸，scripts 仓 e699e6d）· 探索评测台 harness.py / ladder.py / creative.py / exits.py / final_data.py<br>
   口径：次日开盘介入 · 5日冷却去重 · 三窗口（PRE &lt; 2026-03-31 ≤ RALLY ≤ 2026-06-30）· 全池漂移基线<br>
-  本页为个人研究底稿，不构成任何投资建议。生成于 2026-07-07。
+  无幸存者偏差复检（2026-07-09，§8）：tushare 全市日线 490 交易日（退市全程在池）· 新浪 qfq 复权 · 全A 4978 只 · 主窗 2024-09-24 起 · 复现 scripts/backtest_explore/broadpool_20260709/<br>
+  本页为个人研究底稿，不构成任何投资建议。生成于 2026-07-07，07-09 补入第六次盘问（无幸存者偏差三维度）。
 </div>
 </div>
 
@@ -423,6 +490,8 @@ function showTip(html, x, y){
 function hideTip(){ tip.style.display = 'none'; }
 const pct = (x, d=1) => (x >= 0 ? '+' : '') + (x * 100).toFixed(d) + '%';
 const pp = x => (x >= 0 ? '+' : '') + (x * 100).toFixed(1) + 'pp';
+const ppr = x => (x >= 0 ? '+' : '') + x.toFixed(2) + 'pp';   // 值已是 pp 单位
+const pcr = x => (x >= 0 ? '+' : '') + x.toFixed(2) + '%';    // 值已是 % 单位
 
 /* ── 条形图：策略 × 中位超额 ─────────────────────────── */
 const BAR_IDS = [
@@ -629,6 +698,147 @@ drawExits();
       showTip(`10日收益 ${pct(a, 1)} ~ ${pct(b, 1)}<br>信号数 <b>${bins[i]}</b> / ${xs.length}`, ev.clientX, ev.clientY);
     });
     r.addEventListener('mouseleave', hideTip);
+  });
+})();
+
+/* ══════ §8 第六次盘问：无幸存者偏差宽池三维度（数字与 analysis_final2.log 逐条核对）══════ */
+const D6 = {
+  ind: [
+    {name:"金属新材料", n:100, med:4.72, ex:3.37},
+    {name:"元件",       n:182, med:5.77, ex:3.27},
+    {name:"光学光电子", n:240, med:4.41, ex:3.23},
+    {name:"消费电子",   n:300, med:4.28, ex:3.20},
+    {name:"半导体",     n:609, med:4.54, ex:2.99},
+    {name:"燃气Ⅱ",     n:43,  med:-2.29, ex:-2.54},
+    {name:"油服工程",   n:35,  med:-2.76, ex:-2.76},
+    {name:"贵金属",     n:51,  med:-3.16, ex:-3.76},
+  ],
+  clu: {
+    ig: [{t:"≥1",ex:1.32,n:13707,win:58},{t:"≥2",ex:1.69,n:11330,win:60},{t:"≥3",ex:1.98,n:9673,win:62},{t:"≥4",ex:2.30,n:8499,win:64}],
+    b3: [{t:"≥1",ex:0.18,n:11795,win:54},{t:"≥2",ex:0.32,n:10225,win:55},{t:"≥3",ex:0.43,n:8940,win:56},{t:"≥4",ex:0.49,n:7908,win:56}],
+  },
+  cross: [
+    {rs:"热",clu:"≤3",ex:-0.71,n:2317,win:49},
+    {rs:"热",clu:"≥4",ex:0.69, n:1683,win:55},
+    {rs:"冷",clu:"≤3",ex:-0.63,n:2844,win:49},
+    {rs:"冷",clu:"≥4",ex:2.63, n:6816,win:66},
+  ],
+  reg: {
+    ig: [{seg:"924暴涨段",ex:0.74},{seg:"2025结构市",ex:1.88},{seg:"2026至今",ex:1.18}],
+    cx: [{seg:"924暴涨段",ex:0.69,win:55},{seg:"2025结构市",ex:3.39,win:75},{seg:"2026至今",ex:2.57,win:55}],
+  },
+};
+
+/* ── 图1：D2 点火分行业超额横条 ────────────────────────── */
+(function(){
+  const rows = D6.ind.slice().sort((a,b)=>b.ex-a.ex);
+  const W=880, rowH=30, padL=150, padR=72, H=rows.length*rowH+26;
+  const maxAbs=Math.max(...rows.map(d=>Math.abs(d.ex)));
+  const x0=padL+(W-padL-padR)/2, sc=(W-padL-padR)/2/maxAbs;
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="点火分行业超额横条图">`;
+  s+=`<line x1="${x0}" y1="6" x2="${x0}" y2="${H-16}" stroke="var(--line)"/>`;
+  s+=`<text x="${x0}" y="${H-3}" text-anchor="middle" font-size="10" fill="var(--ink3)">0（行业内基线）</text>`;
+  rows.forEach((d,i)=>{
+    const y=10+i*rowH, bw=Math.abs(d.ex)*sc, x=d.ex>=0?x0:x0-bw, cls=d.ex>=0?'var(--up)':'var(--dn)';
+    s+=`<g><text x="${padL-8}" y="${y+15}" text-anchor="end" font-size="12.5" fill="var(--ink2)">${d.name}</text>`;
+    s+=`<rect x="${x}" y="${y}" width="${Math.max(bw,1)}" height="19" rx="2" fill="${cls}" opacity=".88"/>`;
+    s+=`<text x="${d.ex>=0?x0+bw+5:x0-bw-5}" y="${y+14}" text-anchor="${d.ex>=0?'start':'end'}" font-size="11.5" fill="${cls}">${ppr(d.ex)}</text>`;
+    s+=`<rect x="0" y="${y-1}" width="${W}" height="${rowH-2}" fill="transparent" data-hit="${i}"/></g>`;
+  });
+  s+=`</svg>`;
+  const el=document.getElementById('indchart'); el.innerHTML=s;
+  el.querySelectorAll('[data-hit]').forEach(r=>{
+    const d=rows[+r.getAttribute('data-hit')];
+    r.addEventListener('mousemove',ev=>showTip(`<b>${d.name}</b><br>n=${d.n} · 行业内中位 <b>${pcr(d.med)}</b><br>行业内超额 <b>${ppr(d.ex)}</b>`,ev.clientX,ev.clientY));
+    r.addEventListener('mouseleave',hideTip);
+  });
+})();
+
+/* ── 图2：D3 cluster 边际超额曲线（点火 vs B3）─────────── */
+(function(){
+  const ig=D6.clu.ig, b3=D6.clu.b3;
+  const W=880,H=280,padL=48,padR=92,padT=20,padB=36, ymax=2.6,ymin=0;
+  const sx=i=>padL+i/(ig.length-1)*(W-padL-padR);
+  const sy=v=>padT+(1-(v-ymin)/(ymax-ymin))*(H-padT-padB);
+  let grid='';
+  for(let g=0;g<=4;g++){const v=ymin+g/4*(ymax-ymin),y=sy(v);grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line2)"/><text x="${padL-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--ink3)">+${v.toFixed(1)}</text>`;}
+  let xl='';
+  ig.forEach((d,i)=>{xl+=`<text x="${sx(i)}" y="${H-12}" text-anchor="middle" font-size="11.5" fill="var(--ink3)">cluster${d.t}</text>`;});
+  const path=arr=>arr.map((d,i)=>(i?'L':'M')+sx(i).toFixed(1)+' '+sy(d.ex).toFixed(1)).join('');
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="cluster边际超额曲线">${grid}${xl}`;
+  s+=`<path d="${path(b3)}" fill="none" stroke="var(--ref)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  s+=`<path d="${path(ig)}" fill="none" stroke="var(--up)" stroke-width="2.5"/>`;
+  ig.forEach((d,i)=>{s+=`<circle cx="${sx(i)}" cy="${sy(d.ex)}" r="4" fill="var(--up)"/><text x="${sx(i)}" y="${sy(d.ex)-9}" text-anchor="middle" font-size="10.5" fill="var(--up)">${ppr(d.ex)}</text>`;});
+  b3.forEach((d,i)=>{s+=`<circle cx="${sx(i)}" cy="${sy(d.ex)}" r="3.5" fill="var(--ref)"/>`;});
+  const L=ig.length-1;
+  s+=`<text x="${sx(L)+8}" y="${sy(ig[L].ex)+4}" font-size="11" fill="var(--up)">⛏点火</text>`;
+  s+=`<text x="${sx(L)+8}" y="${sy(b3[L].ex)+4}" font-size="11" fill="var(--ref)">🏆B3</text>`;
+  ig.forEach((d,i)=>{s+=`<circle cx="${sx(i)}" cy="${sy(d.ex)}" r="13" fill="transparent" data-c="ig-${i}"/>`;});
+  b3.forEach((d,i)=>{s+=`<circle cx="${sx(i)}" cy="${sy(d.ex)}" r="13" fill="transparent" data-c="b3-${i}"/>`;});
+  s+=`</svg>`;
+  const el=document.getElementById('cluchart'); el.innerHTML=s;
+  el.querySelectorAll('[data-c]').forEach(r=>{
+    const p=r.getAttribute('data-c').split('-'), d=(p[0]==='ig'?ig:b3)[+p[1]];
+    r.addEventListener('mousemove',ev=>showTip(`<b>${p[0]==='ig'?'⛏点火':'🏆B3'} · cluster${d.t}</b><br>n=${d.n} 胜率${d.win}%<br>超额 <b>${ppr(d.ex)}</b>`,ev.clientX,ev.clientY));
+    r.addEventListener('mouseleave',hideTip);
+  });
+})();
+
+/* ── 图3：交叉 2×2 热力格（RS20 热度 × cluster 群火）──── */
+(function(){
+  const W=760,H=384,padL=98,padT=54,rMarg=24;
+  const cellW=(W-padL-rMarg)/2, cellH=(H-padT-40)/2, maxAbs=2.63;
+  const cells=D6.cross;
+  const pos=(rs,clu)=>({x:padL+(clu==='≤3'?0:1)*cellW, y:padT+(rs==='热'?0:1)*cellH});
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="RS20热度×cluster群火 2×2交叉热力格">`;
+  s+=`<text x="${padL+cellW/2}" y="${padT-28}" text-anchor="middle" font-size="13" fill="var(--ink2)">群火 cluster≤3</text>`;
+  s+=`<text x="${padL+cellW+cellW/2}" y="${padT-28}" text-anchor="middle" font-size="13" fill="var(--ink2)">群火 cluster≥4</text>`;
+  s+=`<text x="${padL+cellW}" y="${padT-10}" text-anchor="middle" font-size="10.5" fill="var(--ink3)">同行业近3日点火只数 →</text>`;
+  s+=`<text x="${padL-16}" y="${padT+cellH/2-4}" text-anchor="end" font-size="13" fill="var(--ink2)">热板块<tspan x="${padL-16}" dy="16" font-size="10.5" fill="var(--ink3)">RS20≥0</tspan></text>`;
+  s+=`<text x="${padL-16}" y="${padT+cellH+cellH/2-4}" text-anchor="end" font-size="13" fill="var(--ink2)">冷板块<tspan x="${padL-16}" dy="16" font-size="10.5" fill="var(--ink3)">RS20&lt;0</tspan></text>`;
+  cells.forEach((d,idx)=>{
+    const p=pos(d.rs,d.clu), star=(d.rs==='冷'&&d.clu==='≥4');
+    const col=d.ex>=0?'var(--up)':'var(--dn)', op=(0.12+0.55*Math.abs(d.ex)/maxAbs).toFixed(2);
+    s+=`<g><rect x="${p.x+4}" y="${p.y+4}" width="${cellW-8}" height="${cellH-8}" rx="8" fill="${col}" opacity="${op}" stroke="${star?col:'var(--line)'}" stroke-width="${star?3:1}"/>`;
+    s+=`<text x="${p.x+cellW/2}" y="${p.y+cellH/2-4}" text-anchor="middle" font-size="27" font-weight="700" fill="${col}">${ppr(d.ex)}</text>`;
+    s+=`<text x="${p.x+cellW/2}" y="${p.y+cellH/2+20}" text-anchor="middle" font-size="12.5" fill="var(--ink2)">胜率 ${d.win}% · n=${d.n}</text>`;
+    if(star) s+=`<text x="${p.x+cellW/2}" y="${p.y+cellH/2+42}" text-anchor="middle" font-size="11.5" fill="${col}">★ 本轮头牌</text>`;
+    s+=`<rect x="${p.x+4}" y="${p.y+4}" width="${cellW-8}" height="${cellH-8}" fill="transparent" data-hit="${idx}"/></g>`;
+  });
+  s+=`</svg>`;
+  const el=document.getElementById('crosschart'); el.innerHTML=s;
+  el.querySelectorAll('[data-hit]').forEach(r=>{
+    const d=cells[+r.getAttribute('data-hit')];
+    r.addEventListener('mousemove',ev=>showTip(`<b>${d.rs}板块（RS20${d.rs==='冷'?'<0':'≥0'}）× cluster${d.clu}</b><br>n=${d.n} 胜率${d.win}%<br>中位超额 <b>${ppr(d.ex)}</b>`,ev.clientX,ev.clientY));
+    r.addEventListener('mouseleave',hideTip);
+  });
+})();
+
+/* ── 图4：regime 三段对比条（点火全A vs 冷×群火）─────── */
+(function(){
+  const ig=D6.reg.ig, cx=D6.reg.cx;
+  const W=760,H=300,padL=48,padR=20,padT=20,padB=44, ymax=3.6,ymin=0;
+  const gw=(W-padL-padR)/ig.length, bw=gw*0.28;
+  const sy=v=>padT+(1-(v-ymin)/(ymax-ymin))*(H-padT-padB);
+  let grid='';
+  for(let g=0;g<=3;g++){const v=ymin+g/3*(ymax-ymin),y=sy(v);grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line2)"/><text x="${padL-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--ink3)">+${v.toFixed(1)}</text>`;}
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="regime三段超额对比条">${grid}`;
+  ig.forEach((d,i)=>{
+    const c0=padL+gw*i+gw/2, a=ig[i].ex, b=cx[i].ex, xa=c0-bw-3, xb=c0+3, y0=sy(0);
+    s+=`<g data-g="${i}">`;
+    s+=`<rect x="${xa}" y="${sy(a)}" width="${bw}" height="${y0-sy(a)}" rx="2" fill="var(--up)" opacity=".42"/>`;
+    s+=`<text x="${xa+bw/2}" y="${sy(a)-5}" text-anchor="middle" font-size="10.5" fill="var(--up)">${ppr(a)}</text>`;
+    s+=`<rect x="${xb}" y="${sy(b)}" width="${bw}" height="${y0-sy(b)}" rx="2" fill="var(--up)" opacity=".9"/>`;
+    s+=`<text x="${xb+bw/2}" y="${sy(b)-5}" text-anchor="middle" font-size="10.5" fill="var(--up)">${ppr(b)}</text>`;
+    s+=`<text x="${c0}" y="${H-24}" text-anchor="middle" font-size="12" fill="var(--ink2)">${d.seg}</text>`;
+    s+=`<rect x="${padL+gw*i}" y="${padT}" width="${gw}" height="${y0-padT}" fill="transparent" data-hit="${i}"/></g>`;
+  });
+  s+=`</svg>`;
+  const el=document.getElementById('regchart'); el.innerHTML=s;
+  el.querySelectorAll('[data-hit]').forEach(r=>{
+    const i=+r.getAttribute('data-hit');
+    r.addEventListener('mousemove',ev=>showTip(`<b>${ig[i].seg}</b><br>⛏点火·全A 超额 <b>${ppr(ig[i].ex)}</b><br>冷×群火 超额 <b>${ppr(cx[i].ex)}</b> 胜率${cx[i].win}%`,ev.clientX,ev.clientY));
+    r.addEventListener('mouseleave',hideTip);
   });
 })();
 </script>

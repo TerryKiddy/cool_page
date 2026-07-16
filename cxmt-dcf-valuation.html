@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<!-- cxmt-dcf-v1 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>长鑫科技（688825）DCF 估值台 · 申购日 2026-07-16</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+<style>
+:root{
+  --bg:#0d1412; --bg2:#101917; --panel:#131d1a; --panel2:#17231f;
+  --line:#24322e; --line2:#2e3f3a;
+  --ink:#e8efec; --ink2:#9db3ac; --ink3:#5f746e;
+  --copper:#b8842d; --copper-hi:#d9a13f; --cyan:#31a0b5; --cyan-hi:#59c2d4;
+  --up:#e0524d; --dn:#3fa66b; /* A股语义：红涨绿跌 */
+  --mono:'JetBrains Mono','Noto Sans SC',monospace;
+  --slab:'Zilla Slab','Noto Sans SC',serif;
+  --sans:'Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--sans);
+  font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(49,160,181,.028) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(49,160,181,.028) 23px 24px);
+}
+a{color:var(--cyan-hi);text-decoration:none;border-bottom:1px dotted var(--cyan)}
+a:hover{color:var(--ink)}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- masthead ---------- */
+header{border-bottom:1px solid var(--line);padding:52px 0 34px;position:relative;overflow:hidden}
+header::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(900px 340px at 78% -10%, rgba(184,132,45,.13), transparent 62%),
+             radial-gradient(700px 300px at 12% 110%, rgba(49,160,181,.09), transparent 60%)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--copper-hi);
+  display:flex;flex-wrap:wrap;gap:10px 22px;margin-bottom:18px}
+.eyebrow span::before{content:"▸ ";color:var(--ink3)}
+h1{font-family:var(--slab);font-weight:700;font-size:clamp(30px,5vw,46px);line-height:1.2;letter-spacing:.01em}
+h1 em{font-style:normal;color:var(--copper-hi)}
+.dek{margin-top:14px;max-width:760px;color:var(--ink2);font-size:16px}
+.dek strong{color:var(--ink)}
+.tape{margin-top:22px;font-family:var(--mono);font-size:12px;color:var(--ink3);
+  border:1px dashed var(--line2);border-radius:6px;padding:8px 14px;display:inline-block}
+
+/* ---------- sections ---------- */
+section{padding:46px 0 6px}
+.sec-tag{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--cyan-hi);margin-bottom:8px}
+h2{font-family:var(--slab);font-size:26px;font-weight:600;margin-bottom:6px}
+.sec-note{color:var(--ink2);max-width:820px;margin-bottom:22px}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.on{opacity:1;transform:none}
+
+/* ---------- verdict number line ---------- */
+.verdict-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:30px 28px 24px;position:relative}
+.vline{position:relative;height:120px;margin:26px 6px 4px}
+.vtrack{position:absolute;left:0;right:0;top:64px;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,var(--dn) 0%,#54655f 42%, #54655f 46%,var(--up) 100%);opacity:.75}
+.vmark{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:120px}
+.vmark .dot{width:13px;height:13px;border-radius:50%;margin:0 auto;border:2px solid var(--bg);position:relative;top:59px}
+.vmark .lbl{font-family:var(--mono);font-size:11.5px;color:var(--ink2);line-height:1.45}
+.vmark .val{font-family:var(--slab);font-weight:700;font-size:19px}
+.vipo{position:absolute;transform:translateX(-50%);top:14px;text-align:center}
+.vipo .flagpole{width:2px;height:62px;background:var(--copper-hi);margin:0 auto}
+.vipo .flag{font-family:var(--mono);font-size:11.5px;color:var(--copper-hi);white-space:nowrap;
+  border:1px solid var(--copper);border-radius:4px;padding:2px 8px;background:rgba(184,132,45,.12);
+  transform:translateX(-56px);display:inline-block}
+.vlive{position:absolute;transform:translateX(-50%);top:86px;text-align:center;transition:left .35s ease}
+.vlive .dia{width:12px;height:12px;background:var(--cyan-hi);transform:rotate(45deg);margin:0 auto;border:2px solid var(--bg)}
+.vlive .lbl{font-family:var(--mono);font-size:11px;color:var(--cyan-hi);white-space:nowrap;margin-top:3px}
+.verdict-text{color:var(--ink2);font-size:15px;margin-top:26px;border-top:1px dashed var(--line2);padding-top:18px}
+.verdict-text strong{color:var(--ink)}
+
+/* ---------- stat tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 16px 13px;position:relative;overflow:hidden}
+.tile::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--copper)}
+.tile.cy::after{background:var(--cyan)}
+.tile .k{font-size:12px;color:var(--ink3);letter-spacing:.05em}
+.tile .v{font-family:var(--slab);font-weight:700;font-size:25px;margin-top:2px;line-height:1.25}
+.tile .v small{font-size:13px;font-weight:500;color:var(--ink2)}
+.tile .s{font-family:var(--mono);font-size:11px;color:var(--ink2);margin-top:3px}
+
+/* ---------- paradox ---------- */
+.paradox{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.paradox{grid-template-columns:1fr}}
+.pcard{border:1px solid var(--line);border-radius:12px;padding:24px;background:var(--panel)}
+.pcard .big{font-family:var(--slab);font-weight:700;font-size:clamp(40px,6vw,58px);line-height:1.1}
+.pcard.hot .big{color:var(--up)}
+.pcard.cold .big{color:var(--dn)}
+.pcard .cap{font-family:var(--mono);font-size:12px;color:var(--ink3);letter-spacing:.1em;margin-bottom:8px}
+.pcard p{color:var(--ink2);font-size:14px;margin-top:10px}
+.paradox-note{margin-top:16px;border-left:3px solid var(--copper);padding:10px 18px;background:rgba(184,132,45,.07);border-radius:0 8px 8px 0;color:var(--ink2)}
+.paradox-note strong{color:var(--copper-hi)}
+
+/* ---------- charts ---------- */
+.chartbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 12px 8px;margin-top:6px}
+.chart{width:100%;height:360px}
+.chart-cap{font-family:var(--mono);font-size:11.5px;color:var(--ink3);padding:6px 10px 10px;line-height:1.6}
+
+/* ---------- console ---------- */
+.console{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.console{grid-template-columns:1fr}}
+.ctl{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.scen{display:flex;gap:8px;margin-bottom:18px}
+.scen button{flex:1;font-family:var(--mono);font-size:12.5px;padding:9px 4px;border-radius:7px;cursor:pointer;
+  background:var(--panel2);border:1px solid var(--line2);color:var(--ink2);transition:.2s}
+.scen button:hover{border-color:var(--copper);color:var(--ink)}
+.scen button.act{background:rgba(184,132,45,.16);border-color:var(--copper-hi);color:var(--copper-hi);font-weight:700}
+.sl{margin-bottom:15px}
+.sl .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2);margin-bottom:4px}
+.sl .row b{font-family:var(--mono);color:var(--ink);font-weight:500}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--copper-hi);border:2px solid var(--bg);cursor:pointer;box-shadow:0 0 0 1px var(--copper)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--copper-hi);border:2px solid var(--bg);cursor:pointer}
+.outs{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 20px 8px}
+.hero{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px dashed var(--line2);padding-bottom:14px}
+.hero .hv{font-family:var(--slab);font-weight:700;font-size:clamp(44px,6vw,62px);color:var(--copper-hi);line-height:1}
+.hero .hk{font-size:13px;color:var(--ink3)}
+.hero .delta{font-family:var(--mono);font-size:15px;padding:3px 10px;border-radius:6px}
+.delta.pos{color:var(--up);background:rgba(224,82,77,.1)}
+.delta.neg{color:var(--dn);background:rgba(63,166,107,.1)}
+.ogrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:14px 0}
+.og .k{font-size:11.5px;color:var(--ink3)}
+.og .v{font-family:var(--mono);font-size:19px;color:var(--ink);font-weight:500}
+.og .v small{font-size:12px;color:var(--ink2)}
+
+/* ---------- pits ---------- */
+.pits{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.pit{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;position:relative}
+.pit .idx{font-family:var(--slab);font-weight:700;font-size:38px;color:var(--copper);opacity:.5;position:absolute;top:10px;right:18px}
+.pit h3{font-family:var(--slab);font-size:18.5px;margin-bottom:8px;color:var(--copper-hi)}
+.pit p{font-size:13.5px;color:var(--ink2)}
+.pit p b{color:var(--ink)}
+.pit .fig{font-family:var(--mono);font-size:12px;color:var(--cyan-hi);margin-top:10px;border-top:1px dashed var(--line2);padding-top:8px}
+
+/* ---------- risk table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--ink3);text-align:left;
+  border-bottom:1px solid var(--line2);padding:8px 12px;font-weight:500}
+td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td:first-child{color:var(--ink);font-weight:500}
+td .num{color:var(--up)}
+.tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 8px}
+
+/* ---------- xie card ---------- */
+.quote{border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:0 12px 12px 0;
+  background:var(--panel);padding:20px 24px;margin-bottom:18px}
+.quote .who{font-family:var(--mono);font-size:12px;color:var(--cyan-hi);margin-bottom:6px}
+.quote p{color:var(--ink);font-size:15.5px}
+.quote .re{color:var(--ink3);font-size:13px;margin-top:8px;font-family:var(--mono)}
+.assess{color:var(--ink2);max-width:860px}
+.assess strong{color:var(--ink)}
+.assess .yes{color:var(--up);font-weight:700}
+.assess .warn{color:var(--copper-hi);font-weight:700}
+
+/* ---------- footer ---------- */
+footer{margin-top:56px;border-top:1px solid var(--line);padding:30px 0 60px;color:var(--ink3);font-size:12.5px}
+.stamp{display:inline-block;border:2px solid var(--up);color:var(--up);font-family:var(--slab);font-weight:700;
+  font-size:15px;padding:4px 14px;border-radius:6px;transform:rotate(-3deg);letter-spacing:.3em;margin-bottom:18px;opacity:.85}
+footer ul{list-style:none;margin-top:10px}
+footer li{margin:3px 0}
+details{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px}
+summary{cursor:pointer;font-family:var(--mono);font-size:12.5px;color:var(--ink2)}
+</style>
+</head>
+<body data-page="cxmt-dcf-v1">
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow"><span>DRAM · 存储器</span><span>科创板 688825</span><span>申购日 2026-07-16</span><span>发行价 ¥8.66</span></div>
+    <h1>长鑫科技 <em>DCF 估值台</em></h1>
+    <p class="dek">科创板史上第二大 IPO。同一只股票，按 2025 年利润是 <strong>308.9 倍</strong>市盈率，按 2026 年年化利润只有 <strong>约 5.4 倍</strong>——两个数都是真的。这一页用跨周期 DCF 把争论落到数字上：<strong>发行价 8.66 元 ≈ 基准情形公允值</strong>，超额收益押的是「周期延长 + HBM 兑现」。</p>
+    <div class="tape">MODEL: 10Y FCFF · MID-YEAR DISCOUNTING · MINORITY-ADJ ×75% · SHARES 668.82亿</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">01 / VERDICT</div>
+    <h2>判决：三情景 vs 发行价</h2>
+    <div class="verdict-box">
+      <div class="vline" id="vline">
+        <div class="vtrack"></div>
+        <div class="vipo" style="left:43.5%"><div class="flag">发行价 8.66</div><div class="flagpole"></div></div>
+        <div class="vmark" style="left:11.5%"><div class="lbl">悲观<br><span class="val num" style="color:var(--dn)">4.5</span></div><div class="dot" style="background:var(--dn)"></div></div>
+        <div class="vmark" style="left:46.2%"><div class="lbl">基准<br><span class="val num" style="color:var(--ink)">9.0</span></div><div class="dot" style="background:#8fa39e"></div></div>
+        <div class="vmark" style="left:86%"><div class="lbl">乐观<br><span class="val num" style="color:var(--up)">14.2</span></div><div class="dot" style="background:var(--up)"></div></div>
+        <div class="vlive" id="vlive" style="left:46.2%"><div class="dia"></div><div class="lbl">当前参数 <span id="vliveVal">9.04</span></div></div>
+      </div>
+      <p class="verdict-text"><strong>发行价 8.66 元大致落在基准情形（≈9.0 元）的公允值上，并不便宜到「白送」。</strong>「5000 多亿市值太低」这个论断只有在乐观情形（存储超级周期延续到 2028 + HBM 2028 量产，≈14 元 / 归母市值 ≈9,500 亿）下成立；若 2027 年下行周期如期而至，悲观情形 4–5 元的下界也真实存在。打新（新股溢价+稀缺性）期望值为正是另一回事——那是 A 股定价习惯，不是 DCF 给的安全垫。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">02 / FACTS</div>
+    <h2>事实底座</h2>
+    <p class="sec-note">发行要素与财务数据来自招股书/发行公告（可验证）；全球份额为集邦口径。</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">发行市值</div><div class="v num">5,792<small> 亿</small></div><div class="s">8.66元 × 668.82亿股</div></div>
+      <div class="tile"><div class="k">募资净额</div><div class="v num">576<small> 亿</small></div><div class="s">科创板史上第二大 IPO</div></div>
+      <div class="tile cy"><div class="k">2026Q1 营收</div><div class="v num">508<small> 亿</small></div><div class="s">同比 +719%</div></div>
+      <div class="tile cy"><div class="k">2026H1 归母指引</div><div class="v num">500–570<small> 亿</small></div><div class="s">2025全年仅 18.75亿</div></div>
+      <div class="tile"><div class="k">全球 DRAM 份额</div><div class="v num">7.67<small> %</small></div><div class="s">2025Q4 销售额口径 · 全球第四</div></div>
+      <div class="tile"><div class="k">月产能</div><div class="v num">30→50<small> 万片</small></div><div class="s">2026H1 → 2028 目标</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">03 / THE PE PARADOX</div>
+    <h2>争论的本质：用哪年利润</h2>
+    <div class="paradox">
+      <div class="pcard hot">
+        <div class="cap">按 2025 年扣非利润</div>
+        <div class="big num">308.9<span style="font-size:.45em">×</span></div>
+        <p>2025 全年扣非 53.2 亿，刚扭亏。这是监管披露口径——比行业均值 76 倍、可比公司 135 倍都贵一大截，「贵得吓人」。</p>
+      </div>
+      <div class="pcard cold">
+        <div class="cap">按 2026 年年化归母利润</div>
+        <div class="big num">≈5.4<span style="font-size:.45em">×</span></div>
+        <p>H1 归母指引 500–570 亿，年化约 1,070 亿。5,792 亿市值除下来只有 5 倍出头，「便宜得吓人」。</p>
+      </div>
+    </div>
+    <div class="paradox-note"><strong>两个数都是真的。</strong>2026 年利润是 DRAM 四十年一遇涨价潮的周期之巅利润（毛利率从 2023 年 −3% 飙到 60%+），历史上每轮存储下行期顶部利润会缩水 70–90%。所以既不能用 309 倍说它贵，也不能用 5.4 倍说它便宜——只能把整个周期摊开来折现，这正是下面 DCF 做的事。</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">04 / TRAJECTORY</div>
+    <h2>财务轨迹：从年亏 163 亿到季赚 248 亿</h2>
+    <div class="chartbox">
+      <div id="chTraj" class="chart"></div>
+      <div class="chart-cap">单位：亿元。2026E 为模型基准情形估计（营收 ≈2,500 亿 / 归母 ≈1,070 亿，其中 H1 为公司指引中值）。数据源：招股书、发行公告。</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">05 / DCF CONSOLE</div>
+    <h2>交互估值台：拖动参数，实时重算</h2>
+    <p class="sec-note">十年 FCFF + 永续终值，年中折现；股权价值 = (企业价值 + 净现金) × 归母比例 ÷ 668.82 亿股。三个按钮是我预设的三档剧本，拖任何滑杆即变成你自己的剧本。</p>
+    <div class="console">
+      <div class="ctl">
+        <div class="scen">
+          <button id="btnBear">悲观</button>
+          <button id="btnBase" class="act">基准</button>
+          <button id="btnBull">乐观</button>
+        </div>
+        <div class="sl"><div class="row"><span>2026 营收（亿）</span><b id="o_rev">2500</b></div><input type="range" id="s_rev" min="2200" max="2900" step="25" value="2500"></div>
+        <div class="sl"><div class="row"><span>2027 营收增速</span><b id="o_g27">+13%</b></div><input type="range" id="s_g27" min="-15" max="40" step="1" value="13"></div>
+        <div class="sl"><div class="row"><span>下行深度（2029谷底 vs 2027峰值）</span><b id="o_dep">-33%</b></div><input type="range" id="s_dep" min="10" max="55" step="1" value="33"></div>
+        <div class="sl"><div class="row"><span>周期顶 EBIT 率（2026）</span><b id="o_pm">50%</b></div><input type="range" id="s_pm" min="40" max="60" step="1" value="50"></div>
+        <div class="sl"><div class="row"><span>中周期 EBIT 率（2031+）</span><b id="o_mm">28%</b></div><input type="range" id="s_mm" min="12" max="36" step="1" value="28"></div>
+        <div class="sl"><div class="row"><span>WACC</span><b id="o_wacc">10.0%</b></div><input type="range" id="s_wacc" min="8" max="13" step="0.25" value="10"></div>
+        <div class="sl"><div class="row"><span>永续增长 g</span><b id="o_tg">3.0%</b></div><input type="range" id="s_tg" min="1" max="4" step="0.25" value="3"></div>
+        <div class="sl"><div class="row"><span>归母比例（1 − 少数股东）</span><b id="o_min">75%</b></div><input type="range" id="s_min" min="65" max="85" step="1" value="75"></div>
+      </div>
+      <div class="outs">
+        <div class="hero">
+          <div><div class="hv num" id="oPS">9.04</div><div class="hk">每股价值（元）</div></div>
+          <div class="delta pos num" id="oDelta">+4% vs 发行价</div>
+        </div>
+        <div class="ogrid">
+          <div class="og"><div class="k">归母市值</div><div class="v" id="oEQ">6,048<small> 亿</small></div></div>
+          <div class="og"><div class="k">企业价值 EV</div><div class="v" id="oEV">8,065<small> 亿</small></div></div>
+          <div class="og"><div class="k">终值占 EV</div><div class="v" id="oTV">59<small> %</small></div></div>
+          <div class="og"><div class="k">隐含中周期归母 PE</div><div class="v" id="oPE">11.8<small> ×</small></div></div>
+        </div>
+        <div id="chFcff" class="chart" style="height:300px"></div>
+        <div class="chart-cap">合并口径 FCFF（亿元）= NOPAT + 折旧摊销 − 资本开支 − 净营运资本变动。资本开支/折旧计划随营收内生（扩产 30→50 万片/月），故周期顶利润大部分转化为厂房设备而非现金。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">06 / SENSITIVITY</div>
+    <h2>敏感性：WACC × 中周期 EBIT 率</h2>
+    <p class="sec-note">其余参数取当前滑杆值。<span style="color:var(--up)">红 = 高于发行价 8.66</span> · <span style="color:var(--dn)">绿 = 低于发行价</span>（A 股红涨绿跌语义）。</p>
+    <div class="chartbox">
+      <div id="chHeat" class="chart" style="height:380px"></div>
+      <div class="chart-cap">每格 = 该组合下的每股价值（元）。可见结论对「下行后利润率回到哪里」远比对折现率敏感——这正是「成本位最弱的价格接受者」风险的数学表达。</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">07 / THREE TRAPS</div>
+    <h2>三个容易被忽略的坑</h2>
+    <div class="pits">
+      <div class="pit"><div class="idx">壹</div><h3>少数股东吃掉 ~25%</h3>
+        <p>上市公司并不 100% 持有长鑫存储。2026Q1 合并净利 <b>330 亿</b>，归母只有 <b>247.6 亿</b>——约四分之一归少数股东。很多「万亿估值」直接拿合并利润乘倍数，<b>虚高约三分之一</b>。</p>
+        <div class="fig">247.6 / 330.1 = 75.0% → 模型归母比例滑杆</div></div>
+      <div class="pit"><div class="idx">贰</div><h3>利润 ≠ 自由现金流</h3>
+        <p>产能从 30 万片/月扩到 50 万片/月，<b>2026–28 年资本开支每年 600–850 亿</b>，把周期顶的天量利润大部分焊进厂房设备；下行期到来时，这些新产能反而放大跌价杀伤。</p>
+        <div class="fig">2026E：净利 ~1,430亿 → FCFF 仅 ~420亿</div></div>
+      <div class="pit"><div class="idx">叁</div><h3>成本位最弱的价格接受者</h3>
+        <p>无 EUV、制程落后三大厂一代以上，<b>HBM 招股书一字未提</b>（乐观预测也要 2028 量产）。下行期三星/海力士/美光打价格战时，长鑫最先受伤——尽管有国产替代本土需求托底。</p>
+        <div class="fig">DRAM 价格回落 &gt;30% → 年利润 −300~500亿（券商测算）</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">08 / RISK LEDGER</div>
+    <h2>风险台账（对年利润的量化冲击）</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>风险</th><th>触发条件</th><th>年利润冲击</th><th>对应模型参数</th></tr></thead>
+        <tbody>
+          <tr><td>DRAM 价格大幅回落</td><td>合约价峰值回撤 &gt;30%（TechInsights 预警 2027 下行，DDR5 数季内可跌 50%+）</td><td><span class="num">−300 ~ −500 亿</span></td><td>下行深度 → 45%+</td></tr>
+          <tr><td>渠道集中去库存</td><td>经销商连续 3–6 个季度去库</td><td><span class="num">−300 ~ −500 亿</span></td><td>2027 增速转负</td></tr>
+          <tr><td>美国设备管制收紧</td><td>扩产设备获取受阻、良率爬坡放缓</td><td><span class="num">−100 ~ −200 亿</span></td><td>中周期 EBIT 率 → 15–18%</td></tr>
+          <tr><td>HBM 研发落后</td><td>2028 年仍未量产，错过 AI 存储主战场</td><td><span class="num">−50 ~ −100 亿</span></td><td>中周期 EBIT 率下调 + 增速下调</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap reveal">
+    <div class="sec-tag">09 / THE TRIGGER</div>
+    <h2>缘起：一条微博</h2>
+    <div class="quote">
+      <div class="who">@谢佩德骨头 · 2026-07-16 15:50</div>
+      <p>「提醒一下。今天长鑫申购日。」</p>
+      <p class="re">评论 @拿铁吞吞：骨大申购了吗 → 博主：申了，5000 多亿的市值还是太低了。</p>
+    </div>
+    <p class="assess"><strong>怎么看这个判断：</strong>申购这个动作 <span class="yes">✓ 没毛病</span>——A 股新股溢价+稀缺性使打新期望值为正，且 A 股给半导体的定价常年高于 DCF（中芯国际长期百倍 PE），上市后市价大概率显著高于 8.66 元。但<span class="warn">「5000 亿太低」是牛市叙事，不是估值结论</span>：市值绝对数低不构成论证，DCF 显示 8.66 元已经计入「正常周期 + 正常执行」，超额收益全部来自「周期延长到 2028」和「HBM 如期量产」两个尚未验证的假设。中枢在 6,000 亿附近，上下各有 50% 量级的空间。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="stamp">非荐股 · 模型推断</div>
+    <p>发行/财务数据来自招股书与发行公告（可验证）；DCF 参数与三情景为本人 2026-07-16 推断，非投资建议。市场有风险，打新与二级买入是两个完全不同的决策。</p>
+    <details>
+      <summary>基准情形 FCFF 数据表（无障碍表格视图）</summary>
+      <div class="tablewrap" style="border:none"><table id="fcffTable"></table></div>
+    </details>
+    <ul>
+      <li>· <a href="https://www.stcn.com/article/detail/4010092.html">证券时报：科创板史上第二大 IPO，长鑫科技 7 月 16 日申购</a></li>
+      <li>· <a href="https://www.ithome.com/0/976/731.htm">IT之家：发行价 8.66 元，市盈率 308.92 倍</a></li>
+      <li>· <a href="https://wallstreetcn.com/articles/3772456">华尔街见闻：招股书更新，Q1 营收 +719%</a></li>
+      <li>· <a href="https://finance.ifeng.com/c/8umOwrYfexI">凤凰网：长鑫科技（688825）深度分析报告</a></li>
+      <li>· <a href="https://newsletter.semianalysis.com/p/memory-mania-how-a-once-in-four-decades">SemiAnalysis: Memory Mania</a></li>
+    </ul>
+    <p style="margin-top:14px" class="mono">cxmt-dcf-v1 · 2026-07-16 · kb/finance/cxmt-ipo-dcf.md</p>
+  </div>
+</footer>
+
+<script>
+/* ================= palette (validated: dataviz six-checks, dark #0d1412) ================= */
+const C = { copper:'#b8842d', copperHi:'#d9a13f', cyan:'#31a0b5', cyanHi:'#59c2d4',
+  up:'#e0524d', dn:'#3fa66b', ink:'#e8efec', ink2:'#9db3ac', ink3:'#5f746e', line:'#24322e' };
+const AXIS = { axisLine:{lineStyle:{color:C.line}}, axisTick:{show:false},
+  axisLabel:{color:C.ink2,fontFamily:'JetBrains Mono',fontSize:11},
+  splitLine:{lineStyle:{color:'rgba(46,63,58,.5)',type:'dashed'}} };
+const TIP = { backgroundColor:'#17231f', borderColor:'#2e3f3a', textStyle:{color:C.ink,fontSize:12},
+  valueFormatter: v => (v==null?'—':Number(v).toLocaleString('zh-CN')) + ' 亿' };
+
+/* ================= DCF model (mirrors scratchpad dcf_model.js, verified in node) ================= */
+const SHARES = 668.82, REV2025 = 618;
+function dcf(p){
+  const rev=[p.rev2026, p.rev2026*(1+p.g27)];
+  const trough=rev[1]*(1-p.depth);
+  rev.push(Math.sqrt(rev[1]*trough)); rev.push(trough);
+  [1.26,1.20,1.10,1.09,1.085,1.08].forEach(m=>rev.push(rev[rev.length-1]*m));
+  const downM=Math.max(.02,.30-p.depth*.55), troughM=Math.max(0,downM-.07);
+  const mm=p.midMargin, margins=[p.peakMargin,p.peakMargin*.9,downM,troughM,mm*.8,mm,mm,mm*.97,mm*.94,mm*.91];
+  const taxes=[.08,.08,.15,.15,.15,.15,.15,.15,.15,.15];
+  const da=[300,380,450,480,500,520,530,540,550,560];
+  const cx=[.32,.30,.28,.21,.21,.19,.175,.165,.155,.145];
+  let pv=0, prev=REV2025; const fcffs=[], nopats=[];
+  for(let i=0;i<10;i++){
+    const nopat=rev[i]*margins[i]*(1-taxes[i]);
+    const f=nopat+da[i]-rev[i]*cx[i]-.12*(rev[i]-prev);
+    nopats.push(nopat); fcffs.push(f); pv+=f/Math.pow(1+p.wacc,i+.5); prev=rev[i];
+  }
+  const tv=fcffs[9]*(1+p.g)/(p.wacc-p.g), pvTv=tv/Math.pow(1+p.wacc,9.5);
+  const ev=pv+pvTv, eq=ev*(1-p.minority), ps=eq/SHARES;
+  const midNet=rev[5]*mm*.85*(1-p.minority);
+  return {rev,fcffs,ev,eq,ps,tvShare:pvTv/ev,midPE:eq/midNet};
+}
+const SCEN = {
+  bear:{rev2026:2350,g27:-.10,depth:.48,midMargin:.15,peakMargin:.44,wacc:.115,g:.02,minority:.25},
+  base:{rev2026:2500,g27:.13,depth:.33,midMargin:.28,peakMargin:.50,wacc:.10,g:.03,minority:.25},
+  bull:{rev2026:2650,g27:.34,depth:.14,midMargin:.33,peakMargin:.54,wacc:.095,g:.03,minority:.25}
+};
+
+/* ================= sliders ================= */
+const $=id=>document.getElementById(id);
+const sliders={rev2026:'s_rev',g27:'s_g27',depth:'s_dep',peakMargin:'s_pm',midMargin:'s_mm',wacc:'s_wacc',g:'s_tg',minority:'s_min'};
+function readParams(){return{
+  rev2026:+$('s_rev').value, g27:+$('s_g27').value/100, depth:+$('s_dep').value/100,
+  peakMargin:+$('s_pm').value/100, midMargin:+$('s_mm').value/100,
+  wacc:+$('s_wacc').value/100, g:+$('s_tg').value/100, minority:1-(+$('s_min').value/100)};}
+function setParams(p){
+  $('s_rev').value=p.rev2026; $('s_g27').value=Math.round(p.g27*100); $('s_dep').value=Math.round(p.depth*100);
+  $('s_pm').value=Math.round(p.peakMargin*100); $('s_mm').value=Math.round(p.midMargin*100);
+  $('s_wacc').value=p.wacc*100; $('s_tg').value=p.g*100; $('s_min').value=Math.round((1-p.minority)*100);}
+function labelParams(p){
+  $('o_rev').textContent=p.rev2026; $('o_g27').textContent=(p.g27>=0?'+':'')+Math.round(p.g27*100)+'%';
+  $('o_dep').textContent='-'+Math.round(p.depth*100)+'%'; $('o_pm').textContent=Math.round(p.peakMargin*100)+'%';
+  $('o_mm').textContent=Math.round(p.midMargin*100)+'%'; $('o_wacc').textContent=(p.wacc*100).toFixed(1)+'%';
+  $('o_tg').textContent=(p.g*100).toFixed(1)+'%'; $('o_min').textContent=Math.round((1-p.minority)*100)+'%';}
+
+/* ================= charts ================= */
+const YEARS=['2026E','2027E','2028E','2029E','2030E','2031E','2032E','2033E','2034E','2035E'];
+const chTraj=echarts.init($('chTraj')), chFcff=echarts.init($('chFcff')), chHeat=echarts.init($('chHeat'));
+
+chTraj.setOption({
+  tooltip:{trigger:'axis',...TIP}, legend:{textStyle:{color:C.ink2,fontSize:12},top:0,icon:'roundRect'},
+  grid:{left:56,right:16,top:44,bottom:30},
+  xAxis:{type:'category',data:['2023','2024','2025','2026E'],...AXIS},
+  yAxis:{type:'value',name:'亿元',nameTextStyle:{color:C.ink3,fontFamily:'JetBrains Mono'},...AXIS},
+  series:[
+    {name:'营业收入',type:'bar',data:[90.87,241.78,617.99,{value:2500,itemStyle:{opacity:.55,borderType:'dashed',borderColor:C.copperHi,borderWidth:1}}],
+     itemStyle:{color:C.copper,borderRadius:[4,4,0,0]},barGap:'12%',
+     label:{show:true,position:'top',color:C.ink2,fontFamily:'JetBrains Mono',fontSize:11,formatter:v=>Math.round(v.value)}},
+    {name:'归母净利润',type:'bar',data:[-163.40,-71.45,18.75,{value:1070,itemStyle:{opacity:.55,borderType:'dashed',borderColor:C.cyanHi,borderWidth:1}}],
+     itemStyle:{color:C.cyan,borderRadius:[4,4,0,0]},
+     label:{show:true,position:'top',color:C.ink2,fontFamily:'JetBrains Mono',fontSize:11,formatter:v=>Math.round(v.value)}}
+  ]});
+
+function renderFcff(r){
+  chFcff.setOption({
+    tooltip:{trigger:'axis',...TIP},
+    grid:{left:52,right:14,top:20,bottom:28},
+    xAxis:{type:'category',data:YEARS,...AXIS,axisLabel:{...AXIS.axisLabel,rotate:38}},
+    yAxis:{type:'value',...AXIS},
+    series:[{name:'FCFF',type:'bar',data:r.fcffs.map(v=>Math.round(v)),
+      itemStyle:{color:x=>x.value<0?C.dn:C.copper,borderRadius:[4,4,0,0]},barMaxWidth:34}]
+  });}
+
+function renderHeat(p){
+  const waccs=[], mms=[];
+  for(let w=8.5;w<=12.01;w+=.5) waccs.push(+w.toFixed(1));
+  for(let m=16;m<=34.01;m+=3) mms.push(m);
+  const data=[]; let lo=1e9,hi=-1e9;
+  mms.forEach((m,i)=>waccs.forEach((w,j)=>{
+    const v=dcf({...p,wacc:w/100,midMargin:m/100}).ps;
+    lo=Math.min(lo,v); hi=Math.max(hi,v); data.push([j,i,+v.toFixed(1)]);
+  }));
+  const span=Math.max(hi-8.66,8.66-lo);
+  chHeat.setOption({
+    tooltip:{...TIP,formatter:d=>`WACC ${waccs[d.value[0]]}% · 中周期EBIT ${mms[d.value[1]]}%<br><b>${d.value[2]} 元/股</b>`},
+    grid:{left:70,right:20,top:14,bottom:56},
+    xAxis:{type:'category',data:waccs.map(w=>w+'%'),name:'WACC',nameLocation:'middle',nameGap:32,
+      nameTextStyle:{color:C.ink3,fontFamily:'JetBrains Mono'},...AXIS,splitLine:{show:false}},
+    yAxis:{type:'category',data:mms.map(m=>m+'%'),name:'中周期 EBIT 率',nameTextStyle:{color:C.ink3,fontFamily:'JetBrains Mono'},...AXIS,splitLine:{show:false}},
+    visualMap:{min:8.66-span,max:8.66+span,show:false,
+      inRange:{color:[C.dn,'#54655f',C.up]}},
+    series:[{type:'heatmap',data,
+      label:{show:true,color:'#0d1412',fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700},
+      itemStyle:{borderColor:'#0d1412',borderWidth:2,borderRadius:3},
+      emphasis:{itemStyle:{shadowBlur:6,shadowColor:'rgba(0,0,0,.5)'}}}]
+  });}
+
+/* ================= wire up ================= */
+const fmt=n=>Math.round(n).toLocaleString('zh-CN');
+function recalc(){
+  const p=readParams(); labelParams(p);
+  const r=dcf(p);
+  $('oPS').textContent=r.ps.toFixed(2);
+  const d=(r.ps/8.66-1)*100, el=$('oDelta');
+  el.textContent=(d>=0?'+':'')+d.toFixed(0)+'% vs 发行价';
+  el.className='delta num '+(d>=0?'pos':'neg');
+  $('oEQ').innerHTML=fmt(r.eq)+'<small> 亿</small>';
+  $('oEV').innerHTML=fmt(r.ev)+'<small> 亿</small>';
+  $('oTV').innerHTML=Math.round(r.tvShare*100)+'<small> %</small>';
+  $('oPE').innerHTML=r.midPE.toFixed(1)+'<small> ×</small>';
+  const pos=Math.max(2,Math.min(98,(r.ps-3)/(16-3)*100));
+  $('vlive').style.left=pos+'%'; $('vliveVal').textContent=r.ps.toFixed(2);
+  renderFcff(r); renderHeat(p);
+}
+Object.values(sliders).forEach(id=>$(id).addEventListener('input',()=>{
+  document.querySelectorAll('.scen button').forEach(b=>b.classList.remove('act'));
+  recalc();
+}));
+[['btnBear','bear'],['btnBase','base'],['btnBull','bull']].forEach(([b,k])=>$(b).addEventListener('click',()=>{
+  document.querySelectorAll('.scen button').forEach(x=>x.classList.remove('act'));
+  $(b).classList.add('act'); setParams(SCEN[k]); recalc();
+}));
+recalc();
+
+/* base-case FCFF table for accessibility */
+(function(){
+  const r=dcf(SCEN.base);
+  let h='<thead><tr><th>年份</th><th>营收(亿)</th><th>FCFF(亿)</th></tr></thead><tbody>';
+  YEARS.forEach((y,i)=>h+=`<tr><td>${y}</td><td class="num">${Math.round(r.rev[i])}</td><td class="num">${Math.round(r.fcffs[i])}</td></tr>`);
+  $('fcffTable').innerHTML=h+'</tbody>';
+})();
+
+/* reveal on scroll */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+window.addEventListener('resize',()=>{chTraj.resize();chFcff.resize();chHeat.resize()});
+</script>
+</body>
+</html>

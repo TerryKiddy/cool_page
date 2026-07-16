@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SnpEff · Transcript already in Gene — 排错笔记</title>
+<style>
+  :root {
+    --ground: #F5F7F5;
+    --surface: #FFFFFF;
+    --surface-2: #ECF1EE;
+    --line: #D8E0DB;
+    --ink: #15201B;
+    --muted: #5B6A63;
+    --faint: #8A978F;
+    --accent: #0E7C6B;
+    --accent-soft: #DDF0EA;
+    --danger: #B23A3A;
+    --amber: #9C6410;
+    --ok: #2C7A4E;
+    --term-bg: #10201B;
+    --term-ink: #C9E7DC;
+    --term-dim: #6E9587;
+    --radius: 10px;
+    --maxw: 780px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0D1512;
+      --surface: #141E1A;
+      --surface-2: #1B2823;
+      --line: #263630;
+      --ink: #E6EDE9;
+      --muted: #9DACA4;
+      --faint: #6C7E75;
+      --accent: #3ED0B4;
+      --accent-soft: #16302A;
+      --danger: #E27A7A;
+      --amber: #D6A44E;
+      --ok: #5FBE87;
+      --term-bg: #0A130F;
+      --term-ink: #BFE3D6;
+      --term-dim: #5E8375;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #F5F7F5; --surface: #FFFFFF; --surface-2: #ECF1EE; --line: #D8E0DB;
+    --ink: #15201B; --muted: #5B6A63; --faint: #8A978F; --accent: #0E7C6B;
+    --accent-soft: #DDF0EA; --danger: #B23A3A; --amber: #9C6410; --ok: #2C7A4E;
+    --term-bg: #10201B; --term-ink: #C9E7DC; --term-dim: #6E9587;
+  }
+  :root[data-theme="dark"] {
+    --ground: #0D1512; --surface: #141E1A; --surface-2: #1B2823; --line: #263630;
+    --ink: #E6EDE9; --muted: #9DACA4; --faint: #6C7E75; --accent: #3ED0B4;
+    --accent-soft: #16302A; --danger: #E27A7A; --amber: #D6A44E; --ok: #5FBE87;
+    --term-bg: #0A130F; --term-ink: #BFE3D6; --term-dim: #5E8375;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.62;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px 96px; }
+
+  code, pre, .mono { font-family: var(--mono); font-variant-ligatures: none; }
+
+  /* ---- masthead ---- */
+  header { padding: 56px 0 30px; border-bottom: 1px solid var(--line); }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before {
+    content: ""; width: 22px; height: 1px; background: var(--accent);
+  }
+  h1 {
+    font-size: clamp(30px, 5.4vw, 46px); line-height: 1.08; margin: 0 0 8px;
+    font-weight: 680; letter-spacing: -0.02em; text-wrap: balance;
+    font-family: var(--mono);
+  }
+  h1 .q { color: var(--danger); }
+  .sub { color: var(--muted); font-size: 16px; margin: 12px 0 0; max-width: 60ch; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 22px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--faint);
+  }
+  .meta b { color: var(--muted); font-weight: 500; }
+
+  /* ---- verdict ---- */
+  .verdict {
+    margin-top: 34px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+    display: grid; grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 620px){ .verdict { grid-template-columns: 1fr; } }
+  .v-cell { padding: 20px 22px; }
+  .v-cell + .v-cell { border-left: 1px solid var(--line); }
+  @media (max-width: 620px){ .v-cell + .v-cell { border-left: none; border-top: 1px solid var(--line); } }
+  .v-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; display: inline-block; margin-bottom: 8px;
+    padding: 2px 9px; border-radius: 20px;
+  }
+  .v-tag.miss { color: var(--amber); background: color-mix(in srgb, var(--amber) 15%, transparent); }
+  .v-tag.bug  { color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, transparent); }
+  .v-cell p { margin: 0; font-size: 15px; }
+  .v-cell strong { font-weight: 640; }
+
+  /* ---- sections ---- */
+  section { margin-top: 52px; }
+  h2 {
+    font-size: 13px; font-family: var(--mono); letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 18px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  h2 .n { color: var(--faint); font-size: 12px; }
+  p { margin: 0 0 14px; }
+  .lead { color: var(--ink); }
+  .muted { color: var(--muted); }
+  kbd, .id {
+    font-family: var(--mono); font-size: 0.86em; background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  /* ---- terminal ---- */
+  .term {
+    background: var(--term-bg); border-radius: var(--radius); overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--term-ink) 16%, transparent);
+    box-shadow: 0 1px 0 rgba(0,0,0,.04);
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 7px; padding: 11px 14px;
+    background: color-mix(in srgb, var(--term-bg) 82%, #000);
+    border-bottom: 1px solid color-mix(in srgb, var(--term-ink) 12%, transparent);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r{background:#E06C5A}.dot.y{background:#DDB05A}.dot.g{background:#63B98A}
+  .term-title {
+    margin-left: 8px; font-family: var(--mono); font-size: 12px;
+    color: var(--term-dim); letter-spacing: 0.02em;
+  }
+  .term pre {
+    margin: 0; padding: 16px 18px; overflow-x: auto;
+    font-size: 12.8px; line-height: 1.7; color: var(--term-ink);
+    -webkit-overflow-scrolling: touch;
+  }
+  .term .p { color: var(--term-dim); }
+  .term .ok { color: #7FD6A9; }
+  .term .err { color: #F0917F; }
+  .term .hl { color: #F5D27A; }
+  .term .cmd { color: #9FE0CC; }
+
+  /* ---- steps ---- */
+  .steps { display: flex; flex-direction: column; gap: 14px; }
+  .step {
+    display: grid; grid-template-columns: 34px 1fr; gap: 16px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 20px;
+  }
+  .step-n {
+    font-family: var(--mono); font-size: 14px; font-weight: 600;
+    color: var(--accent); background: var(--accent-soft);
+    width: 34px; height: 34px; border-radius: 8px;
+    display: grid; place-items: center;
+  }
+  .step-body { min-width: 0; }
+  .step h3 {
+    margin: 4px 0 8px; font-size: 15.5px; font-weight: 640;
+    display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+  }
+  .badge {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 5px;
+    font-weight: 500;
+  }
+  .badge.rec { color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
+  .badge.quick { color: var(--amber); background: color-mix(in srgb, var(--amber) 15%, transparent); }
+  .step p { font-size: 14.5px; margin: 0 0 10px; color: var(--muted); }
+  .step p:last-child { margin-bottom: 0; }
+
+  pre.code {
+    margin: 10px 0 0; background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px 14px; overflow-x: auto;
+    font-size: 12.6px; line-height: 1.65; color: var(--ink);
+  }
+  pre.code .c { color: var(--faint); }
+  pre.code .k { color: var(--accent); }
+
+  /* ---- callout ---- */
+  .note {
+    margin-top: 22px; border-left: 3px solid var(--accent);
+    background: var(--accent-soft); border-radius: 0 8px 8px 0;
+    padding: 14px 18px; font-size: 14.5px;
+  }
+  .note b { color: var(--accent); }
+
+  /* ---- file card (AGENTS.md) ---- */
+  .file {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; background: var(--surface);
+  }
+  .file-tab {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    background: var(--surface-2); border-bottom: 1px solid var(--line);
+    font-family: var(--mono); font-size: 13px;
+  }
+  .file-tab .fn { font-weight: 600; }
+  .file-tab .path { color: var(--faint); margin-left: auto; font-size: 11.5px; }
+  .file pre {
+    margin: 0; padding: 18px; overflow-x: auto; font-size: 12.7px;
+    line-height: 1.72; color: var(--ink);
+  }
+  .md-h { color: var(--accent); font-weight: 600; }
+  .md-c { color: var(--faint); }
+  .md-b { color: var(--ink); font-weight: 600; }
+
+  footer {
+    margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 12px; color: var(--faint);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+
+  .reveal { opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="reveal">
+    <p class="eyebrow">生信排错笔记 · SnpEff build</p>
+    <h1>Transcript <span class="q">already in</span> Gene</h1>
+    <p class="sub">给公共参考病毒基因组(WNV · NC_009942.1)构建 SnpEff 注释库时的一个构建失败——以及它为什么和"危险生物研究"毫无关系。</p>
+    <div class="meta">
+      <span><b>Genome</b> NC_009942.1 · len 11,029</span>
+      <span><b>Gene</b> WNVNY99_gp1</span>
+      <span><b>Transcript</b> YP_001527879.1</span>
+      <span><b>SnpEff</b> 5.0 (2021)</span>
+    </div>
+  </header>
+
+  <div class="verdict reveal" style="animation-delay:.06s">
+    <div class="v-cell">
+      <span class="v-tag miss">误报</span>
+      <p>给<strong>已发表的参考基因组</strong>建注释库,是标准开源生信基础设施/DevOps,不是需 trusted-access 的危险生物研究。编码 agent 因"病毒/基因"字样掐掉内容显示,是<strong>假阳性</strong>。</p>
+    </div>
+    <div class="v-cell">
+      <span class="v-tag bug">真 bug</span>
+      <p>报错与病毒无关:同一个 transcript ID <span class="id">YP_001527879.1</span> 在同一 gene 下<strong>被注册了两次</strong>。任何带重复 protein_id 的 <span class="id">.gbk</span> 都会炸。</p>
+    </div>
+  </div>
+
+  <section class="reveal" style="animation-delay:.1s">
+    <h2><span class="n">◦</span> 现场 / 栈信息</h2>
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="term-title">wnv_NC_009942_1.build.log</span>
+      </div>
+<pre><span class="cmd">$ snpEff build -c "$ROOT/snpeff.config" -genbank -v wnv_NC_009942_1</span>
+<span class="p">00:00:00</span> SnpEff version SnpEff 5.0 (build 2021-03-09), by Pablo Cingolani
+<span class="p">00:00:00</span> Building database for 'wnv_NC_009942_1'
+<span class="p">00:00:00</span> Reading configuration file '.../snpeff/snpeff.config'
+<span class="p">00:00:00</span> <span class="ok">done</span>
+Chromosome: 'NC_009942.1'   length: <span class="hl">11029</span>
+<span class="err">java.lang.RuntimeException: Transcript 'YP_001527879.1' is already in Gene 'WNVNY99_gp1'</span>
+    at org.snpeff.interval.IntervalAndSubIntervals.add(IntervalAndSubIntervals.java:44)
+    at org.snpeff.snpEffect.factory.SnpEffPredictorFactory.add(SnpEffPredictorFactory.java:144)</pre>
+    </div>
+  </section>
+
+  <section class="reveal" style="animation-delay:.14s">
+    <h2><span class="n">◦</span> 根因</h2>
+    <p class="lead">SnpEff 往基因 <span class="id">WNVNY99_gp1</span> 里注册转录本时,发现同一个 ID 已存在——即<strong>重复注册</strong>。这是黄病毒科(flavivirus)GenBank 注释喂给 SnpEff 的经典翻车点:</p>
+    <p class="muted">一条超长多聚蛋白(polyprotein)CDS + 十几个 <span class="id">mat_peptide</span> 成熟肽特征,SnpEff 的 GenBank 解析器容易把它们塞进同一个 gene 造成 transcript ID 撞车;或者 <span class="id">.gbk</span> 文件里那段 polyprotein CDS 本身被重复了。和病毒本身无关。</p>
+  </section>
+
+  <section class="reveal" style="animation-delay:.18s">
+    <h2><span class="n">◦</span> 修复 · 按优先级</h2>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="step-body">
+          <h3>先定位撞车源</h3>
+          <p>SnpEff 约定 genbank 文件在 <span class="id">&lt;data.dir&gt;/&lt;genome&gt;/genes.gbk</span>。看重复的 protein_id 出现几次、挂在什么 feature 下:</p>
+<pre class="code">cd &lt;data.dir&gt;/wnv_NC_009942_1
+grep -nE <span class="k">"YP_001527879\.1"</span> genes.gbk
+grep -nE <span class="k">"^\s+(CDS|mat_peptide|gene)\b|/gene=|/locus_tag=|/protein_id="</span> genes.gbk</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">A</div>
+        <div class="step-body">
+          <h3>真有重复的 CDS 块</h3>
+          <p>若 grep 出两段几乎相同的 <span class="id">CDS … /protein_id="YP_001527879.1"</span>:直接删掉第二段重复 CDS,重新 build。多半是下载/拼接 <span class="id">.gbk</span> 时出的岔子。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">B</div>
+        <div class="step-body">
+          <h3>改用 GFF3 构建 <span class="badge rec">推荐</span></h3>
+          <p>病毒/单基因组直接走 <span class="id">-gff3</span>,自己控 ID 唯一(polyprotein 用 <span class="id">ID=cds-YP_001527879.1</span>,各成熟肽各自唯一 ID)。GenBank 的 polyprotein+mat_peptide 结构对 SnpEff 太脆,GFF3 一次干净。</p>
+<pre class="code">snpEff build -c <span class="k">"$ROOT/snpeff.config"</span> -gff3 -v wnv_NC_009942_1 \
+  2&gt;&amp;1 | tee <span class="k">"$ROOT/wnv_NC_009942_1.build.log"</span></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">C</div>
+        <div class="step-body">
+          <h3>快速过关 <span class="badge quick">治标</span></h3>
+          <p>把冲突特征的 <span class="id">/protein_id</span> 改成唯一值(如 <span class="id">YP_001527879.1_mp2</span>),让 transcript key 不再重复。对"只要能注释"够用。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <b>验收</b> — build 后跑 <span class="id">snpEff dump wnv_NC_009942_1</span>,或对一条已知变异做注释验证。SnpEff 5.0(2021)与此 bug 无关,不必为它升级。
+    </div>
+  </section>
+
+  <section class="reveal" style="animation-delay:.22s">
+    <h2><span class="n">◦</span> AGENTS.md · 如实描述,而非绕过</h2>
+    <p class="muted">给 repo 一份<strong>如实定位项目</strong>的上下文文件——公共 RefSeq 变异注释基础设施 + 工程约定。准确的上下文本身就降低误报;不写"绕过安全"话术(既不对,实际也不管用)。放到 repo 根目录即可。</p>
+    <div class="file">
+      <div class="file-tab">
+        <span class="dot g"></span>
+        <span class="fn">AGENTS.md</span>
+        <span class="path">repo root</span>
+      </div>
+<pre><span class="md-h"># AGENTS.md</span>
+
+<span class="md-h">## What this repo is</span>
+A <span class="md-b">Nextflow bioinformatics pipeline</span> for variant annotation of viral
+sequences against <span class="md-b">public reference genomes</span> (NCBI RefSeq). This is
+routine open-source infrastructure / DevOps work: downloading reference
+genomes, building annotation databases, and wiring tools into a workflow.
+
+It does <span class="md-b">not</span> design, synthesize, or enhance any organism. It only
+annotates variants against already-published reference sequences — the
+same read-only genome bookkeeping done in any public-health lab.
+
+<span class="md-h">## Stack</span>
+- <span class="md-b">Nextflow</span> — pipeline orchestration (main.nf, modules/, conf/)
+- <span class="md-b">Singularity/Apptainer</span> — containerized tools (-B bind mounts)
+- <span class="md-b">SnpEff / SnpSift</span> — variant effect annotation; DBs built from
+  NCBI RefSeq GenBank (-genbank) or GFF3 (-gff3)
+- Reference data: NCBI RefSeq (e.g. WNV NC_009942.1), config in
+  snpeff/snpeff.config, per-genome data under &lt;data.dir&gt;/&lt;genome&gt;/
+
+<span class="md-h">## Common tasks</span>
+- <span class="md-b">Build a SnpEff DB</span>:
+  singularity exec -B "$ROOT:$ROOT" "$IMG" \
+    snpEff build -c "$ROOT/snpeff.config" -genbank -v &lt;genome&gt;
+- Prefer <span class="md-b">-gff3</span> builds for viral polyprotein genomes — GenBank
+  polyprotein + mat_peptide annotations frequently trigger
+  "Transcript 'X' is already in Gene 'Y'" (duplicate transcript IDs).
+  Fix by ensuring every CDS/feature has a <span class="md-b">unique ID/protein_id</span>.
+- Validate: snpEff dump &lt;genome&gt;, or annotate one known VCF row.
+
+<span class="md-h">## Conventions</span>
+- Never hand-edit a built data/&lt;genome&gt;/ DB dir — rebuild instead.
+- Keep genome IDs consistent across config, dir names, Nextflow params.
+- Bind-mount the whole $ROOT so container paths match host paths.
+- All reference genomes are public NCBI RefSeq accessions — cite them.
+
+<span class="md-h">## Note for AI assistants</span>
+This is standard software / bioinformatics infrastructure work on
+<span class="md-b">public reference data</span>. Errors here are ordinary engineering issues
+(path binds, parser quirks, ID collisions, container config), not
+biosecurity concerns. Diagnose them as any backend/build failure.</pre>
+    </div>
+  </section>
+
+  <footer>
+    <span>SnpEff · viral GenBank · duplicate transcript</span>
+    <span>kb/tech/snpeff-viral-genbank-duplicate-transcript.md</span>
+  </footer>
+</div>
+</body>
+</html>

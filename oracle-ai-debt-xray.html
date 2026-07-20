@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ebe7dc">
+  <meta name="description" content="甲骨文 Oracle 的 BBB- 评级、千亿美元债务、400 亿美元融资计划与股价重估：一张资产负债表 X 光片。">
+  <meta name="oracle-ai-credit-xray-v1" content="2026-07-20">
+  <title>甲骨文的债务冰山｜Oracle AI Credit X-Ray</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #ebe7dc;
+      --paper-2: #f6f2e9;
+      --ink: #18211f;
+      --muted: #66706c;
+      --line: rgba(24, 33, 31, .19);
+      --red: #a4362d;
+      --red-dark: #67231f;
+      --blue: #315b67;
+      --blue-dark: #183b46;
+      --green: #3d6855;
+      --amber: #a66e25;
+      --shadow: 0 18px 50px rgba(38, 34, 28, .10);
+      --serif: "Noto Serif SC", "Songti SC", serif;
+      --mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(24, 33, 31, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 33, 31, .025) 1px, transparent 1px),
+        var(--paper);
+      background-size: 26px 26px;
+      font-family: var(--serif);
+      line-height: 1.78;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      opacity: .28;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+
+    a { color: inherit; }
+    button { font: inherit; }
+    ::selection { color: var(--paper-2); background: var(--red); }
+
+    .shell {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 58px;
+      border-bottom: 1px solid var(--line);
+      font: 500 11px/1.2 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .topbar .signal { display: flex; align-items: center; gap: 9px; }
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 0 rgba(164, 54, 45, .45);
+      animation: pulse 2.4s infinite;
+    }
+    @keyframes pulse {
+      70% { box-shadow: 0 0 0 10px rgba(164, 54, 45, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(164, 54, 45, 0); }
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+      gap: 64px;
+      padding: 88px 0 72px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+      color: var(--red);
+      font: 600 12px/1 var(--mono);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .kicker::before { content: ""; width: 34px; border-top: 2px solid currentColor; }
+
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(50px, 7.4vw, 94px);
+      line-height: .98;
+      font-weight: 900;
+      letter-spacing: -.055em;
+    }
+    h1 em {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--ink);
+      font-style: normal;
+    }
+    .dek {
+      max-width: 720px;
+      margin: 30px 0 0;
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.75;
+      color: #3e4945;
+    }
+
+    .verdict-stamp {
+      align-self: end;
+      position: relative;
+      padding: 30px;
+      background: var(--ink);
+      color: var(--paper-2);
+      box-shadow: var(--shadow);
+      transform: rotate(1.1deg);
+    }
+    .verdict-stamp::before {
+      content: "CREDIT DESK / 07·20";
+      position: absolute;
+      top: 11px;
+      right: 14px;
+      color: #aeb6b2;
+      font: 500 9px/1 var(--mono);
+      letter-spacing: .13em;
+    }
+    .verdict-stamp strong {
+      display: block;
+      margin: 14px 0 15px;
+      color: #f1c4bc;
+      font-size: 25px;
+      line-height: 1.45;
+    }
+    .verdict-stamp p { margin: 0; color: #ccd2ce; font-size: 14px; }
+
+    .fact-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-top: 0;
+      box-shadow: var(--shadow);
+    }
+    .fact {
+      min-height: 142px;
+      padding: 24px;
+      border-right: 1px solid var(--line);
+    }
+    .fact:last-child { border-right: 0; }
+    .fact .label { color: var(--muted); font: 500 10px/1.3 var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+    .fact .number { display: block; margin: 12px 0 7px; font: 600 clamp(27px, 3vw, 38px)/1 var(--mono); letter-spacing: -.06em; }
+    .fact .note { color: #55605c; font-size: 12px; line-height: 1.5; }
+
+    section { padding: 100px 0; border-bottom: 1px solid var(--line); }
+    .section-head {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 30px;
+      margin-bottom: 48px;
+    }
+    .section-no { color: var(--red); font: 600 12px/1.4 var(--mono); letter-spacing: .12em; }
+    h2 { max-width: 800px; margin: 0; font-size: clamp(32px, 4vw, 55px); line-height: 1.25; letter-spacing: -.035em; }
+    .section-lede { max-width: 760px; margin: 20px 0 0; color: var(--muted); font-size: 16px; }
+
+    .claim-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .claim {
+      position: relative;
+      min-height: 225px;
+      padding: 28px 30px 25px;
+      overflow: hidden;
+      background: rgba(246, 242, 233, .76);
+      border: 1px solid var(--line);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .claim:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .claim .index {
+      position: absolute;
+      top: -24px;
+      right: 10px;
+      color: rgba(24, 33, 31, .055);
+      font: 600 92px/1 var(--mono);
+    }
+    .claim .post { display: block; margin-bottom: 15px; color: var(--muted); font-size: 14px; }
+    .claim h3 { position: relative; margin: 0 0 12px; font-size: 24px; line-height: 1.45; }
+    .claim p { position: relative; margin: 0; color: #56615d; font-size: 14px; }
+    .tag {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 5px 8px;
+      border: 1px solid currentColor;
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .tag.true { color: var(--green); }
+    .tag.mixed { color: var(--amber); }
+
+    .rating-ruler {
+      margin-top: 24px;
+      padding: 30px;
+      background: var(--ink);
+      color: var(--paper-2);
+    }
+    .ruler-title { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 24px; font: 500 11px/1.4 var(--mono); letter-spacing: .08em; }
+    .ruler {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 5px;
+      align-items: end;
+    }
+    .notch { position: relative; padding-top: 17px; color: #aeb6b2; text-align: center; font: 500 11px/1 var(--mono); border-top: 4px solid #58645f; }
+    .notch.active { color: #ffc9bf; border-color: #d25a4d; }
+    .notch.active::after { content: "NOW"; position: absolute; top: -27px; left: 50%; transform: translateX(-50%); color: #ffc9bf; font-size: 8px; }
+    .notch.junk { color: #e2b275; border-color: #a66e25; }
+    .grade-split { display: grid; grid-template-columns: 6fr 4fr; gap: 5px; margin-top: 12px; color: #8f9994; font: 500 9px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .grade-split span:last-child { color: #e2b275; }
+
+    .xray-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+      gap: 26px;
+      align-items: stretch;
+    }
+    .iceberg-card {
+      position: relative;
+      min-height: 680px;
+      overflow: hidden;
+      color: #eef3ef;
+      background: var(--blue-dark);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+    }
+    .surface {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 38%;
+      overflow: hidden;
+      background: linear-gradient(180deg, #d9ded7 0%, #aebfbe 100%);
+    }
+    .surface::after {
+      content: "";
+      position: absolute;
+      left: -10%; right: -10%; bottom: -13px;
+      height: 28px;
+      background: radial-gradient(ellipse at 50% 0, transparent 0 42%, rgba(255,255,255,.42) 43% 48%, transparent 49%) 0 0 / 78px 26px repeat-x;
+    }
+    .waterline { position: absolute; top: 38%; left: 0; right: 0; border-top: 2px solid rgba(255,255,255,.75); z-index: 3; }
+    .waterline span { position: absolute; right: 20px; top: -24px; color: #334b50; font: 600 9px/1 var(--mono); letter-spacing: .09em; }
+    .berg {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      clip-path: polygon(48% 0, 61% 25%, 100% 100%, 0 100%, 31% 42%);
+      background: linear-gradient(140deg, #faf8ef 0%, #b8cdcf 46%, #789da5 100%);
+      filter: drop-shadow(0 16px 25px rgba(0,0,0,.22));
+    }
+    .berg.visible { top: 14%; width: 37%; height: 24%; z-index: 2; clip-path: polygon(48% 0, 100% 100%, 5% 100%); }
+    .berg.hidden { top: 38%; width: 76%; height: 56%; opacity: .82; z-index: 1; }
+    .ice-number {
+      position: absolute;
+      z-index: 5;
+      font-family: var(--mono);
+    }
+    .ice-number strong { display: block; font-size: clamp(27px, 4vw, 46px); line-height: 1; letter-spacing: -.06em; }
+    .ice-number small { display: block; margin-top: 7px; font-size: 10px; letter-spacing: .06em; }
+    .ice-number.debt { top: 18%; left: 7%; color: var(--ink); }
+    .ice-number.lease { top: 46%; right: 6%; text-align: right; }
+    .ice-number.future { left: 7%; bottom: 9%; color: #c6e0e2; }
+    .iceberg-note { position: absolute; left: 7%; top: 31%; z-index: 6; color: #41514f; font-size: 11px; }
+
+    .xray-side { display: grid; gap: 14px; }
+    .ledger {
+      padding: 25px;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+    }
+    .ledger h3 { margin: 0 0 20px; font-size: 21px; }
+    .ledger-row { display: grid; grid-template-columns: 1fr auto; gap: 15px; padding: 13px 0; border-top: 1px dashed var(--line); align-items: baseline; }
+    .ledger-row span { color: var(--muted); font-size: 13px; }
+    .ledger-row strong { font: 600 17px/1 var(--mono); }
+    .ledger-row.total { border-top: 2px solid var(--ink); }
+    .ledger-row.total strong { color: var(--red); font-size: 23px; }
+    .warning-note { padding: 24px; color: #fae8e4; background: var(--red-dark); }
+    .warning-note .mono { font: 600 10px/1 var(--mono); letter-spacing: .12em; }
+    .warning-note strong { display: block; margin: 14px 0 9px; font-size: 20px; line-height: 1.5; }
+    .warning-note p { margin: 0; color: #e8c3bd; font-size: 13px; }
+
+    .cashflow-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+    .flow-card { padding: 30px; background: var(--paper-2); border: 1px solid var(--line); }
+    .flow-card h3 { margin: 0 0 25px; font-size: 23px; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 78px; gap: 13px; align-items: center; margin: 17px 0; }
+    .bar-row label { color: var(--muted); font-size: 12px; }
+    .track { height: 12px; background: rgba(24,33,31,.08); overflow: hidden; }
+    .fill { height: 100%; transform-origin: left; animation: grow 1.2s both; }
+    .fill.cash { width: 57.5%; background: var(--green); }
+    .fill.capex { width: 100%; background: var(--red); }
+    .fill.fcf { width: 42.5%; background: repeating-linear-gradient(135deg, var(--red) 0 7px, #d28177 7px 11px); }
+    @keyframes grow { from { transform: scaleX(0); } }
+    .bar-row output { text-align: right; font: 600 14px/1 var(--mono); }
+    .equation {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+    .equation div { padding: 13px 6px; background: #ece7da; }
+    .equation span { font: 500 17px/1 var(--mono); }
+    .equation strong { display: block; font: 600 18px/1 var(--mono); }
+    .equation small { display: block; margin-top: 7px; color: var(--muted); font-size: 9px; }
+
+    .funding-card { position: relative; overflow: hidden; color: var(--paper-2); background: var(--ink); }
+    .funding-card::after { content: "$40B"; position: absolute; right: -14px; bottom: -36px; color: rgba(255,255,255,.055); font: 600 108px/1 var(--mono); letter-spacing: -.12em; }
+    .funding-card h3, .funding-card > p, .fund-split, .microcopy { position: relative; z-index: 1; }
+    .funding-card > p { color: #abb4b0; font-size: 13px; }
+    .fund-split { display: grid; grid-template-columns: 1fr 1fr; height: 72px; margin: 27px 0 20px; overflow: hidden; }
+    .fund-split div { display: grid; place-items: center; text-align: center; font: 600 18px/1.2 var(--mono); }
+    .fund-split small { display: block; margin-top: 7px; font-size: 8px; letter-spacing: .08em; }
+    .fund-split .equity { color: #e8f0eb; background: var(--green); }
+    .fund-split .other { color: #f1d5cf; background: var(--red); }
+    .microcopy { padding-left: 18px; color: #d2d8d4; font-size: 12px; border-left: 2px solid #b8c8c0; }
+
+    .price-panel { padding: 36px; background: var(--ink); color: var(--paper-2); box-shadow: var(--shadow); }
+    .price-head { display: flex; justify-content: space-between; align-items: end; gap: 25px; }
+    .price-head h3 { margin: 0; font-size: 28px; }
+    .price-head .drop { color: #ffb4aa; text-align: right; font: 600 42px/1 var(--mono); letter-spacing: -.08em; }
+    .price-head .drop small { display: block; margin-top: 8px; color: #9ca8a2; font-size: 9px; letter-spacing: .08em; }
+    .price-line { position: relative; height: 220px; margin: 35px 0 13px; border-left: 1px solid #56625d; border-bottom: 1px solid #56625d; }
+    .price-line svg { width: 100%; height: 100%; overflow: visible; }
+    .price-line .axis { position: absolute; color: #89948f; font: 500 9px/1 var(--mono); }
+    .price-line .axis.top { top: -5px; left: -34px; }
+    .price-line .axis.bottom { bottom: -4px; left: -34px; }
+    .price-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; color: #929d98; font: 500 9px/1.5 var(--mono); }
+    .price-labels span:last-child { text-align: right; }
+    .price-labels strong { display: block; color: #dce2df; font-size: 11px; }
+
+    .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+    .why { padding: 24px; border: 1px solid var(--line); background: rgba(246,242,233,.68); }
+    .why .num { color: var(--red); font: 600 12px/1 var(--mono); }
+    .why h3 { margin: 14px 0 9px; font-size: 19px; }
+    .why p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .scenario-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .scenario-tab {
+      cursor: pointer;
+      padding: 10px 14px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      font: 600 11px/1 var(--mono);
+      transition: .2s ease;
+    }
+    .scenario-tab:hover, .scenario-tab:focus-visible { color: var(--ink); border-color: var(--ink); outline: none; }
+    .scenario-tab[aria-selected="true"] { color: var(--paper-2); background: var(--ink); border-color: var(--ink); }
+    .scenario-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+      min-height: 335px;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+    }
+    .scenario-main { padding: 38px; }
+    .scenario-main .eyebrow { color: var(--red); font: 600 10px/1 var(--mono); letter-spacing: .12em; }
+    .scenario-main h3 { margin: 14px 0; font-size: 30px; }
+    .scenario-main p { max-width: 650px; margin: 0; color: var(--muted); }
+    .scenario-side { display: grid; align-content: center; padding: 36px; color: #e9efeb; background: var(--blue-dark); }
+    .risk-meter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 20px 0; }
+    .risk-meter i { display: block; height: 9px; background: rgba(255,255,255,.16); }
+    .risk-meter i.on { background: #ed8a77; }
+    .scenario-side span { color: #a7bdbf; font: 500 10px/1.5 var(--mono); }
+    .scenario-side strong { font-size: 20px; }
+
+    .watchlist { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); }
+    .watch { min-height: 215px; padding: 24px; background: rgba(246,242,233,.72); border-right: 1px solid var(--line); }
+    .watch:last-child { border-right: 0; }
+    .watch .code { color: var(--red); font: 600 10px/1 var(--mono); }
+    .watch h3 { margin: 28px 0 10px; font-size: 18px; }
+    .watch p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .final-verdict {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      padding: 62px;
+      color: var(--paper-2);
+      background: var(--red-dark);
+      box-shadow: var(--shadow);
+    }
+    .final-verdict .small { font: 600 10px/1 var(--mono); letter-spacing: .14em; }
+    .final-verdict h2 { margin-top: 18px; font-size: clamp(34px, 5vw, 63px); }
+    .final-verdict blockquote { margin: 0; font-size: clamp(19px, 2.2vw, 28px); line-height: 1.8; }
+    .final-verdict blockquote strong { color: #ffc5ba; }
+
+    footer { padding: 70px 0 90px; }
+    .source-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 50px; }
+    footer h2 { font-size: 25px; }
+    .sources { margin: 25px 0 0; padding: 0; list-style: none; }
+    .sources li { border-top: 1px solid var(--line); }
+    .sources a { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; padding: 13px 0; align-items: center; text-decoration: none; font-size: 12px; }
+    .sources a:hover span { color: var(--red); }
+    .sources code { color: var(--muted); font: 500 9px/1 var(--mono); }
+    .method { padding: 28px; background: rgba(246,242,233,.72); border: 1px solid var(--line); }
+    .method p { margin: 0 0 15px; color: var(--muted); font-size: 12px; }
+    .method p:last-child { margin-bottom: 0; }
+    .method strong { color: var(--ink); }
+    .footer-line { display: flex; justify-content: space-between; gap: 30px; margin-top: 40px; padding-top: 16px; color: var(--muted); border-top: 1px solid var(--line); font: 500 9px/1.5 var(--mono); letter-spacing: .04em; }
+
+    .js .reveal { opacity: 0; transform: translateY(25px); transition: opacity .7s ease, transform .7s ease; }
+    .js .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .hero, .xray-layout, .cashflow-board, .scenario-box, .final-verdict, .source-grid { grid-template-columns: 1fr; }
+      .hero { gap: 36px; padding-top: 62px; }
+      .verdict-stamp { max-width: 560px; }
+      .fact-strip { grid-template-columns: 1fr 1fr; }
+      .fact:nth-child(2) { border-right: 0; }
+      .fact:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .why-grid { grid-template-columns: 1fr; }
+      .watchlist { grid-template-columns: 1fr 1fr; }
+      .watch:nth-child(2) { border-right: 0; }
+      .watch:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .final-verdict { gap: 30px; padding: 42px; }
+    }
+
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .topbar span:last-child { display: none; }
+      .hero { padding: 48px 0 55px; }
+      h1 { font-size: clamp(47px, 16vw, 68px); }
+      .fact-strip, .claim-grid, .watchlist { grid-template-columns: 1fr; }
+      .fact, .fact:nth-child(2), .watch, .watch:nth-child(2) { border-right: 0; border-bottom: 1px solid var(--line); }
+      .fact:last-child, .watch:last-child { border-bottom: 0; }
+      section { padding: 72px 0; }
+      .section-head { grid-template-columns: 1fr; gap: 12px; }
+      .ruler { gap: 2px; }
+      .notch { font-size: 8px; }
+      .iceberg-card { min-height: 610px; }
+      .ice-number.debt { top: 20%; }
+      .equation { grid-template-columns: 1fr; }
+      .equation > span { transform: rotate(90deg); }
+      .bar-row { grid-template-columns: 86px 1fr 66px; }
+      .price-panel { padding: 25px; }
+      .price-head { align-items: start; }
+      .price-head .drop { font-size: 31px; }
+      .price-labels span:nth-child(2), .price-labels span:nth-child(3) { display: none; }
+      .price-labels { grid-template-columns: 1fr 1fr; }
+      .scenario-main, .scenario-side { padding: 28px; }
+      .final-verdict { padding: 30px 24px; }
+      .footer-line { display: block; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+
+    @media print {
+      body { background: white; }
+      body::before, .pulse, .scenario-tabs { display: none; }
+      .shell { width: 100%; }
+      section { break-inside: avoid; }
+      .js .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <script>document.documentElement.classList.add('js')</script>
+
+  <header class="shell">
+    <div class="topbar">
+      <span class="signal"><i class="pulse"></i> ORCL / CREDIT X-RAY</span>
+      <span>DATA CUT · 2026-07-17 CLOSE</span>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="kicker">Oracle × AI Infrastructure</div>
+        <h1>甲骨文的<em>债务冰山</em></h1>
+        <p class="dek">BBB-、千亿美元债务、再融资四百亿——帖子说中了风险，却混淆了债务、租赁和股权融资。把账拆开看，真正的问题不是“明天还不上”，而是未来三年的 AI 数据中心回报率。</p>
+      </div>
+      <aside class="verdict-stamp" aria-label="核心结论">
+        <strong>不是眼前的债务到期危机，<br>而是长期的项目回报率危机。</strong>
+        <p>传统数据库现金流仍在托底；OpenAI 支付能力、数据中心利用率与资本成本，决定这座冰山最后是桥还是坑。</p>
+      </aside>
+    </div>
+
+    <div class="fact-strip" aria-label="关键数字">
+      <div class="fact"><span class="label">S&P issuer rating</span><span class="number">BBB−</span><span class="note">最低投资级；再降一档 BB+ 才是投机级</span></div>
+      <div class="fact"><span class="label">Interest-bearing debt</span><span class="number">$129.5B</span><span class="note">截至 2026-05-31 的带息债务</span></div>
+      <div class="fact"><span class="label">FY26 free cash flow</span><span class="number">−$23.7B</span><span class="note">经营现金流被数据中心 capex 穿透</span></div>
+      <div class="fact"><span class="label">Latest close</span><span class="number">$126.41</span><span class="note">较 52 周高点 $345.72 低约 63.4%</span></div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="shell reveal">
+        <div class="section-head">
+          <div class="section-no">01 / FACT CHECK</div>
+          <div><h2>帖子方向对，四句话里藏着两个口径陷阱</h2><p class="section-lede">评级是真的、千亿美元债也是真的；“垃圾股”和“再借 400 亿”则把信用评级与融资结构说歪了。</p></div>
+        </div>
+
+        <div class="claim-grid">
+          <article class="claim"><span class="index">01</span><span class="post">帖子说：标普已经调到 BBB-</span><h3>是真的，而且已经落地</h3><p>2026 年 7 月 9 日，S&P 将 Oracle 长期发行人评级从 BBB 下调至 BBB-，展望为稳定。</p><span class="tag true">VERIFIED</span></article>
+          <article class="claim"><span class="index">02</span><span class="post">帖子说：离垃圾股只差一档</span><h3>差一档的是“垃圾债”</h3><p>BBB- 是最低投资级，再降至 BB+ 才进入投机级。信用评级针对发行人与债券，不存在“垃圾股评级”。</p><span class="tag mixed">TERM MIXED</span></article>
+          <article class="claim"><span class="index">03</span><span class="post">帖子说：负债一千多亿美元</span><h3>带息债务为 1295 亿美元</h3><p>但现金约 313 亿美元，粗略净债务约 976 亿；若再加已入表租赁，经济负担口径会更大。</p><span class="tag true">DIRECTIONALLY TRUE</span></article>
+          <article class="claim"><span class="index">04</span><span class="post">帖子说：又准备再来 400 亿</span><h3>是“债＋股”，不是纯借债</h3><p>FY2027 计划融资约 400 亿美元，其中包括已宣布的 200 亿美元 ATM 普通股发行。</p><span class="tag mixed">CONTEXT MISSING</span></article>
+        </div>
+
+        <div class="rating-ruler" aria-label="S&P评级刻度">
+          <div class="ruler-title"><span>S&P LONG-TERM CREDIT SCALE / 局部</span><span>一格之差，影响的是融资成本与债券买家范围</span></div>
+          <div class="ruler">
+            <div class="notch">A+</div><div class="notch">A</div><div class="notch">A−</div><div class="notch">BBB+</div><div class="notch">BBB</div><div class="notch active">BBB−</div><div class="notch junk">BB+</div><div class="notch junk">BB</div><div class="notch junk">BB−</div><div class="notch junk">B+</div>
+          </div>
+          <div class="grade-split"><span>Investment grade · 投资级</span><span>Speculative grade · 投机级</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell reveal">
+        <div class="section-head">
+          <div class="section-no">02 / BALANCE SHEET</div>
+          <div><h2>真正的风险不只在 1295 亿债务，而在水面下的长期承诺</h2><p class="section-lede">把“今天已经借的钱”“已入表租赁”和“尚未起租的长期合同”分开。后者不是今天的债，却会在客户失约时变成最难甩掉的包袱。</p></div>
+        </div>
+
+        <div class="xray-layout">
+          <div class="iceberg-card" role="img" aria-label="Oracle债务与租赁承诺冰山图">
+            <div class="surface"></div>
+            <div class="berg visible"></div>
+            <div class="waterline"><span>BALANCE-SHEET WATERLINE</span></div>
+            <div class="berg hidden"></div>
+            <div class="ice-number debt"><strong>$129.5B</strong><small>带息债务 · 已入表</small></div>
+            <div class="iceberg-note">现金 $31.3B → 粗略净债务约 $97.6B</div>
+            <div class="ice-number lease"><strong>$37.9B</strong><small>经营＋融资租赁负债 · 已入表</small></div>
+            <div class="ice-number future"><strong>$260B</strong><small>尚未开始的数据中心租赁承诺 · 未入表</small></div>
+          </div>
+
+          <div class="xray-side">
+            <div class="ledger">
+              <h3>已确认经济负担</h3>
+              <div class="ledger-row"><span>带息债务</span><strong>$129.5B</strong></div>
+              <div class="ledger-row"><span>经营租赁负债</span><strong>$30.2B</strong></div>
+              <div class="ledger-row"><span>融资租赁负债</span><strong>$7.7B</strong></div>
+              <div class="ledger-row total"><span>债务＋已入表租赁</span><strong>$167.4B</strong></div>
+            </div>
+            <div class="ledger">
+              <h3>其他合同承诺</h3>
+              <div class="ledger-row"><span>年末采购／供电义务</span><strong>$13.3B</strong></div>
+              <div class="ledger-row"><span>年末后新增基础设施采购</span><strong>$19.0B</strong></div>
+            </div>
+            <aside class="warning-note"><span class="mono">IMPORTANT DISTINCTION</span><strong>$260B 不能直接写成“今天欠了 2600 亿”。</strong><p>它将在 FY2027—FY2029 陆续起租，期限 15—19 年。不是眼前到期债务，却是未来现金流的硬约束。</p></aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell reveal">
+        <div class="section-head">
+          <div class="section-no">03 / CASH ENGINE</div>
+          <div><h2>利润很好看，现金却被机房吞掉了</h2><p class="section-lede">这正是财报后股价下跌的核心：Oracle 的传统软件仍能产现金，但 AI 基建扩张得比现金生成更快。</p></div>
+        </div>
+
+        <div class="cashflow-board">
+          <article class="flow-card">
+            <h3>FY2026 现金流切片</h3>
+            <div class="bar-row"><label>经营现金流</label><div class="track"><div class="fill cash"></div></div><output>$32.0B</output></div>
+            <div class="bar-row"><label>资本开支</label><div class="track"><div class="fill capex"></div></div><output>$55.7B</output></div>
+            <div class="bar-row"><label>自由现金缺口</label><div class="track"><div class="fill fcf"></div></div><output>−$23.7B</output></div>
+            <div class="equation"><div><strong>32.0</strong><small>经营现金</small></div><span>−</span><div><strong>55.7</strong><small>资本开支</small></div><span>=</span><div><strong style="color:var(--red)">−23.7</strong><small>自由现金流</small></div></div>
+          </article>
+
+          <article class="flow-card funding-card">
+            <h3>FY2027 计划融资约 $40B</h3>
+            <p>这是组合融资，不是再借 400 亿纯债。已明确的一半，是可能造成普通股稀释的 ATM 发行。</p>
+            <div class="fund-split"><div class="equity">$20B<small>ATM COMMON EQUITY</small></div><div class="other">≈$20B<small>DEBT + OTHER EQUITY MIX</small></div></div>
+            <div class="microcopy">Oracle 同时表示，2026 日历年不预计再发行额外债券；FY2027 跨到 2027 日历年，后续融资节奏仍取决于资本需求。</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell reveal">
+        <div class="section-head">
+          <div class="section-no">04 / MARKET REPRICING</div>
+          <div><h2>评级只是确认，股价早就在重写公司的身份</h2><p class="section-lede">从“高毛利软件股”到“高杠杆 AI 基础设施运营商”，市场给的估值尺子已经变了。</p></div>
+        </div>
+
+        <div class="price-panel">
+          <div class="price-head"><h3>ORCL · 52 周高点至今</h3><div class="drop">−63.4%<small>$345.72 → $126.41</small></div></div>
+          <div class="price-line">
+            <span class="axis top">$350</span><span class="axis bottom">$120</span>
+            <svg viewBox="0 0 900 220" preserveAspectRatio="none" aria-hidden="true">
+              <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d25a4d" stop-opacity=".42"/><stop offset="1" stop-color="#d25a4d" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 54 C72 30,116 14,175 18 C235 22,252 65,310 70 C369 74,403 58,455 91 C512 128,555 103,612 119 C670 139,696 154,752 176 C805 197,847 189,900 207 L900 220 L0 220Z" fill="url(#area)"/>
+              <path d="M0 54 C72 30,116 14,175 18 C235 22,252 65,310 70 C369 74,403 58,455 91 C512 128,555 103,612 119 C670 139,696 154,752 176 C805 197,847 189,900 207" fill="none" stroke="#e17a6d" stroke-width="4" vector-effect="non-scaling-stroke"/>
+              <circle cx="175" cy="18" r="5" fill="#f2b2a9"/><circle cx="752" cy="176" r="5" fill="#f2b2a9"/><circle cx="900" cy="207" r="6" fill="#f2b2a9"/>
+            </svg>
+          </div>
+          <div class="price-labels"><span><strong>2025 H2</strong>AI 合同狂热<br>52W HIGH $345.72</span><span><strong>2026-06-10</strong>财报前收 $201.26</span><span><strong>2026-07-09</strong>S&P 降级当日反涨 +2.7%</span><span><strong>2026-07-17</strong>收 $126.41</span></div>
+        </div>
+
+        <div class="why-grid">
+          <article class="why"><span class="num">01</span><h3>资本开支超预期</h3><p>FY2026 capex 已达 557 亿美元，FY2027 净 capex 指引约 700 亿。市场担心项目回报率，不只是营收增速。</p></article>
+          <article class="why"><span class="num">02</span><h3>客户集中度</h3><p>S&P 估计 OpenAI 约占 6380 亿美元 RPO 的一半；这是评级机构估计，并非 Oracle 按客户确认的披露。</p></article>
+          <article class="why"><span class="num">03</span><h3>增发悬顶</h3><p>计划中的 200 亿美元 ATM 普通股发行，会让资金压力部分转化为股东稀释压力。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell reveal">
+        <div class="section-head">
+          <div class="section-no">05 / REPAYMENT PATH</div>
+          <div><h2>“拿什么还”不是一个答案，而是三条未来路径</h2><p class="section-lede">点击切换情景。短期偿债能力与长期项目成败是两回事：前者尚稳，后者越来越像一场对 AI 需求与 OpenAI 信用的联合押注。</p></div>
+        </div>
+
+        <div class="scenario-tabs" role="tablist" aria-label="偿债情景">
+          <button class="scenario-tab" role="tab" aria-selected="true" data-scenario="base">合同正常兑现</button>
+          <button class="scenario-tab" role="tab" aria-selected="false" data-scenario="delay">兑现速度延迟</button>
+          <button class="scenario-tab" role="tab" aria-selected="false" data-scenario="stress">核心客户失约</button>
+        </div>
+        <div class="scenario-box" aria-live="polite">
+          <div class="scenario-main"><span class="eyebrow" id="scenarioEyebrow">BASE CASE / BRIDGE FINANCING</span><h3 id="scenarioTitle">靠现金流增长、分期偿还和再融资过桥</h3><p id="scenarioText">6380 亿美元 RPO 逐步转成收入；客户预付或自带 GPU 的硬件规模已达 750 亿美元，降低 Oracle 自己的资金需求。传统数据库和软件维护现金流继续付息，债务按到期日分批偿还或续作。</p></div>
+          <aside class="scenario-side"><span>ESTIMATED EQUITY RISK</span><div class="risk-meter" id="riskMeter"><i class="on"></i><i></i><i></i><i></i><i></i></div><strong id="riskLabel">可控，但不再低风险</strong><span style="margin-top:13px">S&P 观察点：持续杠杆约 4.5× 以上，或无法走向 FY2029 FOCF 转正。</span></aside>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell reveal">
+        <div class="section-head">
+          <div class="section-no">06 / DASHBOARD</div>
+          <div><h2>下一次财报，别只看云收入增速</h2><p class="section-lede">真正决定评级和股价能否止跌的，是订单转现金的效率，而不是 RPO 再创新高这一条新闻。</p></div>
+        </div>
+        <div class="watchlist">
+          <article class="watch"><span class="code">WATCH_01</span><h3>自由现金流缺口</h3><p>经营现金流增速能否开始追上 capex；是否仍有走向 FY2029 转正的可信路径。</p></article>
+          <article class="watch"><span class="code">WATCH_02</span><h3>RPO → Revenue</h3><p>6380 亿订单究竟以什么速度确认收入、毛利和现金，而不是只看合同总额。</p></article>
+          <article class="watch"><span class="code">WATCH_03</span><h3>ATM 实际用量</h3><p>200 亿美元额度用了多少、平均发行价多少，决定普通股的真实稀释程度。</p></article>
+          <article class="watch"><span class="code">WATCH_04</span><h3>调整后杠杆</h3><p>已起租项目不断入表后，S&P 调整后债务／EBITDA 是否持续逼近下一档门槛。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell reveal">
+        <div class="final-verdict">
+          <div><span class="small">FINAL CLASSIFICATION</span><h2>不是“垃圾股”，<br>是一张高杠杆长久期的 AI 期权。</h2></div>
+          <blockquote>传统软件现金流提供下限；<strong>OpenAI 的支付能力、数据中心利用率和资本成本</strong>决定上限。今天没有迫在眉睫的债务墙，但股东已经开始为未来三年的执行风险付费。</blockquote>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell reveal">
+      <div class="source-grid">
+        <div>
+          <h2>数据来源 / Primary Records</h2>
+          <ol class="sources">
+            <li><a href="https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm" target="_blank" rel="noopener"><code>01</code><span>Oracle FY2026 Form 10-K</span><code>SEC</code></a></li>
+            <li><a href="https://investor.oracle.com/investor-news/news-details/2026/Oracle-Announces-Record-Q4-and-FY-2026-Results-Driven-by-Cloud-Infrastructure--Cloud-Applications/" target="_blank" rel="noopener"><code>02</code><span>Oracle Q4 / FY2026 Results</span><code>IR</code></a></li>
+            <li><a href="https://investor.oracle.com/stock-information/default.aspx" target="_blank" rel="noopener"><code>03</code><span>Oracle Stock Information &amp; History</span><code>NYSE</code></a></li>
+            <li><a href="https://www.spglobal.com/ratings/en/credit-ratings/about/understanding-credit-ratings" target="_blank" rel="noopener"><code>04</code><span>S&amp;P — Understanding Credit Ratings</span><code>S&amp;P</code></a></li>
+            <li><a href="https://www.spglobal.com/ratings/en/regulatory/article/-/view/sourceId/101681215" target="_blank" rel="noopener"><code>05</code><span>S&amp;P Oracle Credit FAQ, pre-downgrade</span><code>S&amp;P</code></a></li>
+          </ol>
+        </div>
+        <aside class="method">
+          <p><strong>口径：</strong>金额均为美元。净债务为带息债务减现金与流动可出售证券的简化估算；未扣其他金融资产，也未把未起租承诺计入“今天债务”。</p>
+          <p><strong>边界：</strong>OpenAI 占 RPO 约一半来自 S&amp;P 估计，Oracle 未按客户确认披露。情景模块是解释框架，不是概率预测。</p>
+          <p><strong>行情：</strong>页面采用最近完整交易日 2026-07-17 收盘数据。股价变化不代表未来收益。</p>
+          <p><strong>声明：</strong>本文为公开资料整理与财务教育，不构成投资建议、评级意见或买卖依据。</p>
+        </aside>
+      </div>
+      <div class="footer-line"><span>ORACLE AI CREDIT X-RAY · BUILT 2026-07-20</span><span>VERIFY THE CASH · SEPARATE DEBT FROM COMMITMENTS</span></div>
+    </div>
+  </footer>
+
+  <script>
+    const scenarios = {
+      base: {
+        eyebrow: 'BASE CASE / BRIDGE FINANCING',
+        title: '靠现金流增长、分期偿还和再融资过桥',
+        text: '6380 亿美元 RPO 逐步转成收入；客户预付或自带 GPU 的硬件规模已达 750 亿美元，降低 Oracle 自己的资金需求。传统数据库和软件维护现金流继续付息，债务按到期日分批偿还或续作。',
+        risk: 1,
+        label: '可控，但不再低风险'
+      },
+      delay: {
+        eyebrow: 'DELAY CASE / HIGHER CARRY COST',
+        title: '订单仍在，但建设和收入确认晚于预期',
+        text: '利息、折旧和租金先发生，收入与现金后到。Oracle 需要更久地依赖债务或股权市场，ATM 稀释扩大，信用利差上升；即使最终履约，股东回报率也可能明显低于最初想象。',
+        risk: 3,
+        label: '估值继续受现金流压制'
+      },
+      stress: {
+        eyebrow: 'STRESS CASE / STRANDED CAPACITY',
+        title: '核心客户支付受阻，长期租赁留下来',
+        text: '若 OpenAI 等核心客户融资或付款能力恶化，Oracle 可能面对闲置机房、GPU 折旧和 15—19 年租赁承诺。此时先看到的是进一步降级、更贵的再融资和增发，极端情况下才演变为真正的偿债压力。',
+        risk: 5,
+        label: '尾部风险：信用与股权共振'
+      }
+    };
+
+    const tabs = document.querySelectorAll('.scenario-tab');
+    const eyebrow = document.getElementById('scenarioEyebrow');
+    const title = document.getElementById('scenarioTitle');
+    const copy = document.getElementById('scenarioText');
+    const riskLabel = document.getElementById('riskLabel');
+    const meter = [...document.querySelectorAll('#riskMeter i')];
+
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      tabs.forEach(item => item.setAttribute('aria-selected', String(item === tab)));
+      const next = scenarios[tab.dataset.scenario];
+      eyebrow.textContent = next.eyebrow;
+      title.textContent = next.title;
+      copy.textContent = next.text;
+      riskLabel.textContent = next.label;
+      meter.forEach((block, index) => block.classList.toggle('on', index < next.risk));
+    }));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: .08 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

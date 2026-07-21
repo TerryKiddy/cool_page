@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <!-- portfolio-smc-daily-v1 -->
+  <title>持仓 SMC 日更控制台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2311181f'/%3E%3Cpath d='M14 40l10-12 8 7 12-18' fill='none' stroke='%23e34c3f' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='19' r='4' fill='%2316a37a'/%3E%3C/svg%3E">
+  <style>
+    :root{
+      --bg:#0e1319; --panel:#141b23; --panel-2:#182029; --card:#131a22;
+      --ink:#e8edf2; --muted:#8b97a5; --faint:#5c6773; --hair:#26313d; --hair-soft:#1d2630;
+      --up:#e34c3f;            /* A股 涨=红 */
+      --up-soft:rgba(227,76,63,.16);
+      --down:#16a37a;          /* A股 跌=绿 */
+      --down-soft:rgba(22,163,122,.16);
+      --demand:#26b0c2;        /* 需求区 bull FVG/OB */
+      --demand-soft:rgba(38,176,194,.15);
+      --supply:#e08a33;        /* 供给区 bear FVG/OB */
+      --supply-soft:rgba(224,138,51,.15);
+      --liq:#d8b13c;           /* 流动性 */
+      --anchor:#cf62d6;        /* 人工锚 */
+      --cost:#e0a53a;          /* 成本线 */
+      --chart-bg:#131a22; --chart-grid:rgba(70,84,99,.22); --chart-text:#7f8b99;
+      --sans:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+      --serif:"Songti SC","Noto Serif CJK SC",Georgia,serif;
+      --mono:"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+      --shadow:0 18px 50px rgba(0,0,0,.35);
+    }
+    :root[data-theme="light"]{
+      --bg:#f4f1e9; --panel:#fbf9f3; --panel-2:#f0ece0; --card:#faf8f2;
+      --ink:#1d2429; --muted:#5f6a72; --faint:#8b9299; --hair:#d8d0be; --hair-soft:#e4ddcc;
+      --up-soft:rgba(227,76,63,.12); --down-soft:rgba(22,163,122,.12);
+      --demand-soft:rgba(38,176,194,.13); --supply-soft:rgba(224,138,51,.13);
+      --chart-bg:#faf8f2; --chart-grid:rgba(150,140,120,.22); --chart-text:#6a7178;
+      --shadow:0 18px 46px rgba(80,70,50,.14);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit}
+    .page{width:min(1520px,calc(100% - 32px));margin:0 auto;padding:26px 0 70px}
+    /* ---------- masthead ---------- */
+    .masthead{position:relative;border:1px solid var(--hair);background:var(--panel);border-radius:14px;padding:clamp(22px,3.4vw,40px);box-shadow:var(--shadow);overflow:hidden}
+    .kicker{font:700 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--up);margin-bottom:14px}
+    h1{font:800 clamp(28px,4.6vw,52px)/1.02 var(--sans);letter-spacing:-.02em;margin:0}
+    h1 em{font-style:normal;color:var(--demand)}
+    .deck{max-width:760px;font:400 clamp(14px,1.5vw,16px)/1.65 var(--sans);margin:14px 0 0;color:var(--muted)}
+    .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .meta-pill{border:1px solid var(--hair);background:var(--panel-2);border-radius:20px;padding:6px 12px;font:600 11px/1 var(--mono);letter-spacing:.02em;color:var(--muted)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:22px;padding-top:20px;border-top:1px solid var(--hair-soft)}
+    .add-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .add-form input{font:600 13px/1 var(--mono);padding:10px 12px;border:1px solid var(--hair);background:var(--panel-2);color:var(--ink);border-radius:8px;width:190px}
+    .add-form input::placeholder{color:var(--faint)}
+    .btn{font:700 12px/1 var(--sans);color:var(--ink);border:1px solid var(--hair);background:var(--panel-2);padding:10px 14px;border-radius:8px;cursor:pointer;transition:.15s ease}
+    .btn:hover{background:var(--demand);border-color:var(--demand);color:#04252a}
+    .toolbar .status{font:600 12px/1.4 var(--mono);color:var(--muted)}
+    .toolbar .spacer{flex:1 1 auto}
+    /* ---------- legend key ---------- */
+    .reading-key{margin-top:18px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;border:1px solid var(--hair);border-radius:12px;overflow:hidden;background:var(--hair)}
+    .key-item{background:var(--panel);padding:12px 13px}
+    .key-item b{display:flex;align-items:center;gap:7px;font:700 11px/1.2 var(--mono);margin-bottom:5px}
+    .key-item span{font:400 11.5px/1.45 var(--sans);color:var(--muted)}
+    .swatch{width:13px;height:11px;border-radius:2px;flex:0 0 auto;border:1px solid currentColor}
+    .swatch.line{height:0;border:0;border-top:2px solid currentColor;border-radius:0}
+    .swatch.dash{height:0;border:0;border-top:2px dashed currentColor;border-radius:0}
+    /* ---------- groups & cards ---------- */
+    .group{margin-top:30px}
+    .group-title{font:800 17px/1 var(--sans);letter-spacing:-.01em;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+    .group-title .gt-note{font:600 11px/1 var(--mono);color:var(--faint);letter-spacing:.02em}
+    .group-title::before{content:"";width:4px;height:17px;border-radius:2px;background:var(--up)}
+    .group.contra .group-title::before{background:var(--demand)}
+    .group.local .group-title::before{background:var(--anchor)}
+    .cards{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,540px),1fr));gap:18px}
+    .stock{position:relative;border:1px solid var(--hair);background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);min-width:0}
+    .stock.loading-fail{border-color:var(--up)}
+    .stock-head{display:flex;justify-content:space-between;gap:12px;padding:16px 18px 14px;border-bottom:1px solid var(--hair-soft)}
+    .stock-title{min-width:0}
+    .stock-no{font:700 10px/1 var(--mono);letter-spacing:.14em;color:var(--faint);margin-bottom:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .badge-local{color:var(--anchor);border:1px solid var(--anchor);border-radius:20px;padding:2px 7px;letter-spacing:.06em}
+    h3.name{font:800 clamp(19px,2.4vw,24px)/1 var(--sans);letter-spacing:-.02em;margin:0}
+    h3.name small{font:600 12px/1 var(--mono);color:var(--muted);margin-left:7px}
+    .verdict-line{margin-top:11px;font:600 13px/1.5 var(--sans);color:var(--ink);border-left:3px solid var(--demand);padding-left:10px}
+    .verdict-line.down-struct{border-left-color:var(--supply)}
+    .quote-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font:700 12px/1 var(--mono)}
+    .quote-row b{font-size:15px}
+    .quote-row .up{color:var(--up)} .quote-row .down{color:var(--down)}
+    .quote-row .pnl{padding:3px 8px;border-radius:6px}
+    .quote-row .pnl.up{background:var(--up-soft)} .quote-row .pnl.down{background:var(--down-soft)}
+    .quote-row .pnl.flat{background:var(--panel-2);color:var(--muted)}
+    .stock-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:0 0 auto}
+    .icon-btn{font:700 11px/1 var(--sans);border:1px solid var(--hair);background:var(--panel-2);color:var(--muted);border-radius:7px;padding:6px 9px;cursor:pointer}
+    .icon-btn:hover{border-color:var(--up);color:var(--up)}
+    .controlbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--hair-soft);background:var(--panel-2)}
+    .legend{display:flex;flex-wrap:wrap;gap:7px;font:700 9.5px/1 var(--mono)}
+    .legend span{display:inline-flex;align-items:center;gap:4px;color:var(--muted)}
+    .dot{width:8px;height:8px;border-radius:2px}
+    .controls{display:flex;gap:4px}
+    .controls button{font:700 10px/1 var(--mono);color:var(--muted);border:1px solid var(--hair);background:var(--card);padding:7px 8px;border-radius:6px;cursor:pointer;transition:.15s ease}
+    .controls button:hover{color:var(--ink)}
+    .controls button.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+    .chart-stage{position:relative;width:100%;height:420px}
+    .chart{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+    .chart-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;overflow:hidden}
+    .chart-overlay text{font-family:var(--mono)}
+    .fail-box{padding:34px 20px;text-align:center;color:var(--muted);font:600 13px/1.6 var(--sans)}
+    .fail-box .btn{margin-top:12px}
+    /* ---------- footer / glossary ---------- */
+    footer{margin-top:38px;border-top:1px solid var(--hair);padding-top:18px}
+    details.glossary{border:1px solid var(--hair);border-radius:12px;background:var(--panel);padding:2px 16px}
+    details.glossary summary{cursor:pointer;font:700 13px/1 var(--sans);padding:14px 0;color:var(--ink)}
+    .gloss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px;padding:4px 0 16px}
+    .gloss-grid div{font:400 12px/1.55 var(--sans);color:var(--muted)}
+    .gloss-grid b{color:var(--ink);font-family:var(--mono);font-size:11px}
+    .foot-note{margin-top:16px;font:600 11px/1.7 var(--mono);color:var(--faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    @media(max-width:900px){.reading-key{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:620px){
+      .reading-key{grid-template-columns:repeat(2,1fr)}
+      .cards{grid-template-columns:1fr}
+      .chart-stage{height:360px}
+      .controlbar{gap:8px}
+      .stock-head{padding:14px 14px 12px}
+      .foot-note{flex-direction:column}
+    }
+    @media(max-width:420px){.chart-stage{height:330px}.legend span{gap:3px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="masthead">
+    <div class="kicker">PORTFOLIO SMC · 日更控制台 · 数据截至收盘</div>
+    <h1>持仓 <em>SMC</em> 日更控制台</h1>
+    <p class="deck">每只持仓一张实时 K 线图：浏览器每次打开都从行情接口拉最近 200 根前复权日线，本地实时计算 SMC 结构（Swing / BOS / CHoCH / FVG / 订单块 / 流动性），把「未回补的门」和「你的成本线」画在图上。结论一行放在最上，术语解释折在页脚。<b style="color:var(--ink)">本页非投资建议。</b></p>
+    <div class="meta-row">
+      <span class="meta-pill">数据：腾讯前复权日线 200 根</span>
+      <span class="meta-pill">Swing=10 · 收盘突破确认</span>
+      <span class="meta-pill">只画未缓解 · ±15% · 每类≤4</span>
+      <span class="meta-pill" id="asofPill">末根日期：加载中…</span>
+    </div>
+    <div class="toolbar">
+      <form class="add-form" id="addForm">
+        <input id="addInput" placeholder="加一只：600031 / sh600031 / 000807" autocomplete="off" spellcheck="false">
+        <button class="btn" type="submit">添加标的</button>
+      </form>
+      <span class="status" id="addStatus"></span>
+      <span class="spacer"></span>
+      <button class="btn" id="themeBtn" type="button">切换浅色</button>
+    </div>
+  </header>
+
+  <section class="reading-key" aria-label="图例">
+    <div class="key-item"><b><i class="swatch" style="color:var(--up);background:var(--up-soft)"></i>涨=红</b><span>A 股口径：阳线/涨为红，阴线/跌为绿。</span></div>
+    <div class="key-item"><b><i class="swatch" style="color:var(--demand);background:var(--demand-soft)"></i>需求区</b><span>下方牛市 FVG / 牛市订单块，回踩支撑候选。</span></div>
+    <div class="key-item"><b><i class="swatch" style="color:var(--supply);background:var(--supply-soft)"></i>供给区</b><span>上方熊市 FVG / 熊市订单块，反弹阻力候选。</span></div>
+    <div class="key-item"><b><i class="swatch dash" style="color:var(--liq)"></i>流动性</b><span>等高/等低成组价位；标 ⚑ 为已被扫。</span></div>
+    <div class="key-item"><b><i class="swatch line" style="color:var(--anchor)"></i>人工锚</b><span>实线+「锚」，人工叠加的关键价位。</span></div>
+    <div class="key-item"><b><i class="swatch line" style="color:var(--cost)"></i>成本线</b><span>你的持仓成本；卡头显示浮盈%。</span></div>
+  </section>
+
+  <section class="group main" id="group-main">
+    <h2 class="group-title">主仓 <span class="gt-note">9 只</span></h2>
+    <div class="cards" id="cards-main"></div>
+  </section>
+  <section class="group contra" id="group-contra">
+    <h2 class="group-title">逆向跟随盘 <span class="gt-note">5 只</span></h2>
+    <div class="cards" id="cards-contra"></div>
+  </section>
+  <section class="group local" id="group-local" style="display:none">
+    <h2 class="group-title">本机添加 <span class="gt-note">仅存本浏览器 · 永久添加需改 CONFIG</span></h2>
+    <div class="cards" id="cards-local"></div>
+  </section>
+
+  <footer>
+    <details class="glossary">
+      <summary>术语小字典（点开）</summary>
+      <div class="gloss-grid">
+        <div><b>FVG 缺口</b>三根 K 线之间没被交易覆盖的空档；价格常回来「补」这个缺口，所以它是潜在的支撑/阻力门。</div>
+        <div><b>OB 订单块</b>大行情启动前最后一根反向 K 线的区间，被视作机构建仓区，回踩到这里容易有反应。</div>
+        <div><b>BOS 结构突破</b>价格收盘越过上一个摆动高/低点，代表原趋势在「继续」。</div>
+        <div><b>CHoCH 性质转变</b>第一次反方向的收盘突破，代表趋势可能在「转向」，比 BOS 更值得警惕。</div>
+        <div><b>扫流动性</b>价格短暂穿过一堆等高/等低点（把止损单吃掉）后又收回，常是反转的前兆。</div>
+        <div><b>未缓解</b>这个缺口/订单块还没被价格填掉，仍然「有效」；已填掉的本页不画。</div>
+      </div>
+    </details>
+    <div class="foot-note">
+      <span>SMC 为价格行为模型标签，不能证明真实机构成本或身份 · 自动区域=候选而非事实 · portfolio-smc-daily-v1</span>
+      <span>图表引擎 TradingView Lightweight Charts™ · 本页非投资建议</span>
+    </div>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+<script>
+/* portfolio-smc-daily-v1 */
+(() => {
+  'use strict';
+  const NS='http://www.w3.org/2000/svg';
+  const SWING=10, RANGE_PCT=0.01, NEAR_PCT=0.15, MAX_PER_KIND=4, LIQ_RECENT=20;
+  const LS_KEY='smc-portfolio-added-v1';
+
+  // ---------- holdings config ----------
+  // 加一只：往对应 group 数组里加一行 {code,name,shares,cost,anchors}
+  // 加一条锚：给某只的 anchors 加 {price, label}
+  const CONFIG=[
+    {code:'sh601899',name:'紫金矿业',group:'main',shares:1000,cost:27.21},
+    {code:'sh600031',name:'三一重工',group:'main',shares:300,cost:18.36,anchors:[{price:17.90,label:'破位提案线 17.90'}]},
+    {code:'sh513050',name:'中概互联ETF',group:'main',shares:9600,cost:1.6933},
+    {code:'sh600089',name:'特变电工',group:'main',shares:400,cost:27.82},
+    {code:'sh600570',name:'恒生电子',group:'main',shares:400,cost:29.72},
+    {code:'sh601601',name:'中国太保',group:'main',shares:100,cost:35.62},
+    {code:'sh600030',name:'中信证券',group:'main',shares:100,cost:28.97},
+    {code:'sz159509',name:'纳指科技ETF',group:'main',shares:100,cost:null,pureProfit:true},
+    {code:'sh560280',name:'工程机械ETF',group:'main',shares:100,cost:1.76},
+    {code:'sh512890',name:'红利低波ETF',group:'contra',shares:15000,cost:1.082},
+    {code:'sh600036',name:'招商银行',group:'contra',shares:100,cost:35.93},
+    {code:'sh601288',name:'农业银行',group:'contra',shares:1000,cost:6.22},
+    {code:'sz159122',name:'创业板新能源ETF',group:'contra',shares:8000,cost:1.07},
+    {code:'sh601336',name:'新华保险',group:'contra',shares:100,cost:60.47}
+  ];
+
+  const THEMES={
+    dark:{bg:'#131a22',grid:'rgba(70,84,99,.22)',text:'#7f8b99',border:'#26313d',crosshair:'rgba(200,210,220,.4)'},
+    light:{bg:'#faf8f2',grid:'rgba(150,140,120,.22)',text:'#6a7178',border:'#d8d0be',crosshair:'rgba(60,60,60,.4)'}
+  };
+  const HUE={up:'#e34c3f',down:'#16a37a',demand:'#26b0c2',supply:'#e08a33',liq:'#d8b13c',anchor:'#cf62d6',cost:'#e0a53a'};
+  function theme(){return document.documentElement.dataset.theme==='light'?THEMES.light:THEMES.dark;}
+
+  // ---------- utils ----------
+  function svgEl(name,attrs,text){
+    const el=document.createElementNS(NS,name);
+    for(const k in (attrs||{}))el.setAttribute(k,String(attrs[k]));
+    if(text!=null)el.textContent=text;
+    return el;
+  }
+  function fmt(v,p){const n=Number(v).toFixed(p==null?2:p);return n.replace(/\.?0+$/,m=>m.includes('.')?'':m);}
+  function pickPrecision(last){return last<5?3:2;}
+
+  function normalizeCode(input){
+    let s=(input||'').trim().toLowerCase().replace(/\s+/g,'');
+    if(/^(sh|sz)\d{6}$/.test(s))return s;
+    if(!/^\d{6}$/.test(s))return null;
+    const f=s[0];
+    if(f==='6')return 'sh'+s;           // 沪 A
+    if(f==='0'||f==='3')return 'sz'+s;  // 深 A / 创业板
+    if(f==='5')return 'sh'+s;           // 沪 ETF/基金
+    if(f==='1')return 'sz'+s;           // 深 ETF/基金
+    return 'sh'+s;
+  }
+
+  async function fetchBars(code){
+    const url='https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param='+code+',day,,,220,qfq';
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const payload=await res.json();
+    const box=payload&&payload.data&&payload.data[code];
+    if(!box)throw new Error('无该代码数据');
+    const rows=box.qfqday||box.day;
+    if(!rows||!rows.length)throw new Error('无K线');
+    let name=null;
+    try{if(box.qt&&box.qt[code])name=box.qt[code][1];}catch(e){}
+    const bars=rows.map(r=>({date:r[0],open:+r[1],close:+r[2],high:+r[3],low:+r[4],volume:+r[5]}))
+      .filter(b=>b.date&&isFinite(b.open)&&isFinite(b.close));
+    // 单调日期校验
+    for(let i=1;i<bars.length;i++){if(bars[i].date<bars[i-1].date)throw new Error('日期非单调');}
+    return {bars:bars.slice(-200),name};
+  }
+
+  async function runPool(items,worker,limit){
+    const q=items.slice();
+    const runners=[];
+    for(let i=0;i<Math.min(limit,items.length);i++){
+      runners.push((async()=>{while(q.length){const it=q.shift();await worker(it);}})());
+    }
+    await Promise.all(runners);
+  }
+
+  // ---------- SMC engine (browser-side, ported from smart-money-concepts rules) ----------
+  function detectSwings(data,L){
+    const n=data.length,raw=[];
+    for(let i=0;i<n;i++){
+      let isH=true,isL=true;
+      const lo=Math.max(0,i-L),hi=Math.min(n-1,i+L);
+      for(let j=lo;j<=hi;j++){
+        if(j===i)continue;
+        if(data[j].high>=data[i].high)isH=false;
+        if(data[j].low<=data[i].low)isL=false;
+        if(!isH&&!isL)break;
+      }
+      const confirmed=(i+L)<n;   // 需后续 L 根确认，最右侧点为暂定
+      if(isH)raw.push({idx:i,kind:'H',price:data[i].high,confirmed});
+      if(isL)raw.push({idx:i,kind:'L',price:data[i].low,confirmed});
+    }
+    raw.sort((a,b)=>a.idx-b.idx);
+    const seq=[];
+    for(const s of raw){
+      const last=seq[seq.length-1];
+      if(last&&last.kind===s.kind){
+        if(s.kind==='H'){if(s.price>=last.price)seq[seq.length-1]=s;}
+        else{if(s.price<=last.price)seq[seq.length-1]=s;}
+      }else seq.push(s);
+    }
+    return seq;
+  }
+
+  function detectStructure(data,swings,L){
+    const highs=swings.filter(s=>s.kind==='H'&&s.confirmed);
+    const lows=swings.filter(s=>s.kind==='L'&&s.confirmed);
+    const events=[];
+    let trend=0,hi=0,li=0,refH=null,refL=null;
+    for(let i=0;i<data.length;i++){
+      while(hi<highs.length&&highs[hi].idx+L<=i){refH={price:highs[hi].price,broken:false};hi++;}
+      while(li<lows.length&&lows[li].idx+L<=i){refL={price:lows[li].price,broken:false};li++;}
+      const c=data[i].close;
+      if(refH&&!refH.broken&&c>refH.price){
+        events.push({idx:i,dir:1,type:trend<0?'CHoCH':'BOS',level:refH.price,date:data[i].date});
+        refH.broken=true;trend=1;
+      }
+      if(refL&&!refL.broken&&c<refL.price){
+        events.push({idx:i,dir:-1,type:trend>0?'CHoCH':'BOS',level:refL.price,date:data[i].date});
+        refL.broken=true;trend=-1;
+      }
+    }
+    return {events,trend};
+  }
+
+  function detectFVG(data){
+    const out=[];
+    for(let i=2;i<data.length;i++){
+      const a=data[i-2],c=data[i];
+      if(c.low>a.high)out.push({dir:1,idx:i,date:data[i].date,bottom:a.high,top:c.low,mitigated:false,mitIdx:null});
+      else if(c.high<a.low)out.push({dir:-1,idx:i,date:data[i].date,bottom:c.high,top:a.low,mitigated:false,mitIdx:null});
+    }
+    for(const f of out){
+      for(let j=f.idx+1;j<data.length;j++){
+        if(f.dir===1&&data[j].low<=f.bottom){f.mitigated=true;f.mitIdx=j;break;}   // 牛市缺口被下穿填满
+        if(f.dir===-1&&data[j].high>=f.top){f.mitigated=true;f.mitIdx=j;break;}    // 熊市缺口被上穿填满
+      }
+    }
+    return out;
+  }
+
+  function detectOB(data,structure){
+    const out=[],seen={};
+    for(const ev of structure.events){
+      let j=ev.idx-1;
+      if(ev.dir===1){
+        while(j>0&&data[j].close>=data[j].open)j--;           // 回退到上涨脉冲前最后一根阴线
+        if(j>=0&&data[j].close<data[j].open&&!seen['b'+j]){
+          seen['b'+j]=1;
+          out.push({dir:1,idx:j,date:data[j].date,bottom:data[j].low,top:data[j].high,mitigated:false});
+        }
+      }else{
+        while(j>0&&data[j].close<=data[j].open)j--;           // 回退到下跌脉冲前最后一根阳线
+        if(j>=0&&data[j].close>data[j].open&&!seen['s'+j]){
+          seen['s'+j]=1;
+          out.push({dir:-1,idx:j,date:data[j].date,bottom:data[j].low,top:data[j].high,mitigated:false});
+        }
+      }
+    }
+    for(const o of out){
+      for(let k=o.idx+2;k<data.length;k++){                   // 影线缓解 (close_mitigation=false)
+        if(o.dir===1&&data[k].low<=o.bottom){o.mitigated=true;break;}
+        if(o.dir===-1&&data[k].high>=o.top){o.mitigated=true;break;}
+      }
+    }
+    return out;
+  }
+
+  function detectLiquidity(data,swings,rangePct){
+    const hs=data.map(d=>d.high),ls=data.map(d=>d.low);
+    const range=Math.max.apply(null,hs)-Math.min.apply(null,ls);
+    const tol=range*rangePct;
+    const out=[];
+    function cluster(arr,dir){
+      const used=new Array(arr.length).fill(false);
+      for(let i=0;i<arr.length;i++){
+        if(used[i])continue;
+        const grp=[arr[i]];used[i]=true;
+        for(let j=i+1;j<arr.length;j++){
+          if(used[j])continue;
+          if(Math.abs(arr[j].price-arr[i].price)<=tol){grp.push(arr[j]);used[j]=true;}
+        }
+        if(grp.length>=2){
+          const level=grp.reduce((s,g)=>s+g.price,0)/grp.length;
+          const lastIdx=Math.max.apply(null,grp.map(g=>g.idx));
+          let swept=false,sweptIdx=null;
+          for(let k=lastIdx+1;k<data.length;k++){
+            if(dir==='H'&&data[k].high>level+tol){swept=true;sweptIdx=k;break;}
+            if(dir==='L'&&data[k].low<level-tol){swept=true;sweptIdx=k;break;}
+          }
+          out.push({dir,level,startIdx:Math.min.apply(null,grp.map(g=>g.idx)),lastIdx,swept,sweptIdx});
+        }
+      }
+    }
+    cluster(swings.filter(s=>s.kind==='H'&&s.confirmed),'H');
+    cluster(swings.filter(s=>s.kind==='L'&&s.confirmed),'L');
+    return out;
+  }
+
+  function computeSMC(data){
+    const swings=detectSwings(data,SWING);
+    const struct=detectStructure(data,swings,SWING);
+    const fvgs=detectFVG(data);
+    const obs=detectOB(data,struct);
+    const liq=detectLiquidity(data,swings,RANGE_PCT);
+    return {swings,struct,fvgs,obs,liq};
+  }
+
+  // ---------- de-noise: 选出要画的区域/线 ----------
+  function buildDrawables(data,smc,precision){
+    const last=data[data.length-1].close;
+    const nearLo=last*(1-NEAR_PCT),nearHi=last*(1+NEAR_PCT);
+    const inNear=v=>v>=nearLo&&v<=nearHi;
+    const zones=[];
+    function takeFVG(dir){
+      const list=smc.fvgs.filter(f=>!f.mitigated&&f.dir===dir&&inNear(f.top)&&inNear(f.bottom))
+        .sort((a,b)=>Math.abs((a.top+a.bottom)/2-last)-Math.abs((b.top+b.bottom)/2-last))
+        .slice(0,MAX_PER_KIND);
+      for(const f of list)zones.push({bottom:f.bottom,top:f.top,fromDate:f.date,kind:'fvg',dir,
+        label:(dir===1?'牛 FVG ':'熊 FVG ')+fmt(f.bottom,precision)+'–'+fmt(f.top,precision)});
+    }
+    function takeOB(dir){
+      const list=smc.obs.filter(o=>!o.mitigated&&o.dir===dir&&inNear(o.top)&&inNear(o.bottom))
+        .sort((a,b)=>Math.abs((a.top+a.bottom)/2-last)-Math.abs((b.top+b.bottom)/2-last))
+        .slice(0,MAX_PER_KIND);
+      for(const o of list)zones.push({bottom:o.bottom,top:o.top,fromDate:o.date,kind:'ob',dir,
+        label:(dir===1?'牛 OB ':'熊 OB ')+fmt(o.bottom,precision)+'–'+fmt(o.top,precision)});
+    }
+    takeFVG(1);takeFVG(-1);takeOB(1);takeOB(-1);
+
+    const hlines=[];
+    const nBars=data.length;
+    smc.liq.forEach(l=>{
+      if(!inNear(l.level))return;
+      if(l.swept&&l.sweptIdx<nBars-LIQ_RECENT)return;   // 已扫且超过20根前 → 不画
+      hlines.push({value:l.level,kind:'liq',color:HUE.liq,style:'dash',
+        label:(l.dir==='H'?'等高流动性 ':'等低流动性 ')+fmt(l.level,precision)+(l.swept?' ⚑已扫':'')});
+    });
+    return {zones,hlines};
+  }
+
+  // ---------- 结论一行（结论先行/白话） ----------
+  function structureVerdict(data,smc,precision){
+    const last=data[data.length-1].close;
+    const ev=smc.struct.events[smc.struct.events.length-1];
+    let dirWord='震荡',down=smc.struct.trend<0;
+    if(smc.struct.trend>0)dirWord='上升';else if(smc.struct.trend<0)dirWord='下降';
+    let head='结构：'+dirWord;
+    if(ev)head+='（最近'+ev.type+(ev.dir>0?'向上':'向下')+' '+ev.date.slice(5)+'）';
+    const belowFVG=smc.fvgs.filter(f=>!f.mitigated&&f.dir===1&&f.top<last).sort((a,b)=>b.top-a.top)[0];
+    const aboveFVG=smc.fvgs.filter(f=>!f.mitigated&&f.dir===-1&&f.bottom>last).sort((a,b)=>a.bottom-b.bottom)[0];
+    const parts=[head];
+    if(belowFVG)parts.push('下方最近牛市FVG '+fmt(belowFVG.bottom,precision)+'–'+fmt(belowFVG.top,precision));
+    if(aboveFVG)parts.push('上方最近熊市FVG '+fmt(aboveFVG.bottom,precision)+'–'+fmt(aboveFVG.top,precision));
+    if(!belowFVG&&!aboveFVG)parts.push('附近无未回补 FVG');
+    return {text:parts.join(' · '),down};
+  }
+
+
+  // ---------- DOM: build a card skeleton ----------
+  const cards={};   // code -> cfg
+  function groupContainer(g){return document.getElementById('cards-'+g);}
+
+  function makeCardEl(cfg){
+    const art=document.createElement('article');
+    art.className='stock';art.dataset.code=cfg.code;
+    const digits=cfg.code.replace(/^(sh|sz)/,'');
+    const badge=cfg.local?'<span class="badge-local">本机添加</span>':'';
+    const delBtn=cfg.local?'<button class="icon-btn" data-act="del">删除</button>':'';
+    art.innerHTML=
+      '<div class="stock-head">'+
+        '<div class="stock-title">'+
+          '<div class="stock-no">'+cfg.code.toUpperCase()+' · '+(cfg.group==='contra'?'逆向盘':cfg.local?'自选':'主仓')+' '+badge+'</div>'+
+          '<h3 class="name">'+cfg.name+' <small>'+digits+'</small></h3>'+
+          '<div class="verdict-line js-verdict">计算结构中…</div>'+
+          '<div class="quote-row js-quote"><span>读取行情…</span></div>'+
+        '</div>'+
+        '<div class="stock-actions">'+delBtn+'</div>'+
+      '</div>'+
+      '<div class="controlbar js-ctrl" style="display:none">'+
+        '<div class="legend">'+
+          '<span><i class="dot" style="background:var(--demand)"></i>需求</span>'+
+          '<span><i class="dot" style="background:var(--supply)"></i>供给</span>'+
+          '<span><i class="dot" style="background:var(--liq)"></i>流动性</span>'+
+          '<span><i class="dot" style="background:var(--cost)"></i>成本</span>'+
+        '</div>'+
+        '<div class="controls">'+
+          '<button data-range="60" class="active">60日</button>'+
+          '<button data-range="120">120日</button>'+
+          '<button data-range="200">200日</button>'+
+          '<button data-toggle="labels" class="active">标注</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="chart-stage js-stage">'+
+        '<div class="chart js-chart"></div>'+
+        '<svg class="chart-overlay js-overlay" aria-hidden="true"></svg>'+
+      '</div>';
+    cfg.el=art;
+    cfg.$verdict=art.querySelector('.js-verdict');
+    cfg.$quote=art.querySelector('.js-quote');
+    cfg.$ctrl=art.querySelector('.js-ctrl');
+    cfg.$stage=art.querySelector('.js-stage');
+    cfg.$chart=art.querySelector('.js-chart');
+    cfg.$overlay=art.querySelector('.js-overlay');
+    // controls
+    cfg.$ctrl.addEventListener('click',e=>{
+      const b=e.target.closest('button');if(!b)return;
+      if(b.dataset.range){cfg.range=+b.dataset.range;
+        cfg.$ctrl.querySelectorAll('[data-range]').forEach(x=>x.classList.toggle('active',x===b));applyRange(cfg);}
+      if(b.dataset.toggle==='labels'){cfg.labels=!cfg.labels;b.classList.toggle('active',cfg.labels);b.textContent=cfg.labels?'标注':'显示标注';drawOverlay(cfg);}
+    });
+    if(cfg.local){
+      const d=art.querySelector('[data-act="del"]');
+      d&&d.addEventListener('click',()=>removeLocal(cfg));
+    }
+    return art;
+  }
+
+  function showFail(cfg,msg){
+    cfg.el.classList.add('loading-fail');
+    cfg.$quote.innerHTML='<span class="down">⚠️ '+msg+'</span>';
+    cfg.$verdict.textContent='加载失败';
+    cfg.$stage.innerHTML='<div class="fail-box">该标的行情加载失败<br>'+msg+'<br><button class="btn" data-retry>重试</button></div>';
+    const rb=cfg.$stage.querySelector('[data-retry]');
+    rb&&rb.addEventListener('click',()=>{
+      cfg.el.classList.remove('loading-fail');
+      cfg.$stage.innerHTML='<div class="chart js-chart"></div><svg class="chart-overlay js-overlay" aria-hidden="true"></svg>';
+      cfg.$chart=cfg.$stage.querySelector('.js-chart');cfg.$overlay=cfg.$stage.querySelector('.js-overlay');
+      loadCard(cfg);
+    });
+  }
+
+  // ---------- quote header ----------
+  function renderQuote(cfg){
+    const d=cfg.data,day=d[d.length-1],prev=d[d.length-2];
+    const pct=(day.close/prev.close-1)*100;
+    const p=cfg.precision;
+    let pnlHtml='';
+    if(cfg.pureProfit){pnlHtml='<span class="pnl flat">纯利润仓</span>';}
+    else if(cfg.cost!=null){
+      const pnl=(day.close/cfg.cost-1)*100;
+      const cls=pnl>=0?'up':'down';
+      pnlHtml='<span class="pnl '+cls+'">浮盈 '+(pnl>=0?'+':'')+pnl.toFixed(2)+'%</span>';
+    }
+    cfg.$quote.innerHTML=
+      '<span>现价 <b class="'+(pct>=0?'up':'down')+'">'+fmt(day.close,p)+'</b></span>'+
+      '<span class="'+(pct>=0?'up':'down')+'">'+(pct>=0?'+':'')+pct.toFixed(2)+'%</span>'+
+      (cfg.cost!=null&&!cfg.pureProfit?'<span>成本 '+fmt(cfg.cost,p)+'</span>':'')+
+      pnlHtml;
+  }
+
+  // ---------- chart ----------
+  function applyRange(cfg){
+    if(!cfg.chart)return;
+    const total=cfg.data.length;
+    cfg.chart.timeScale().setVisibleLogicalRange({from:Math.max(-.5,total-cfg.range-.5),to:total+1});
+    setTimeout(()=>drawOverlay(cfg),70);
+  }
+
+  function makeChart(cfg){
+    const root=cfg.$chart,tm=theme();
+    const chart=LightweightCharts.createChart(root,{
+      width:root.clientWidth,height:root.clientHeight,
+      layout:{background:{type:'solid',color:tm.bg},textColor:tm.text,fontFamily:'SFMono-Regular,Menlo,monospace',fontSize:10},
+      grid:{vertLines:{color:tm.grid},horzLines:{color:tm.grid}},
+      rightPriceScale:{borderColor:tm.border,scaleMargins:{top:.08,bottom:.26}},
+      timeScale:{borderColor:tm.border,rightOffset:3,barSpacing:8,minBarSpacing:2.5,timeVisible:false},
+      crosshair:{mode:LightweightCharts.CrosshairMode.Normal,
+        vertLine:{color:tm.crosshair,style:2,labelBackgroundColor:HUE.demand},
+        horzLine:{color:tm.crosshair,style:2,labelBackgroundColor:HUE.demand}},
+      handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+      handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
+      localization:{priceFormatter:v=>fmt(v,cfg.precision)}
+    });
+    const candles=chart.addCandlestickSeries({
+      upColor:HUE.up,downColor:HUE.down,borderUpColor:HUE.up,borderDownColor:HUE.down,
+      wickUpColor:HUE.up,wickDownColor:HUE.down,priceLineColor:tm.text,priceLineStyle:2,lastValueVisible:true
+    });
+    const volume=chart.addHistogramSeries({priceScaleId:'vol',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
+    chart.priceScale('vol').applyOptions({scaleMargins:{top:.85,bottom:0}});
+    candles.setData(cfg.data.map(b=>({time:b.date,open:b.open,high:b.high,low:b.low,close:b.close})));
+    volume.setData(cfg.data.map(b=>({time:b.date,value:b.volume,color:b.close>=b.open?'rgba(227,76,63,.34)':'rgba(22,163,122,.34)'})));
+    // swing markers (confirmed only)
+    const markers=cfg.smc.swings.filter(s=>s.confirmed).map(s=>({
+      time:cfg.data[s.idx].date,position:s.kind==='H'?'aboveBar':'belowBar',
+      color:s.kind==='H'?HUE.supply:HUE.demand,shape:s.kind==='H'?'arrowDown':'arrowUp',size:0
+    }));
+    candles.setMarkers(markers);
+    cfg.chart=chart;cfg.candles=candles;cfg.volume=volume;
+    chart.timeScale().subscribeVisibleLogicalRangeChange(()=>requestAnimationFrame(()=>drawOverlay(cfg)));
+    const ro=new ResizeObserver(entries=>{
+      const r=entries[0].contentRect;
+      chart.resize(Math.max(280,r.width),Math.max(300,r.height));
+      requestAnimationFrame(()=>drawOverlay(cfg));
+    });
+    ro.observe(root);cfg.ro=ro;
+    applyRange(cfg);
+  }
+
+  function drawOverlay(cfg){
+    if(!cfg.chart||!cfg.candles)return;
+    const ov=cfg.$overlay,root=cfg.$chart;
+    const bounds=root.getBoundingClientRect();
+    const W=Math.max(280,bounds.width),H=Math.max(300,bounds.height),compact=W<560;
+    let psw=64;try{psw=cfg.chart.priceScale('right').width()||64;}catch(e){}
+    const plotRight=W-psw-2;
+    ov.setAttribute('viewBox','0 0 '+W+' '+H);ov.innerHTML='';
+    const ts=cfg.chart.timeScale();
+    const y=v=>cfg.candles.priceToCoordinate(v);
+    const visY=v=>{const p=y(v);return (p!=null&&p>=-2&&p<=H+2)?p:null;};
+    const p=cfg.precision;
+
+    // zones
+    cfg.drawables.zones.forEach(z=>{
+      const yTop=visY(z.top),yBot=visY(z.bottom);if(yTop==null||yBot==null)return;
+      let x0=ts.timeToCoordinate(z.fromDate);if(x0==null||x0<0)x0=0;x0=Math.max(0,x0-3);
+      const color=z.dir===1?HUE.demand:HUE.supply;
+      const yy=Math.min(yTop,yBot),hh=Math.max(2,Math.abs(yBot-yTop));
+      ov.append(svgEl('rect',{x:x0,y:yy,width:Math.max(0,plotRight-x0),height:hh,fill:color,
+        opacity:z.kind==='ob'?.10:.15,stroke:color,'stroke-width':1,'stroke-dasharray':z.kind==='ob'?'2 3':'5 4'}));
+      if(cfg.labels&&hh>7){
+        const label=compact?(z.dir===1?'需':'供')+' '+fmt(z.bottom,p)+'–'+fmt(z.top,p):z.label;
+        ov.append(svgEl('text',{x:compact?plotRight-4:x0+6,y:yy+Math.min(12,hh-2),fill:color,'font-size':compact?8.5:9,'font-weight':800,'text-anchor':compact?'end':'start'},label));
+      }
+    });
+
+    // horizontal lines (liquidity + anchors + cost)
+    cfg.hlines.forEach(l=>{
+      const yy=visY(l.value);if(yy==null)return;
+      const solid=l.style==='solid';
+      ov.append(svgEl('line',{x1:0,y1:yy,x2:plotRight,y2:yy,stroke:l.color,'stroke-width':solid?1.5:1,'stroke-dasharray':solid?'none':'6 4',opacity:.9}));
+      if(!cfg.labels)return;
+      const text=compact?(l.short||fmt(l.value,p)):l.label;
+      const w=Math.min(plotRight*(compact?.5:.66),text.length*6.2+12);
+      ov.append(svgEl('rect',{x:plotRight-w,y:yy-13,width:w,height:15,fill:theme().bg,opacity:.82,rx:2}));
+      ov.append(svgEl('text',{x:plotRight-5,y:yy-3,fill:l.color,'font-size':9,'font-weight':800,'text-anchor':'end'},text));
+    });
+  }
+
+  // ---------- load one card ----------
+  async function loadCard(cfg){
+    try{
+      const {bars,name}=await fetchBars(cfg.code);
+      if(name&&(!cfg.name||cfg.name===cfg.code))cfg.name=name;
+      cfg.data=bars;
+      cfg.precision=pickPrecision(bars[bars.length-1].close);
+      cfg.smc=computeSMC(bars);
+      const drawables=buildDrawables(bars,cfg.smc,cfg.precision);
+      cfg.drawables=drawables;
+      // horizontal lines: liq + anchors + cost
+      cfg.hlines=drawables.hlines.map(l=>({...l,short:(l.label.indexOf('已扫')>=0?'⚑':'')+fmt(l.value,cfg.precision)}));
+      (cfg.anchors||[]).forEach(a=>cfg.hlines.push({value:a.price,kind:'anchor',color:HUE.anchor,style:'solid',
+        label:'锚 · '+(a.label||fmt(a.price,cfg.precision)),short:'锚 '+fmt(a.price,cfg.precision)}));
+      if(cfg.cost!=null&&!cfg.pureProfit)cfg.hlines.push({value:cfg.cost,kind:'cost',color:HUE.cost,style:'solid',
+        label:'成本 '+fmt(cfg.cost,cfg.precision),short:'本 '+fmt(cfg.cost,cfg.precision)});
+      // verdict + quote
+      const v=structureVerdict(bars,cfg.smc,cfg.precision);
+      cfg.$verdict.textContent=v.text;
+      cfg.$verdict.classList.toggle('down-struct',v.down);
+      renderQuote(cfg);
+      cfg.$ctrl.style.display='';
+      makeChart(cfg);
+      // asof
+      const last=bars[bars.length-1].date;
+      if(!window.__asof||last>window.__asof){window.__asof=last;document.getElementById('asofPill').textContent='末根日期：'+last;}
+    }catch(err){
+      showFail(cfg,err.message||String(err));
+      console.warn('[card fail]',cfg.code,err);
+    }
+  }
+
+  // ---------- theme ----------
+  function rethemeAll(){
+    Object.values(cards).forEach(cfg=>{
+      if(!cfg.chart)return;const tm=theme();
+      cfg.chart.applyOptions({layout:{background:{type:'solid',color:tm.bg},textColor:tm.text},
+        grid:{vertLines:{color:tm.grid},horzLines:{color:tm.grid}},
+        rightPriceScale:{borderColor:tm.border},timeScale:{borderColor:tm.border},
+        crosshair:{vertLine:{color:tm.crosshair},horzLine:{color:tm.crosshair}}});
+      requestAnimationFrame(()=>drawOverlay(cfg));
+    });
+  }
+  function setTheme(t){
+    document.documentElement.dataset.theme=t;
+    document.getElementById('themeBtn').textContent=t==='light'?'切换深色':'切换浅色';
+    try{localStorage.setItem('smc-theme',t);}catch(e){}
+    rethemeAll();
+  }
+
+  // ---------- localStorage 自选 ----------
+  function loadLocalList(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return [];}}
+  function saveLocalList(list){try{localStorage.setItem(LS_KEY,JSON.stringify(list));}catch(e){}}
+  function removeLocal(cfg){
+    const list=loadLocalList().filter(x=>x.code!==cfg.code);saveLocalList(list);
+    if(cfg.ro)try{cfg.ro.disconnect();}catch(e){}
+    if(cfg.chart)try{cfg.chart.remove();}catch(e){}
+    cfg.el.remove();delete cards[cfg.code];
+    if(!document.querySelector('#cards-local .stock'))document.getElementById('group-local').style.display='none';
+  }
+  function addLocalCard(cfg,load){
+    document.getElementById('group-local').style.display='';
+    groupContainer('local').appendChild(makeCardEl(cfg));
+    cards[cfg.code]=cfg;
+    if(load)loadCard(cfg);
+  }
+
+  // ---------- add form ----------
+  function bindAdd(){
+    const form=document.getElementById('addForm'),input=document.getElementById('addInput'),status=document.getElementById('addStatus');
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const code=normalizeCode(input.value);
+      if(!code){status.textContent='无法识别代码格式';return;}
+      if(cards[code]){status.textContent=code.toUpperCase()+' 已在列表中';return;}
+      status.textContent='拉取 '+code.toUpperCase()+' …';
+      try{
+        const {name}=await fetchBars(code);   // 预检
+        const cfg={code,name:name||code.toUpperCase(),group:'local',shares:null,cost:null,local:true,range:60,labels:true,anchors:[]};
+        addLocalCard(cfg,true);
+        const list=loadLocalList();list.push({code,name:cfg.name});saveLocalList(list);
+        input.value='';status.textContent='已添加 '+cfg.name;
+      }catch(err){status.textContent='添加失败：'+(err.message||err);}
+    });
+  }
+
+  // ---------- init ----------
+  function init(){
+    if(!window.LightweightCharts){document.getElementById('asofPill').textContent='图表库加载失败';console.error('LightweightCharts 未加载');return;}
+    // theme from storage
+    try{const t=localStorage.getItem('smc-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}
+    document.getElementById('themeBtn').textContent=(document.documentElement.dataset.theme==='light')?'切换深色':'切换浅色';
+    document.getElementById('themeBtn').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='light'?'dark':'light'));
+    bindAdd();
+
+    const all=[];
+    CONFIG.forEach(c=>{
+      const cfg=Object.assign({local:false,range:60,labels:true,anchors:c.anchors||[]},c);
+      cards[cfg.code]=cfg;
+      groupContainer(cfg.group).appendChild(makeCardEl(cfg));
+      all.push(cfg);
+    });
+    // localStorage 自选
+    loadLocalList().forEach(item=>{
+      if(cards[item.code])return;
+      const cfg={code:item.code,name:item.name||item.code.toUpperCase(),group:'local',shares:null,cost:null,local:true,range:60,labels:true,anchors:[]};
+      document.getElementById('group-local').style.display='';
+      groupContainer('local').appendChild(makeCardEl(cfg));
+      cards[cfg.code]=cfg;all.push(cfg);
+    });
+
+    window.__smc=cards;   // 调试/验收钩子：暴露各卡片 cfg（含 chart/candles/drawables）
+    runPool(all,loadCard,4);
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>

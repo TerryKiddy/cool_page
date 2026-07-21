@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Skill Opt 交互式教程：从技能效果评测、基线对比，到 description 触发优化与 GEPA。">
+  <title>Skill Opt · 把“感觉更好”变成“证据更强”</title>
+  <style>
+    :root {
+      --ink: #171713;
+      --ink-soft: #49483f;
+      --paper: #f1eddf;
+      --paper-bright: #faf7ec;
+      --paper-deep: #ded7c4;
+      --acid: #e8ff45;
+      --red: #d9472f;
+      --blue: #2e62d6;
+      --green: #16835d;
+      --line: rgba(23, 23, 19, .18);
+      --shadow: 0 22px 50px rgba(36, 31, 20, .12);
+      --display: "Iowan Old Style", "Baskerville", "STSong", "Songti SC", serif;
+      --body: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(23,23,19,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23,23,19,.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      font-family: var(--body);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      opacity: .23;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 5px;
+      z-index: 100;
+      background: rgba(23,23,19,.08);
+    }
+    .progress > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--red);
+      transition: width .08s linear;
+    }
+
+    .rail {
+      position: fixed;
+      z-index: 40;
+      left: 26px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      gap: 9px;
+    }
+    .rail a {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      font: 700 10px/1 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .rail i {
+      display: block;
+      width: 7px;
+      height: 7px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      background: var(--paper);
+      transition: .25s ease;
+    }
+    .rail a.active { color: var(--red); }
+    .rail a.active i { background: var(--red); transform: scale(1.45); }
+
+    main { width: min(1160px, calc(100% - 48px)); margin: 0 auto; }
+    section { position: relative; padding: 110px 0; scroll-margin-top: 20px; }
+    .section-rule { border-top: 1px solid var(--line); }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      font: 800 11px/1 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 34px; height: 2px; background: var(--red); }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: var(--display); line-height: .98; letter-spacing: -.035em; }
+    h1 { max-width: 980px; margin-bottom: 32px; font-size: clamp(64px, 10.5vw, 146px); font-weight: 500; }
+    h2 { max-width: 850px; margin-bottom: 26px; font-size: clamp(42px, 6.4vw, 86px); font-weight: 500; }
+    h3 { font-size: clamp(27px, 3vw, 40px); font-weight: 600; }
+    .lede { max-width: 780px; color: var(--ink-soft); font-size: clamp(18px, 2vw, 25px); line-height: 1.55; overflow-wrap: anywhere; }
+    .marker {
+      position: relative;
+      z-index: 0;
+      display: inline-block;
+    }
+    .marker::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      left: -.03em;
+      right: -.03em;
+      bottom: .08em;
+      height: .28em;
+      background: var(--acid);
+      transform: rotate(-1.2deg);
+    }
+
+    .hero { min-height: 100vh; padding-top: 12vh; display: grid; align-content: center; }
+    .hero::after {
+      content: "OPT / 01";
+      position: absolute;
+      right: 0;
+      top: 15%;
+      padding: 8px 12px;
+      border: 1px solid var(--ink);
+      font: 800 10px/1 var(--mono);
+      transform: rotate(90deg) translateX(100%);
+      transform-origin: top right;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 48px;
+      align-items: end;
+    }
+    .hero-note {
+      position: relative;
+      padding: 26px 24px 22px;
+      background: var(--acid);
+      box-shadow: 10px 12px 0 var(--ink);
+      transform: rotate(2deg);
+    }
+    .hero-note::before { content: "关键心法"; font: 800 10px/1 var(--mono); letter-spacing: .12em; }
+    .hero-note p { margin: 18px 0 0; font-family: var(--display); font-size: 27px; line-height: 1.12; }
+    .scroll-cue { margin-top: 54px; font: 700 11px/1 var(--mono); letter-spacing: .12em; }
+    .scroll-cue span { display: inline-block; margin-left: 8px; animation: bob 1.6s ease-in-out infinite; }
+    @keyframes bob { 50% { transform: translateY(7px); } }
+
+    .thesis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 54px;
+      border: 1px solid var(--ink);
+      background: var(--paper-bright);
+      box-shadow: var(--shadow);
+    }
+    .thesis-card { min-height: 310px; padding: 38px; }
+    .thesis-card + .thesis-card { border-left: 1px solid var(--ink); }
+    .thesis-card .num { font: 700 12px/1 var(--mono); color: var(--red); }
+    .thesis-card h3 { margin: 60px 0 18px; }
+    .thesis-card p { margin-bottom: 0; color: var(--ink-soft); }
+
+    .formula {
+      margin-top: 42px;
+      padding: 30px;
+      border-top: 3px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      font-family: var(--display);
+      font-size: clamp(23px, 3vw, 42px);
+      text-align: center;
+    }
+    .formula small { display: block; margin-top: 11px; color: var(--ink-soft); font: 500 12px/1.4 var(--mono); letter-spacing: .04em; }
+
+    .anatomy {
+      display: grid;
+      grid-template-columns: .7fr 1.3fr;
+      gap: 72px;
+      align-items: start;
+      margin-top: 58px;
+    }
+    .anatomy-controls { display: grid; gap: 10px; position: sticky; top: 40px; }
+    .anatomy-button {
+      padding: 18px 20px;
+      border: 1px solid var(--ink);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      transition: .2s;
+    }
+    .anatomy-button b { display: block; font: 800 12px/1 var(--mono); }
+    .anatomy-button span { display: block; margin-top: 8px; color: var(--ink-soft); font-size: 13px; }
+    .anatomy-button.active { background: var(--ink); color: var(--paper-bright); transform: translateX(10px); }
+    .anatomy-button.active span { color: rgba(255,255,255,.7); }
+    .file-stack { padding: 28px; border: 1px solid var(--ink); background: var(--paper-bright); box-shadow: var(--shadow); }
+    .codebar { display: flex; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--line); font: 700 11px/1 var(--mono); }
+    pre { margin: 0; white-space: pre-wrap; font: 13px/1.8 var(--mono); }
+    .code-lines { padding: 26px 0; }
+    .code-line { display: block; padding: 2px 12px; border-left: 4px solid transparent; transition: .25s; }
+    .code-line.dim { opacity: .28; }
+    .code-line.hot { border-color: var(--red); background: rgba(217,71,47,.09); }
+    .anatomy-note { min-height: 86px; padding: 18px 20px; background: var(--acid); font-size: 14px; }
+
+    .loop-tabs { display: flex; gap: 10px; margin: 42px 0 24px; }
+    .tab {
+      padding: 12px 18px;
+      border: 1px solid var(--ink);
+      background: transparent;
+      font: 800 11px/1 var(--mono);
+      letter-spacing: .05em;
+      cursor: pointer;
+    }
+    .tab.active { background: var(--ink); color: var(--acid); }
+    .loop-panel { display: none; }
+    .loop-panel.active { display: block; animation: panelIn .35s ease both; }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(10px); } }
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border: 1px solid var(--ink);
+      background: var(--paper-bright);
+      overflow: hidden;
+    }
+    .stage { position: relative; min-height: 220px; padding: 26px 22px; }
+    .stage + .stage { border-left: 1px solid var(--ink); }
+    .stage .step { font: 800 11px/1 var(--mono); color: var(--red); }
+    .stage h3 { margin: 55px 0 12px; font-size: 25px; }
+    .stage p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.55; }
+    .stage::after { content: "→"; position: absolute; z-index: 2; right: -12px; top: 50%; width: 24px; height: 24px; border: 1px solid var(--ink); border-radius: 50%; background: var(--acid); text-align: center; line-height: 21px; }
+    .stage:last-child::after { display: none; }
+
+    .lab-shell { margin-top: 50px; border: 1px solid var(--ink); background: #191a18; color: #eeecdf; box-shadow: 14px 16px 0 var(--red); }
+    .lab-top { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.18); font: 700 11px/1 var(--mono); }
+    .lamp { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--acid); box-shadow: 0 0 14px var(--acid); }
+    .lab-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    .lab-side { padding: 34px; }
+    .lab-side + .lab-side { border-left: 1px solid rgba(255,255,255,.18); }
+    .lab-side h3 { margin-bottom: 10px; color: var(--acid); }
+    .lab-side > p { min-height: 48px; color: rgba(255,255,255,.65); font-size: 14px; }
+    .score-row { display: grid; grid-template-columns: 110px 1fr 42px; gap: 14px; align-items: center; margin: 19px 0; font: 12px/1 var(--mono); }
+    .score-track { position: relative; height: 7px; background: rgba(255,255,255,.15); }
+    .score-fill { width: 0; height: 100%; background: var(--red); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+    .candidate .score-fill { background: var(--acid); }
+    .score-value { text-align: right; }
+    .lab-action { display: flex; flex-wrap: wrap; gap: 10px; padding: 22px 34px 30px; border-top: 1px solid rgba(255,255,255,.18); }
+    .lab-action button { padding: 10px 14px; border: 1px solid rgba(255,255,255,.55); background: transparent; color: #fff; cursor: pointer; font: 700 11px/1 var(--mono); }
+    .lab-action button.primary { background: var(--acid); border-color: var(--acid); color: var(--ink); }
+    .lab-verdict { margin-left: auto; align-self: center; color: rgba(255,255,255,.7); font: 12px/1.45 var(--mono); }
+
+    .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 48px; }
+    .evidence-card { padding: 28px; border-top: 4px solid var(--ink); background: rgba(250,247,236,.6); }
+    .evidence-card strong { display: block; margin-bottom: 16px; font: 800 11px/1 var(--mono); color: var(--red); }
+    .evidence-card h3 { margin-bottom: 14px; font-size: 29px; }
+    .evidence-card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+    .trigger-console { margin-top: 48px; border: 1px solid var(--ink); background: var(--paper-bright); box-shadow: var(--shadow); }
+    .trigger-head { display: grid; grid-template-columns: 1fr auto; gap: 20px; padding: 24px; border-bottom: 1px solid var(--ink); }
+    .desc-switch { display: flex; gap: 8px; }
+    .desc-switch button { padding: 9px 12px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font: 800 10px/1 var(--mono); }
+    .desc-switch button.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .description-box { padding: 22px 24px; background: rgba(46,98,214,.07); border-bottom: 1px solid var(--line); font: 13px/1.65 var(--mono); }
+    .query-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+    .query { display: grid; grid-template-columns: 1fr auto; gap: 18px; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+    .query:nth-child(odd) { border-right: 1px solid var(--line); }
+    .query p { margin: 0; font-size: 13px; line-height: 1.5; }
+    .query small { display: block; margin-top: 7px; font: 700 9px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .query .true { color: var(--green); }
+    .query .false { color: var(--red); }
+    .hit { min-width: 72px; align-self: center; padding: 8px 7px; border-radius: 99px; text-align: center; font: 800 9px/1 var(--mono); }
+    .hit.yes { background: rgba(22,131,93,.14); color: var(--green); }
+    .hit.no { background: rgba(217,71,47,.12); color: var(--red); }
+    .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .metric { padding: 22px; border-right: 1px solid var(--ink); text-align: center; }
+    .metric:last-child { border-right: 0; }
+    .metric b { display: block; font-family: var(--display); font-size: 38px; line-height: 1; }
+    .metric span { font: 700 9px/1 var(--mono); letter-spacing: .08em; }
+
+    .split-demo { display: grid; grid-template-columns: .9fr 1.1fr; gap: 52px; align-items: center; margin-top: 54px; }
+    .data-deck { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 28px; border: 1px solid var(--ink); background: var(--paper-bright); transform: rotate(-1deg); }
+    .datum { aspect-ratio: 1; display: grid; place-items: center; border: 1px solid var(--ink); font: 800 10px/1 var(--mono); transition: .3s; }
+    .datum.train { background: var(--blue); color: white; }
+    .datum.test { background: var(--acid); }
+    .data-deck:hover .datum.train { transform: translateY(-5px); }
+    .data-deck:hover .datum.test { transform: translateY(5px); }
+    .split-copy blockquote { margin: 30px 0 0; padding-left: 22px; border-left: 5px solid var(--red); font-family: var(--display); font-size: 26px; line-height: 1.25; }
+
+    .gepa-map { position: relative; margin-top: 54px; padding: 42px; border: 1px solid var(--ink); background: #151713; color: white; overflow: hidden; }
+    .gepa-map::after { content: ""; position: absolute; width: 380px; height: 380px; right: -120px; top: -180px; border: 80px solid rgba(232,255,69,.08); border-radius: 50%; }
+    .gepa-flow { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+    .gepa-node { min-height: 170px; padding: 22px 18px; border: 1px solid rgba(255,255,255,.28); }
+    .gepa-node b { display: block; color: var(--acid); font: 700 10px/1 var(--mono); }
+    .gepa-node h3 { margin: 45px 0 10px; font-size: 25px; }
+    .gepa-node p { color: rgba(255,255,255,.58); font-size: 12px; line-height: 1.5; }
+    .pareto { margin-top: 22px; padding: 18px; border: 1px dashed rgba(255,255,255,.28); color: rgba(255,255,255,.75); font: 12px/1.6 var(--mono); }
+    .pareto i { display: inline-block; width: 9px; height: 9px; margin: 0 5px 0 12px; border-radius: 50%; background: var(--acid); }
+
+    .playbook { counter-reset: play; margin-top: 50px; border-top: 1px solid var(--ink); }
+    .play-row { counter-increment: play; display: grid; grid-template-columns: 90px 1fr auto; gap: 24px; align-items: center; padding: 25px 4px; border-bottom: 1px solid var(--ink); cursor: pointer; }
+    .play-row::before { content: "0" counter(play); font: 800 11px/1 var(--mono); color: var(--red); }
+    .play-row h3 { margin: 0; font-size: 29px; }
+    .play-row p { grid-column: 2; margin: -10px 0 0; color: var(--ink-soft); font-size: 14px; }
+    .check { grid-column: 3; grid-row: 1 / span 2; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--ink); border-radius: 50%; font-weight: 900; transition: .2s; }
+    .play-row.done .check { background: var(--green); border-color: var(--green); color: white; }
+    .play-row.done h3 { text-decoration: line-through; text-decoration-thickness: 1px; opacity: .5; }
+
+    .quiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 50px; }
+    .quiz-card { padding: 28px; border: 1px solid var(--ink); background: var(--paper-bright); }
+    .quiz-card .qnum { font: 800 10px/1 var(--mono); color: var(--red); }
+    .quiz-card h3 { margin: 24px 0; font-size: 25px; line-height: 1.12; }
+    .answers { display: grid; gap: 8px; }
+    .answer { padding: 11px 13px; border: 1px solid var(--line); background: transparent; text-align: left; cursor: pointer; font-size: 13px; }
+    .answer:hover { border-color: var(--ink); }
+    .answer.correct { background: rgba(22,131,93,.12); border-color: var(--green); color: var(--green); }
+    .answer.wrong { background: rgba(217,71,47,.1); border-color: var(--red); color: var(--red); }
+    .explain { display: none; margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 12px; }
+    .quiz-card.answered .explain { display: block; }
+    .quiz-result { margin-top: 24px; padding: 22px; border: 1px solid var(--ink); background: var(--acid); font-family: var(--display); font-size: 28px; text-align: center; }
+
+    .closing { min-height: 78vh; display: grid; align-content: center; text-align: center; }
+    .closing h2 { margin-left: auto; margin-right: auto; }
+    .closing .lede { margin: 0 auto; }
+    .closing-stamp { display: inline-block; margin: 44px auto 0; padding: 14px 18px; border: 3px double var(--red); color: var(--red); font: 900 11px/1 var(--mono); letter-spacing: .12em; transform: rotate(-3deg); }
+    footer { display: flex; justify-content: space-between; gap: 28px; padding: 26px 0 45px; border-top: 1px solid var(--ink); color: var(--ink-soft); font: 10px/1.5 var(--mono); }
+
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 980px) {
+      .rail { display: none; }
+      .hero-grid, .anatomy, .split-demo { grid-template-columns: 1fr; }
+      .hero-note { max-width: 300px; }
+      .pipeline { grid-template-columns: 1fr; }
+      .stage { min-height: auto; }
+      .stage + .stage { border-left: 0; border-top: 1px solid var(--ink); }
+      .stage h3 { margin-top: 25px; }
+      .stage::after { right: 50%; top: auto; bottom: -12px; transform: translateX(50%) rotate(90deg); }
+      .gepa-flow { grid-template-columns: 1fr 1fr; }
+      .anatomy-controls { position: static; grid-template-columns: repeat(3, 1fr); }
+      .anatomy-button.active { transform: translateY(-5px); }
+    }
+
+    @media (max-width: 700px) {
+      main { width: min(100% - 28px, 1160px); }
+      section { padding: 76px 0; }
+      .hero { padding-top: 90px; }
+      .hero-grid, .thesis-grid, .lab-grid, .evidence-grid, .query-grid, .quiz-grid { grid-template-columns: 1fr; }
+      .thesis-card + .thesis-card, .lab-side + .lab-side { border-left: 0; border-top: 1px solid var(--ink); }
+      .query:nth-child(odd) { border-right: 0; }
+      .metric-strip { grid-template-columns: 1fr 1fr; }
+      .metric { border-bottom: 1px solid var(--ink); }
+      .metric:nth-child(2) { border-right: 0; }
+      .gepa-flow { grid-template-columns: 1fr; }
+      .gepa-map { padding: 20px; }
+      .anatomy-controls { grid-template-columns: 1fr; }
+      .file-stack { padding: 16px; }
+      .code-lines { font-size: 11px; }
+      .play-row { grid-template-columns: 44px 1fr auto; gap: 12px; }
+      .play-row h3 { font-size: 23px; }
+      .play-row p { grid-column: 2 / 4; }
+      footer { display: block; }
+      footer span { display: block; margin-top: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <nav class="rail" aria-label="章节导航">
+    <a href="#why"><i></i><span>WHY</span></a>
+    <a href="#anatomy"><i></i><span>ANATOMY</span></a>
+    <a href="#loops"><i></i><span>LOOPS</span></a>
+    <a href="#lab"><i></i><span>LAB</span></a>
+    <a href="#trigger"><i></i><span>TRIGGER</span></a>
+    <a href="#gepa"><i></i><span>GEPA</span></a>
+    <a href="#quiz"><i></i><span>QUIZ</span></a>
+  </nav>
+
+  <main>
+    <section class="hero" id="top" data-spy>
+      <div class="eyebrow">Field Manual · 2026</div>
+      <h1>Skill<br><span class="marker">Opt</span></h1>
+      <div class="hero-grid">
+        <p class="lede">不是把 <code>SKILL.md</code> 写得更长，而是让技能在正确的时候出现，并且稳定地产出更好的结果。</p>
+        <aside class="hero-note" aria-label="关键心法">
+          <p>把 skill 当成程序，把真实任务当成测试。</p>
+        </aside>
+      </div>
+      <div class="scroll-cue">SCROLL TO CALIBRATE <span>↓</span></div>
+    </section>
+
+    <section id="why" class="section-rule" data-spy>
+      <div class="eyebrow reveal">01 · 先校准概念</div>
+      <h2 class="reveal">“优化 Skill”其实有<span class="marker">两道题</span></h2>
+      <p class="lede reveal">很多人把两者混在一起：skill 可能能力很强，却根本没被召回；也可能每次都触发，但执行结果并不比裸模型好。</p>
+
+      <div class="thesis-grid reveal">
+        <article class="thesis-card">
+          <span class="num">PROBLEM / A</span>
+          <h3>能力优化</h3>
+          <p>给同一批真实任务，比较「有 skill」和「无 skill / 旧 skill」的输出。目标是提升正确性、稳定性与可复用性。</p>
+        </article>
+        <article class="thesis-card">
+          <span class="num">PROBLEM / B</span>
+          <h3>触发优化</h3>
+          <p>给一批该触发与不该触发的用户请求，检查 <code>description</code> 能否让系统正确召回。目标是少漏调，也少误调。</p>
+        </article>
+      </div>
+      <div class="formula reveal">
+        好 Skill = 正确触发 × 正确执行 × 可验证改进
+        <small>任何一项接近 0，整体体验就会崩掉。</small>
+      </div>
+    </section>
+
+    <section id="anatomy" class="section-rule" data-spy>
+      <div class="eyebrow reveal">02 · 优化对象</div>
+      <h2 class="reveal">先知道自己在改<span class="marker">哪一层</span></h2>
+      <p class="lede reveal">一个 skill 不是单块提示词。它有三层加载结构，优化时要把问题放回正确的层。</p>
+
+      <div class="anatomy reveal">
+        <div class="anatomy-controls" role="tablist" aria-label="Skill 三层结构">
+          <button class="anatomy-button active" data-layer="meta" role="tab" aria-selected="true"><b>LEVEL 1 · 元数据</b><span>name + description，始终可见</span></button>
+          <button class="anatomy-button" data-layer="body" role="tab" aria-selected="false"><b>LEVEL 2 · 正文</b><span>触发后读取，指导工作流</span></button>
+          <button class="anatomy-button" data-layer="assets" role="tab" aria-selected="false"><b>LEVEL 3 · 资源</b><span>scripts / references / assets，按需加载</span></button>
+        </div>
+        <div class="file-stack">
+          <div class="codebar"><span>my-skill / SKILL.md</span><span>PROGRESSIVE DISCLOSURE</span></div>
+          <pre class="code-lines" aria-label="Skill 文件示例"><code><span class="code-line layer-meta">---
+name: report-auditor
+description: 审查业务报告的事实、结构与引用。
+当用户要求报告质检、找事实错误或检查引用时使用。</span>
+<span class="code-line layer-body">---
+
+# Report Auditor
+
+先提取可验证主张，再逐条核对证据。
+输出：摘要、问题清单、修改建议。</span>
+<span class="code-line layer-assets">读取 references/checklist.md 获取核查规则。
+运行 scripts/check_links.py 验证所有链接。</span></code></pre>
+          <div class="anatomy-note" id="anatomyNote">元数据决定“要不要叫你上场”。触发不准，先别急着改正文。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="loops" class="section-rule" data-spy>
+      <div class="eyebrow reveal">03 · 两条优化回路</div>
+      <h2 class="reveal">从直觉，走向<span class="marker">受控实验</span></h2>
+      <p class="lede reveal">点击切换两条回路。它们共享“评测—改写—复测”的骨架，但数据和指标完全不同。</p>
+
+      <div class="loop-tabs reveal" role="tablist">
+        <button class="tab active" data-panel="capability" role="tab" aria-selected="true">A · 能力优化</button>
+        <button class="tab" data-panel="description" role="tab" aria-selected="false">B · 触发优化</button>
+      </div>
+
+      <div class="loop-panel active" id="capability" role="tabpanel">
+        <div class="pipeline">
+          <article class="stage"><span class="step">01</span><h3>定义意图</h3><p>说清楚做什么、何时触发、输出长什么样。</p></article>
+          <article class="stage"><span class="step">02</span><h3>真实任务</h3><p>准备 2–3 个真实 prompt，不用“玩具题”。</p></article>
+          <article class="stage"><span class="step">03</span><h3>并排运行</h3><p>同题对比新 skill 与无 skill / 旧版本。</p></article>
+          <article class="stage"><span class="step">04</span><h3>人 + 指标</h3><p>人看整体质量，断言检查可客观验证的要求。</p></article>
+          <article class="stage"><span class="step">05</span><h3>归因改写</h3><p>从失败轨迹归因，改写后完整重跑。</p></article>
+        </div>
+      </div>
+
+      <div class="loop-panel" id="description" role="tabpanel">
+        <div class="pipeline">
+          <article class="stage"><span class="step">01</span><h3>构造查询</h3><p>约 20 条，正例与刁钻近邻负例各半。</p></article>
+          <article class="stage"><span class="step">02</span><h3>人工复核</h3><p>确认每条到底应该触发还是不应该。</p></article>
+          <article class="stage"><span class="step">03</span><h3>训练 / 留出</h3><p>60% 用来迭代，40% 留作最终检验。</p></article>
+          <article class="stage"><span class="step">04</span><h3>重复采样</h3><p>每条多跑几次，看触发率而非单次运气。</p></article>
+          <article class="stage"><span class="step">05</span><h3>按测试集选</h3><p>最佳版本由留出集决定，防止背答案。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="lab" class="section-rule" data-spy>
+      <div class="eyebrow reveal">04 · 能力优化实验室</div>
+      <h2 class="reveal">一次靠谱的 A/B，应该看<span class="marker">什么</span></h2>
+      <p class="lede reveal">下面是一组模拟评测。先点击“运行基线”，再运行候选版本。分数只是示意，重点是比较方法。</p>
+
+      <div class="lab-shell reveal" id="labShell">
+        <div class="lab-top"><span><i class="lamp"></i>EVAL BENCH · task set v1.2</span><span>3 CASES / 4 ASSERTIONS</span></div>
+        <div class="lab-grid">
+          <div class="lab-side baseline">
+            <h3>Baseline</h3>
+            <p>没有 skill：模型直接处理用户请求。</p>
+            <div class="score-row"><span>任务完成度</span><div class="score-track"><div class="score-fill" data-score="58"></div></div><span class="score-value">—</span></div>
+            <div class="score-row"><span>引用完整</span><div class="score-track"><div class="score-fill" data-score="50"></div></div><span class="score-value">—</span></div>
+            <div class="score-row"><span>格式稳定</span><div class="score-track"><div class="score-fill" data-score="66"></div></div><span class="score-value">—</span></div>
+          </div>
+          <div class="lab-side candidate">
+            <h3>Candidate v2</h3>
+            <p>skill 增加“先抽取主张，再核对来源”的流程。</p>
+            <div class="score-row"><span>任务完成度</span><div class="score-track"><div class="score-fill" data-score="88"></div></div><span class="score-value">—</span></div>
+            <div class="score-row"><span>引用完整</span><div class="score-track"><div class="score-fill" data-score="92"></div></div><span class="score-value">—</span></div>
+            <div class="score-row"><span>格式稳定</span><div class="score-track"><div class="score-fill" data-score="84"></div></div><span class="score-value">—</span></div>
+          </div>
+        </div>
+        <div class="lab-action">
+          <button id="runBase">运行基线</button>
+          <button class="primary" id="runCandidate">运行候选</button>
+          <button id="resetLab">重置</button>
+          <span class="lab-verdict" id="labVerdict">等待实验…</span>
+        </div>
+      </div>
+
+      <div class="evidence-grid">
+        <article class="evidence-card reveal"><strong>QUALITATIVE</strong><h3>人看结果</h3><p>语言、审美、洞察等主观质量，不要强行压成一个分数。让用户并排看输出并反馈。</p></article>
+        <article class="evidence-card reveal"><strong>QUANTITATIVE</strong><h3>断言验收</h3><p>例如“包含全部 5 个字段”“所有链接可访问”。断言必须客观、具体、可复查。</p></article>
+        <article class="evidence-card reveal"><strong>OPERATIONAL</strong><h3>成本观测</h3><p>记录耗时与 token。更高通过率若以 10 倍成本换来，也许并不是更好的生产方案。</p></article>
+      </div>
+    </section>
+
+    <section id="trigger" class="section-rule" data-spy>
+      <div class="eyebrow reveal">05 · Description 触发优化</div>
+      <h2 class="reveal">触发器不是关键词表，<br>而是<span class="marker">决策边界</span></h2>
+      <p class="lede reveal">试着切换描述 A / B。观察同一组请求里，漏调和误调怎样变化。正例要覆盖多种说法，负例要选“看起来很像但不该触发”的近邻。</p>
+
+      <div class="trigger-console reveal">
+        <div class="trigger-head">
+          <div><b>TRIGGER EVAL SET</b><br><small>6 个简化示例 · 页面演示数据</small></div>
+          <div class="desc-switch"><button class="active" data-desc="a">描述 A</button><button data-desc="b">描述 B</button></div>
+        </div>
+        <div class="description-box" id="descText"></div>
+        <div class="query-grid" id="queryGrid"></div>
+        <div class="metric-strip">
+          <div class="metric"><b id="accuracy">—</b><span>ACCURACY</span></div>
+          <div class="metric"><b id="precision">—</b><span>PRECISION</span></div>
+          <div class="metric"><b id="recall">—</b><span>RECALL</span></div>
+          <div class="metric"><b id="errors">—</b><span>ERRORS</span></div>
+        </div>
+      </div>
+
+      <div class="split-demo reveal">
+        <div class="data-deck" aria-label="60% 训练集和 40% 测试集示意">
+          <div class="datum train">T1</div><div class="datum train">T2</div><div class="datum train">T3</div><div class="datum train">T4</div><div class="datum train">T5</div>
+          <div class="datum train">T6</div><div class="datum train">T7</div><div class="datum train">T8</div><div class="datum train">T9</div><div class="datum train">T10</div>
+          <div class="datum train">T11</div><div class="datum train">T12</div><div class="datum test">H1</div><div class="datum test">H2</div><div class="datum test">H3</div>
+          <div class="datum test">H4</div><div class="datum test">H5</div><div class="datum test">H6</div><div class="datum test">H7</div><div class="datum test">H8</div>
+        </div>
+        <div class="split-copy">
+          <h3>为什么必须留出 40%？</h3>
+          <p>如果你一边看全部题目，一边改 description，它很容易把这 20 道题“背下来”。留出集从不参与改写，才更接近未来真实请求。</p>
+          <blockquote>按训练集改，按测试集选。</blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section id="gepa" class="section-rule" data-spy>
+      <div class="eyebrow reveal">06 · 进阶：反思式进化</div>
+      <h2 class="reveal">GEPA 把手动循环变成<span class="marker">候选进化</span></h2>
+      <p class="lede reveal">它把 <code>SKILL.md</code> 或提示词当成可进化 artifact：从失败轨迹反思，生成候选，小批筛选，再做完整验证。这里讲的是思路，不等同于所有 Skill Opt 工具都必须用 GEPA。</p>
+
+      <div class="gepa-map reveal">
+        <div class="gepa-flow">
+          <article class="gepa-node"><b>01 · SEED</b><h3>建立基线</h3><p>先知道当前版本在哪些题上失败。</p></article>
+          <article class="gepa-node"><b>02 · REFLECT</b><h3>失败反思</h3><p>基于轨迹提出有原因的具体改写。</p></article>
+          <article class="gepa-node"><b>03 · MINI</b><h3>低成本筛选</h3><p>先在小批任务上淘汰无效候选。</p></article>
+          <article class="gepa-node"><b>04 · FULL</b><h3>完整验证</h3><p>过门槛后才跑全量，防偶然提升。</p></article>
+          <article class="gepa-node"><b>05 · MERGE</b><h3>组合优势</h3><p>把不同专家候选的长处再次验证。</p></article>
+        </div>
+        <div class="pareto"><b>PARETO FRONT：</b><i></i>候选 A 擅长准确率 <i></i>候选 B 更省 token <i></i>候选 C 在边界任务更稳。不是只留“平均分最高”的一个。</div>
+      </div>
+    </section>
+
+    <section id="playbook" class="section-rule" data-spy>
+      <div class="eyebrow reveal">07 · 你的第一轮实战</div>
+      <h2 class="reveal">七步跑完一个<span class="marker">最小闭环</span></h2>
+      <p class="lede reveal">点击每一行可以打勾。清单会保存在浏览器本地，下次打开仍在。</p>
+
+      <div class="playbook reveal" id="playbookList">
+        <div class="play-row"><h3>写一句明确的成功定义</h3><p>不是“更专业”，而是“能识别全部事实主张，并为每条给出处”。</p><span class="check">✓</span></div>
+        <div class="play-row"><h3>准备 3 个真实任务</h3><p>简单、典型、边界各一个；别只用你最熟悉的样例。</p><span class="check">✓</span></div>
+        <div class="play-row"><h3>冻结基线版本</h3><p>新 skill 对比无 skill；改旧 skill 时，先快照旧版本。</p><span class="check">✓</span></div>
+        <div class="play-row"><h3>并排运行，不看标签先评</h3><p>尽量盲评，避免“知道哪个是新版”影响判断。</p><span class="check">✓</span></div>
+        <div class="play-row"><h3>把失败归因到正确层</h3><p>触发、正文、脚本、外部依赖，修复位置并不一样。</p><span class="check">✓</span></div>
+        <div class="play-row"><h3>删掉不产生价值的指令</h3><p>更长不等于更强。重复工作应沉淀成脚本，而不是反复口述。</p><span class="check">✓</span></div>
+        <div class="play-row"><h3>完整重跑，防止局部回归</h3><p>修好一个 case 可能破坏另一个；每轮都跑全套。</p><span class="check">✓</span></div>
+      </div>
+    </section>
+
+    <section id="quiz" class="section-rule" data-spy>
+      <div class="eyebrow reveal">08 · 自测</div>
+      <h2 class="reveal">你真的理解了吗？</h2>
+      <p class="lede reveal">四道题，不记术语，只检查你是否抓住实验逻辑。</p>
+
+      <div class="quiz-grid">
+        <article class="quiz-card reveal" data-answer="1">
+          <span class="qnum">QUESTION 01</span><h3>skill 每次都能触发，但输出质量没有提升。先改哪里？</h3>
+          <div class="answers"><button class="answer">A. description 加更多关键词</button><button class="answer" data-correct>B. 检查正文流程与资源是否真的帮助执行</button><button class="answer">C. 把 skill 改名</button></div>
+          <p class="explain">触发已经不是问题。应看执行轨迹，定位正文、脚本或知识资源的缺口。</p>
+        </article>
+        <article class="quiz-card reveal" data-answer="2">
+          <span class="qnum">QUESTION 02</span><h3>为什么负例不能写成“请算斐波那契数列”？</h3>
+          <div class="answers"><button class="answer">A. 题目太短</button><button class="answer" data-correct>B. 它离 skill 的边界太远，测不出误触发</button><button class="answer">C. Python 太常见</button></div>
+          <p class="explain">高价值负例应共享关键词或相邻意图，却确实不该触发。</p>
+        </article>
+        <article class="quiz-card reveal" data-answer="3">
+          <span class="qnum">QUESTION 03</span><h3>候选版通过率更高，但 token 是基线的 8 倍。正确结论是？</h3>
+          <div class="answers"><button class="answer">A. 候选必胜</button><button class="answer">B. 基线必胜</button><button class="answer" data-correct>C. 需要结合生产价值判断提升是否值得</button></div>
+          <p class="explain">优化是多目标问题：质量、稳定性、成本、延迟都可能进入决策。</p>
+        </article>
+        <article class="quiz-card reveal" data-answer="4">
+          <span class="qnum">QUESTION 04</span><h3>description 在训练集 100%，留出集 65%。最可能发生了什么？</h3>
+          <div class="answers"><button class="answer" data-correct>A. 过拟合了已知查询</button><button class="answer">B. skill 正文太短</button><button class="answer">C. 测试集一定错了</button></div>
+          <p class="explain">训练高、测试低是典型过拟合信号。应扩大边界样本并做更能泛化的描述。</p>
+        </article>
+      </div>
+      <div class="quiz-result reveal" id="quizResult">完成 0 / 4 · 答对 0 题</div>
+    </section>
+
+    <section class="closing section-rule">
+      <div class="eyebrow reveal">THE TAKEAWAY</div>
+      <h2 class="reveal">别问“我改得更好吗？”<br>问“<span class="marker">证据更强了吗？</span>”</h2>
+      <p class="lede reveal">一份好 skill 的终点，不是措辞看起来更聪明，而是在新任务上更可靠地被召回，并以可接受的成本稳定完成工作。</p>
+      <div class="closing-stamp reveal">EVALUATE · REFLECT · REPEAT</div>
+    </section>
+
+    <footer>
+      <div>SKILL OPT · INTERACTIVE FIELD MANUAL</div>
+      <span>内容依据本地 Skill Creator 规范与 GEPA 学习笔记整理 · 单文件、离线可用</span>
+    </footer>
+  </main>
+
+  <script>
+    const $ = (s, root = document) => root.querySelector(s);
+    const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+
+    // Reading progress + section spy
+    const progressBar = $('#progressBar');
+    const spyLinks = $$('.rail a');
+    const spyTargets = spyLinks.map(a => $(a.getAttribute('href'))).filter(Boolean);
+    function updateScrollUI() {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      progressBar.style.width = `${max > 0 ? (scrollY / max) * 100 : 0}%`;
+      let current = spyTargets[0]?.id;
+      spyTargets.forEach(section => {
+        if (section.getBoundingClientRect().top <= innerHeight * .42) current = section.id;
+      });
+      spyLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${current}`));
+    }
+    addEventListener('scroll', updateScrollUI, { passive: true });
+    updateScrollUI();
+
+    // Reveal
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: .12 });
+    $$('.reveal').forEach(el => revealObserver.observe(el));
+    function revealHashTarget() {
+      if (!location.hash) return;
+      const target = $(location.hash);
+      if (!target) return;
+      $$('.reveal', target).forEach(el => el.classList.add('visible'));
+      requestAnimationFrame(() => {
+        const previous = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+        target.scrollIntoView({ block: 'start', behavior: 'auto' });
+        document.documentElement.style.scrollBehavior = previous;
+      });
+    }
+    addEventListener('load', revealHashTarget);
+    addEventListener('hashchange', revealHashTarget);
+
+    // Skill anatomy explorer
+    const anatomyCopy = {
+      meta: '元数据决定“要不要叫你上场”。触发不准，先别急着改正文。',
+      body: '正文决定“上场后怎么做”。理想正文解释原因、边界和工作流，不靠堆叠 MUST。',
+      assets: '重复而确定的工作交给脚本；大块知识放 references；模板与素材放 assets。'
+    };
+    $$('.anatomy-button').forEach(btn => btn.addEventListener('click', () => {
+      $$('.anatomy-button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+      const layer = btn.dataset.layer;
+      $$('.code-line').forEach(line => {
+        line.classList.toggle('hot', line.classList.contains(`layer-${layer}`));
+        line.classList.toggle('dim', !line.classList.contains(`layer-${layer}`));
+      });
+      $('#anatomyNote').textContent = anatomyCopy[layer];
+    }));
+    $('.anatomy-button.active').click();
+
+    // Optimization loop tabs
+    $$('.loop-tabs .tab').forEach(tab => tab.addEventListener('click', () => {
+      $$('.loop-tabs .tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      $$('.loop-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active'); tab.setAttribute('aria-selected', 'true');
+      $(`#${tab.dataset.panel}`).classList.add('active');
+    }));
+
+    // A/B lab
+    function runScores(side, label) {
+      const rows = $$(`.${side} .score-row`);
+      rows.forEach((row, i) => {
+        const fill = $('.score-fill', row);
+        const value = $('.score-value', row);
+        setTimeout(() => {
+          fill.style.width = `${fill.dataset.score}%`;
+          value.textContent = `${fill.dataset.score}%`;
+        }, i * 140);
+      });
+      $('#labVerdict').textContent = label;
+    }
+    $('#runBase').addEventListener('click', () => runScores('baseline', '基线完成。现在运行候选，才有比较。'));
+    $('#runCandidate').addEventListener('click', () => {
+      runScores('candidate', '候选平均 +30pp；下一步看逐 case 失败与成本。');
+    });
+    $('#resetLab').addEventListener('click', () => {
+      $$('#labShell .score-fill').forEach(x => x.style.width = 0);
+      $$('#labShell .score-value').forEach(x => x.textContent = '—');
+      $('#labVerdict').textContent = '等待实验…';
+    });
+
+    // Trigger simulator
+    const queries = [
+      { text: '帮我审一下 Q3 业务报告，事实和引用有没有问题？', should: true, a: true, b: true },
+      { text: '老板发来一份长文，帮我找出没有来源支撑的结论。', should: true, a: false, b: true },
+      { text: '检查附件里的外链是否失效，并列出对应段落。', should: true, a: false, b: true },
+      { text: '把这份报告改写得更有感染力、更适合演讲。', should: false, a: true, b: false },
+      { text: '总结这份报告的三条核心结论。', should: false, a: true, b: false },
+      { text: '审查这个 API 的权限设计和 SQL 注入风险。', should: false, a: true, b: false }
+    ];
+    const descriptions = {
+      a: '审查各种报告和内容。用户提到“报告、审查、检查、引用”时使用。',
+      b: '审查业务报告中的可验证事实、引用完整性与失效链接。当用户要求报告质检、核对事实依据、找无来源结论或检查报告引用时使用；纯改写、摘要和代码安全审查不使用。'
+    };
+    function percent(n) { return `${Math.round(n * 100)}%`; }
+    function renderTrigger(version) {
+      $('#descText').textContent = descriptions[version];
+      $('#queryGrid').innerHTML = queries.map(q => {
+        const hit = q[version];
+        const correct = hit === q.should;
+        return `<article class="query"><div><p>${q.text}</p><small class="${q.should ? 'true' : 'false'}">${q.should ? '应触发' : '不应触发'} · ${correct ? '判断正确' : '判断错误'}</small></div><span class="hit ${hit ? 'yes' : 'no'}">${hit ? '已触发' : '未触发'}</span></article>`;
+      }).join('');
+      let tp = 0, fp = 0, tn = 0, fn = 0;
+      queries.forEach(q => {
+        if (q.should && q[version]) tp++;
+        else if (!q.should && q[version]) fp++;
+        else if (!q.should && !q[version]) tn++;
+        else fn++;
+      });
+      $('#accuracy').textContent = percent((tp + tn) / queries.length);
+      $('#precision').textContent = percent(tp / Math.max(1, tp + fp));
+      $('#recall').textContent = percent(tp / Math.max(1, tp + fn));
+      $('#errors').textContent = fp + fn;
+    }
+    $$('.desc-switch button').forEach(btn => btn.addEventListener('click', () => {
+      $$('.desc-switch button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); renderTrigger(btn.dataset.desc);
+    }));
+    renderTrigger('a');
+
+    // Persistent playbook
+    const playRows = $$('.play-row');
+    let savedChecks = [];
+    try { savedChecks = JSON.parse(localStorage.getItem('skillOptChecks') || '[]'); } catch (_) {}
+    playRows.forEach((row, index) => {
+      if (savedChecks.includes(index)) row.classList.add('done');
+      row.setAttribute('role', 'checkbox');
+      row.setAttribute('tabindex', '0');
+      row.setAttribute('aria-checked', row.classList.contains('done'));
+      const toggle = () => {
+        row.classList.toggle('done');
+        row.setAttribute('aria-checked', row.classList.contains('done'));
+        const done = playRows.map((r, i) => r.classList.contains('done') ? i : null).filter(i => i !== null);
+        try { localStorage.setItem('skillOptChecks', JSON.stringify(done)); } catch (_) {}
+      };
+      row.addEventListener('click', toggle);
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+    });
+
+    // Quiz
+    let answered = 0, correct = 0;
+    $$('.quiz-card').forEach(card => {
+      $$('.answer', card).forEach(answer => answer.addEventListener('click', () => {
+        if (card.classList.contains('answered')) return;
+        card.classList.add('answered'); answered++;
+        if (answer.hasAttribute('data-correct')) { answer.classList.add('correct'); correct++; }
+        else {
+          answer.classList.add('wrong');
+          $('[data-correct]', card).classList.add('correct');
+        }
+        $('#quizResult').textContent = `完成 ${answered} / 4 · 答对 ${correct} 题${answered === 4 ? (correct === 4 ? ' · 已掌握实验思维' : ' · 回看错题对应章节') : ''}`;
+      }));
+    });
+  </script>
+</body>
+</html>

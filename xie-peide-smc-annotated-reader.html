@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="谢佩德骨头《兆易创新 SMC 聪明钱分析》原文与术语边注阅读版">
+  <meta name="theme-color" content="#efe9dc">
+  <title>兆易创新 SMC 聪明钱分析｜原文边注版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+  <style>
+    :root {
+      --paper: #f7f1e5;
+      --paper-deep: #eee5d5;
+      --ink: #1e2927;
+      --muted: #6c7069;
+      --line: rgba(30, 41, 39, .17);
+      --line-strong: rgba(30, 41, 39, .34);
+      --jade: #1f6358;
+      --jade-soft: #d9e7df;
+      --red: #a33f2d;
+      --red-soft: #f1ddd2;
+      --amber: #9c6a19;
+      --white: rgba(255, 255, 255, .52);
+      --shadow: 0 20px 70px rgba(64, 50, 28, .12);
+      --serif: "Noto Serif SC", "Songti SC", serif;
+      --display: "Newsreader", "Noto Serif SC", serif;
+      --mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 3%, rgba(163, 63, 45, .08), transparent 28rem),
+        linear-gradient(rgba(30, 41, 39, .026) 1px, transparent 1px),
+        var(--paper-deep);
+      background-size: auto, 100% 28px, auto;
+      font-family: var(--serif);
+      line-height: 1.85;
+    }
+
+    button, input { font: inherit; }
+    a { color: var(--jade); text-underline-offset: .2em; }
+    a:hover { color: var(--red); }
+
+    .progress {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 50;
+      height: 3px;
+      background: linear-gradient(90deg, var(--red) var(--read), transparent 0);
+      pointer-events: none;
+    }
+
+    .masthead {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 58px 28px 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 30px;
+      align-items: end;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--red);
+      font: 500 .72rem/1.4 var(--mono);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font: 500 clamp(2.35rem, 6vw, 5.2rem)/.98 var(--display);
+      letter-spacing: -.045em;
+    }
+
+    .deck {
+      max-width: 760px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .issue-stamp {
+      width: 128px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--red);
+      color: var(--red);
+      transform: rotate(2deg);
+      text-align: center;
+      font: 500 .7rem/1.55 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .meta-strip {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 28px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font: 400 .75rem/1.5 var(--mono);
+    }
+
+    .meta-strip strong { color: var(--ink); font-weight: 500; }
+
+    .reading-key {
+      max-width: 1280px;
+      margin: 26px auto 0;
+      padding: 0 28px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+    }
+
+    .key-item {
+      min-height: 96px;
+      padding: 17px 18px;
+      background: rgba(247, 241, 229, .74);
+      border-top: 1px solid var(--line-strong);
+    }
+
+    .key-no {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--red);
+      font: 500 .68rem/1 var(--mono);
+    }
+
+    .key-item p { margin: 0; font-size: .88rem; line-height: 1.65; }
+
+    .page-grid {
+      max-width: 1280px;
+      margin: 28px auto 80px;
+      padding: 0 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 790px) minmax(300px, 370px);
+      gap: clamp(32px, 5vw, 72px);
+      align-items: start;
+    }
+
+    .paper-sheet {
+      position: relative;
+      min-width: 0;
+      padding: clamp(28px, 5vw, 70px);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(97, 78, 42, .16);
+    }
+
+    .paper-sheet::before {
+      content: "ORIGINAL TEXT";
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 5px 10px;
+      color: var(--paper);
+      background: var(--ink);
+      font: 500 .62rem/1.4 var(--mono);
+      letter-spacing: .12em;
+    }
+
+    .article-kicker {
+      margin: 0 0 34px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line-strong);
+      color: var(--muted);
+      font: 400 .72rem/1.6 var(--mono);
+    }
+
+    .article-body { min-width: 0; }
+    .article-body > :first-child { margin-top: 0; }
+    .article-body h1 {
+      margin: 1.2em 0 .65em;
+      font: 500 clamp(1.9rem, 4vw, 3rem)/1.15 var(--display);
+      letter-spacing: -.025em;
+    }
+    .article-body h2 {
+      margin: 2.5em 0 1em;
+      padding-top: .7em;
+      border-top: 2px solid var(--ink);
+      font: 700 1.28rem/1.45 var(--serif);
+    }
+    .article-body h3 {
+      margin: 2em 0 .8em;
+      color: var(--jade);
+      font: 700 1.04rem/1.5 var(--serif);
+    }
+    .article-body p { margin: 1.15em 0; }
+    .article-body strong { font-weight: 700; }
+    .article-body hr {
+      margin: 2.6em 0;
+      border: 0;
+      border-top: 1px solid var(--line);
+    }
+    .article-body blockquote {
+      margin: 1.5em 0;
+      padding: .1em 0 .1em 1.2em;
+      border-left: 3px solid var(--red);
+      color: #4f5651;
+    }
+    .article-body ul,
+    .article-body ol { padding-left: 1.35em; }
+    .article-body li { margin: .45em 0; }
+    .article-body code {
+      padding: .08em .28em;
+      background: var(--jade-soft);
+      font: .88em/1.4 var(--mono);
+    }
+    .article-body table {
+      width: 100%;
+      margin: 1.5em 0 2em;
+      border-collapse: collapse;
+      font-size: .86rem;
+      line-height: 1.55;
+      font-variant-numeric: tabular-nums;
+    }
+    .article-body th,
+    .article-body td {
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+    .article-body th {
+      color: var(--muted);
+      border-bottom-color: var(--line-strong);
+      font: 500 .69rem/1.4 var(--mono);
+      letter-spacing: .04em;
+    }
+    .article-body pre.raw-source {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: 400 .86rem/1.75 var(--mono);
+    }
+
+    .term-token {
+      display: inline;
+      margin: 0;
+      padding: 0 .08em;
+      border: 0;
+      border-bottom: 1px dashed var(--red);
+      color: inherit;
+      background: linear-gradient(transparent 66%, rgba(163, 63, 45, .13) 0);
+      cursor: pointer;
+      text-align: inherit;
+    }
+    .term-token:hover,
+    .term-token:focus-visible {
+      color: var(--red);
+      background: var(--red-soft);
+      outline: 2px solid transparent;
+    }
+
+    .glossary {
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
+    }
+
+    .glossary-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 0 0 16px;
+      background: linear-gradient(var(--paper-deep) 78%, transparent);
+    }
+
+    .glossary-label {
+      margin: 0;
+      color: var(--red);
+      font: 500 .67rem/1.4 var(--mono);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .glossary h2 {
+      margin: 3px 0 12px;
+      font: 500 2rem/1.05 var(--display);
+      letter-spacing: -.03em;
+    }
+
+    .glossary-search {
+      width: 100%;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: rgba(247, 241, 229, .82);
+      border: 1px solid var(--line-strong);
+      border-radius: 0;
+      outline: none;
+      font: 400 .76rem/1.4 var(--mono);
+    }
+    .glossary-search:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(163, 63, 45, .12); }
+
+    .gloss-count {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font: 400 .67rem/1.4 var(--mono);
+    }
+
+    .gloss-group { margin: 6px 0 24px; }
+    .gloss-group-title {
+      margin: 0 0 6px;
+      padding: 8px 0;
+      color: var(--jade);
+      border-bottom: 1px solid var(--line-strong);
+      font: 500 .69rem/1.4 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .gloss-entry {
+      padding: 13px 0 15px;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 160px;
+      transition: background-color .2s ease, padding .2s ease;
+    }
+    .gloss-entry.is-active {
+      margin-left: -10px;
+      padding-left: 10px;
+      background: linear-gradient(90deg, var(--red-soft), transparent 86%);
+    }
+    .gloss-entry[hidden] { display: none; }
+    .gloss-entry h3 {
+      margin: 0 0 5px;
+      font: 700 .96rem/1.45 var(--serif);
+    }
+    .gloss-entry p { margin: 0; font-size: .78rem; line-height: 1.66; }
+    .gloss-entry .caveat { margin-top: 6px; color: var(--red); }
+    .source-tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--muted);
+      font: 400 .62rem/1.35 var(--mono);
+      letter-spacing: .04em;
+    }
+
+    .empty-state {
+      display: none;
+      padding: 20px 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .source-notes {
+      max-width: 1280px;
+      margin: 0 auto 60px;
+      padding: 28px;
+      border-top: 1px solid var(--line-strong);
+    }
+    .source-notes h2 {
+      margin: 0 0 14px;
+      font: 500 1.55rem/1.2 var(--display);
+    }
+    .source-notes ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 28px;
+      margin: 0;
+      padding-left: 1.3em;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+    .source-notes p {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font: 400 .68rem/1.6 var(--mono);
+    }
+
+    dialog {
+      width: min(92vw, 560px);
+      padding: 0;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line-strong);
+      box-shadow: var(--shadow);
+    }
+    dialog::backdrop { background: rgba(20, 26, 24, .62); backdrop-filter: blur(4px); }
+    .dialog-inner { padding: 24px; }
+    .dialog-group { color: var(--red); font: 500 .65rem/1.4 var(--mono); letter-spacing: .1em; }
+    .dialog-inner h2 { margin: 5px 0 10px; font: 500 1.65rem/1.15 var(--display); }
+    .dialog-inner p { margin: 0; font-size: .9rem; }
+    .dialog-note { margin-top: 10px !important; color: var(--red); }
+    .dialog-close {
+      width: 100%;
+      margin-top: 18px;
+      padding: 10px 14px;
+      color: var(--paper);
+      background: var(--ink);
+      border: 0;
+      cursor: pointer;
+      font: 500 .72rem/1.4 var(--mono);
+    }
+
+    @media (max-width: 980px) {
+      .masthead { grid-template-columns: 1fr; }
+      .issue-stamp { width: 104px; }
+      .reading-key { grid-template-columns: 1fr; }
+      .page-grid { grid-template-columns: 1fr; }
+      .glossary {
+        position: static;
+        max-height: none;
+        overflow: visible;
+        padding-top: 22px;
+        border-top: 2px solid var(--ink);
+      }
+      .glossary-head { position: static; background: none; }
+    }
+
+    @media (max-width: 620px) {
+      .masthead { padding: 42px 18px 26px; }
+      h1 { font-size: 2.75rem; }
+      .meta-strip, .reading-key, .page-grid, .source-notes { padding-left: 16px; padding-right: 16px; }
+      .page-grid { margin-top: 18px; gap: 26px; }
+      .paper-sheet { padding: 38px 18px 28px; }
+      .article-body table { display: block; overflow-x: auto; white-space: nowrap; }
+      .source-notes ol { grid-template-columns: 1fr; }
+      .key-item { min-height: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body data-page-marker="xie-peide-smc-reader-v1">
+  <div class="progress" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Annotated market note · 2026/07/21</p>
+      <h1>兆易创新 SMC<br>聪明钱分析</h1>
+      <p class="deck">谢佩德骨头原文全文，右侧补足 40 个保留术语。正文只做排版和可点击标记；定义、边界和质疑全部留在边栏。</p>
+    </div>
+    <div class="issue-stamp" aria-label="原文边注版">
+      Original<br>＋<br>Margin notes<br>No. 01
+    </div>
+  </header>
+
+  <div class="meta-strip">
+    <span><strong>作者</strong> 谢佩德骨头</span>
+    <span><strong>发布</strong> 2026-07-21 16:00</span>
+    <span><strong>本地抓取</strong> 16:06</span>
+    <span><strong>原帖</strong> <a href="https://m.weibo.cn/detail/5323147890656852" target="_blank" rel="noopener">5323147890656852 ↗</a></span>
+    <span><strong>说明</strong> 非投资建议</span>
+  </div>
+
+  <section class="reading-key" aria-label="阅读说明">
+    <div class="key-item">
+      <span class="key-no">01 / 原文边界</span>
+      <p>正文逐字保留。红色虚线词可点；侧栏解释不是对原结论背书。</p>
+    </div>
+    <div class="key-item">
+      <span class="key-no">02 / SMC 口径</span>
+      <p>FVG、OB、流动性扫荡等按该开源工具及 SMC 社群语境解释，并非统一金融标准。</p>
+    </div>
+    <div class="key-item">
+      <span class="key-no">03 / 概率纪律</span>
+      <p>原文没有回测、样本或概率模型；“高概率”只能读作定性判断，不能读成胜率数字。</p>
+    </div>
+  </section>
+
+  <main class="page-grid">
+    <section class="paper-sheet" aria-labelledby="original-heading">
+      <p class="article-kicker" id="original-heading">原文全文 · 仅排版与术语标记 · 未改字句</p>
+      <article class="article-body" id="articleBody">
+        <pre class="raw-source" id="articleSource">用长桥MCP的SMC SKILL生成的兆易创新技术面分析。仅用于测试整改后的CC+DS的工作能力。生成了就顺手发出来。仅供娱乐，不构成投资建议——我甚至都不知道什么叫SMC方法，不过我看到一位我很认同的期货大佬推荐了，就试试。
+
+# 603986 兆易创新 SMC 聪明钱分析
+
+&gt; 日线 | 200 bar | 2025-09-17 ~ 2026-07-20
+&gt; 引擎：smartmoneyconcepts + 手动深度分析
+&gt; 日期：2026-07-21
+
+---
+
+## 一、市场结构判断：空头结构中的潜在反转
+
+| 维度 | 状态 |
+|---|---|
+| 长期趋势 | 从 840 暴跌至 401（15天 -50.8%），空头主导 |
+| 短期结构 | 7/20 出现锤子线反转（长下影线 60%，光头阳线） |
+| 结构定性 | **空头结构末端 + 反转信号出现** |
+
+Swing 结构显示：
+- 最近 Swing High：707.97 (7/9) → 552.82 (5/26) → 846.66 (6/28) — **Lower Highs**
+- 最近 Swing Low：448.11 (6/1) → 416.88 (7/19) — **Lower Lows**
+- 结论：Lower Highs + Lower Lows = **经典空头趋势**
+
+---
+
+## 二、BOS / ChoCH（结构突破）
+
+| 日期 | 信号 | 价格 | 含义 |
+|---|---|---|---|
+| 2025-10-27 | **ChoCH ↑** | 254.44 | 多头突破前高，趋势转多 |
+| 2026-03-08 | **BOS ↓** | 264.00 | 跌破前低，空头确认 |
+| 2026-03-17 | **ChoCH ↑** | 313.68 | 再次多头突破，进入主升浪 |
+
+**近期无 BOS/ChoCH 信号** — 从 840 开始的暴跌过程中没有触发结构突破信号，说明这是一次**快速垂直下跌**，而非渐进式结构演变。
+
+---
+
+## 三、FVG（公允价值缺口）
+
+### 未回补的熊市 FVG（上方阻力）：
+
+| 日期 | 区间 | 是否已补 |
+|---|---|---|
+| 7/16 | **486 ~ 515** | 未补 |
+| 7/15 | **510 ~ 565** | 未补 |
+| 7/12 | **587 ~ 607** | 未补 |
+| 7/9 | **600 ~ 630** | 未补 |
+| 6/30 | **732 ~ 781** | 未补 |
+| 7/1 | **718 ~ 753** | 未补 |
+
+&gt; 上方堆积大量未补熊市 FVG，构成**层层阻力带**。当前价格（475）正处于最下方两个 FVG（486-515，510-565）的下方。
+
+### 下方牛市 FVG（支撑）：
+
+| 日期 | 区间 | 状态 |
+|---|---|---|
+| 5/17 | **374 ~ 396** | 未补 |
+| 5/20 | **410 ~ 427** | 未补 |
+
+---
+
+## 四、订单块（Order Block）
+
+| 日期 | 类型 | 区间 | 状态 |
+|---|---|---|---|
+| 2025-11-23 | **看涨 OB** | 176 ~ 185 | 未触及 — 长期支撑 |
+| 2026-03-30 | **看涨 OB** | 237 ~ 252 | 未触及 — 中期强支撑 |
+
+两个看涨 OB 都远在下方未被触及，说明这轮牛市启动区间的**机构建仓成本区没有被破坏**。
+
+---
+
+## 五、流动性分析
+
+| 方向 | 价格 | 说明 |
+|---|---|---|
+| 卖方流动性（下方） | 401 ~ 417 | 7/19-20 低点区域，已被扫荡 |
+| 买方流动性（上方） | 707 ~ 847 | 前期高点，大量止损盘聚集 |
+| 历史卖方流动性 | 181 ~ 266 | 远在下方，已被历史走势扫过 |
+
+&gt; 7/19-20 的暴跌低点（401-417）构成**即时卖方流动性区**。7/20 的低点 401 已经完成了一次流动性扫荡后强势反弹至 475，这是典型的聪明钱吸筹行为。
+
+---
+
+## 六、斐波那契回撤
+
+### 从完整牛市（238 → 840）：
+
+| 回撤位 | 价格 | 状态 |
+|---|---|---|
+| 23.6% | 698 | 已跌破 |
+| 38.2% | 610 | 已跌破 |
+| 50.0% | 539 | 已跌破 |
+| **61.8%** | **468** | **当前价格所在！** |
+| 78.6% | 367 | 下方潜在支撑 |
+
+### 从 5月主升浪（344 → 840）：
+
+| 回撤位 | 价格 | 状态 |
+|---|---|---|
+| 50.0% | 592 | 已跌破 |
+| **61.8%** | **534** | 第一反弹目标 |
+| 78.6% | 450 | 已测试 |
+
+&gt; **价格精准落在 61.8% 黄金分割位**（468），误差仅 1.6%。这是最重要的斐波那契支撑位，配合锤子线反转信号，形成**高概率反弹区域**。
+
+---
+
+## 七、成交量分析
+
+| 日期 | 收盘 | 成交量 | 相对均值 | 备注 |
+|---|---|---|---|---|
+| 7/9 | 612 | 887,457 | 1.6x | 暴跌第二天，最大放量 |
+| 7/12 | 551 | 663,107 | 1.2x | 跌停 |
+| 7/13 | 584 | 679,490 | 1.3x | 日内反弹 |
+| 7/14 | 572 | 553,704 | 1.0x | 缩量 |
+| 7/15 | 515 | 545,542 | 1.0x | 跌停 |
+| 7/16 | 463 | 672,083 | 1.2x | 跌停 |
+| 7/19 | 432 | 712,622 | 1.3x | 恐慌低点，放量 |
+| **7/20** | **475** | **743,902** | **1.4x** | **放量锤子线反转** |
+
+&gt; 连续放量下跌 → 7/20 放量反转 = **成交量高潮 + 买方介入迹象**。7/20 成交量是近 20 日均量的 1.4 倍，且有明显的下影线买入痕迹。
+
+---
+
+## 八、关键 K 线形态
+
+### 2026-07-20 日 K 线：
+
+| 指标 | 数值 |
+|---|---|
+| 开盘 | 446.00 |
+| 最低 | 401.00 |
+| 最高 | 475.53 |
+| 收盘 | 475.53 |
+| 实体 | +29.53 (40% of range) |
+| 下影线 | 45.00 (60% of range) |
+| 上影线 | 0.00 (0% of range) |
+
+&gt; **经典锤子线（Hammer / Pin Bar）**：长下影线（60%）+ 光头阳线（0% 上影线）+ 收盘于最高点。这是技术分析中最强的看涨反转信号之一。价格从开盘 446 下探至 401（-10%），然后买盘强力介入推回至 475.53（+6.6% 从开盘算），形成超过 70 点的日内反转幅度。
+
+---
+
+## 九、综合结论
+
+### 空头结构，但反转信号已出现
+
+| 项目 | 判断 |
+|---|---|
+| **主趋势** | 空头（Lower Highs + Lower Lows） |
+| **反转信号** | 7/20 锤子线 + 成交量高潮 + 61.8% Fib 精准触及 |
+| **关键支撑** | 468（61.8% Fib）/ 401-417（流动性扫荡低点）/ 367（78.6% Fib） |
+| **关键阻力** | 486-515（未补 FVG 带）/ 539（50% Fib）/ 610（38.2% Fib） |
+| **机构偏向** | 看涨 OB 未破（236-252），牛市建仓区完整 |
+
+### 情景推演：
+
+**Bullish（概率较高）：**
+1. 475 附近企稳确认
+2. 回补 486-515 FVG 区间
+3. 测试 539（50% Fib 回撤）
+4. 突破后看向 610（38.2% Fib）
+
+**Bearish（小概率）：**
+1. 反弹无力，无法站稳 475
+2. 再次测试 401-417 卖方流动性区
+3. 跌破则看向 367（78.6% Fib）
+
+### 失效条件：
+
+- 若价格跌破 401（7/20 最低点），反转信号失效，空头趋势继续
+- 若反弹无法突破 515（最近未补 FVG 上限），反弹力度存疑
+- 若后续 3-5 根 K 线无法站稳在 468 上方，61.8% Fib 支撑可能失效
+
+---
+
+&gt; **数据来源**：Longbridge Securities / 长桥证券
+&gt; **SMC 引擎**：[smartmoneyconcepts](网页链接) + 手动深度分析
+&gt; **注意**：SMC 分析为纯技术面框架，不构成投资建议。半导体行业受政策、周期、外部制裁等多重因素影响。兆易创新作为存储芯片龙头，还需关注 NOR Flash / MCU 景气周期及国产替代进展。</pre>
+      </article>
+    </section>
+
+    <aside class="glossary" aria-labelledby="glossary-title">
+      <div class="glossary-head">
+        <p class="glossary-label">Margin glossary</p>
+        <h2 id="glossary-title">术语边注</h2>
+        <label for="glossarySearch" class="visually-hidden">搜索术语</label>
+        <input class="glossary-search" id="glossarySearch" type="search" placeholder="搜索：FVG / 反转 / NOR…" autocomplete="off">
+        <p class="gloss-count" id="glossCount">40 项 · 点击正文虚线词可定位</p>
+      </div>
+      <div id="glossaryList"></div>
+      <p class="empty-state" id="emptyState">没有匹配的术语。</p>
+    </aside>
+  </main>
+
+  <section class="source-notes" aria-labelledby="source-title">
+    <h2 id="source-title">解释口径与来源</h2>
+    <ol>
+      <li><a href="https://github.com/joshyattridge/smart-money-concepts" target="_blank" rel="noopener">smart-money-concepts 官方仓库</a>：FVG、Swing、BOS/CHoCH、OB、Liquidity 的算法口径。</li>
+      <li><a href="https://www.gigadevice.com/about/company-profile" target="_blank" rel="noopener">兆易创新公司简介</a>：603986、Flash 与 MCU 产品定位。</li>
+      <li><a href="https://www.gigadevice.com/product/flash/spi-nor-flash" target="_blank" rel="noopener">兆易 SPI NOR Flash 产品页</a>：非易失存储、SPI 与 XIP。</li>
+      <li><a href="https://www.fidelity.com/learning-center/trading-investing/technical-analysis/basic-concepts-trend" target="_blank" rel="noopener">Fidelity 趋势基础</a>：峰谷、Lower Highs / Lower Lows。</li>
+      <li><a href="https://www.fidelity.com/learning-center/trading-investing/technical-analysis/support-and-resistance?print=true" target="_blank" rel="noopener">Fidelity 支撑与阻力</a>：供需区与突破后的角色转换。</li>
+      <li><a href="https://www.cmegroup.com/education/courses/technical-analysis/fibonacci-retracements-and-extensions" target="_blank" rel="noopener">CME 斐波那契回撤</a>：常用回撤与延伸画法。</li>
+      <li><a href="https://www.cftc.gov/LearnAndProtect/AdvisoriesAndArticles/FuturesMarketBasics/index.htm" target="_blank" rel="noopener">CFTC 期货基础</a>：合约、套保与投机风险。</li>
+      <li><a href="https://m.weibo.cn/detail/5323147890656852" target="_blank" rel="noopener">谢佩德骨头原帖</a>：正文来源。</li>
+    </ol>
+    <p>边注是阅读辅助，不是投资建议，也不构成对原文数据或结论的独立核验。SMC 术语存在流派差异；本页优先采用原文所称开源工具的可复现定义。</p>
+  </section>
+
+  <dialog id="termDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-inner">
+      <div class="dialog-group" id="dialogGroup"></div>
+      <h2 id="dialogTitle"></h2>
+      <p id="dialogDefinition"></p>
+      <p class="dialog-note" id="dialogNote"></p>
+      <button class="dialog-close" id="dialogClose" type="button">回到原文</button>
+    </div>
+  </dialog>
+
+  <script>
+    const glossary = [
+      {id:'smc', group:'工具与方法', term:'SMC／Smart Money Concepts', aliases:['SMC方法','SMC 分析','SMC','聪明钱分析'], definition:'一套把价格行为解释成“市场结构＋流动性＋失衡区＋订单块”的交易语言，常与 ICT 流派关联。', note:'它不是统一行业标准，也不能仅凭图形识别真实机构身份。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'engine', group:'工具与方法', term:'smartmoneyconcepts', aliases:['smartmoneyconcepts'], definition:'原文所用的开源 Python 指标库，把 FVG、Swing、BOS/CHoCH、订单块和流动性写成可运行规则。', note:'输出依赖窗口、收盘突破或影线突破等参数；“算法给出”不等于“结论正确”。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'technical', group:'工具与方法', term:'技术面分析／技术面框架', aliases:['纯技术面框架','技术面分析','技术分析'], definition:'主要研究价格、成交和图表结构，尝试判断趋势、动量与交易位置；它不直接估算公司的内在价值。', note:'Fidelity 也明确提醒：技术分析不是精确科学，信号需要其他证据确认。', source:'Fidelity 技术分析'},
+      {id:'futures', group:'工具与方法', term:'期货', aliases:['期货'], definition:'约定未来按既定条款买卖标的的标准化合约，可用于套保或投机。原文这里只说明推荐 SMC 的人来自期货交易领域。', note:'期货通常带杠杆，风险结构与直接持股不同。', source:'CFTC 期货基础'},
+
+      {id:'gigadevice', group:'公司与行业', term:'兆易创新／603986', aliases:['603986 兆易创新','兆易创新（603986）','兆易创新','603986'], definition:'上海证券交易所上市的无晶圆厂芯片公司，核心产品包括 Flash 存储、32 位 MCU、传感器和模拟产品。', note:'公司官网称其为全球第 2 大 SPI NOR Flash 供应商；这不等同于“所有存储芯片全球第二”。', source:'兆易创新官网'},
+      {id:'memory-leader', group:'公司与行业', term:'存储芯片龙头', aliases:['存储芯片龙头'], definition:'市场常用的概括性标签，意指公司在某些存储产品上规模和地位靠前。兆易的强项主要是 NOR Flash，而非覆盖 DRAM、NAND 等全部存储门类。', note:'“龙头”不是严格会计或监管分类，使用时要问清是哪种产品、哪项份额。', source:'兆易创新官网'},
+      {id:'nor', group:'公司与行业', term:'NOR Flash', aliases:['NOR FLASH','NOR Flash'], definition:'一种断电后仍保存数据的非易失存储，擅长随机读取和直接执行代码，常用于嵌入式设备的固件、启动与程序存储。', note:'它与大容量文件存储常用的 NAND Flash、运行内存 DRAM 不是一回事。', source:'兆易 SPI NOR 产品页'},
+      {id:'mcu', group:'公司与行业', term:'MCU', aliases:['MCU'], definition:'Microcontroller Unit，微控制器：把处理器、存储器和外设接口集成在一颗芯片里，充当家电、汽车电子、工业设备等产品的“小型控制大脑”。', note:'MCU 景气与 NOR Flash 有交集，但供需和定价并不完全同步。', source:'兆易创新官网'},
+      {id:'cycle', group:'公司与行业', term:'行业景气周期', aliases:['景气周期','行业周期'], definition:'需求、库存、产能与价格从紧缺到扩产、再到过剩和去库存的循环。芯片公司利润常被这个循环放大。', note:'行业景气上行不保证个股上涨；估值可能已经提前反映。', source:'编辑说明'},
+
+      {id:'structure', group:'趋势与结构', term:'市场结构', aliases:['市场结构判断','市场结构','短期结构','结构定性'], definition:'用一串局部高点和低点的相对位置描述行情：峰谷抬高偏多，峰谷下移偏空，交错则可能震荡。', note:'结构取决于观察周期和 Swing 窗口，不同参数可能画出不同结果。', source:'Fidelity 趋势基础'},
+      {id:'bull-bear', group:'趋势与结构', term:'多头／空头／Bullish／Bearish', aliases:['Bullish','Bearish','多头','空头'], definition:'多头／Bullish 表示倾向上涨，空头／Bearish 表示倾向下跌；既可描述持仓方向，也可描述趋势判断。', note:'方向词不包含胜率、幅度或时间期限。', source:'通用技术分析'},
+      {id:'swing', group:'趋势与结构', term:'Swing High／Swing Low', aliases:['Swing High','Swing Low','Swing 结构'], definition:'局部摆动高点／低点。该开源库的规则是：当前高点（低点）必须是前后指定数量 K 线里的最高（最低）。', note:'由于要看“之后”的 K 线，这种历史标记可能含前视确认，不能直接当实时信号。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'lower', group:'趋势与结构', term:'Lower Highs／Lower Lows', aliases:['Lower Highs','Lower Lows'], definition:'后一个峰值低于前一个峰值、后一个谷值也低于前一个谷值；两者并存通常被读作下降趋势。', note:'这是趋势描述，不代表下一根 K 线一定继续跌。', source:'Fidelity 趋势基础'},
+      {id:'bos', group:'趋势与结构', term:'BOS／Break of Structure', aliases:['Break of Structure','BOS'], definition:'价格突破某个已确认结构高点或低点。SMC 中通常把顺着原趋势的突破叫 BOS，用于表达趋势延续。', note:'究竟以收盘还是影线越过为准必须预先定义；原文未交代参数。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'choch', group:'趋势与结构', term:'ChoCH／Change of Character', aliases:['Change of Character','ChoCH'], definition:'价格首次向原趋势相反方向破坏结构，提示行情“性格可能改变”，常被当作较早的反转警报。', note:'ChoCH 是警报，不是反转已经完成；后续仍需确认。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'break-structure', group:'趋势与结构', term:'结构突破', aliases:['结构突破信号','结构突破','结构演变'], definition:'BOS 和 ChoCH 的上位概念：价格越过先前定义的关键峰谷，使旧的高低点关系发生变化。', note:'不指定关键点、周期和突破标准，“突破”会变成事后解释。', source:'smartmoneyconcepts＋编辑说明'},
+      {id:'markup', group:'趋势与结构', term:'主升浪', aliases:['主升浪'], definition:'中文交易语境里的俗称，指一轮上涨中速度最快、持续性最强的核心阶段。', note:'没有统一算法边界，起点和终点常带事后判断。', source:'编辑说明'},
+      {id:'reversal', group:'趋势与结构', term:'反转信号／企稳确认', aliases:['企稳确认','反转信号','潜在反转','反转'], definition:'反转信号表示旧趋势可能结束；企稳确认则要求价格不再持续创新低，并出现能被后续走势验证的支撑。', note:'单根锤子线最多是候选信号，不能单独证明趋势已经反转。', source:'Fidelity 技术分析'},
+      {id:'invalidation', group:'趋势与结构', term:'失效条件', aliases:['失效条件','信号失效'], definition:'预先写明“出现什么可观察事实，就承认这套交易假设不再成立”。它把模糊观点变成可执行纪律。', note:'失效线只管理这套技术假设，并不等于公司的长期价值归零。', source:'编辑说明'},
+
+      {id:'fvg', group:'SMC 核心', term:'FVG／Fair Value Gap／公允价值缺口', aliases:['公允价值缺口','Fair Value Gap','FVG'], definition:'该工具用三根 K 线识别“中间一根快速推进后，第一根与第三根的价格范围没有重叠”的区域，并把它视作价格失衡。', note:'名字里的“公允价值”不等于会计公允价值，也不保证价格必然回去。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'fvg-side', group:'SMC 核心', term:'牛市 FVG／熊市 FVG', aliases:['熊市 FVG','牛市 FVG'], definition:'由向上快速推进形成的缺口称牛市 FVG，向下推进形成的称熊市 FVG；交易者据此推测回访时可能出现支撑或阻力。', note:'这里的“缺口”不一定是传统意义上的隔夜跳空。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'fvg-fill', group:'SMC 核心', term:'FVG 回补', aliases:['回补熊市 FVG','回补牛市 FVG','回补 FVG','FVG 回补','未回补','回补'], definition:'价格后来重新进入先前的 FVG 区域。工具会记录被触及／缓解的位置；不同流派对“碰到即回补”还是“完全穿过才回补”定义不同。', note:'回补是路径描述，不是上涨或下跌必然发生的理由。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'ob', group:'SMC 核心', term:'Order Block／OB／订单块', aliases:['Order Block','订单块','OB'], definition:'SMC 用来标记潜在供需反应区的价格带，常被解释为快速行情启动前的大额订单集中区。该工具以价格结构和成交规则估算。', note:'公开 K 线无法直接证明那里确有某家机构建仓；这是模型标签。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'bull-ob', group:'SMC 核心', term:'看涨 OB', aliases:['看涨 OB'], definition:'被模型视为潜在需求区的订单块；交易者预期价格回访时可能获得支撑。', note:'“看涨”表示模型方向，不表示价格一定守住。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'institution-cost', group:'SMC 核心', term:'机构建仓成本区', aliases:['机构建仓成本区','牛市建仓区'], definition:'把订单块进一步叙事化为“机构可能在这里买入的成本带”。', note:'若没有席位、持仓或逐笔成交身份数据，这不是对真实机构成本的测量。', source:'编辑说明'},
+      {id:'liquidity-smc', group:'SMC 核心', term:'SMC 语境下的“流动性”', aliases:['流动性分析','流动性区','流动性'], definition:'SMC 所说的流动性，多指明显高点／低点附近可能堆积的止损单和突破单，而不是市场整体成交深度或买卖价差。', note:'与宏观金融里“资金是否充裕”的流动性不是同一个概念。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'buy-sell-liq', group:'SMC 核心', term:'买方流动性／卖方流动性', aliases:['即时卖方流动性','历史卖方流动性','卖方流动性','买方流动性'], definition:'SMC 通常把高点上方的买入止损／突破买单称“买方流动性”，把低点下方的卖出止损称“卖方流动性”。名字按订单方向命名。', note:'“买方流动性在上方”不等于上方已经有买家准备主动抬价。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'sweep', group:'SMC 核心', term:'流动性扫荡', aliases:['流动性扫荡','已被扫荡','扫荡'], definition:'价格短暂越过一片明显高点或低点，触发那里的止损／挂单，随后又回到原区间；SMC 把这种过程称 sweep。', note:'如果越过后继续走，那也可能只是有效突破；必须看后续回收。', source:'smartmoneyconcepts 官方仓库'},
+      {id:'accumulation', group:'SMC 核心', term:'聪明钱吸筹', aliases:['聪明钱吸筹','吸筹行为','吸筹'], definition:'把急跌后的承接与反弹解释为信息更充分或资金更强的一方在买入。', note:'只靠 K 线和成交量不能确认买家身份；这是叙事性推断，不是直接证据。', source:'编辑说明'},
+      {id:'stops', group:'SMC 核心', term:'止损盘聚集', aliases:['大量止损盘聚集','止损盘聚集','止损盘'], definition:'交易者常把止损放在显眼前高上方或前低下方，于是这些位置可能形成密集触发区。', note:'普通公开行情通常看不到完整止损单簿，只能间接推测。', source:'编辑说明'},
+
+      {id:'hammer', group:'K 线与成交', term:'锤子线／Hammer／Pin Bar', aliases:['Hammer / Pin Bar','锤子线','Hammer','Pin Bar'], definition:'下跌后出现的小实体、长下影 K 线，表示盘中曾大跌但收盘被买盘拉回；Pin Bar 是更宽泛的“长影线拒绝”叫法。', note:'形态只说明当日拒绝低价，不自动等于趋势反转。', source:'通用蜡烛图定义'},
+      {id:'shaven-head', group:'K 线与成交', term:'光头阳线', aliases:['光头阳线'], definition:'阳线收盘价等于或非常接近最高价，因此几乎没有上影线；“光头”说的是上方没有影线。', note:'它仍可有很长下影线，所以不等于上下影线都没有的完整 Marubozu。', source:'通用蜡烛图定义'},
+      {id:'volume-climax', group:'K 线与成交', term:'成交量高潮', aliases:['成交量高潮'], definition:'持续上涨或下跌后出现异常放大的成交量，可能代表恐慌抛售、集中换手或趋势末端的情绪释放。', note:'原文的 1.4 倍均量是否足以称“高潮”没有给历史阈值，属于作者定性。', source:'编辑说明'},
+      {id:'buyer-entry', group:'K 线与成交', term:'买方介入迹象', aliases:['买方介入迹象','买方介入','买盘强力介入','下影线买入痕迹'], definition:'根据低位反弹、收盘靠近最高和成交活跃，推断当日有买盘承接。', note:'它能说明买卖力量结果，不能识别是机构、量化、散户还是空头回补。', source:'编辑说明'},
+
+      {id:'fib', group:'斐波那契与价位', term:'Fibonacci Retracement／斐波那契回撤', aliases:['Fibonacci Retracement','斐波那契回撤'], definition:'在一段明确涨跌区间上按若干比例画出候选回撤位，用来观察价格是否在这些位置发生反应。', note:'它是画尺，不是估值模型；起止点不同，结果也不同。', source:'CME 技术分析'},
+      {id:'fib-levels', group:'斐波那契与价位', term:'23.6%／38.2%／50%／61.8%／78.6%', aliases:['23.6%','38.2%','50.0%','50%','61.8%','78.6%'], definition:'技术分析常画的回撤比例。23.6%、38.2%、61.8%来自斐波那契比例关系；50%是市场惯例，78.6%常取 61.8% 的平方根。', note:'这些比例不是天然支撑，只是许多交易者共同观察的候选位置。', source:'CME 技术分析'},
+      {id:'golden-ratio', group:'斐波那契与价位', term:'黄金分割位／61.8%', aliases:['黄金分割位'], definition:'黄金比例 φ≈1.618 的倒数约为 0.618，所以 61.8% 被技术分析广泛使用。', note:'“价格恰好靠近 61.8%”不自动产生统计胜率，需要独立样本验证。', source:'CME＋编辑说明'},
+      {id:'support-resistance', group:'斐波那契与价位', term:'支撑位／阻力位／阻力带', aliases:['斐波那契支撑位','关键支撑','关键阻力','层层阻力带','阻力带','阻力','支撑位','支撑'], definition:'支撑是买盘可能增强、下跌容易暂缓的价格区；阻力是卖压可能增强、上涨容易受阻的价格区。更适合视作区域而非一根精确线。', note:'突破后支撑与阻力可能互换角色，但仍需后续确认。', source:'Fidelity 支撑与阻力'},
+      {id:'price-actions', group:'斐波那契与价位', term:'突破／跌破／站稳／测试', aliases:['无法突破','突破后','跌破','站稳','测试'], definition:'突破／跌破表示越过关键区；测试表示价格靠近或重新访问；站稳通常要求收盘保持在该区之上并持续若干周期。', note:'原文没有统一规定要几次收盘、几根 K 线才算站稳，执行前需补阈值。', source:'编辑说明'},
+      {id:'high-probability', group:'斐波那契与价位', term:'“高概率反弹区域”', aliases:['高概率反弹区域','概率较高','小概率'], definition:'原文把锤子线、成交量和 61.8% 汇合后给出的定性评级，意思是作者更偏向反弹情景。', note:'文中没有样本量、回测、基准胜率或概率模型，不能把“高概率”读成可量化胜率。', source:'原文审读'}
+    ];
+
+    const groupOrder = ['工具与方法','公司与行业','趋势与结构','SMC 核心','K 线与成交','斐波那契与价位'];
+    const glossaryById = new Map(glossary.map(item => [item.id, item]));
+    const articleBody = document.getElementById('articleBody');
+    const sourceNode = document.getElementById('articleSource');
+    const glossaryList = document.getElementById('glossaryList');
+    const searchInput = document.getElementById('glossarySearch');
+    const countNode = document.getElementById('glossCount');
+    const emptyState = document.getElementById('emptyState');
+    const dialog = document.getElementById('termDialog');
+
+    function renderArticle() {
+      const source = sourceNode.textContent;
+      if (!window.marked) return;
+      marked.setOptions({ gfm: true, breaks: false });
+      articleBody.innerHTML = marked.parse(source);
+      decorateTerms();
+    }
+
+    function renderGlossary() {
+      const fragment = document.createDocumentFragment();
+      groupOrder.forEach(group => {
+        const section = document.createElement('section');
+        section.className = 'gloss-group';
+        section.dataset.group = group;
+        const heading = document.createElement('h3');
+        heading.className = 'gloss-group-title';
+        heading.textContent = group;
+        section.appendChild(heading);
+
+        glossary.filter(item => item.group === group).forEach(item => {
+          const entry = document.createElement('article');
+          entry.className = 'gloss-entry';
+          entry.id = `term-${item.id}`;
+          entry.dataset.id = item.id;
+          entry.dataset.search = `${item.term} ${item.aliases.join(' ')} ${item.definition}`.toLowerCase();
+          entry.innerHTML = `<h3>${item.term}</h3><p>${item.definition}</p><p class="caveat">注意：${item.note}</p><span class="source-tag">口径 · ${item.source}</span>`;
+          section.appendChild(entry);
+        });
+        fragment.appendChild(section);
+      });
+      glossaryList.appendChild(fragment);
+    }
+
+    function decorateTerms() {
+      const aliasPairs = [];
+      glossary.forEach(item => item.aliases.forEach(alias => aliasPairs.push({alias, id:item.id})));
+      aliasPairs.sort((a, b) => b.alias.length - a.alias.length);
+      const lookup = new Map(aliasPairs.map(pair => [pair.alias.toLowerCase(), pair.id]));
+      const escaped = aliasPairs.map(pair => pair.alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const regex = new RegExp(`(${escaped.join('|')})`, 'gi');
+      const walker = document.createTreeWalker(articleBody, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement.closest('a, button, code, pre')) return NodeFilter.FILTER_REJECT;
+          regex.lastIndex = 0;
+          return regex.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+
+      nodes.forEach(node => {
+        const parts = node.nodeValue.split(regex);
+        const frag = document.createDocumentFragment();
+        parts.forEach(part => {
+          const id = lookup.get(part.toLowerCase());
+          if (!id) {
+            frag.appendChild(document.createTextNode(part));
+            return;
+          }
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'term-token';
+          button.dataset.term = id;
+          button.textContent = part;
+          button.setAttribute('aria-label', `${part}：查看术语解释`);
+          frag.appendChild(button);
+        });
+        node.replaceWith(frag);
+      });
+    }
+
+    function activateTerm(id, trigger) {
+      const item = glossaryById.get(id);
+      if (!item) return;
+      if (window.innerWidth <= 980 && dialog?.showModal) {
+        document.getElementById('dialogGroup').textContent = item.group;
+        document.getElementById('dialogTitle').textContent = item.term;
+        document.getElementById('dialogDefinition').textContent = item.definition;
+        document.getElementById('dialogNote').textContent = `注意：${item.note}`;
+        dialog.showModal();
+        return;
+      }
+      const entry = document.getElementById(`term-${id}`);
+      document.querySelectorAll('.gloss-entry.is-active').forEach(node => node.classList.remove('is-active'));
+      entry.hidden = false;
+      entry.classList.add('is-active');
+      entry.scrollIntoView({behavior:'smooth', block:'center'});
+      window.setTimeout(() => entry.classList.remove('is-active'), 2200);
+      trigger?.setAttribute('aria-expanded', 'true');
+    }
+
+    function filterGlossary(query) {
+      const q = query.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('.gloss-entry').forEach(entry => {
+        const match = !q || entry.dataset.search.includes(q);
+        entry.hidden = !match;
+        if (match) visible += 1;
+      });
+      document.querySelectorAll('.gloss-group').forEach(group => {
+        group.hidden = ![...group.querySelectorAll('.gloss-entry')].some(entry => !entry.hidden);
+      });
+      countNode.textContent = q ? `${visible} / 40 项匹配` : '40 项 · 点击正文虚线词可定位';
+      emptyState.style.display = visible ? 'none' : 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderGlossary();
+      renderArticle();
+      articleBody.addEventListener('click', event => {
+        const trigger = event.target.closest('.term-token');
+        if (trigger) activateTerm(trigger.dataset.term, trigger);
+      });
+      searchInput.addEventListener('input', event => filterGlossary(event.target.value));
+      document.getElementById('dialogClose').addEventListener('click', () => dialog.close());
+    });
+
+    function updateProgress() {
+      const root = document.documentElement;
+      const max = root.scrollHeight - root.clientHeight;
+      const pct = max > 0 ? (root.scrollTop / max) * 100 : 0;
+      root.style.setProperty('--read', `${pct}%`);
+    }
+    document.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+  </script>
+</body>
+</html>

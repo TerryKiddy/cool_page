@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 算力硬件链全景图谱 · 光模块 — PCB（2026-07-24）</title>
+<meta name="description" content="光/网/板三路全链地图：15 标的列举、三命题记分牌、剧本进度、冷档对账、作战地图。2026-07-24 盘中快照。">
+<!-- optical-pcb-chain-v1 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1320; --panel:#0e1826; --panel2:#101d2e;
+  --ink:#dce8f4; --ink2:#a7bcd1; --muted:#66809a;
+  --line:rgba(122,162,204,.22); --line-soft:rgba(122,162,204,.10);
+  --opt:#2e97c4; --net:#8a6fc6; --pcb:#ad7233;         /* 三腿 identity（dataviz 校验通过） */
+  --up:#e2574b; --down:#43a568;                         /* A股：红涨绿跌 */
+  --warn:#d9a13f;
+  --radius:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  background-image:
+    linear-gradient(var(--line-soft) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:56px 56px;
+  color:var(--ink);
+  font-family:"Noto Sans SC",-apple-system,sans-serif;
+  font-size:15px;line-height:1.75;
+  padding:0 16px 80px;
+}
+.wrap{max-width:1080px;margin:0 auto}
+.mono{font-family:"IBM Plex Mono","Noto Sans SC",monospace}
+.disp{font-family:"Big Shoulders Display","Noto Sans SC",sans-serif}
+
+/* ── 图纸标题栏 ── */
+header{padding:56px 0 8px}
+.sheet-tag{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.sheet-tag .chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--ink2);border:1px solid var(--line);padding:3px 10px;border-radius:3px}
+.sheet-tag .chip b{color:var(--ink);font-weight:600}
+h1{font-family:"Big Shoulders Display","Noto Sans SC",sans-serif;font-weight:700;font-size:clamp(30px,5.4vw,52px);line-height:1.15;letter-spacing:.01em}
+h1 .thin{color:var(--opt);}
+.lede{margin-top:14px;max-width:760px;color:var(--ink2);font-size:15.5px}
+.lede b{color:var(--ink)}
+.titleblock{margin-top:26px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel)}
+.titleblock div{padding:9px 14px;border-left:1px solid var(--line-soft);font-size:12px;color:var(--muted)}
+.titleblock div:first-child{border-left:none}
+.titleblock b{display:block;font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--ink);font-weight:500;margin-top:2px}
+
+/* ── 分节骨架 ── */
+section{margin-top:64px;position:relative}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.sec-no{font-family:"Big Shoulders Display",sans-serif;font-weight:600;font-size:15px;letter-spacing:.22em;color:var(--opt);border:1px solid var(--opt);border-radius:3px;padding:1px 9px}
+h2{font-size:clamp(19px,3vw,24px);font-weight:900;letter-spacing:.02em}
+.sec-sub{color:var(--muted);font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);position:relative}
+.panel::before,.panel::after{content:"";position:absolute;width:10px;height:10px;border:1px solid var(--opt);opacity:.55}
+.panel::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.panel::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+p.note{color:var(--ink2);margin-top:14px;font-size:14px}
+p.note b{color:var(--ink)}
+.hl-up{color:var(--up);font-weight:700}
+.hl-down{color:var(--down);font-weight:700}
+.hl-warn{color:var(--warn);font-weight:700}
+
+/* ── §1 链路图 ── */
+.chain{padding:30px 26px 34px}
+.src-node{max-width:430px;margin:0 auto;text-align:center;border:1px solid var(--line);background:var(--panel2);border-radius:var(--radius);padding:12px 18px}
+.src-node b{font-size:16px}
+.src-node span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.trunk{width:2px;height:26px;margin:0 auto;background:linear-gradient(var(--muted),transparent)}
+.lanes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;margin-top:2px}
+.lane{border-top:2px solid var(--lc);padding-top:16px;position:relative}
+.lane-opt{--lc:var(--opt)} .lane-net{--lc:var(--net)} .lane-pcb{--lc:var(--pcb)}
+.lane-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lane-head .glyph{font-family:"Big Shoulders Display",sans-serif;font-weight:700;font-size:26px;color:var(--lc)}
+.lane-head b{font-size:16px}
+.lane-head small{color:var(--muted);font-size:12px}
+.lane-desc{font-size:12.5px;color:var(--muted);margin-bottom:14px;min-height:3em}
+.node{border:1px solid var(--line);border-left:3px solid var(--lc);background:var(--panel2);border-radius:4px;padding:9px 12px;margin-bottom:10px;position:relative}
+.node::before{content:"";position:absolute;left:50%;top:-11px;width:0;border-left:1px dashed var(--lc);height:10px;opacity:.5}
+.node:first-of-type::before{display:none}
+.node .role{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.node .names{font-size:13.5px;font-weight:500;line-height:1.55}
+.node .names .ok{color:var(--ink)}
+.node .names .no{color:var(--muted);text-decoration:line-through solid rgba(160,120,120,.55) 1px;text-decoration-skip-ink:none}
+.node .names .code{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted)}
+.badge{display:inline-block;font-size:10.5px;font-family:"IBM Plex Mono",monospace;padding:0 5px;border-radius:2px;border:1px solid;vertical-align:1px;margin-left:3px}
+.badge.buy{color:#7fd0f0;border-color:rgba(46,151,196,.6)}
+.badge.deny{color:#8a97a5;border-color:rgba(138,151,165,.4)}
+.badge.etf{color:#e8c07a;border-color:rgba(217,161,63,.55)}
+.flow{height:3px;border-radius:2px;margin:2px 0 12px;background:repeating-linear-gradient(90deg,var(--lc) 0 14px,transparent 14px 26px);opacity:.75;animation:flow 2.2s linear infinite}
+@keyframes flow{to{background-position:52px 0}}
+.chain-foot{margin-top:22px;border-top:1px dashed var(--line);padding-top:14px;font-size:13.5px;color:var(--ink2)}
+.chain-foot b{color:var(--ink)}
+
+/* ── §2 全链表 ── */
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:14px 18px 0;font-size:12.5px;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.tbl-scroll{overflow-x:auto;padding:8px 4px 14px}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:13px}
+thead th{font-size:11px;letter-spacing:.1em;color:var(--muted);font-weight:500;text-align:left;padding:10px 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:middle;white-space:nowrap}
+tbody tr:hover{background:rgba(46,151,196,.06)}
+td.seg{font-size:12px;color:var(--ink2)}
+td.seg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px}
+td.name b{font-weight:700;font-size:13.5px}
+td.name .code{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);margin-left:6px}
+td.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.chg-up{color:var(--up);font-weight:600}
+.chg-dn{color:var(--down);font-weight:600}
+.mabar{display:inline-flex;align-items:center;width:118px;height:12px;position:relative}
+.mabar::before{content:"";position:absolute;left:74px;top:-3px;bottom:-3px;width:1px;background:var(--line)}
+.mabar i{position:absolute;height:8px;top:2px;border-radius:2px}
+.mabar i.neg{right:calc(100% - 74px);background:var(--down);opacity:.85}
+.mabar i.pos{left:74px;background:var(--up)}
+.mabar span{position:absolute;left:0;top:-3px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink2)}
+.mabar.posv span{left:auto;right:0}
+td.state{font-size:12px;color:var(--ink2);white-space:normal;min-width:200px;line-height:1.5}
+td.state b{color:var(--ink)}
+tr.alert td{background:rgba(217,161,63,.07)}
+tr.alert td.state b{color:var(--warn)}
+.tbl-foot{padding:0 18px 16px;font-size:12px;color:var(--muted)}
+
+/* ── §3 三命题 ── */
+.props{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.prop{padding:20px 20px 18px}
+.prop .q{font-size:15px;font-weight:700;margin-bottom:2px}
+.prop .stamp{display:inline-block;font-family:"Big Shoulders Display","Noto Sans SC",sans-serif;font-weight:700;font-size:20px;letter-spacing:.12em;padding:2px 12px;border:2px solid;border-radius:3px;transform:rotate(-2deg);margin:10px 0 12px}
+.stamp.t{color:#79c9ec;border-color:#2e97c4}
+.stamp.w{color:#e8c07a;border-color:#d9a13f}
+.stamp.x{color:#ef8078;border-color:#e2574b}
+.prop ul{list-style:none;font-size:13px;color:var(--ink2)}
+.prop li{padding-left:14px;position:relative;margin-top:6px}
+.prop li::before{content:"—";position:absolute;left:0;color:var(--muted)}
+.prop li b{color:var(--ink)}
+.props-verdict{margin-top:16px;text-align:center;font-size:14.5px;color:var(--ink2)}
+.props-verdict b{color:var(--ink)}
+
+/* ── §4 时间线 ── */
+.timeline{padding:26px 22px 22px;display:grid;grid-template-columns:repeat(6,1fr);gap:0;position:relative}
+.timeline::before{content:"";position:absolute;left:4%;right:4%;top:38px;height:1px;background:var(--line)}
+.tl{position:relative;text-align:center;padding:0 6px}
+.tl .dot{width:11px;height:11px;border-radius:50%;background:var(--panel);border:2px solid var(--muted);margin:7px auto 10px;position:relative;z-index:1}
+.tl.now .dot{border-color:var(--warn);background:var(--warn);box-shadow:0 0 0 0 rgba(217,161,63,.5);animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{to{box-shadow:0 0 0 12px rgba(217,161,63,0)}}
+.tl .d{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted)}
+.tl .t{font-size:13px;font-weight:700;margin-top:2px}
+.tl .s{font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.5}
+.tl.now .t{color:var(--warn)}
+
+/* ── §5 对账 ── */
+.recon{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.recon .panel{padding:20px}
+.recon h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.recon .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.bars svg{width:100%;height:auto;display:block}
+.verdicts{list-style:none;font-size:13.5px}
+.verdicts li{padding:10px 0 10px 14px;border-bottom:1px dashed var(--line-soft);position:relative;color:var(--ink2)}
+.verdicts li:last-child{border-bottom:none}
+.verdicts li::before{content:"";position:absolute;left:0;top:17px;width:6px;height:6px;border-radius:1px;background:var(--opt)}
+.verdicts b{color:var(--ink)}
+.recon-note{grid-column:1/-1;padding:14px 20px;font-size:14px;color:var(--ink2)}
+.recon-note b{color:var(--ink)}
+
+/* ── §6 作战地图 ── */
+.ops{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ops .panel{padding:20px}
+.ops h3{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ops h3 .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;color:var(--muted);border:1px solid var(--line);padding:1px 7px;border-radius:2px}
+.trig{border-left:3px solid var(--opt);background:var(--panel2);border-radius:4px;padding:10px 14px;margin-bottom:10px}
+.trig b{font-size:13.5px}
+.trig .cond{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:#8fd0ee;display:block;margin-top:3px}
+.trig .why{font-size:12px;color:var(--muted);margin-top:3px}
+.falsify{list-style:none;font-size:13px;counter-reset:fz}
+.falsify li{counter-increment:fz;padding:8px 0 8px 30px;position:relative;border-bottom:1px dashed var(--line-soft);color:var(--ink2)}
+.falsify li:last-child{border-bottom:none}
+.falsify li::before{content:counter(fz,decimal-leading-zero);position:absolute;left:0;top:9px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--up)}
+.falsify b{color:var(--ink)}
+.falsify li.hot{background:rgba(217,161,63,.08);border-radius:4px;padding-left:34px;border-bottom:none}
+.falsify li.hot::before{left:6px}
+.cal{list-style:none}
+.cal li{display:flex;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line-soft);font-size:13.5px;align-items:baseline}
+.cal li:last-child{border-bottom:none}
+.cal .d{font-family:"IBM Plex Mono",monospace;font-size:12px;color:#8fd0ee;min-width:96px;white-space:nowrap}
+.cal .what{color:var(--ink2)}
+.cal .what b{color:var(--ink)}
+.cal li.gate .d{color:var(--warn)}
+
+/* ── §7 约束 ── */
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.rule{padding:18px;text-align:left}
+.rule .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;color:var(--muted)}
+.rule .v{font-family:"Big Shoulders Display","Noto Sans SC",sans-serif;font-weight:700;font-size:25px;margin:6px 0 4px;color:var(--ink)}
+.rule .v small{font-size:14px;font-weight:500;color:var(--ink2)}
+.rule p{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ── footer ── */
+footer{margin-top:70px;border-top:1px solid var(--line);padding-top:22px;font-size:12.5px;color:var(--muted)}
+footer .nostock{display:inline-block;border:2px solid var(--up);color:#ef8078;font-weight:900;letter-spacing:.3em;padding:3px 14px;border-radius:3px;transform:rotate(-1.5deg);margin-bottom:14px}
+footer p{margin-top:6px;max-width:860px}
+footer a{color:var(--opt);text-decoration:none}
+footer .mark{font-family:"IBM Plex Mono",monospace;font-size:10.5px;opacity:.55;margin-top:14px}
+
+@media(max-width:880px){
+  .props,.recon,.ops{grid-template-columns:1fr}
+  .lanes{grid-template-columns:1fr}
+  .timeline{grid-template-columns:repeat(2,1fr);gap:14px 8px}
+  .timeline::before{display:none}
+  .rules{grid-template-columns:repeat(2,1fr)}
+  .titleblock{grid-template-columns:repeat(2,1fr)}
+  .titleblock div:nth-child(3),.titleblock div:nth-child(4){border-top:1px solid var(--line-soft)}
+  .titleblock div:nth-child(3){border-left:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="sheet-tag">
+    <span class="chip">SHEET <b>OPC-20260724</b></span>
+    <span class="chip">数据时点 <b>14:35 盘中</b></span>
+    <span class="chip">通信 <b style="color:#43a568">−2.11%</b> · 电子 <b style="color:#e2574b">+0.25%</b> · 申万 <b>2/31 红</b></span>
+  </div>
+  <h1>AI 算力硬件链全景图谱<br><span class="thin">光模块 — 网络 — PCB</span>，一张零件清单</h1>
+  <p class="lede">通信 −2.1%、159363 −2.9%、生益 −4.7%、沪电 −2.2%——这些名字不是四个独立的下跌，而是<b>同一台 AI 数据中心拆出来的零件清单</b>。需求只有一个源头：云厂资本开支买 GPU 建数据中心；几万张 GPU 要连成一台机器，数据传输走三条物理路径：<b>光、网、板</b>。本页把这条链串起来：谁在哪个环节、你能买哪只、为什么一起跌、剧本走到哪页、下一步看什么。</p>
+  <div class="titleblock">
+    <div>图纸内容<b>光/网/板 三路合一</b></div>
+    <div>标的数<b>15 只 + 1 ETF 代理</b></div>
+    <div>账户约束<b>仅主板（无双创权限）</b></div>
+    <div>状态<b>盘中快照 · 收盘待对账</b></div>
+  </div>
+</header>
+
+<!-- ═══ §1 链路总图 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">01</span><h2>链路总图：数据在机房里怎么走，钱就在链上怎么分</h2></div>
+  <div class="panel chain">
+    <div class="src-node"><b>云厂资本开支（总闸）</b><span>微软 / Meta / 亚马逊 / 谷歌买 GPU 建数据中心 · 7月底–8月初财报指引裁决整条链</span></div>
+    <div class="trunk"></div>
+    <div class="lanes">
+
+      <div class="lane lane-opt">
+        <div class="lane-head"><span class="glyph">光</span><b>跨机架传数据</b><small>光通信</small></div>
+        <div class="flow"></div>
+        <p class="lane-desc">机架之间、机房之间的数据走光信号。GPU 平台每升一代，光模块从 800G 升 1.6T。</p>
+        <div class="node"><div class="role">上游 · 光器件/精密件</div><div class="names"><span class="no">天孚通信<span class="code"> 300394</span></span><span class="badge deny">创业板✕</span><br><span class="ok">光迅科技<span class="code"> 002281</span></span><span class="badge buy">主板✓</span></div></div>
+        <div class="node"><div class="role">中游 · 光模块整机（全球双雄）</div><div class="names"><span class="no">中际旭创<span class="code"> 300308</span></span> · <span class="no">新易盛<span class="code"> 300502</span></span><span class="badge deny">创业板✕</span><br><span class="ok">159363 人工智能ETF</span><span class="badge etf">代理✓</span> <span class="code">双雄约29%权重*</span></div></div>
+        <div class="node"><div class="role">配套 · 光纤光缆（机房间）</div><div class="names"><span class="ok">长飞<span class="code"> 601869</span></span> · <span class="ok">亨通<span class="code"> 600487</span></span> · <span class="ok">中天<span class="code"> 600522</span></span><span class="badge buy">主板✓</span></div></div>
+        <div class="node"><div class="role">下一代 · CPO 共封装光学</div><div class="names"><span class="ok">光引擎并进交换芯片</span><span class="code"> A股尚以概念计价</span></div></div>
+      </div>
+
+      <div class="lane lane-net">
+        <div class="lane-head"><span class="glyph">网</span><b>汇聚与交换</b><small>网络设备</small></div>
+        <div class="flow"></div>
+        <p class="lane-desc">光模块插在交换机端口上；交换机把几万张 GPU 组成一张网。"从光到网"叙事的网端。</p>
+        <div class="node"><div class="role">交换机 / 路由</div><div class="names"><span class="ok">中兴通讯<span class="code"> 000063</span></span><span class="badge buy">主板✓</span><br><span class="ok">紫光股份<span class="code"> 000938</span></span><span class="code">（新华三）</span><span class="badge buy">主板✓</span></div></div>
+        <div class="node"><div class="role">对账一句话</div><div class="names"><span class="ok">"大摩喊从光到网"出处是假的（已证伪）——但 A 股盘面这个月<b>真的从光切到了网</b>：光纤腰斩、紫光 +63%。</span></div></div>
+      </div>
+
+      <div class="lane lane-pcb">
+        <div class="lane-head"><span class="glyph">板</span><b>每台设备体内</b><small>PCB / 覆铜板</small></div>
+        <div class="flow"></div>
+        <p class="lane-desc">AI 服务器、交换机、GPU 加速卡的电路地基。层数与材料等级随平台代际同步上移。</p>
+        <div class="node"><div class="role">上游 · CCL 覆铜板（"面粉"）</div><div class="names"><span class="ok">生益科技<span class="code"> 600183</span></span><span class="badge buy">主板✓ 备选</span><span class="code"> 中报预增117~131%</span></div></div>
+        <div class="node"><div class="role">中游 · 高速 PCB（"面包"）</div><div class="names"><span class="ok">沪电股份<span class="code"> 002463</span></span><span class="badge buy">主板✓ 主选</span><span class="code"> 英伟达链交换机板</span><br><span class="ok">深南电路<span class="code"> 002916</span></span><span class="badge buy">主板✓ 次选</span> · <span class="no">胜宏<span class="code"> 300476</span></span><span class="badge deny">仪表✕</span><br><span class="ok">东山精密<span class="code"> 002384</span></span><span class="code"> PE180 仅观察</span></div></div>
+        <div class="node"><div class="role">产业高频验证</div><div class="names"><span class="ok">台系覆铜板月营收（台光电等）</span><span class="code"> 每月8–10日</span></div></div>
+      </div>
+
+    </div>
+    <div class="chain-foot"><b>物理关系一句话：</b>光模块插在交换机端口上，交换机的电路板是高多层 PCB，PCB 的原材料是 CCL，信号出机房走光纤。订单同源、股价同因子——所以它们总是一起涨、一起跌。<b>对组合而言这是一个槽位，不是三份分散。</b></div>
+  </div>
+</section>
+
+<!-- ═══ §2 全链列举 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">02</span><h2>全链 15 标的：谁在哪、能不能买、现在什么状态</h2><span class="sec-sub">2026-07-24 14:35 盘中 · 腾讯行情实测</span></div>
+  <div class="panel">
+    <div class="legend">
+      <span><i style="background:var(--opt)"></i>光</span>
+      <span><i style="background:var(--net)"></i>网</span>
+      <span><i style="background:var(--pcb)"></i>板</span>
+      <span style="margin-left:auto">涨跌用色遵循 A 股惯例：<b style="color:var(--up)">红涨</b> / <b style="color:var(--down)">绿跌</b>；距MA20 右为上方左为下方</span>
+    </div>
+    <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>环节</th><th>标的</th><th>权限</th><th>现价</th><th>今日</th><th>距MA20</th><th>60日位置</th><th>J值</th><th>状态一句话</th></tr></thead>
+      <tbody>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·整机</td><td class="name"><b>中际旭创</b><span class="code">300308</span></td><td>✕ 创业板</td><td class="num">1050.00</td><td class="num chg-dn">−2.10%</td><td><span class="mabar"><i class="neg" style="width:15px"></i><span>−6.6%</span></span></td><td class="num">39%</td><td class="num">44</td><td class="state">全球一哥、链条风向标；距颈线 1136.6 还差 8%</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·整机</td><td class="name"><b>新易盛</b><span class="code">300502</span></td><td>✕ 创业板</td><td class="num">481.00</td><td class="num chg-dn">−3.28%</td><td><span class="mabar"><i class="neg" style="width:20px"></i><span>−9.1%</span></span></td><td class="num">46%</td><td class="num">24</td><td class="state">双雄老二，159363 第一重仓</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·代理</td><td class="name"><b>159363 AI-ETF</b><span class="code">华宝</span></td><td>✓ 可买</td><td class="num">1.190</td><td class="num chg-dn">−3.41%</td><td><span class="mabar"><i class="neg" style="width:28px"></i><span>−12.6%</span></span></td><td class="num">11%</td><td class="num">25</td><td class="state">买光模块双雄的唯一通道；触发条件 <b>J&lt;20 + 缩量企稳</b>，未满足</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·器件</td><td class="name"><b>天孚通信</b><span class="code">300394</span></td><td>✕ 创业板</td><td class="num">204.42</td><td class="num chg-dn">−3.62%</td><td><span class="mabar"><i class="neg" style="width:39px"></i><span>−17.9%</span></span></td><td class="num">9%</td><td class="num">19</td><td class="state">链上最先进入 J&lt;20 区，但缩量阴跌无出清证据</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·器件</td><td class="name"><b>光迅科技</b><span class="code">002281</span></td><td>✓ 主板</td><td class="num">187.90</td><td class="num chg-dn">−1.35%</td><td><span class="mabar"><i class="neg" style="width:27px"></i><span>−12.2%</span></span></td><td class="num">39%</td><td class="num">48</td><td class="state">PE150 仍贵；7/2 判"假阳性不抄"后未修复＝判对</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·光纤</td><td class="name"><b>长飞光纤</b><span class="code">601869</span></td><td>✓ 主板</td><td class="num">332.06</td><td class="num chg-dn">−6.76%</td><td><span class="mabar"><i class="neg" style="width:48px"></i><span>−21.6%</span></span></td><td class="num">1%</td><td class="num">4</td><td class="state"><b>今天还在创 20 日新低</b>；自 6/26 雷达顶 −39%</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·光纤</td><td class="name"><b>亨通光电</b><span class="code">600487</span></td><td>✓ 主板</td><td class="num">52.67</td><td class="num chg-dn">−5.39%</td><td><span class="mabar"><i class="neg" style="width:68px"></i><span>−30.8%</span></span></td><td class="num">2%</td><td class="num">12</td><td class="state">自顶 −52%，冷档裁决躲过的刀</td></tr>
+        <tr><td class="seg"><i style="background:var(--opt)"></i>光·光纤</td><td class="name"><b>中天科技</b><span class="code">600522</span></td><td>✓ 主板</td><td class="num">31.42</td><td class="num chg-dn">−4.76%</td><td><span class="mabar"><i class="neg" style="width:61px"></i><span>−27.5%</span></span></td><td class="num">6%</td><td class="num">23</td><td class="state">自顶 −49%，同上</td></tr>
+        <tr><td class="seg"><i style="background:var(--net)"></i>网</td><td class="name"><b>中兴通讯</b><span class="code">000063</span></td><td>✓ 主板</td><td class="num">35.11</td><td class="num chg-dn">−2.26%</td><td><span class="mabar"><i class="neg" style="width:12px"></i><span>−5.4%</span></span></td><td class="num">26%</td><td class="num">28</td><td class="state">全链估值最合理（PB 2.2）；光纤腰斩月它横住＝"最稳"判对</td></tr>
+        <tr><td class="seg"><i style="background:var(--net)"></i>网</td><td class="name"><b>紫光股份</b><span class="code">000938</span></td><td>✓ 主板</td><td class="num">41.86</td><td class="num chg-dn">−1.39%</td><td><span class="mabar posv"><i class="pos" style="width:39px"></i><span>+17.9%</span></span></td><td class="num">81%</td><td class="num">70</td><td class="state"><b>全链唯一站在 MA20 上方</b>，自 6/26 +63%；高位不是买点</td></tr>
+        <tr><td class="seg"><i style="background:var(--pcb)"></i>板·PCB</td><td class="name"><b>沪电股份</b><span class="code">002463</span></td><td>✓ 主选</td><td class="num">112.92</td><td class="num chg-dn">−2.44%</td><td><span class="mabar"><i class="neg" style="width:29px"></i><span>−13.2%</span></span></td><td class="num">24%</td><td class="num">21</td><td class="state">4 万建仓协议主选；右侧 gate <b>122.6</b> 未亮</td></tr>
+        <tr><td class="seg"><i style="background:var(--pcb)"></i>板·PCB</td><td class="name"><b>深南电路</b><span class="code">002916</span></td><td>✓ 主板</td><td class="num">332.58</td><td class="num chg-dn">−1.45%</td><td><span class="mabar"><i class="neg" style="width:35px"></i><span>−15.8%</span></span></td><td class="num">20%</td><td class="num">33</td><td class="state">次选；距顶 −31%</td></tr>
+        <tr><td class="seg"><i style="background:var(--pcb)"></i>板·PCB</td><td class="name"><b>胜宏科技</b><span class="code">300476</span></td><td>✕ 仪表</td><td class="num">231.49</td><td class="num chg-dn">−3.11%</td><td><span class="mabar"><i class="neg" style="width:37px"></i><span>−16.7%</span></span></td><td class="num">13%</td><td class="num">37</td><td class="state">领头羊校验物：收复 <b>248</b> 定增线＝右侧触发的另一半</td></tr>
+        <tr><td class="seg"><i style="background:var(--pcb)"></i>板·PCB</td><td class="name"><b>东山精密</b><span class="code">002384</span></td><td>✓ 主板</td><td class="num">200.24</td><td class="num chg-dn">−3.10%</td><td><span class="mabar"><i class="neg" style="width:35px"></i><span>−15.8%</span></span></td><td class="num">23%</td><td class="num">−5</td><td class="state">PE180、业务杂；今天 J 擦边负也不碰</td></tr>
+        <tr class="alert"><td class="seg"><i style="background:var(--pcb)"></i>板·CCL</td><td class="name"><b>生益科技</b><span class="code">600183</span></td><td>✓ 备选</td><td class="num">118.58</td><td class="num chg-dn">−5.21%</td><td><span class="mabar"><i class="neg" style="width:41px"></i><span>−18.8%</span></span></td><td class="num">38%</td><td class="num">4</td><td class="state"><b>⚠ 距 117.5 冻结线只剩 +0.9%</b>——今天缩量未触发"放量破"，收盘对账</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="tbl-foot">* 159363 双雄权重＝2026-Q1 季报口径（新易盛 15.29% + 中际旭创 13.96%），权重随价格漂移，半年报才调样。全表量比 0.4–0.8（盘中口径偏低），J 值为 KDJ(9,3,3) 自算。</p>
+  </div>
+  <p class="note"><b>怎么读这张表：</b>全链 15 只今天无一上涨、全部缩量——这叫<b>缩量阴跌</b>：卖方从容离场，不是恐慌出清。J 值已经有四只压到 20 以下（长飞 4、生益 4、东山 −5、天孚 19），但按既有体系，<b>J 低只是必要条件</b>：还缺恐慌出清证据（放量衰竭 / 收盘拉离最低）、缺企稳（光纤还在创新低）、估值保底也不成立（PE 普遍 50–240）。所以"跌出来的买点"还没亮。</p>
+</section>
+
+<!-- ═══ §3 三命题 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">03</span><h2>为什么一起跌：三命题记分牌</h2><span class="sec-sub">业绩、估值、持续性——分开打分才不会被"利好为什么不涨"绕晕</span></div>
+  <div class="props">
+    <div class="panel prop">
+      <div class="q">命题① 上半年业绩是真的吗</div>
+      <span class="stamp t">已证真</span>
+      <ul>
+        <li><b>生益科技</b>中报预增 <b>+117~131%</b>（净利 31–33 亿，7/13 公告）</li>
+        <li><b>胜宏</b> Q1 约 +281%（GB300 核心，媒体口径待中报核）</li>
+        <li><b>沪电</b> Q1 +55~65%，另公告 177 亿扩产</li>
+      </ul>
+    </div>
+    <div class="panel prop">
+      <div class="q">命题② 跌完便宜了吗</div>
+      <span class="stamp w">仍不便宜</span>
+      <ul>
+        <li>从顶部崩 <b>30~45%</b> 之后：沪电 PE51 / 胜宏 PE49 / 生益 PE73</li>
+        <li>光环节更贵：光迅 PE150、天孚 PE103、长飞 PE238</li>
+        <li>便宜要靠<b>二次探底或横盘时间</b>来解决，没有日期</li>
+      </ul>
+    </div>
+    <div class="panel prop">
+      <div class="q">命题③ 景气延续到 2027 吗</div>
+      <span class="stamp x">正被质疑</span>
+      <ul>
+        <li>美国 AI 融资链变脆：表外 SPV 约 <b>$1200 亿</b>、Oracle 评级贴 BBB−</li>
+        <li>这是 7 月全球 AI 链齐跌的<b>主战场</b></li>
+        <li>裁决权在外部事件：云厂 capex 指引 + 英伟达财报</li>
+      </ul>
+    </div>
+  </div>
+  <p class="props-verdict">一句话记住：<b>这波跌的是②和③，不是①</b>——业绩越真、估值越贵、远期越被怀疑，三件事同时为真。这正是"主升浪之后不上不下"在这条链上的具体形态。</p>
+</section>
+
+<!-- ═══ §4 剧本 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">04</span><h2>剧本走到哪一页了</h2><span class="sec-sub">顶 → 崩 → V 反 → 反抽失败 → 缩量 → 今天</span></div>
+  <div class="panel timeline">
+    <div class="tl"><div class="dot"></div><div class="d">6/22–7/1</div><div class="t">顶部区</div><div class="s">胜宏 6/22 见顶，板块顶部错落分布</div></div>
+    <div class="tl"><div class="dot"></div><div class="d">→ 7/20–21</div><div class="t">崩 −34~45%</div><div class="s">光纤更惨（−40~50%）；7/20–21 打出前低</div></div>
+    <div class="tl"><div class="dot"></div><div class="d">7/21</div><div class="t">集体涨停 V 反</div><div class="s">生益涨停收 135.7＝现在的颈线</div></div>
+    <div class="tl"><div class="dot"></div><div class="d">7/22</div><div class="t">反抽全线失败</div><div class="s">生益 −7.1% 阴吞涨停实体；派发未完的二次确认</div></div>
+    <div class="tl"><div class="dot"></div><div class="d">7/23</div><div class="t">首次集体缩量</div><div class="s">但盘中攻颈线全部被打回（生益距颈线仅 1% 处回落）</div></div>
+    <div class="tl now"><div class="dot"></div><div class="d">7/24 今天</div><div class="t">缩量阴跌继续</div><div class="s">光纤续创新低、生益贴到冻结线；止跌 ≠ 转强</div></div>
+  </div>
+  <p class="note"><b>当前位置的诚实描述：</b>跌不动了（连续两天缩量），但涨没确认（两次攻颈线都失败）。这就是"不上不下"——它不是一个需要马上做动作的状态，而是系统在说"<b>条件未满足</b>"。中间地带没有期望，出手点只在两端：跌出来的出清买点（端点A），或涨回去的右侧确认（端点B）。</p>
+</section>
+
+<!-- ═══ §5 对账 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">05</span><h2>对账：一个月前的判断，现在结果如何</h2><span class="sec-sub">6/26 六只入雷达（当天全线放量杀跌）→ 7/2 四只冷档、两只留任 → 7/24 复盘</span></div>
+  <div class="recon">
+    <div class="panel bars">
+      <h3>冷档四只的结局：躲过三刀、漏了一鱼</h3>
+      <div class="sub">6/26 雷达顶价 → 7/24 现价（%）</div>
+      <svg viewBox="0 0 460 210" role="img" aria-label="冷档四只涨跌：长飞-39%，亨通-52%，中天-49%，紫光+63%">
+        <line x1="255" y1="8" x2="255" y2="180" stroke="rgba(122,162,204,.35)" stroke-width="1"/>
+        <!-- 长飞 -39% -->
+        <text x="8" y="32" fill="#a7bcd1" font-size="13" font-family="Noto Sans SC">长飞光纤</text>
+        <rect x="177" y="20" width="76" height="16" rx="3" fill="#43a568" opacity=".92"><title>长飞 543→332，−39%</title></rect>
+        <text x="170" y="33" fill="#7fc79d" font-size="12.5" font-family="IBM Plex Mono" text-anchor="end">−39%</text>
+        <!-- 亨通 -52% -->
+        <text x="8" y="74" fill="#a7bcd1" font-size="13" font-family="Noto Sans SC">亨通光电</text>
+        <rect x="152" y="62" width="101" height="16" rx="3" fill="#43a568" opacity=".92"><title>亨通 110.8→52.7，−52%</title></rect>
+        <text x="145" y="75" fill="#7fc79d" font-size="12.5" font-family="IBM Plex Mono" text-anchor="end">−52%</text>
+        <!-- 中天 -49% -->
+        <text x="8" y="116" fill="#a7bcd1" font-size="13" font-family="Noto Sans SC">中天科技</text>
+        <rect x="158" y="104" width="95" height="16" rx="3" fill="#43a568" opacity=".92"><title>中天 61.3→31.4，−49%</title></rect>
+        <text x="151" y="117" fill="#7fc79d" font-size="12.5" font-family="IBM Plex Mono" text-anchor="end">−49%</text>
+        <!-- 紫光 +63% -->
+        <text x="8" y="158" fill="#a7bcd1" font-size="13" font-family="Noto Sans SC">紫光股份</text>
+        <rect x="257" y="146" width="122" height="16" rx="3" fill="#e2574b" opacity=".95"><title>紫光 25.6→41.9，+63%</title></rect>
+        <text x="386" y="159" fill="#ef8078" font-size="12.5" font-family="IBM Plex Mono" font-weight="600">+63%</text>
+        <text x="255" y="197" fill="#66809a" font-size="11" font-family="IBM Plex Mono" text-anchor="middle">0%</text>
+      </svg>
+    </div>
+    <div class="panel" style="padding:20px">
+      <h3>留任两只 + 方法论对账</h3>
+      <ul class="verdicts">
+        <li><b>光迅科技：</b>7/2 跌停日"机械信号全中仍判假阳性"（高位+PE174+急杀）——此后未修复，6/26 至今 <b>−22%</b>，判对。</li>
+        <li><b>中兴通讯：</b>光纤腰斩的一个月里它只跌 1.7%＝"组内最稳"判对；PB 2.2 仍是全链唯一不贵的。</li>
+        <li><b>判据复盘：</b>"泡沫破裂初段别接刀"对了三只（长飞/亨通/中天）；代价是漏掉轮动受益者紫光。<b>躲刀优先于抓鱼</b>，这是可接受的成本。</li>
+      </ul>
+    </div>
+    <div class="panel recon-note">最有意思的一笔：6/25 我们证伪过"大摩研报喊从光到网"——那份研报<b>不存在</b>，是把真数据拼成的假出处。但一个月后回头看，A 股盘面<b>真的走了一遍"从光到网"</b>：光纤三兄弟 −40~50%、紫光 +63%。结论：<b>叙事的出处可以是假的，背后的资金迁徙可以是真的</b>；信盘面对账，不信研报转述。</div>
+  </div>
+</section>
+
+<!-- ═══ §6 作战地图 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">06</span><h2>作战地图：触发线、证伪线、事件日历</h2><span class="sec-sub">全部预写在案——接下来只看日历和价格线，不看盘感</span></div>
+  <div class="ops">
+    <div class="panel">
+      <h3><span class="k">BUY IF</span>触发线（亮之前一股不买）</h3>
+      <div class="trig"><b>右侧档 · 趋势桶</b><span class="cond">沪电收盘 &gt; 122.6　且　胜宏收盘 &gt; 248</span><div class="why">双确认：主选自己过颈线 + 领头羊收复定增线。现距 +8.6% / +7.1%</div></div>
+      <div class="trig"><b>赔率档 · 战法A桶</b><span class="cond">沪电二次回踩 104–107 区不破 + 明显缩量</span><div class="why">双底结构分批第一档；止损＝收盘破 104.2 无条件走</div></div>
+      <div class="trig"><b>光模块代理（159363）</b><span class="cond">J &lt; 20 + 缩量企稳（不再创新低）</span><div class="why">今天 J≈25 放量下跌，两条都不满足</div></div>
+      <div class="trig" style="border-left-color:var(--warn)"><b>资格前置</b><span class="cond" style="color:#e8c07a">云厂 capex 指引落地且不差</span><div class="why">gate 等的是证据不是日子；证据落地前触发亮只记录不执行</div></div>
+    </div>
+    <div class="panel">
+      <h3><span class="k">FREEZE IF</span>证伪清单（任一出现，整个计划冻结）</h3>
+      <ul class="falsify">
+        <li class="hot"><b>生益放量收盘破 117.5</b>——今收在 118.58，距离只剩 <b>+0.9%</b>；今天量比 0.72 未触发"放量"件，收盘班自动对账</li>
+        <li>胜宏收盘破 <b>206</b> 前低</li>
+        <li>云厂 capex 指引下修 / 转谨慎</li>
+        <li>台系覆铜板月营收<b>环比连负</b></li>
+        <li>生益中报<b>毛利率环比下滑</b>（提价逻辑证伪）；Oracle/OpenAI 融资链实质违约 → 处置全部 AI 敞口</li>
+      </ul>
+    </div>
+    <div class="panel" style="grid-column:1/-1">
+      <h3><span class="k">CALENDAR</span>接下来只看这五个日子</h3>
+      <ul class="cal">
+        <li><span class="d">7/30 凌晨</span><span class="what"><b>FOMC 决议</b>（北京时间）——流动性底色</span></li>
+        <li class="gate"><span class="d">7月底–8/6</span><span class="what"><b>微软/Meta/亚马逊/谷歌财报 capex 指引</b>——整条链的总闸，命题③的第一裁决</span></li>
+        <li><span class="d">8/8–8/10</span><span class="what"><b>台系覆铜板月营收</b>（台光电等）——产业侧最高频的真实需求读数</span></li>
+        <li><span class="d">8月中下旬</span><span class="what"><b>A股中报</b>——看生益/沪电<b>毛利率环比</b>（提价逻辑）而非同比增速</span></li>
+        <li><span class="d">≈8月底</span><span class="what"><b>英伟达财报</b>——命题③的第二裁决</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ §7 约束 ═══ -->
+<section>
+  <div class="sec-head"><span class="sec-no">07</span><h2>我的账户约束（写在最后，约束先于择时）</h2></div>
+  <div class="rules">
+    <div class="panel rule"><div class="k">SLOT</div><div class="v">1<small> 个槽位</small></div><p>存储/设备/光模块/PCB 是同一个 AI-capex 因子——信号亮了也是多选一，不是都买</p></div>
+    <div class="panel rule"><div class="k">CASH</div><div class="v">2.6<small> 万可部署</small></div><p>现金约 4.6 万，T3 底线 2 万不动；沪电协议第一档 2 万在案</p></div>
+    <div class="panel rule"><div class="k">FIRST</div><div class="v">0.6–0.8<small> 万首档</small></div><p>任何新触发首档不超过这个量级；分档进、不一把梭</p></div>
+    <div class="panel rule"><div class="k">BOARD</div><div class="v">主板<small> only</small></div><p>无双创权限：创业板/科创板个股买不了，用 ETF 绕道（159363 已验证）</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="nostock">非投资建议</div>
+  <p>本页为个人研究笔记的可视化整理，不构成任何投资建议。行情数据＝腾讯行情 2026-07-24 14:35 盘中实测（量比为盘中口径、收盘前存在变数，最终以收盘日线为准）；生益/沪电业绩＝公司公告；胜宏 Q1＝媒体口径待中报核；159363 权重＝基金 2026-Q1 季报。</p>
+  <p>源档案：kb/finance/optical-vs-networking-ai-rotation.md · ai-pcb-ccl-thesis.md · tech-dip-watch-20260724.md　｜　<a href="./index.html">← cool_page 目录</a></p>
+  <p class="mark">optical-pcb-chain-v1 · SHEET OPC-20260724 · generated with Claude</p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1838 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="从真实源码、进程边界、工具调用与沙箱机制，解释 Pi framework 与 Codex coding agent 的工程差异。">
+  <meta name="theme-color" content="#0b0f11">
+  <meta name="pi-vs-codex-version" content="pi-vs-codex-runtime-v1">
+  <title>Pi vs Codex｜同一个模型，两种权力结构</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Saira+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0f11'/%3E%3Cpath d='M13 17h16v30H13zm22 0h16v30H35z' fill='none' stroke='%23d9e3df' stroke-width='4'/%3E%3Cpath d='M21 25v14M43 25v14' stroke='%23ffad32' stroke-width='4'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f11;
+      --bg-raised: #11171a;
+      --panel: rgba(18, 25, 28, .84);
+      --panel-solid: #12191c;
+      --ink: #e8efec;
+      --muted: #8c9b98;
+      --faint: #53615f;
+      --line: rgba(219, 233, 228, .14);
+      --line-strong: rgba(219, 233, 228, .28);
+      --pi: #ffad32;
+      --pi-soft: rgba(255, 173, 50, .13);
+      --codex: #66d9ff;
+      --codex-soft: rgba(102, 217, 255, .12);
+      --good: #63e6a5;
+      --bad: #ff6b62;
+      --warn: #ffd166;
+      --display: "Saira Condensed", "Noto Sans SC", sans-serif;
+      --sans: "Noto Sans SC", sans-serif;
+      --mono: "Azeret Mono", "SFMono-Regular", monospace;
+      --max: 1240px;
+      --radius: 2px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+        radial-gradient(circle at 16% 8%, rgba(255,173,50,.08), transparent 31rem),
+        radial-gradient(circle at 86% 16%, rgba(102,217,255,.08), transparent 35rem),
+        var(--bg);
+      background-size: 32px 32px, 32px 32px, auto, auto, auto;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 400;
+      line-height: 1.7;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      pointer-events: none;
+      opacity: .18;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+    }
+
+    ::selection { background: var(--pi); color: #14100a; }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    code, pre { font-family: var(--mono); }
+    strong { font-weight: 700; }
+
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 120;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--pi), #dce6e2 48%, var(--codex));
+      box-shadow: 0 0 14px rgba(102,217,255,.55);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      border-bottom: 1px solid var(--line);
+      background: rgba(11,15,17,.82);
+      backdrop-filter: blur(18px);
+    }
+    .topbar-inner {
+      max-width: var(--max);
+      height: 58px;
+      margin: 0 auto;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line-strong);
+    }
+    .brand-mark i:first-child { background: var(--pi); }
+    .brand-mark i:last-child { background: var(--codex); }
+    .brand em { color: var(--muted); font-style: normal; }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .nav a {
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+    .nav a:hover, .nav a:focus-visible { color: var(--ink); }
+    .date-stamp {
+      border: 1px solid var(--line);
+      padding: 4px 8px;
+      color: var(--faint);
+    }
+
+    main { position: relative; }
+    .wrap {
+      width: min(calc(100% - 44px), var(--max));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: calc(100svh - 58px);
+      display: grid;
+      align-items: center;
+      padding: 74px 0 70px;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "RUNTIME OWNERSHIP  /  PRODUCT COMPLETENESS";
+      position: absolute;
+      right: -230px;
+      top: 46%;
+      transform: rotate(90deg);
+      font: 500 10px/1 var(--mono);
+      letter-spacing: .28em;
+      color: rgba(232,239,236,.16);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr);
+      gap: clamp(40px, 7vw, 100px);
+      align-items: center;
+    }
+    .eyebrow, .section-index {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 24px;
+      color: var(--muted);
+      font: 600 11px/1.2 var(--mono);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before, .section-index::before {
+      content: "";
+      width: 38px;
+      height: 1px;
+      background: currentColor;
+    }
+    .hero h1 {
+      max-width: 820px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(68px, 10vw, 142px);
+      font-weight: 700;
+      line-height: .78;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+    }
+    .hero h1 .pi-word { color: var(--pi); }
+    .hero h1 .codex-word { color: var(--codex); }
+    .hero h1 .vs {
+      display: inline-block;
+      margin: 0 .06em;
+      color: var(--ink);
+      font-size: .34em;
+      letter-spacing: .02em;
+      vertical-align: .42em;
+    }
+    .hero-deck {
+      max-width: 760px;
+      margin: 34px 0 0;
+      color: #bac5c1;
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 300;
+      line-height: 1.55;
+    }
+    .hero-deck strong { color: var(--ink); }
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 31px;
+    }
+    .tag {
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      font: 500 10px/1.2 var(--mono);
+      letter-spacing: .06em;
+      color: var(--muted);
+      background: rgba(255,255,255,.015);
+    }
+
+    .verdict-unit {
+      position: relative;
+      border: 1px solid var(--line-strong);
+      background: rgba(13,18,20,.82);
+      box-shadow: 20px 24px 0 rgba(0,0,0,.18);
+    }
+    .verdict-unit::before,
+    .verdict-unit::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border: 1px solid var(--faint);
+    }
+    .verdict-unit::before { left: -5px; top: -5px; }
+    .verdict-unit::after { right: -5px; bottom: -5px; }
+    .unit-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .11em;
+      color: var(--muted);
+    }
+    .unit-led {
+      display: flex;
+      gap: 5px;
+    }
+    .unit-led i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--faint);
+    }
+    .unit-led i:first-child { background: var(--good); box-shadow: 0 0 8px var(--good); }
+    .verdict-row {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 16px;
+      padding: 22px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .verdict-row:last-child { border-bottom: 0; }
+    .verdict-key {
+      font: 700 30px/.9 var(--display);
+      letter-spacing: -.02em;
+    }
+    .verdict-row.pi .verdict-key { color: var(--pi); }
+    .verdict-row.codex .verdict-key { color: var(--codex); }
+    .verdict-row p { margin: 0; color: #b7c2bf; font-size: 14px; line-height: 1.65; }
+    .verdict-row b { color: var(--ink); }
+    .unit-foot {
+      padding: 15px 18px;
+      background: rgba(255,255,255,.025);
+      color: var(--muted);
+      font: 500 11px/1.7 var(--mono);
+    }
+
+    .section {
+      padding: 116px 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 58px;
+    }
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 430px);
+      gap: 42px;
+      align-items: end;
+      margin-bottom: 54px;
+    }
+    .section h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(46px, 7vw, 84px);
+      line-height: .92;
+      letter-spacing: -.025em;
+      text-transform: uppercase;
+    }
+    .section-intro {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .section-intro strong { color: var(--ink); }
+
+    .blueprint {
+      border: 1px solid var(--line-strong);
+      background: rgba(8,12,14,.72);
+      overflow: hidden;
+    }
+    .blueprint-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+      font: 500 10px/1.3 var(--mono);
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+    .run-button, .copy-button, .case-tab, .scenario-button, .decision-button {
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+    }
+    .run-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      color: var(--ink);
+      font: 600 11px/1 var(--mono);
+      letter-spacing: .04em;
+    }
+    .run-button i {
+      width: 7px;
+      height: 7px;
+      background: var(--good);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(99,230,165,.6);
+    }
+    .run-button:hover, .run-button:focus-visible { background: rgba(99,230,165,.08); border-color: var(--good); }
+    .run-button:disabled { cursor: wait; opacity: .55; }
+    .lanes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .lane {
+      padding: 28px 24px 25px;
+      min-width: 0;
+    }
+    .lane + .lane { border-left: 1px solid var(--line); }
+    .lane-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 31px;
+    }
+    .lane-title strong {
+      font: 700 38px/1 var(--display);
+      letter-spacing: -.01em;
+    }
+    .lane.pi .lane-title strong { color: var(--pi); }
+    .lane.codex .lane-title strong { color: var(--codex); }
+    .lane-title span { color: var(--faint); font: 500 10px/1.4 var(--mono); text-align: right; }
+    .flow {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 17px;
+    }
+    .flow::before {
+      content: "";
+      position: absolute;
+      left: 9%;
+      right: 9%;
+      top: 25px;
+      height: 1px;
+      background: var(--line-strong);
+    }
+    .flow-node {
+      position: relative;
+      z-index: 2;
+      min-width: 0;
+      text-align: center;
+    }
+    .node-dot {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 13px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      background: var(--bg);
+      color: var(--muted);
+      font: 700 11px/1 var(--mono);
+      transition: .25s ease;
+    }
+    .flow-node b {
+      display: block;
+      min-height: 34px;
+      color: #b8c4c0;
+      font: 600 10px/1.45 var(--mono);
+      overflow-wrap: anywhere;
+    }
+    .flow-node small {
+      display: block;
+      margin-top: 5px;
+      color: var(--faint);
+      font: 400 9px/1.35 var(--mono);
+    }
+    .lane.pi .flow-node.active .node-dot,
+    .lane.pi .flow-node.done .node-dot {
+      border-color: var(--pi);
+      color: #1b1309;
+      background: var(--pi);
+      box-shadow: 0 0 24px rgba(255,173,50,.26);
+    }
+    .lane.codex .flow-node.active .node-dot,
+    .lane.codex .flow-node.done .node-dot {
+      border-color: var(--codex);
+      color: #071419;
+      background: var(--codex);
+      box-shadow: 0 0 24px rgba(102,217,255,.25);
+    }
+    .flow-node.active .node-dot { transform: scale(1.13); }
+    .flow-node.done .node-dot { transform: scale(.86); }
+    .lane-log {
+      min-height: 100px;
+      margin-top: 28px;
+      padding: 13px 14px;
+      border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.018);
+      color: var(--muted);
+      font: 400 10px/1.7 var(--mono);
+      white-space: pre-line;
+    }
+    .lane-log .cursor {
+      display: inline-block;
+      width: 6px;
+      height: 1em;
+      margin-left: 3px;
+      background: currentColor;
+      vertical-align: -.16em;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .architecture-note {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--line);
+    }
+    .architecture-note article {
+      padding: 20px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .architecture-note article + article { border-left: 1px solid var(--line); }
+    .architecture-note strong { display: block; margin-bottom: 5px; color: var(--ink); }
+
+    .code-lab {
+      border: 1px solid var(--line-strong);
+      background: #090d0f;
+    }
+    .case-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      overflow-x: auto;
+    }
+    .case-tab {
+      flex: 1 0 170px;
+      padding: 15px 18px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      color: var(--muted);
+      font: 600 11px/1 var(--mono);
+      text-align: left;
+    }
+    .case-tab[aria-selected="true"] {
+      color: var(--ink);
+      background: rgba(255,255,255,.045);
+      box-shadow: inset 0 -2px var(--good);
+    }
+    .case-tab:hover, .case-tab:focus-visible { color: var(--ink); }
+    .code-case { display: none; }
+    .code-case.active { display: block; }
+    .code-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .code-pane { min-width: 0; }
+    .code-pane + .code-pane { border-left: 1px solid var(--line); }
+    .code-pane-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+      font: 600 11px/1 var(--mono);
+    }
+    .code-pane.pi .code-pane-head { color: var(--pi); }
+    .code-pane.codex .code-pane-head { color: var(--codex); }
+    .copy-button {
+      padding: 6px 9px;
+      color: var(--muted);
+      font: 500 9px/1 var(--mono);
+    }
+    .copy-button:hover, .copy-button:focus-visible { color: var(--ink); border-color: currentColor; }
+    pre {
+      margin: 0;
+      min-height: 420px;
+      padding: 22px 19px 24px;
+      overflow: auto;
+      color: #c5d0cc;
+      font-size: 11px;
+      line-height: 1.75;
+      tab-size: 2;
+    }
+    .code-caption {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--line);
+    }
+    .code-caption p {
+      margin: 0;
+      padding: 18px 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .code-caption p + p { border-left: 1px solid var(--line); }
+    .code-caption b { color: var(--ink); }
+
+    .security-console {
+      display: grid;
+      grid-template-columns: minmax(260px, .66fr) minmax(0, 1.34fr);
+      border: 1px solid var(--line-strong);
+      background: rgba(8,12,14,.72);
+    }
+    .scenario-list {
+      border-right: 1px solid var(--line);
+      padding: 18px;
+    }
+    .scenario-label {
+      margin: 0 0 14px;
+      color: var(--faint);
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .08em;
+    }
+    .scenario-button {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 13px 12px;
+      color: var(--muted);
+      text-align: left;
+    }
+    .scenario-button:hover, .scenario-button:focus-visible { border-color: var(--line-strong); color: var(--ink); }
+    .scenario-button[aria-pressed="true"] {
+      background: rgba(255,255,255,.045);
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+    .scenario-button b { color: var(--faint); font: 600 10px/1 var(--mono); }
+    .scenario-button code { font-size: 10px; overflow-wrap: anywhere; }
+    .security-result { padding: 25px; min-width: 0; }
+    .command-screen {
+      margin-bottom: 24px;
+      padding: 15px 17px;
+      border: 1px solid var(--line);
+      color: #c9d4d0;
+      font: 500 11px/1.65 var(--mono);
+      overflow-wrap: anywhere;
+    }
+    .command-screen::before { content: "$ "; color: var(--good); }
+    .outcome-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .outcome {
+      min-height: 188px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.018);
+    }
+    .outcome-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .outcome-head strong { font: 700 26px/1 var(--display); }
+    .outcome.pi .outcome-head strong { color: var(--pi); }
+    .outcome.codex .outcome-head strong { color: var(--codex); }
+    .result-chip {
+      padding: 5px 7px;
+      border: 1px solid currentColor;
+      font: 600 9px/1 var(--mono);
+      letter-spacing: .06em;
+    }
+    .result-chip.blocked { color: var(--good); }
+    .result-chip.bypassed { color: var(--bad); }
+    .result-chip.policy { color: var(--warn); }
+    .outcome p { margin: 0; color: var(--muted); font-size: 13px; }
+    .security-explain {
+      margin: 22px 0 0;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: #b8c3bf;
+      font-size: 14px;
+    }
+    .security-explain b { color: var(--ink); }
+
+    .control-stack {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .control-layer {
+      position: relative;
+      min-height: 250px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.018);
+      overflow: hidden;
+    }
+    .control-layer::after {
+      content: attr(data-level);
+      position: absolute;
+      right: 9px;
+      bottom: -22px;
+      color: rgba(255,255,255,.035);
+      font: 700 100px/1 var(--display);
+    }
+    .control-layer h3 {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 8px;
+      font: 700 23px/1 var(--display);
+      text-transform: uppercase;
+    }
+    .control-layer p {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 23px;
+      min-height: 64px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .support {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 8px;
+      font: 600 9px/1.25 var(--mono);
+    }
+    .support span {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      padding-top: 7px;
+      border-top: 1px solid var(--line);
+      color: var(--faint);
+    }
+    .support b { font-weight: 600; }
+    .support .pi-support b { color: var(--pi); }
+    .support .codex-support b { color: var(--codex); }
+    .control-layer:last-child {
+      border-color: rgba(255,173,50,.38);
+      background: linear-gradient(150deg, var(--pi-soft), rgba(255,255,255,.012));
+    }
+
+    .decision-console {
+      display: grid;
+      grid-template-columns: minmax(250px, .72fr) minmax(0, 1.28fr);
+      border: 1px solid var(--line-strong);
+      background: rgba(8,12,14,.72);
+    }
+    .decision-options { border-right: 1px solid var(--line); }
+    .decision-button {
+      width: 100%;
+      padding: 19px 20px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      text-align: left;
+      font-size: 13px;
+    }
+    .decision-button:last-child { border-bottom: 0; }
+    .decision-button:hover, .decision-button:focus-visible { color: var(--ink); background: rgba(255,255,255,.025); }
+    .decision-button[aria-pressed="true"] {
+      color: var(--ink);
+      background: rgba(255,255,255,.055);
+      box-shadow: inset 3px 0 var(--good);
+    }
+    .decision-answer {
+      position: relative;
+      min-height: 350px;
+      padding: 37px 40px;
+      overflow: hidden;
+    }
+    .answer-label {
+      color: var(--faint);
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .1em;
+    }
+    .answer-pick {
+      margin: 17px 0 18px;
+      font: 700 clamp(58px, 8vw, 106px)/.82 var(--display);
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+    }
+    .answer-pick.pi { color: var(--pi); }
+    .answer-pick.codex { color: var(--codex); }
+    .answer-pick.hybrid {
+      color: transparent;
+      background: linear-gradient(90deg, var(--pi), var(--codex));
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+    .answer-title {
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 19px;
+      font-weight: 600;
+    }
+    .answer-body {
+      max-width: 650px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .answer-route {
+      margin-top: 23px;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      color: #b9c4c0;
+      font: 500 10px/1.7 var(--mono);
+    }
+
+    .benchmark {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 22px;
+    }
+    .benchmark-board, .bottom-line {
+      border: 1px solid var(--line-strong);
+      background: rgba(8,12,14,.72);
+    }
+    .benchmark-board { padding: 24px; }
+    .benchmark-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--line);
+      font: 600 11px/1 var(--mono);
+      color: var(--muted);
+    }
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      color: #b7c2be;
+      font-size: 12px;
+    }
+    .check i {
+      flex: 0 0 auto;
+      width: 14px;
+      height: 14px;
+      margin-top: 3px;
+      border: 1px solid var(--good);
+      position: relative;
+    }
+    .check i::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 0;
+      width: 5px;
+      height: 8px;
+      border: solid var(--good);
+      border-width: 0 1px 1px 0;
+      transform: rotate(45deg);
+    }
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .metrics span {
+      padding: 7px 9px;
+      background: rgba(99,230,165,.08);
+      border: 1px solid rgba(99,230,165,.24);
+      color: var(--good);
+      font: 500 9px/1 var(--mono);
+    }
+    .bottom-line {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      background:
+        linear-gradient(160deg, rgba(255,173,50,.08), transparent 47%),
+        linear-gradient(340deg, rgba(102,217,255,.08), transparent 48%),
+        rgba(8,12,14,.72);
+    }
+    .bottom-line small { color: var(--faint); font: 600 10px/1 var(--mono); letter-spacing: .08em; }
+    .bottom-line blockquote {
+      margin: 34px 0;
+      font-family: var(--display);
+      font-size: 31px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+    .bottom-line p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .sources {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+    .source {
+      display: grid;
+      grid-template-columns: 86px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 15px;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      background: rgba(255,255,255,.015);
+      transition: .2s ease;
+    }
+    .source:hover, .source:focus-visible { border-color: var(--line-strong); background: rgba(255,255,255,.035); transform: translateY(-2px); }
+    .source-kind {
+      font: 600 9px/1 var(--mono);
+      color: var(--faint);
+      letter-spacing: .06em;
+    }
+    .source b { font-size: 12px; }
+    .source span { color: var(--faint); font: 500 12px/1 var(--mono); }
+
+    footer {
+      padding: 42px 0 58px;
+      color: var(--faint);
+      font: 500 10px/1.8 var(--mono);
+    }
+    .footer-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 30px;
+    }
+    .footer-mark {
+      color: var(--ink);
+      font: 700 36px/1 var(--display);
+      text-transform: uppercase;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    :focus-visible {
+      outline: 2px solid var(--good);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 1000px) {
+      .hero-grid, .section-head { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
+      .verdict-unit { max-width: 680px; }
+      .control-stack { grid-template-columns: repeat(2, 1fr); }
+      .control-layer:last-child { grid-column: 1 / -1; }
+      .benchmark { grid-template-columns: 1fr; }
+      .bottom-line { min-height: 280px; }
+      .sources { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { width: min(calc(100% - 28px), var(--max)); }
+      .topbar-inner { height: 52px; padding: 0 14px; }
+      .nav a { display: none; }
+      .nav .date-stamp { display: block; }
+      .hero { padding: 64px 0; }
+      .hero::after { display: none; }
+      .hero h1 { font-size: clamp(62px, 25vw, 104px); }
+      .hero h1 .vs { display: block; width: fit-content; margin: .38em 0 .32em; }
+      .hero-deck { font-size: 18px; }
+      .section { padding: 82px 0; }
+      .section h2 { font-size: clamp(44px, 16vw, 68px); }
+      .lanes, .code-grid, .code-caption, .architecture-note, .security-console, .decision-console { grid-template-columns: 1fr; }
+      .lane + .lane,
+      .code-pane + .code-pane,
+      .code-caption p + p,
+      .architecture-note article + article,
+      .scenario-list,
+      .decision-options {
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+      .lane + .lane { border-top: 1px solid var(--line); }
+      .scenario-list { border-top: 0; border-bottom: 1px solid var(--line); }
+      .decision-options { border-top: 0; border-bottom: 1px solid var(--line); }
+      pre { min-height: 0; max-height: 500px; }
+      .outcome-grid { grid-template-columns: 1fr; }
+      .control-stack { grid-template-columns: 1fr; }
+      .control-layer:last-child { grid-column: auto; }
+      .check-grid { grid-template-columns: 1fr; }
+      .decision-answer { min-height: 400px; padding: 30px 24px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner { gap: 10px; }
+      .nav .date-stamp { display: none; }
+    }
+
+    @media (max-width: 420px) {
+      .brand em { display: none; }
+      .hero h1 { font-size: 60px; }
+      .flow { grid-template-columns: repeat(2, 1fr); gap: 22px 12px; }
+      .flow::before { display: none; }
+      .code-pane-head { align-items: flex-start; flex-direction: column; }
+      .source { grid-template-columns: 70px 1fr; }
+      .source span { display: none; }
+      .verdict-row { grid-template-columns: 66px 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media print {
+      .topbar, .progress, .run-button, .copy-button { display: none !important; }
+      body { background: white; color: #111; }
+      .section, .hero { break-inside: avoid; padding: 36px 0; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="回到顶部">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <span>AGENT / KERNEL LAB <em>NO. 07</em></span>
+      </a>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#architecture">进程边界</a>
+        <a href="#code">代码对照</a>
+        <a href="#security">安全实验</a>
+        <a href="#decision">选型</a>
+        <span class="date-stamp">SOURCE SNAPSHOT · 2026-07-24</span>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Coding agent engineering teardown</p>
+          <h1>
+            <span class="pi-word">PI</span>
+            <span class="vs">VERSUS</span>
+            <span class="codex-word">CODEX</span>
+          </h1>
+          <p class="hero-deck">
+            同一个模型，为什么做出来的 agent 仍然完全不同？因为真正的分界线不是“聪明程度”，而是：
+            <strong>你是否拥有 agent 的内环。</strong>
+          </p>
+          <div class="hero-tags" aria-label="主题标签">
+            <span class="tag">真实源码</span>
+            <span class="tag">Agent loop</span>
+            <span class="tag">Tool callback</span>
+            <span class="tag">OS sandbox</span>
+            <span class="tag">MCP / Hooks</span>
+          </div>
+        </div>
+
+        <aside class="verdict-unit reveal" aria-label="核心结论">
+          <div class="unit-head">
+            <span>EXECUTIVE VERDICT</span>
+            <span class="unit-led" aria-hidden="true"><i></i><i></i><i></i></span>
+          </div>
+          <div class="verdict-row pi">
+            <div class="verdict-key">PI</div>
+            <p><b>把运行时交给你。</b>你能替换 context、stream、工具执行、模型切换与 UI。</p>
+          </div>
+          <div class="verdict-row codex">
+            <div class="verdict-key">CX</div>
+            <p><b>把完整系统交给你。</b>沙箱、审批、线程、压缩、工具路由与多端体验已经集成。</p>
+          </div>
+          <div class="unit-foot">
+            PI = RUNTIME / LEGO<br>
+            CODEX = PRODUCT / CONTROLLED SYSTEM
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">01 · Process boundary</p>
+            <h2>同一任务<br>穿过两套机器</h2>
+          </div>
+          <p class="section-intro">
+            任务都是“修复失败测试”。但 Pi 的 <strong>AgentSession 就在你的 Node 进程内</strong>；
+            Codex 的 TypeScript SDK 会启动原生 Codex 进程，通过 JSONL 收发事件。
+          </p>
+        </div>
+
+        <div class="blueprint reveal">
+          <div class="blueprint-head">
+            <span>TRACE / FIX AUTH.TEST.TS / MINIMAL PATCH / RUN TESTS</span>
+            <button class="run-button" id="run-simulation" type="button"><i></i>运行一次双通道任务</button>
+          </div>
+
+          <div class="lanes">
+            <article class="lane pi">
+              <div class="lane-title">
+                <strong>PI / IN-PROCESS</strong>
+                <span>CALLBACKS ARE YOUR CODE</span>
+              </div>
+              <div class="flow" data-lane="pi">
+                <div class="flow-node" data-log="应用调用 session.prompt()">
+                  <div class="node-dot">01</div><b>YOUR APP</b><small>Node.js</small>
+                </div>
+                <div class="flow-node" data-log="AgentSession 构造本轮 context">
+                  <div class="node-dot">02</div><b>AGENT SESSION</b><small>same process</small>
+                </div>
+                <div class="flow-node" data-log="模型返回 read / bash / edit">
+                  <div class="node-dot">03</div><b>AGENT LOOP</b><small>public TS</small>
+                </div>
+                <div class="flow-node" data-log="你的 tool.execute() 返回结果">
+                  <div class="node-dot">04</div><b>TOOL CALLBACK</b><small>your function</small>
+                </div>
+              </div>
+              <div class="lane-log" id="pi-log">待机：AgentSession 已装入宿主进程。<span class="cursor"></span></div>
+            </article>
+
+            <article class="lane codex">
+              <div class="lane-title">
+                <strong>CODEX / NATIVE</strong>
+                <span>EVENTS CROSS A PROCESS WALL</span>
+              </div>
+              <div class="flow" data-lane="codex">
+                <div class="flow-node" data-log="应用调用 thread.runStreamed()">
+                  <div class="node-dot">01</div><b>YOUR APP</b><small>Node.js</small>
+                </div>
+                <div class="flow-node" data-log="SDK spawn codex exec --experimental-json">
+                  <div class="node-dot">02</div><b>TS SDK</b><small>process wrapper</small>
+                </div>
+                <div class="flow-node" data-log="Rust Session::run_turn 建 ToolRouter">
+                  <div class="node-dot">03</div><b>RUST CORE</b><small>native binary</small>
+                </div>
+                <div class="flow-node" data-log="Sandbox 执行工具，JSONL 返回 item.completed">
+                  <div class="node-dot">04</div><b>SANDBOX</b><small>OS enforced</small>
+                </div>
+              </div>
+              <div class="lane-log" id="codex-log">待机：等待创建 thread。<span class="cursor"></span></div>
+            </article>
+          </div>
+
+          <div class="architecture-note">
+            <article>
+              <strong>Pi 的权力</strong>
+              你可直接改 `transformContext`、`beforeToolCall`、`afterToolCall`、`prepareNextTurn` 与 `streamFn`。
+            </article>
+            <article>
+              <strong>Codex 的边界</strong>
+              公共 TS SDK 主要控制 thread、model、cwd、sandbox 与 approval；核心循环仍由 Rust 产品管理。
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="code">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">02 · Code lab</p>
+            <h2>差别一直<br>落到代码里</h2>
+          </div>
+          <p class="section-intro">
+            三个最常见需求：启动 agent、保护敏感文件、添加业务工具。
+            点击标签切换，代码可直接复制。
+          </p>
+        </div>
+
+        <div class="code-lab reveal">
+          <div class="case-tabs" role="tablist" aria-label="代码案例">
+            <button class="case-tab" role="tab" aria-selected="true" data-case="minimal">A / 启动修复任务</button>
+            <button class="case-tab" role="tab" aria-selected="false" data-case="security">B / 保护 .env</button>
+            <button class="case-tab" role="tab" aria-selected="false" data-case="tool">C / 添加工单工具</button>
+          </div>
+
+          <div class="code-case active" data-case-panel="minimal">
+            <div class="code-grid">
+              <article class="code-pane pi">
+                <div class="code-pane-head">
+                  <span>PI · AGENTSESSION IN YOUR PROCESS</span>
+                  <button class="copy-button" type="button" data-copy="pi-minimal">COPY</button>
+                </div>
+                <pre><code id="pi-minimal">import {
+  createAgentSession,
+  SessionManager,
+} from "@earendil-works/pi-coding-agent";
+
+const { session } = await createAgentSession({
+  cwd: repo,
+  tools: [
+    "read", "grep", "find", "ls",
+    "bash", "edit", "write"
+  ],
+  sessionManager: SessionManager.inMemory(repo),
+});
+
+session.subscribe((event) =&gt; {
+  if (
+    event.type === "message_update" &amp;&amp;
+    event.assistantMessageEvent.type === "text_delta"
+  ) {
+    process.stdout.write(
+      event.assistantMessageEvent.delta
+    );
+  }
+});
+
+await session.prompt(`
+  修复 auth.test.ts，先复现，
+  做最小修改并运行相关测试。
+`);
+
+session.dispose();</code></pre>
+              </article>
+
+              <article class="code-pane codex">
+                <div class="code-pane-head">
+                  <span>CODEX · SDK SPAWNS NATIVE BINARY</span>
+                  <button class="copy-button" type="button" data-copy="codex-minimal">COPY</button>
+                </div>
+                <pre><code id="codex-minimal">import { Codex } from "@openai/codex-sdk";
+
+const codex = new Codex();
+
+const thread = codex.startThread({
+  workingDirectory: repo,
+  sandboxMode: "workspace-write",
+  approvalPolicy: "on-request",
+});
+
+const { events } = await thread.runStreamed(`
+  修复 auth.test.ts，先复现，
+  做最小修改并运行相关测试。
+`);
+
+for await (const event of events) {
+  if (event.type === "item.completed") {
+    console.log(event.item);
+  }
+
+  if (event.type === "turn.completed") {
+    console.log(event.usage);
+  }
+}</code></pre>
+              </article>
+            </div>
+            <div class="code-caption">
+              <p><b>你得到可变对象。</b>Session、messages、tools 与生命周期 callback 都在同一进程。</p>
+              <p><b>你得到事件流。</b>真正的 tool router、compaction、approval 与 sandbox 在 Codex 进程里。</p>
+            </div>
+          </div>
+
+          <div class="code-case" data-case-panel="security">
+            <div class="code-grid">
+              <article class="code-pane pi">
+                <div class="code-pane-head">
+                  <span>PI · POLICY HOOK</span>
+                  <button class="copy-button" type="button" data-copy="pi-security">COPY</button>
+                </div>
+                <pre><code id="pi-security">export default function security(pi) {
+  const secret = /(^|\/)\.env(?:\.|$)/;
+
+  pi.on("tool_call", async (event) =&gt; {
+    if (["read", "write", "edit"]
+        .includes(event.toolName)) {
+      const path = String(event.input.path ?? "");
+
+      if (secret.test(path)) {
+        return {
+          block: true,
+          reason: `禁止访问：${path}`,
+        };
+      }
+    }
+
+    if (event.toolName === "bash") {
+      const cmd = String(
+        event.input.command ?? ""
+      );
+
+      if (/\bgit\s+push\b/.test(cmd)) {
+        return {
+          block: true,
+          reason: "禁止 agent push",
+        };
+      }
+    }
+  });
+}</code></pre>
+              </article>
+
+              <article class="code-pane codex">
+                <div class="code-pane-head">
+                  <span>CODEX · PERMISSION PROFILE</span>
+                  <button class="copy-button" type="button" data-copy="codex-security">COPY</button>
+                </div>
+                <pre><code id="codex-security"># .codex/config.toml
+default_permissions = "repo-safe"
+
+[permissions.repo-safe]
+description = "仓库可写，环境文件不可读"
+extends = ":workspace"
+
+[permissions.repo-safe.filesystem]
+glob_scan_max_depth = 3
+
+[permissions.repo-safe.filesystem.":workspace_roots"]
+"**/*.env" = "deny"
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = """
+python3 "$(git rev-parse --show-toplevel)\
+/.codex/hooks/no_push.py"
+"""
+timeout = 5</code></pre>
+              </article>
+            </div>
+            <div class="code-caption">
+              <p><b>注意：这是策略拦截。</b>`python open(".env")` 仍可能绕过路径字符串检查；强隔离需容器或替换执行 backend。</p>
+              <p><b>文件规则是权限边界。</b>在 sandbox 生效时，Python、Node、Ruby 间接读取同样会被拒绝。</p>
+            </div>
+          </div>
+
+          <div class="code-case" data-case-panel="tool">
+            <div class="code-grid">
+              <article class="code-pane pi">
+                <div class="code-pane-head">
+                  <span>PI · DIRECT CALLBACK</span>
+                  <button class="copy-button" type="button" data-copy="pi-tool">COPY</button>
+                </div>
+                <pre><code id="pi-tool">pi.registerTool({
+  name: "lookup_ticket",
+  description: "按 ID 查询内部工单",
+  parameters: Type.Object({
+    id: Type.String(),
+  }),
+
+  execute: async (
+    _callId,
+    { id },
+    signal
+  ) =&gt; {
+    const ticket = await api.getTicket(
+      id,
+      { signal }
+    );
+
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify(ticket),
+      }],
+      details: { ticket },
+    };
+  },
+});</code></pre>
+              </article>
+
+              <article class="code-pane codex">
+                <div class="code-pane-head">
+                  <span>CODEX · STABLE MCP BOUNDARY</span>
+                  <button class="copy-button" type="button" data-copy="codex-tool">COPY</button>
+                </div>
+                <pre><code id="codex-tool"># .codex/config.toml
+[mcp_servers.tickets]
+command = "node"
+args = [
+  "/opt/tickets-mcp/dist/server.js"
+]
+required = true
+
+# Stable architecture:
+#
+# Codex Rust process
+#        ↕ MCP protocol
+# Tickets MCP server
+#        ↕ HTTP / auth
+# Internal ticket system
+#
+# app-server 另有 dynamicTools，
+# 但 2026-07-24 仍标 experimental。</code></pre>
+              </article>
+            </div>
+            <div class="code-caption">
+              <p><b>最短路径。</b>模型调用后直接进入你的 TypeScript `execute()`；延迟低、状态共享容易。</p>
+              <p><b>标准协议路径。</b>实现更重，但工具能跨 Codex 客户端和其他 MCP host 复用，授权边界也更清晰。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="security">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">03 · Security experiment</p>
+            <h2>钩子不是<br>沙箱</h2>
+          </div>
+          <p class="section-intro">
+            选择命令观察结果。这里对比的是 <strong>Pi 的示例级路径/命令拦截</strong>
+            与 <strong>Codex permission profile 的文件系统约束</strong>，不是说 Pi 永远不能沙箱化。
+          </p>
+        </div>
+
+        <div class="security-console reveal">
+          <div class="scenario-list">
+            <p class="scenario-label">SELECT TEST VECTOR</p>
+            <button class="scenario-button" type="button" aria-pressed="true" data-scenario="direct">
+              <b>01</b><code>read(".env")</code>
+            </button>
+            <button class="scenario-button" type="button" aria-pressed="false" data-scenario="indirect">
+              <b>02</b><code>python3 -c 'open(".env")'</code>
+            </button>
+            <button class="scenario-button" type="button" aria-pressed="false" data-scenario="push">
+              <b>03</b><code>git push origin main</code>
+            </button>
+          </div>
+
+          <div class="security-result">
+            <div class="command-screen" id="security-command">read(".env")</div>
+            <div class="outcome-grid">
+              <article class="outcome pi">
+                <div class="outcome-head">
+                  <strong>PI</strong>
+                  <span class="result-chip blocked" id="pi-security-chip">BLOCKED</span>
+                </div>
+                <p id="pi-security-result">`tool_call` 看到 read 工具与 `.env` 路径，返回 `{ block: true }`。</p>
+              </article>
+              <article class="outcome codex">
+                <div class="outcome-head">
+                  <strong>CODEX</strong>
+                  <span class="result-chip blocked" id="codex-security-chip">BLOCKED</span>
+                </div>
+                <p id="codex-security-result">permission profile 的 `**/*.env = "deny"` 拒绝文件访问。</p>
+              </article>
+            </div>
+            <p class="security-explain" id="security-explain">
+              <b>这一项两边都能挡。</b>区别要到“间接读取”才暴露。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="control">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">04 · Control depth</p>
+            <h2>你到底想改<br>哪一层</h2>
+          </div>
+          <p class="section-intro">
+            很多团队说“我要一个 framework”，实际只需要加一个工具。
+            越往右越接近 agent 内核，也越能体现 Pi 的独特价值。
+          </p>
+        </div>
+
+        <div class="control-stack reveal">
+          <article class="control-layer" data-level="1">
+            <h3>Prompt</h3>
+            <p>一次任务的目标、边界、完成标准。</p>
+            <div class="support">
+              <span class="pi-support">PI <b>原生</b></span>
+              <span class="codex-support">CODEX <b>原生</b></span>
+            </div>
+          </article>
+          <article class="control-layer" data-level="2">
+            <h3>Instructions</h3>
+            <p>AGENTS、Skills、项目规则与可复用工作流。</p>
+            <div class="support">
+              <span class="pi-support">PI <b>支持</b></span>
+              <span class="codex-support">CODEX <b>支持</b></span>
+            </div>
+          </article>
+          <article class="control-layer" data-level="3">
+            <h3>Tools</h3>
+            <p>业务 API、数据库、日志、浏览器与审批。</p>
+            <div class="support">
+              <span class="pi-support">PI <b>Callback</b></span>
+              <span class="codex-support">CODEX <b>MCP / Plugin</b></span>
+            </div>
+          </article>
+          <article class="control-layer" data-level="4">
+            <h3>Lifecycle</h3>
+            <p>工具前后、压缩前后、停止条件与 session 事件。</p>
+            <div class="support">
+              <span class="pi-support">PI <b>Extension</b></span>
+              <span class="codex-support">CODEX <b>Hooks</b></span>
+            </div>
+          </article>
+          <article class="control-layer" data-level="5">
+            <h3>Inner loop</h3>
+            <p>Context transform、消息转换、模型切换、调度语义。</p>
+            <div class="support">
+              <span class="pi-support">PI <b>Public TS API</b></span>
+              <span class="codex-support">CODEX <b>Fork / lower level</b></span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="decision">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">05 · Decision console</p>
+            <h2>别按名气选<br>按控制深度选</h2>
+          </div>
+          <p class="section-intro">
+            选择你的真实目标。答案不是永远二选一，有些场景最合理的是
+            <strong>Codex 做稳定执行器，Pi 做实验编排层</strong>。
+          </p>
+        </div>
+
+        <div class="decision-console reveal">
+          <div class="decision-options">
+            <button class="decision-button" type="button" aria-pressed="true" data-decision="business-tool">只想加内部 CI / 工单 / 日志工具</button>
+            <button class="decision-button" type="button" aria-pressed="false" data-decision="context-research">想实验 context pack / recall / GEPA</button>
+            <button class="decision-button" type="button" aria-pressed="false" data-decision="laptop">直接给开发者电脑使用，重视安全</button>
+            <button class="decision-button" type="button" aria-pressed="false" data-decision="white-label">做多模型白牌 coding-agent 产品</button>
+            <button class="decision-button" type="button" aria-pressed="false" data-decision="mixed">既要实验算法，又要可靠执行真实仓库</button>
+          </div>
+          <div class="decision-answer" aria-live="polite">
+            <span class="answer-label">RECOMMENDED ARCHITECTURE</span>
+            <div class="answer-pick codex" id="answer-pick">CODEX</div>
+            <h3 class="answer-title" id="answer-title">不用为一个工具重造整套 agent</h3>
+            <p class="answer-body" id="answer-body">
+              用 MCP 暴露内部能力，用 Hook 编排审批与发布规则，继续享受 Codex 已有的沙箱、线程恢复、压缩和多端体验。
+            </p>
+            <div class="answer-route" id="answer-route">YOUR TOOL → MCP SERVER → CODEX TOOL ROUTER → SANDBOXED REPO WORK</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="benchmark">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">06 · Fair evaluation</p>
+            <h2>别比一次观感<br>比冻结实验</h2>
+          </div>
+          <p class="section-intro">
+            即使显示同一模型名，system prompt、工具 schema、输出截断、权限与 compaction
+            也会改变结果。没有控制变量的“Pi 更聪明”或“Codex 更强”都不成立。
+          </p>
+        </div>
+
+        <div class="benchmark reveal">
+          <div class="benchmark-board">
+            <div class="benchmark-title">
+              <span>CONTROL VARIABLES / MUST MATCH</span>
+              <span>TEST SPEC 01</span>
+            </div>
+            <div class="check-grid">
+              <div class="check"><i></i><span>同一 Git commit 与依赖快照</span></div>
+              <div class="check"><i></i><span>同一模型与 reasoning effort</span></div>
+              <div class="check"><i></i><span>同一任务 prompt 与完成标准</span></div>
+              <div class="check"><i></i><span>同一网络与文件权限</span></div>
+              <div class="check"><i></i><span>尽量等价的工具 schema</span></div>
+              <div class="check"><i></i><span>完整记录失败、重试和人工介入</span></div>
+            </div>
+            <div class="metrics" aria-label="建议指标">
+              <span>TEST PASS</span>
+              <span>DIFF QUALITY</span>
+              <span>UNRELATED EDITS</span>
+              <span>WALL TIME</span>
+              <span>TOKENS / COST</span>
+              <span>HUMAN INTERVENTIONS</span>
+            </div>
+          </div>
+          <aside class="bottom-line">
+            <small>BOTTOM LINE / 2026</small>
+            <blockquote>
+              Pi 的优势不是“比 Codex 聪明”，而是你能改“聪明如何被使用”。
+            </blockquote>
+            <p>Codex 的优势也不是不能改，而是大量不值得你重造的系统工程已经完成。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <p class="section-index">07 · Primary sources</p>
+            <h2>每个判断<br>都能回到源码</h2>
+          </div>
+          <p class="section-intro">
+            页面按 2026-07-24 的官方仓库与文档制作。源码链接固定到当日 commit，
+            避免 `main` 后续变化让结论失去锚点。
+          </p>
+        </div>
+
+        <div class="sources reveal">
+          <a class="source" href="https://github.com/earendil-works/pi/blob/7df73a00c6cf85c000bf1ce1594c9284067a92f0/packages/agent/src/agent-loop.ts#L155-L275" target="_blank" rel="noreferrer">
+            <span class="source-kind">PI / SOURCE</span><b>Agent loop 与工具循环</b><span>↗</span>
+          </a>
+          <a class="source" href="https://github.com/earendil-works/pi/blob/7df73a00c6cf85c000bf1ce1594c9284067a92f0/packages/agent/src/agent.ts#L171-L230" target="_blank" rel="noreferrer">
+            <span class="source-kind">PI / SOURCE</span><b>Agent callbacks 与可变运行时</b><span>↗</span>
+          </a>
+          <a class="source" href="https://github.com/earendil-works/pi/blob/7df73a00c6cf85c000bf1ce1594c9284067a92f0/packages/coding-agent/src/core/tools/bash.ts#L82-L103" target="_blank" rel="noreferrer">
+            <span class="source-kind">PI / SOURCE</span><b>本地 Bash 的 Node spawn</b><span>↗</span>
+          </a>
+          <a class="source" href="https://github.com/openai/codex/blob/81da9deb065d7adb283816b19b40f89bcc484276/sdk/typescript/src/exec.ts#L86-L224" target="_blank" rel="noreferrer">
+            <span class="source-kind">CODEX / SOURCE</span><b>TS SDK 启动 Codex 原生进程</b><span>↗</span>
+          </a>
+          <a class="source" href="https://github.com/openai/codex/blob/81da9deb065d7adb283816b19b40f89bcc484276/codex-rs/core/src/session/turn.rs#L136-L148" target="_blank" rel="noreferrer">
+            <span class="source-kind">CODEX / SOURCE</span><b>Rust run_turn 核心循环</b><span>↗</span>
+          </a>
+          <a class="source" href="https://learn.chatgpt.com/docs/permissions#filesystem-permissions" target="_blank" rel="noreferrer">
+            <span class="source-kind">CODEX / DOC</span><b>Permission profile 与 deny 规则</b><span>↗</span>
+          </a>
+          <a class="source" href="https://learn.chatgpt.com/docs/hooks#pretooluse" target="_blank" rel="noreferrer">
+            <span class="source-kind">CODEX / DOC</span><b>PreToolUse 阻断与改写</b><span>↗</span>
+          </a>
+          <a class="source" href="https://github.com/openai/codex/blob/81da9deb065d7adb283816b19b40f89bcc484276/codex-rs/app-server/README.md#L1647-L1695" target="_blank" rel="noreferrer">
+            <span class="source-kind">CODEX / SOURCE</span><b>Experimental dynamicTools</b><span>↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div>
+        <div class="footer-mark">PI / CODEX · KERNEL TEARDOWN</div>
+        <div>个人学习用源码讲解 · 非 Pi 或 OpenAI 官方物料 · 不构成安全审计结论</div>
+      </div>
+      <div>VERSION · pi-vs-codex-runtime-v1<br>UPDATED · 2026-07-24 · ASIA/SHANGHAI</div>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const progress = document.getElementById("progress");
+      const updateProgress = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const value = max > 0 ? (window.scrollY / max) * 100 : 0;
+        progress.style.width = `${Math.min(100, Math.max(0, value))}%`;
+      };
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      updateProgress();
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reveals = document.querySelectorAll(".reveal");
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        reveals.forEach((item) => item.classList.add("visible"));
+      } else {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: .12 });
+        reveals.forEach((item) => revealObserver.observe(item));
+      }
+
+      const runButton = document.getElementById("run-simulation");
+      const laneConfig = [
+        {
+          key: "pi",
+          log: document.getElementById("pi-log"),
+          done: "完成：tool result 直接写回同一 AgentSession。"
+        },
+        {
+          key: "codex",
+          log: document.getElementById("codex-log"),
+          done: "完成：Rust core 发出 turn.completed JSONL。"
+        }
+      ];
+
+      const resetSimulation = () => {
+        document.querySelectorAll(".flow-node").forEach((node) => {
+          node.classList.remove("active", "done");
+        });
+        laneConfig[0].log.innerHTML = '待机：AgentSession 已装入宿主进程。<span class="cursor"></span>';
+        laneConfig[1].log.innerHTML = '待机：等待创建 thread。<span class="cursor"></span>';
+      };
+
+      runButton.addEventListener("click", () => {
+        resetSimulation();
+        runButton.disabled = true;
+        runButton.lastChild.textContent = " 正在执行";
+        const stepMs = reduceMotion ? 15 : 520;
+        const nodesPerLane = 4;
+        const logs = { pi: [], codex: [] };
+
+        laneConfig.forEach((lane) => {
+          const nodes = [...document.querySelectorAll(`[data-lane="${lane.key}"] .flow-node`)];
+          nodes.forEach((node, index) => {
+            window.setTimeout(() => {
+              if (index > 0) nodes[index - 1].classList.replace("active", "done");
+              node.classList.add("active");
+              logs[lane.key].push(`0${index + 1}  ${node.dataset.log}`);
+              lane.log.innerHTML = `${logs[lane.key].join("\n")}<span class="cursor"></span>`;
+            }, index * stepMs);
+          });
+
+          window.setTimeout(() => {
+            nodes[nodes.length - 1].classList.replace("active", "done");
+            logs[lane.key].push(`OK  ${lane.done}`);
+            lane.log.innerHTML = `${logs[lane.key].join("\n")}<span class="cursor"></span>`;
+          }, nodesPerLane * stepMs);
+        });
+
+        window.setTimeout(() => {
+          runButton.disabled = false;
+          runButton.lastChild.textContent = " 再运行一次";
+        }, nodesPerLane * stepMs + (reduceMotion ? 30 : 450));
+      });
+
+      const tabs = [...document.querySelectorAll(".case-tab")];
+      const panels = [...document.querySelectorAll(".code-case")];
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((item) => item.setAttribute("aria-selected", "false"));
+          panels.forEach((panel) => panel.classList.remove("active"));
+          tab.setAttribute("aria-selected", "true");
+          document.querySelector(`[data-case-panel="${tab.dataset.case}"]`).classList.add("active");
+        });
+      });
+
+      document.querySelectorAll(".copy-button").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const target = document.getElementById(button.dataset.copy);
+          try {
+            await navigator.clipboard.writeText(target.textContent);
+            button.textContent = "COPIED";
+          } catch {
+            button.textContent = "SELECT";
+            const range = document.createRange();
+            range.selectNodeContents(target);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+          window.setTimeout(() => { button.textContent = "COPY"; }, 1500);
+        });
+      });
+
+      const securityData = {
+        direct: {
+          command: 'read(".env")',
+          piChip: ["BLOCKED", "blocked"],
+          pi: '`tool_call` 看到 read 工具与 `.env` 路径，返回 `{ block: true }`。',
+          codexChip: ["BLOCKED", "blocked"],
+          codex: 'permission profile 的 `**/*.env = "deny"` 拒绝文件访问。',
+          explain: "<b>这一项两边都能挡。</b>区别要到“间接读取”才暴露。"
+        },
+        indirect: {
+          command: "python3 -c 'print(open(\".env\").read())'",
+          piChip: ["BYPASS RISK", "bypassed"],
+          pi: "如果扩展只检查 read/edit/write 的 path，这次只看到一个普通 bash 命令；字符串策略可能漏掉。",
+          codexChip: ["BLOCKED", "blocked"],
+          codex: "Python 最终仍需向操作系统打开 `.env`，sandbox 的 deny 规则会拒绝这次文件访问。",
+          explain: "<b>这就是策略 Hook 与权限边界的差别。</b>Pi 可以通过容器、VM、SSH sandbox 或替换 BashOperations 做强隔离，但不是这个正则扩展自动获得的。"
+        },
+        push: {
+          command: "git push origin main",
+          piChip: ["POLICY", "policy"],
+          pi: "tool_call 能识别 `git push` 并阻断或在 TUI 中弹出确认；但别名、包装脚本仍需纳入规则。",
+          codexChip: ["POLICY", "policy"],
+          codex: "PreToolUse 可以拒绝 Bash 调用；若再关闭网络，则形成更强的第二道边界。",
+          explain: "<b>语义动作仍适合用 Hook。</b>沙箱回答“能不能访问”，Hook 回答“这件事在工作流上应不应该做”。"
+        }
+      };
+
+      const scenarioButtons = [...document.querySelectorAll(".scenario-button")];
+      const securityCommand = document.getElementById("security-command");
+      const piChip = document.getElementById("pi-security-chip");
+      const codexChip = document.getElementById("codex-security-chip");
+      const piResult = document.getElementById("pi-security-result");
+      const codexResult = document.getElementById("codex-security-result");
+      const securityExplain = document.getElementById("security-explain");
+
+      const setChip = (element, [label, className]) => {
+        element.textContent = label;
+        element.className = `result-chip ${className}`;
+      };
+
+      scenarioButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          scenarioButtons.forEach((item) => item.setAttribute("aria-pressed", "false"));
+          button.setAttribute("aria-pressed", "true");
+          const data = securityData[button.dataset.scenario];
+          securityCommand.textContent = data.command;
+          setChip(piChip, data.piChip);
+          setChip(codexChip, data.codexChip);
+          piResult.textContent = data.pi;
+          codexResult.textContent = data.codex;
+          securityExplain.innerHTML = data.explain;
+        });
+      });
+
+      const decisions = {
+        "business-tool": {
+          pick: "CODEX",
+          className: "codex",
+          title: "不用为一个工具重造整套 agent",
+          body: "用 MCP 暴露内部能力，用 Hook 编排审批与发布规则，继续享受 Codex 已有的沙箱、线程恢复、压缩和多端体验。",
+          route: "YOUR TOOL → MCP SERVER → CODEX TOOL ROUTER → SANDBOXED REPO WORK"
+        },
+        "context-research": {
+          pick: "PI",
+          className: "pi",
+          title: "研究对象就是内环，直接拥有它",
+          body: "你需要的是 transformContext、prepareNextTurn、消息转换和自定义 compaction，而不是在成品系统外围不断绕行。",
+          route: "EXPERIMENT → EXTENSION / CALLBACK → AGENT LOOP → EVAL → NEXT ITERATION"
+        },
+        "laptop": {
+          pick: "CODEX",
+          className: "codex",
+          title: "安全工程比可塑性更值钱",
+          body: "OS sandbox、permission profile、approval 与 Hook trust 已形成整套边界；Pi 也能做到，但需要你自行组装和长期维护。",
+          route: "PERMISSION PROFILE → TOOL ROUTER → OS SANDBOX → APPROVAL WHEN NEEDED"
+        },
+        "white-label": {
+          pick: "PI",
+          className: "pi",
+          title: "宿主应用需要直接拥有 runtime",
+          body: "多 provider、自定义 UI、同 run 模型切换、工具 callback 与 session 语义都能留在你的产品进程，白牌改造成本更低。",
+          route: "YOUR UI → YOUR SESSION → YOUR MODEL ROUTER → YOUR TOOL SEMANTICS"
+        },
+        "mixed": {
+          pick: "HYBRID",
+          className: "hybrid",
+          title: "把研究与执行分层",
+          body: "Pi 负责实验策略、选择模型和编排；Codex 作为受沙箱保护的仓库执行器。代价是双层 tracing、错误传播与上下文交接更复杂。",
+          route: "PI ORCHESTRATOR → CODEX EXEC / APP-SERVER → VERIFIED REPO RESULT"
+        }
+      };
+
+      const decisionButtons = [...document.querySelectorAll(".decision-button")];
+      const answerPick = document.getElementById("answer-pick");
+      const answerTitle = document.getElementById("answer-title");
+      const answerBody = document.getElementById("answer-body");
+      const answerRoute = document.getElementById("answer-route");
+
+      decisionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          decisionButtons.forEach((item) => item.setAttribute("aria-pressed", "false"));
+          button.setAttribute("aria-pressed", "true");
+          const answer = decisions[button.dataset.decision];
+          answerPick.textContent = answer.pick;
+          answerPick.className = `answer-pick ${answer.className}`;
+          answerTitle.textContent = answer.title;
+          answerBody.textContent = answer.body;
+          answerRoute.textContent = answer.route;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

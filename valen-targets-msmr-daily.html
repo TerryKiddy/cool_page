@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<!-- valen-targets-msmr-daily-v1 · 数据每日随腾讯行情自动更新，分层为 2026-07-26 分析快照 -->
+<title>valen 评论区 26 标的 · MSMR 分层跟踪</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f1419'/%3E%3Cpath d='M10 46l12-14 9 7 13-19 10 8' stroke='%23c8873a' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='54' cy='28' r='4' fill='%235fb894'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0e1319; --panel:#141b23; --panel-2:#182029; --card:#131a22; --sunk:#0b1015;
+    --ink:#e8edf2; --muted:#8b97a5; --faint:#5c6773;
+    --hair:#26313d; --hair-soft:#1d2630;
+    --accent:#c8873a; --accent-soft:rgba(200,135,58,.14);
+    --up:#e34c3f; --down:#16a37a;          /* A股口径：涨红跌绿，与结构台一致 */
+    /* 六态结构色 —— Okabe-Ito 派生，红绿色觉下仍可区分；颜色始终与文字标签并存 */
+    --s1:#0f9d76; --s2:#56b4e9; --s3:#d55e00; --s4:#cc79a7; --s5:#e69f00; --s6:#8b95a1;
+    --sl:#d55e00; --tp1:#c9a227; --tp2:#0e8c99; --tp3:#8e6bc0;
+    --mono:ui-monospace,"SF Mono",Menlo,"Cascadia Mono","DejaVu Sans Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f4ef; --panel:#fffdf8; --panel-2:#f0ece3; --card:#fffdf8; --sunk:#eae5da;
+    --ink:#1a1f25; --muted:#5f6975; --faint:#8d97a3;
+    --hair:#ded7c9; --hair-soft:#e9e3d7;
+    --accent:#a4691f; --accent-soft:rgba(164,105,31,.12);
+    --s1:#0b7a5c; --s2:#2b7fb0; --s3:#b34e00; --s4:#a45c85; --s5:#8a6200; --s6:#6c7681;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .page{max-width:1400px;margin:0 auto;padding:0 22px 90px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── masthead ── */
+  .masthead{padding:44px 0 22px;border-bottom:1px solid var(--hair)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin:0 0 14px}
+  .kicker::before{content:"";width:26px;height:2px;background:var(--accent);flex:none}
+  h1{font-size:clamp(24px,4vw,36px);line-height:1.1;letter-spacing:-.022em;font-weight:800;margin:0 0 12px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .deck{font-size:15px;color:var(--muted);max-width:82ch;margin:0}
+  .deck b{color:var(--ink)}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+  .pill{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:var(--panel-2);border:1px solid var(--hair);border-radius:999px;padding:4px 11px}
+  .pill.hot{color:var(--accent);border-color:var(--accent)}
+  .btn{appearance:none;border:1px solid var(--hair);background:var(--panel);color:var(--muted);font-family:var(--sans);font-size:12.5px;padding:6px 13px;border-radius:999px;cursor:pointer}
+  .btn:hover{color:var(--ink);border-color:var(--faint)}
+
+  /* ── section head ── */
+  section{margin-top:34px}
+  .sechead{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin:0 0 6px}
+  .sechead h2{font-size:21px;font-weight:750;margin:0;letter-spacing:-.012em}
+  .sechead .no{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  .sechead p{margin:0;font-size:13px;color:var(--muted);max-width:76ch}
+
+  /* ── tier boards ── */
+  .tier{border:1px solid var(--hair);border-radius:13px;background:var(--card);overflow:hidden;margin-top:14px}
+  .tier-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;padding:12px 16px;border-bottom:1px solid var(--hair-soft);border-left:4px solid var(--t,--accent)}
+  .tier-head b{font-size:15.5px}
+  .tier-head span{font-size:12.5px;color:var(--muted)}
+  .twrap{overflow-x:auto}
+  table.tt{width:100%;border-collapse:collapse;font-size:13px;min-width:960px}
+  table.tt th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:left;padding:8px 10px;border-bottom:1px solid var(--hair-soft);white-space:nowrap;font-weight:500}
+  table.tt td{padding:9px 10px;border-bottom:1px solid var(--hair-soft);vertical-align:top;white-space:nowrap}
+  table.tt tr:last-child td{border-bottom:none}
+  table.tt tbody tr{cursor:pointer}
+  table.tt tbody tr:hover{background:var(--panel-2)}
+  td.nm b{font-size:13.5px}
+  td.nm .cd{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-left:6px}
+  td.nm .why{display:block;font-size:11.5px;color:var(--muted);white-space:normal;max-width:300px;line-height:1.45;margin-top:2px}
+  .stx{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+  .stx i{width:9px;height:9px;border-radius:3px;flex:none;display:inline-block}
+  .chipx{display:inline-block;font-size:11.5px;font-weight:650;border-radius:7px;padding:2px 8px;border:1px solid transparent;white-space:nowrap}
+  .cx-ok  {color:var(--s1);border-color:var(--s1);background:rgba(15,157,118,.10)}
+  .cx-warn{color:var(--s5);border-color:var(--s5);background:rgba(230,159,0,.10)}
+  .cx-bad {color:var(--s3);border-color:var(--s3);background:rgba(213,94,0,.10)}
+  .cx-trig{color:var(--s2);border-color:var(--s2);background:rgba(86,180,233,.10)}
+  .cx-wait{color:var(--muted);border-color:var(--hair)}
+  .cx-muted{color:var(--faint);border-color:var(--hair-soft)}
+  .up{color:var(--up)} .dn{color:var(--down)} .mut{color:var(--faint)}
+  .pos{color:var(--s1)} .neg{color:var(--s3)}
+
+  /* ── resonance ladders ── */
+  .ladders{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px;margin-top:14px}
+  .lad{background:var(--card);border:1px solid var(--hair);border-radius:13px;padding:14px 16px 12px}
+  .lad h3{font-size:14.5px;margin:0 0 2px}
+  .lad .st{font-size:11.5px;color:var(--muted);line-height:1.5;min-height:3em}
+  .rail{position:relative;height:46px;margin:12px 2px 4px}
+  .rail .bar{position:absolute;left:0;right:0;top:22px;height:2px;background:var(--hair)}
+  .rail .tick{position:absolute;top:15px;width:2px;height:16px;background:var(--faint)}
+  .rail .tick.key{background:var(--s3);width:2.5px}
+  .rail .dot{position:absolute;top:18px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);transform:translateX(-50%);box-shadow:0 0 0 1.5px var(--accent)}
+  .lad .lv{display:flex;justify-content:space-between;font-size:11.8px;padding:2.5px 0;border-bottom:1px dashed var(--hair-soft)}
+  .lad .lv:last-child{border-bottom:none}
+  .lad .lv .l{color:var(--muted)}
+  .lad .lv .v{font-family:var(--mono)}
+
+  /* ── chart stage（与结构台一致） ── */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .chip{appearance:none;border:1px solid var(--hair);background:var(--panel);color:var(--muted);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:var(--sans);font-size:12.5px;display:inline-flex;align-items:center;gap:7px;transition:border-color .12s,color .12s}
+  .chip i{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+  .chip:hover{border-color:var(--faint);color:var(--ink)}
+  .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+  .segs{display:inline-flex;border:1px solid var(--hair);border-radius:9px;overflow:hidden;background:var(--panel);margin-top:12px}
+  .segs button{appearance:none;border:none;background:transparent;color:var(--muted);font-family:var(--mono);font-size:12px;padding:7px 13px;cursor:pointer;border-right:1px solid var(--hair-soft)}
+  .segs button:last-child{border-right:none}
+  .segs button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+  .stage{display:grid;grid-template-columns:1fr 288px;gap:18px;margin-top:14px;align-items:start}
+  @media(max-width:1080px){.stage{grid-template-columns:1fr}}
+  .chartcard{background:var(--card);border:1px solid var(--hair);border-radius:14px;overflow:hidden}
+  .chart-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;padding:14px 18px 12px;border-bottom:1px solid var(--hair-soft)}
+  .chart-head h3{font-size:18px;font-weight:750;margin:0}
+  .chart-head .code{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .chart-head .last{font-family:var(--mono);font-size:15px;font-weight:700;margin-left:auto}
+  .chart-head .chg{font-family:var(--mono);font-size:12.5px}
+  .stagebox{height:500px;position:relative}
+  @media(max-width:720px){.stagebox{height:390px}}
+  .loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:12.5px;color:var(--faint);background:var(--card);z-index:3}
+  .chart-foot{display:flex;flex-wrap:wrap;gap:14px;padding:10px 18px 13px;border-top:1px solid var(--hair-soft);font-size:12px;color:var(--faint)}
+  .chart-foot span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:15px;height:0;border-top:2.5px solid currentColor;flex:none}
+  .msmr{background:var(--card);border:1px solid var(--hair);border-radius:14px;overflow:hidden;position:sticky;top:14px}
+  .msmr-cap{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:13px 16px 10px;border-bottom:1px solid var(--hair-soft)}
+  table.pan{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.pan th,table.pan td{padding:8px 12px;border-bottom:1px solid var(--hair-soft);text-align:center}
+  table.pan tr:last-child th,table.pan tr:last-child td{border-bottom:none}
+  table.pan th{width:38%;font-weight:600;color:var(--muted);background:var(--panel-2);font-size:13px}
+  table.pan td{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+  table.pan td.txt{font-family:var(--sans)}
+  .st-row th,.st-row td{color:#fff!important;font-weight:700}
+  .muted{color:var(--faint)!important;font-weight:400!important}
+  .msmr-note{padding:11px 16px 14px;font-size:11.5px;color:var(--faint);line-height:1.55;border-top:1px solid var(--hair-soft)}
+
+  /* ── analysis ── */
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:900px){.cols2{grid-template-columns:1fr}}
+  .note-card{background:var(--card);border:1px solid var(--hair);border-radius:13px;padding:16px 18px}
+  .note-card h3{font-size:15px;margin:0 0 10px}
+  .note-card ol,.note-card ul{margin:0;padding-left:20px;font-size:13px;color:var(--muted)}
+  .note-card li{margin:6px 0;line-height:1.6}
+  .note-card li b{color:var(--ink)}
+  .note-card .fine{font-size:12px;color:var(--faint);margin:10px 0 0}
+  details.fold{margin-top:18px;border:1px solid var(--hair);border-radius:12px;background:var(--card);overflow:hidden}
+  details.fold>summary{cursor:pointer;padding:14px 18px;font-weight:650;font-size:14px;list-style:none}
+  details.fold>summary::-webkit-details-marker{display:none}
+  details.fold>summary::before{content:"▸ ";color:var(--accent)}
+  details.fold[open]>summary::before{content:"▾ "}
+  .foldbody{padding:2px 18px 18px;border-top:1px solid var(--hair-soft);font-size:13px;color:var(--muted);line-height:1.7}
+  .foldbody b{color:var(--ink)}
+
+  footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--hair);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:12px;color:var(--faint)}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="page">
+
+<header class="masthead">
+  <div class="kicker">valen 评论区 × MSMR 结构台 · 每日跟踪</div>
+  <h1>26 标的 <em>分层跟踪页</em></h1>
+  <p class="deck">来源：valen（<a href="https://x.com/Valen9223/status/2080926435737301257" target="_blank" rel="noopener">@Valen9223 2026-07-25 征集帖</a>）评论区全部实名标的 + 3 只龙头对照。
+  他的剧本是「<b>长鑫上市靴子落地 + 美韩调整 → A 股先筑底调整，调整完下半年才有结构性机会</b>」——所以这是<b>关注清单 + 触发条件</b>，不是买入清单。
+  分层与触发位是 <b>2026-07-26 的分析快照</b>；行情、MSMR 结构判定、状态灯<b>每次打开自动取最新数据重算</b>。本页非投资建议。</p>
+  <div class="meta-row">
+    <span class="pill hot" id="asofPill">末根：拉取中…</span>
+    <span class="pill" id="cntPill">0 / 26 已更新</span>
+    <span class="pill">分层快照 2026-07-26</span>
+    <span class="pill">数据：腾讯行情 · 前复权 · 浏览器本地计算</span>
+    <button class="btn" id="refreshBtn" type="button">↻ 重新拉取</button>
+    <button class="btn" id="themeBtn" type="button">切换浅色</button>
+  </div>
+</header>
+
+<!-- ═══════════ ① 分层看板 ═══════════ -->
+<section id="tiers">
+  <div class="sechead"><span class="no">①</span><h2>分层看板</h2>
+    <p>点击任意一行 → 下方看该标的的 MSMR K线。状态灯按最新收盘对 valen 条件 / 触发位实时评估。</p></div>
+  <div id="tierBoards"></div>
+</section>
+
+<!-- ═══════════ ② 共振雷达 ═══════════ -->
+<section id="resonance">
+  <div class="sechead"><span class="no">②</span><h2>共振雷达 · valen 价位 × MSMR 结构位</h2>
+    <p>五个「他给的价位」与「指标算出的价位」撞在一起的地方——共振位比单一来源的位更值得当真。圆点 = 最新收盘。</p></div>
+  <div class="ladders" id="ladders"></div>
+</section>
+
+<!-- ═══════════ ③ MSMR K线 ═══════════ -->
+<section id="charts">
+  <div class="sechead"><span class="no">③</span><h2>MSMR K线</h2>
+    <p>结构 / 位置 / 动能 / 约束 / 风险，引擎与 <a href="msmr-portfolio-console.html">MSMR 结构台</a> 同一实现。背景色带 = 六态结构。</p></div>
+  <div class="chips" id="chartChips"></div>
+  <div class="segs" id="periodSegs" role="group" aria-label="周期">
+    <button type="button" data-p="day"  aria-pressed="true">日线</button>
+    <button type="button" data-p="week" aria-pressed="false">周线</button>
+    <button type="button" data-p="m60"  aria-pressed="false">60分</button>
+  </div>
+  <div class="stage">
+    <div class="chartcard">
+      <div class="chart-head">
+        <h3 id="stkName">—</h3>
+        <span class="code" id="stkCode">—</span>
+        <span class="last num" id="stkLast">—</span>
+        <span class="chg num" id="stkChg"></span>
+      </div>
+      <div class="stagebox" id="stagebox"><div class="loading" id="loading">加载行情…</div></div>
+      <div class="chart-foot">
+        <span><i class="sw" style="color:var(--sl)"></i>止损</span>
+        <span><i class="sw" style="color:var(--tp1)"></i>止盈1 (1R)</span>
+        <span><i class="sw" style="color:var(--tp2)"></i>止盈2</span>
+        <span><i class="sw" style="color:var(--tp3)"></i>趋势止盈3（仅窄幅通道）</span>
+        <span>背景色带 = 结构状态</span>
+      </div>
+    </div>
+    <aside class="msmr">
+      <div class="msmr-cap">MSMR 面板</div>
+      <table class="pan"><tbody id="panBody"></tbody></table>
+      <p class="msmr-note" id="panNote">—</p>
+    </aside>
+  </div>
+</section>
+
+<!-- ═══════════ ④ 分析结论 ═══════════ -->
+<section id="analysis">
+  <div class="sechead"><span class="no">④</span><h2>分析结论（07-26 快照）</h2>
+    <p>完整推导见本地报告 <code>valen-targets-analysis-20260726.md</code>；这里只留骨架。</p></div>
+  <div class="cols2">
+    <div class="note-card">
+      <h3>valen 位置感的五处印证</h3>
+      <ol>
+        <li>澜起「不能破 <b>181</b>」——正卡在 MSMR 对称位 200 与年线 158 之间的前平台密集区。</li>
+        <li>上海新阳「最差守年线」——07-24 年线 <b>72.97</b> 与 MSMR 空头止盈位 <b>72.98</b> 精确重合。</li>
+        <li>东山精密从 260 预言 160——现价 199，MSMR 箱体下沿 166.5，方向幅度基本兑现。</li>
+        <li>对万润 / 斯瑞 / 胜宏的否决全部对应「年线」硬条件，与结构数据零冲突。</li>
+        <li>「同板块为什么不看龙头」贯穿全部问答——对照组数据（江丰 vs 有研、兆易 vs 澜起）证明选错兄弟票代价巨大。</li>
+      </ol>
+    </div>
+    <div class="note-card">
+      <h3>需要打折的四点</h3>
+      <ol>
+        <li><b>海康已在新高附近</b>——他的「重新审视」是右侧追认，赚趋势延续钱，不是修复钱。</li>
+        <li><b>长川「调整不充分」</b>——大盘再调时强势股补跌空间最大，260 是生命线。</li>
+        <li><b>中船特气 R≈价格 23%</b>——「关注」≠「参与」，仓位只配低波动票的 1/4。</li>
+        <li><b>幸存者偏差</b>——评论区报的全是上一轮强者，下一轮的「第1️⃣类股票」未必在这份名单里。</li>
+      </ol>
+      <p class="fine" id="rline">仓位常识（R/价格，实时）：加载中…</p>
+    </div>
+    <div class="note-card">
+      <h3>时间线三个观察点</h3>
+      <ol>
+        <li><b>07-27（周一）长鑫科技上市</b>——全部论述的锚，首日表现决定存储链（澜起/有研/长川/雅克）短期节奏。valen 原话「先把长鑫观察完」。</li>
+        <li><b>美股/韩股</b>——他连续提示的系统性变量，通富 / 长川 / 旭创（英伟达-算力链映射）最敏感。</li>
+        <li><b>8 月中报季</b>——宽幅震荡结构里，中报是把票推向「窄幅上涨」或「窄幅下降」的最可能催化剂（铜冠铜箔中报 -20% 是前车之鉴）。</li>
+      </ol>
+    </div>
+    <div class="note-card">
+      <h3>怎么用这页</h3>
+      <ul>
+        <li>MSMR 六态里 <b>没有一只窄幅上涨通道</b>（07-26 快照）= 全场处于高位消化，追高无意义。</li>
+        <li>宽幅震荡的约束是「上沿偏空、下沿偏多」——等下沿或等结构转窄幅上涨。</li>
+        <li><b>哪只票率先转入「窄幅上涨通道」，就是 valen 说的结构性机会的技术确认</b>——每天打开扫一眼状态灯即可。</li>
+        <li>状态灯规则：<span class="chipx cx-ok">条件成立</span> <span class="chipx cx-warn">逼近边界</span> <span class="chipx cx-bad">破位/未达</span> <span class="chipx cx-trig">触发突破</span> <span class="chipx cx-wait">等待</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="fold">
+    <summary>方法与免责</summary>
+    <div class="foldbody">
+      <p><b>数据</b>：腾讯行情前复权日线，页面打开时拉取最近 500 根并在浏览器本地重算全部指标；A 股交易时段内末根为当日实时 bar。<br>
+      <b>MSMR</b>：trader-c「Market Structure Momentum Risk」的逆向复刻（六态结构 / 位置 / 动能 / 约束 / R=1.4×ATR14），与原作者脚本非同一实现，推导见 <a href="msmr-portfolio-console.html">结构台</a> 页内文档。<br>
+      <b>分层</b>：基于 2026-07-25 推文评论区论点 + valen 回复 + 07-24 收盘结构的人工判断，<b>不随行情自动变层</b>；变的是数据与状态灯。<br>
+      <b>触发位来源</b>：valen 明示价位（澜起 181 / 新阳 83 / 恒生 35 等）、MSMR 对称参考位（07-24 快照）、年线（实时重算）。<br>
+      本页所有内容为公开推文的整理与技术结构描述，<b>不构成投资建议</b>；股市有风险，决策自负。</p>
+    </div>
+  </details>
+</section>
+
+<footer>
+  <span>valen-targets-msmr-daily-v1 · 分层快照 2026-07-26 · 引擎与 <a href="msmr-portfolio-console.html">MSMR 结构台</a> 一致</span>
+  <span>图表 TradingView Lightweight Charts™ · 行情腾讯 · 非投资建议</span>
+</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+<script>
+/* valen-targets-msmr-daily-v1 */
+(() => {
+'use strict';
+
+/* ══════════════ MSMR 参数（与结构台一致） ══════════════ */
+const PARAM = {
+  chLen:50, chSmo:10,
+  atrF:14,  kSL:1.4,
+  atrS:50,  kTP2:2.0, kTP3:4.4,
+  maFast:20, maSlow:50,
+  consLen:20, consThr:0.20,
+  erLen:20,   erThr:0.35,
+  ovlLen:10,  ovlThr:0.45,
+  momLen:9,
+  confBars:3,
+  wLen:100,   wThr:1.0,
+  edgeP:15
+};
+const VIEW_BARS = 170;
+
+/* ══════════════ 关注清单（分层 = 2026-07-26 快照） ══════════════ */
+const TIERS = {
+  1:{label:'第一梯队 · 值得长期 follow', sub:'结构损伤最小 + 龙头地位 + valen 明确转多/看多', color:'--s1'},
+  2:{label:'第二梯队 · 回调深但龙头成色足，等企稳', sub:'细分绝对龙头，深回调后动能修复中（或高位箱体未坏）', color:'--s2'},
+  3:{label:'第三梯队 · 条件驻守型', sub:'valen 给的都是条件句——盯条件而非提前下注，破位即出局', color:'--s5'},
+  4:{label:'暂不碰 · 结构否决', sub:'破年线 / 窄幅下降通道 / 概念不在热点——等重新评估信号', color:'--s3'},
+  5:{label:'对照组 · 龙头基准', sub:'不打分，只做同板块强弱对照', color:'--s6'}
+};
+/* rule.k: floor 守住下沿 / floor2 双底线(83→年线) / band 箱体 / brk 等突破 / reclaim 收复年线 / exitDown 脱离窄幅下降通道 / volCalm 波动收敛 */
+const WATCH = [
+  {t:1, code:'sz002415', name:'海康威视', why:'valen 转多：「物理 AI 先天优势、物理围栏相关、重新审视」· 距 250 日新高最近、全场波动最小', rule:{k:'band', lo:33.6, hi:37.4}},
+  {t:1, code:'sh688008', name:'澜起科技', why:'「全球内存互连芯片龙头、长期看好、不能再跌破 181」', rule:{k:'floor', lv:181}},
+  {t:1, code:'sz002156', name:'通富微电', why:'「长期看好」· 封测/AMD 链，距新高一步', rule:{k:'band', lo:66.5, hi:86.8}},
+  {t:1, code:'sz300604', name:'长川科技', why:'「确实应该重视、唯一调整不充分」· 后道测试平台型龙头', rule:{k:'floor', lv:260}},
+
+  {t:2, code:'sh688146', name:'中船特气', why:'「确实可以重点关注」· 特气绝对龙头，十倍行情后的高位大震荡', rule:{k:'floor', lv:190}},
+  {t:2, code:'sh600206', name:'有研新材', why:'「有研和江丰确实是两个龙头、值得关注」· 深 V 修复中', rule:{k:'floor', lv:36.7}},
+  {t:2, code:'sz002409', name:'雅克科技', why:'「答案在推文里」· 前驱体龙头，130 两次获承接', rule:{k:'floor', lv:130}},
+  {t:2, code:'sz300308', name:'中际旭创', why:'「光模块没法完全看空」· 高位箱体 930–1160，业绩是锚', rule:{k:'band', lo:930, hi:1160}},
+  {t:2, code:'sz300054', name:'鼎龙股份', why:'「概念很好、就是不好找上车位置」· CMP 龙头，动能转正前只看', rule:{k:'floor', lv:64}},
+
+  {t:3, code:'sz300236', name:'上海新阳', why:'「最好守住 83、最差守住年线」· 年线与 MSMR 位精确共振', rule:{k:'floor2', lv:83}},
+  {t:3, code:'sz002384', name:'东山精密', why:'「什么都好就是涨太高，240 需要时间」· 窄幅震荡等选向', rule:{k:'band', lo:166.6, hi:232}},
+  {t:3, code:'sh600362', name:'江西铜业', why:'「AGI 供养逻辑、长期没有不看好的理由」· R 全场最窄的蓄势股', rule:{k:'brk', lv:46.3}},
+  {t:3, code:'sz000636', name:'风华高科', why:'「只要不继续跌就还不错、密切关注」· 腰斩后止跌未确认', rule:{k:'floor', lv:32.2}},
+  {t:3, code:'sz300346', name:'南大光电', why:'「不能再跌了、必须稳在这里」· 7 月脉冲已全回吐', rule:{k:'floor', lv:45.1}},
+
+  {t:4, code:'sz300476', name:'胜宏科技', why:'「唯一缺点是涨的太高了」· 名单里唯一深破年线的主流票', rule:{k:'reclaim'}},
+  {t:4, code:'sh603931', name:'格林达', why:'「概念不错、等等时机再介入」· 窄幅下降通道 + 年线下', rule:{k:'exitDown'}},
+  {t:4, code:'sh688234', name:'天岳先进', why:'「概念不错但回调的确实有点狠」· 下跌推进最干净', rule:{k:'exitDown'}},
+  {t:4, code:'sh601208', name:'东材科技', why:'「高频树脂龙头、就是现在不能再跌」——但它正在跌，不接刀', rule:{k:'exitDown'}},
+  {t:4, code:'sh688359', name:'三孚新科', why:'「电镀龙头、不能再跌了、再跌就复杂了」· 波动失控', rule:{k:'volCalm', max:15}},
+  {t:4, code:'sh688102', name:'斯瑞新材', why:'「先站上年线才能看看」', rule:{k:'reclaim'}},
+  {t:4, code:'sh688017', name:'绿的谐波', why:'「合适位置我会参与」= 现在不是合适位置', rule:{k:'floor', lv:243.6}},
+  {t:4, code:'sz300458', name:'全志科技', why:'「挺坚挺、但概念不在当下热点上」· 42–45 一年箱顶压力', rule:{k:'brk', lv:45}},
+
+  {t:5, code:'sh600584', name:'长电科技', why:'「长期看好」但「看好不代表我会买」', rule:null},
+  {t:5, code:'sh603986', name:'兆易创新', why:'存储设计龙头基准（对照澜起：HBM 紧密度差异）', rule:null},
+  {t:5, code:'sz300666', name:'江丰电子', why:'靶材对照组（valen：与有研并列双龙头，当前弱一个身位）', rule:null},
+  {t:5, code:'sh603650', name:'彤程新材', why:'光刻胶对照组（vs 南大光电，20cm/10cm 之辩）', rule:null}
+];
+
+/* ══════════════ 共振雷达 ══════════════ */
+const LADDERS = [
+  {code:'sh688008', title:'澜起科技 · 底线阶梯',
+   story:'valen「不能破 181」正卡在 MSMR 对称位 200 与年线之间的前平台密集区——三层缓冲逐级设防。',
+   levels:[{v:267.5,l:'MSMR 上参考（07-24）'},{v:199.9,l:'MSMR 对称位（07-24）'},{v:181,l:'valen 线',key:1},{v:'ma250',l:'年线（实时）'}]},
+  {code:'sz300236', title:'上海新阳 · 年线共振',
+   story:'07-24 年线 72.97 与 MSMR 空头止盈位 72.98 精确重合；valen「最好守 83、最差守年线」。',
+   levels:[{v:100,l:'MSMR 上参考（07-24）'},{v:83,l:'valen 线',key:1},{v:'ma250',l:'年线 ≈ MSMR 位（实时）'}]},
+  {code:'sz002409', title:'雅克科技 · 130 锚',
+   story:'两次崩至 130.24（MSMR 对称位）被精确接住；「答案在推文里」= 他体系内定的前驱体龙头。',
+   levels:[{v:177.7,l:'MSMR 上参考（07-24）'},{v:130.2,l:'锚位',key:1},{v:'ma250',l:'年线（实时）'}]},
+  {code:'sz002384', title:'东山精密 · 箱体选向',
+   story:'MSMR 判「窄幅震荡·等待突破不参与」，与 valen「240 需要时间」是同一句话。',
+   levels:[{v:232,l:'箱顶 / MSMR 上参考',key:1},{v:166.6,l:'箱底 / MSMR 下参考'}]},
+  {code:'sh600362', title:'江西铜业 · 蓄势突破',
+   story:'R 压缩到全场最窄（≈9%波动带），高点已 115 天——AGI 宿主供养链的慢变量，放量过 46.3 再看。',
+   levels:[{v:46.3,l:'突破位',key:1},{v:38.7,l:'MSMR 下参考'}]}
+];
+
+/* ══════════════ 指标数学（与结构台逐行一致） ══════════════ */
+const nan = NaN;
+function ema(src, len){
+  const k = 2/(len+1), out = new Array(src.length);
+  let prev = nan;
+  for(let i=0;i<src.length;i++){
+    const v = src[i];
+    if(!isFinite(v)){ out[i] = prev; continue; }
+    prev = isFinite(prev) ? v*k + prev*(1-k) : v;
+    out[i] = prev;
+  }
+  return out;
+}
+function sma(src, len){
+  const out = new Array(src.length); let sum = 0;
+  for(let i=0;i<src.length;i++){
+    sum += src[i];
+    if(i >= len) sum -= src[i-len];
+    out[i] = i >= len-1 ? sum/len : nan;
+  }
+  return out;
+}
+function rma(src, len){
+  const out = new Array(src.length); let sum = 0, prev = nan;
+  for(let i=0;i<src.length;i++){
+    if(i < len){ sum += src[i]; if(i === len-1){ prev = sum/len; out[i] = prev; } else out[i] = nan; }
+    else { prev = (prev*(len-1) + src[i])/len; out[i] = prev; }
+  }
+  return out;
+}
+function atr(bars, len){
+  const tr = bars.map((b,i) => i === 0 ? b.high-b.low
+    : Math.max(b.high-b.low, Math.abs(b.high-bars[i-1].close), Math.abs(b.low-bars[i-1].close)));
+  return rma(tr, len);
+}
+function rollExtreme(arr, len, isMax){
+  const out = new Array(arr.length);
+  for(let i=0;i<arr.length;i++){
+    const s = Math.max(0, i-len+1);
+    let v = arr[s];
+    for(let j=s+1;j<=i;j++) v = isMax ? Math.max(v, arr[j]) : Math.min(v, arr[j]);
+    out[i] = v;
+  }
+  return out;
+}
+function computeMSMR(bars, P){
+  const n = bars.length;
+  const close = bars.map(b=>b.close), high = bars.map(b=>b.high), low = bars.map(b=>b.low);
+  const upper = ema(rollExtreme(high, P.chLen, true),  P.chSmo);
+  const lower = ema(rollExtreme(low,  P.chLen, false), P.chSmo);
+  const mid   = upper.map((u,i) => (u + lower[i]) / 2);
+  const width = upper.map((u,i) => u - lower[i]);
+  const atrFast = atr(bars, P.atrF), atrSlow = atr(bars, P.atrS);
+  const maF = ema(close, P.maFast), maS = ema(close, P.maSlow);
+  const emaMom = ema(close, P.momLen);
+  const wAvg = sma(width, P.wLen);
+  const st = new Array(n), consist = new Array(n), er = new Array(n), overlap = new Array(n);
+  let upCnt = 0, dnCnt = 0, nilCnt = 0, dirState = 0;
+  for(let i=0;i<n;i++){
+    let up = 0, m = 0;
+    for(let j=0;j<P.consLen && i-j-1 >= 0;j++){ m++; if(close[i-j] > close[i-j-1]) up++; }
+    consist[i] = m ? up/m*2 - 1 : 0;
+    if(i >= P.erLen){
+      let path = 0;
+      for(let j=0;j<P.erLen;j++) path += Math.abs(close[i-j] - close[i-j-1]);
+      er[i] = path > 0 ? Math.abs(close[i] - close[i-P.erLen]) / path : 0;
+    } else er[i] = 0;
+    let ov = 0, k = 0;
+    for(let j=0;j<P.ovlLen && i-j-1 >= 0;j++){
+      const a = i-j, b = i-j-1;
+      const inter = Math.max(0, Math.min(high[a],high[b]) - Math.max(low[a],low[b]));
+      const uni   = Math.max(high[a],high[b]) - Math.min(low[a],low[b]);
+      ov += uni > 0 ? inter/uni : 1; k++;
+    }
+    overlap[i] = k ? ov/k : 1;
+    const okBase = isFinite(maS[i]) && isFinite(mid[i]);
+    const baseUp = okBase && maF[i] > maS[i] && close[i] > mid[i] && consist[i] >  P.consThr && er[i] > P.erThr;
+    const baseDn = okBase && maF[i] < maS[i] && close[i] < mid[i] && consist[i] < -P.consThr && er[i] > P.erThr;
+    upCnt  = baseUp ? upCnt+1 : 0;
+    dnCnt  = baseDn ? dnCnt+1 : 0;
+    nilCnt = (!baseUp && !baseDn) ? nilCnt+1 : 0;
+    if(upCnt  >= P.confBars) dirState =  1;
+    if(dnCnt  >= P.confBars) dirState = -1;
+    if(nilCnt >= P.confBars) dirState =  0;
+    const momUp = i > 0 && emaMom[i] > emaMom[i-1];
+    const momDn = i > 0 && emaMom[i] < emaMom[i-1];
+    const lowOvl = overlap[i] < P.ovlThr;
+    const isWide = isFinite(wAvg[i]) ? width[i] > wAvg[i]*P.wThr : width[i] > 0;
+    st[i] = dirState ===  1 ? ((momUp && lowOvl) ? 1 : 2)
+          : dirState === -1 ? ((momDn && lowOvl) ? 3 : 4)
+          : (isWide ? 5 : 6);
+  }
+  const i = n-1, P0 = close[i], W = width[i], edge = W*P.edgeP/100;
+  const pos = P0 > upper[i] ? '通道上方'
+            : P0 < lower[i] ? '通道下方'
+            : P0 > upper[i]-edge ? '通道上沿'
+            : P0 < lower[i]+edge ? '通道下沿' : '通道中部';
+  const momUpL = emaMom[i] > emaMom[i-1], momDnL = emaMom[i] < emaMom[i-1];
+  const R = P.kSL*atrFast[i], D = P.kTP2*atrSlow[i], D3 = P.kTP3*atrSlow[i];
+  const code = st[i], isTrend = code === 1 || code === 3, isLong = code === 1;
+  return {
+    upper, lower, mid, st, close,
+    last:{
+      st:code, pos,
+      mom: momUpL ? '上涨' : momDnL ? '下跌' : '持平',
+      isTrend, isLong, price:P0, R, D, D3,
+      overlap:overlap[i], er:er[i], consist:consist[i],
+      lSL:P0-R, lTP1:P0+R, lTP2:P0+D,
+      sSL:P0+R, sTP1:P0-R, sTP2:P0-D,
+      tSL: isLong ? P0-R : P0+R,
+      tTP1:isLong ? P0+R : P0-R,
+      tTP2:isLong ? P0+D : P0-D,
+      tTP3:isLong ? P0+D3: P0-D3
+    }
+  };
+}
+const ST = {
+  1:{name:'窄幅上涨通道', v:'--s1', rule:'只考虑多头'},
+  2:{name:'宽幅上涨通道', v:'--s2', rule:'上沿偏空，下沿偏多'},
+  3:{name:'窄幅下降通道', v:'--s3', rule:'只考虑空头'},
+  4:{name:'宽幅下降通道', v:'--s4', rule:'上沿偏空，下沿偏多'},
+  5:{name:'宽幅震荡',     v:'--s5', rule:'上沿偏空，下沿偏多'},
+  6:{name:'窄幅震荡',     v:'--s6', rule:'等待突破，不参与'}
+};
+const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function hexA(hex, a){
+  const h = hex.replace('#','');
+  const s = h.length === 3 ? h.split('').map(c=>c+c).join('') : h;
+  const n = parseInt(s,16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+/* ══════════════ 行情 ══════════════ */
+async function fetchBars(code, period){
+  if(period === 'm60'){
+    const url = `https://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,320`;
+    const j = await (await fetch(url)).json();
+    const d = j?.data?.[code];
+    const rows = d?.m60;
+    if(!rows || !rows.length) throw new Error('没有取到 60 分钟数据');
+    return {bars: rows.map(r=>({
+      time: (()=>{ const t=String(r[0]); return Date.UTC(+t.slice(0,4), +t.slice(4,6)-1, +t.slice(6,8), +t.slice(8,10), +t.slice(10,12))/1000; })(),
+      open:+r[1], close:+r[2], high:+r[3], low:+r[4]
+    }))};
+  }
+  const cnt = period === 'week' ? 400 : 500;
+  const url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},${period},,,${cnt},qfq`;
+  const j = await (await fetch(url)).json();
+  const d = j?.data?.[code];
+  const rows = d && (d['qfq'+period] || d[period]);
+  if(!rows || rows.length < 60) throw new Error('数据不足');
+  return {bars: rows.map(r=>({time:r[0], open:+r[1], close:+r[2], high:+r[3], low:+r[4]}))};
+}
+
+/* ══════════════ 每日快照：全清单取数 + 指标重算 ══════════════ */
+const $ = id => document.getElementById(id);
+const fmtP = (v,p) => isFinite(v) ? Number(v).toFixed(p != null ? p : (v<5?3:2)) : '—';
+const cache = {};          // code -> {bars}
+const snap  = {};          // code -> {close,chg,offHi,vsMa,ma250,msmr}
+let doneCnt = 0;
+
+function calcSnap(bars){
+  const c = bars.map(b=>b.close), n = c.length, last = c[n-1], prev = c[n-2];
+  const win = c.slice(-Math.min(250,n));
+  const hi250 = Math.max(...win);
+  const ma250 = n >= 250 ? c.slice(-250).reduce((a,b)=>a+b,0)/250 : null;
+  return {
+    close:last, chg: prev ? (last/prev-1)*100 : 0,
+    offHi:(last/hi250-1)*100,
+    ma250, vsMa: ma250 ? (last/ma250-1)*100 : null,
+    msmr: computeMSMR(bars, PARAM)
+  };
+}
+async function loadOne(w){
+  try{
+    const {bars} = await fetchBars(w.code, 'day');
+    cache[w.code] = {bars};
+    snap[w.code] = calcSnap(bars);
+  }catch(e){ snap[w.code] = {err: e && e.message || '取数失败'}; }
+  doneCnt++;
+  $('cntPill').textContent = `${doneCnt} / ${WATCH.length} 已更新`;
+}
+async function refreshAll(){
+  doneCnt = 0;
+  $('asofPill').textContent = '末根：拉取中…';
+  const queue = WATCH.slice();
+  const workers = Array.from({length:4}, async () => { while(queue.length){ await loadOne(queue.shift()); } });
+  await Promise.all(workers);
+  const dates = Object.values(cache).map(c => c.bars[c.bars.length-1].time).filter(t=>typeof t==='string');
+  const asof = dates.sort().pop() || '—';
+  $('asofPill').textContent = '末根：' + asof + '（打开即取最新）';
+  renderTiers(); renderLadders(); renderRline();
+}
+
+/* ══════════════ 状态灯规则引擎 ══════════════ */
+function evalRule(w){
+  const d = snap[w.code];
+  if(!d || d.err) return {cls:'cx-muted', txt:d && d.err ? '取数失败' : '—'};
+  if(!w.rule) return {cls:'cx-muted', txt:'对照组'};
+  const c = d.close, r = w.rule;
+  const pd = (a,b)=>((a/b-1)*100);
+  const f = v => v>=1000 ? v.toFixed(0) : v>=100 ? v.toFixed(1) : v.toFixed(v<10?2:1);
+  switch(r.k){
+    case 'floor':{
+      if(c >= r.lv){ const m = pd(c,r.lv); return {cls: m<3 ? 'cx-warn':'cx-ok', txt:`守住 ${f(r.lv)}（+${m.toFixed(1)}%）`}; }
+      return {cls:'cx-bad', txt:`已破 ${f(r.lv)}`};
+    }
+    case 'floor2':{
+      const ma = d.ma250;
+      if(c >= r.lv){ const m = pd(c,r.lv); return {cls: m<3 ? 'cx-warn':'cx-ok', txt:`守住 ${f(r.lv)}（+${m.toFixed(1)}%）`}; }
+      if(ma && c >= ma) return {cls:'cx-warn', txt:`${f(r.lv)} 失守 · 盯年线 ${f(ma)}`};
+      return {cls:'cx-bad', txt:'年线失守 · 出局'};
+    }
+    case 'band':{
+      if(c > r.hi) return {cls:'cx-trig', txt:`突破 ${f(r.hi)} ↑`};
+      if(c < r.lo) return {cls:'cx-bad', txt:`跌破 ${f(r.lo)}`};
+      const p = (c-r.lo)/(r.hi-r.lo)*100;
+      return {cls:'cx-ok', txt:`箱体 ${f(r.lo)}–${f(r.hi)}（${p.toFixed(0)}%）`};
+    }
+    case 'brk':{
+      if(c >= r.lv) return {cls:'cx-trig', txt:`已突破 ${f(r.lv)} ↑`};
+      return {cls:'cx-wait', txt:`距突破位 ${pd(c,r.lv).toFixed(1)}%`};
+    }
+    case 'reclaim':{
+      const ma = d.ma250; if(!ma) return {cls:'cx-muted', txt:'—'};
+      if(c >= ma) return {cls:'cx-trig', txt:`已收复年线 ${f(ma)}`};
+      return {cls:'cx-bad', txt:`年线下 ${pd(c,ma).toFixed(1)}%`};
+    }
+    case 'exitDown':{
+      const s = d.msmr.last.st;
+      if(s !== 3) return {cls:'cx-trig', txt:`已脱离下降通道 → ${ST[s].name}`};
+      return {cls:'cx-bad', txt:'窄幅下降通道中'};
+    }
+    case 'volCalm':{
+      const rp = d.msmr.last.R/c*100;
+      if(rp <= r.max) return {cls:'cx-ok', txt:`波动已收敛 R=${rp.toFixed(1)}%`};
+      return {cls:'cx-warn', txt:`R=${rp.toFixed(1)}%，未收敛（>${r.max}%）`};
+    }
+  }
+  return {cls:'cx-muted', txt:'—'};
+}
+
+/* ══════════════ ① 分层看板渲染 ══════════════ */
+function renderTiers(){
+  const host = $('tierBoards');
+  host.innerHTML = Object.keys(TIERS).map(t => {
+    const meta = TIERS[t];
+    const rows = WATCH.filter(w => w.t == t).map(w => {
+      const d = snap[w.code];
+      if(!d || d.err){
+        return `<tr data-code="${w.code}"><td class="nm"><b>${w.name}</b><span class="cd">${w.code.slice(2)}</span><span class="why">${w.why}</span></td><td colspan="6" class="mut">${d && d.err ? '取数失败：'+d.err : '加载中…'}</td><td></td></tr>`;
+      }
+      const L = d.msmr.last, stMeta = ST[L.st];
+      const rr = evalRule(w);
+      const chgCls = d.chg >= 0 ? 'up' : 'dn';
+      const vsCls = d.vsMa == null ? 'mut' : d.vsMa >= 0 ? 'pos' : 'neg';
+      return `<tr data-code="${w.code}">
+        <td class="nm"><b>${w.name}</b><span class="cd">${w.code.slice(2)}</span><span class="why">${w.why}</span></td>
+        <td class="num">${fmtP(d.close)}</td>
+        <td class="num ${chgCls}">${d.chg>=0?'+':''}${d.chg.toFixed(2)}%</td>
+        <td class="num mut">${d.offHi.toFixed(1)}%</td>
+        <td class="num ${vsCls}">${d.vsMa == null ? '—' : (d.vsMa>=0?'+':'')+d.vsMa.toFixed(1)+'%'}</td>
+        <td><span class="stx"><i style="background:${cssVar(stMeta.v)}"></i>${stMeta.name} · ${L.pos}</span></td>
+        <td style="color:${L.mom==='上涨'?cssVar('--s1'):L.mom==='下跌'?cssVar('--s3'):cssVar('--faint')}">${L.mom==='上涨'?'↑ ':L.mom==='下跌'?'↓ ':'→ '}${L.mom}</td>
+        <td><span class="chipx ${rr.cls}">${rr.txt}</span></td>
+      </tr>`;
+    }).join('');
+    return `<div class="tier">
+      <div class="tier-head" style="--t:var(${meta.color})"><b>${meta.label}</b><span>${meta.sub}</span></div>
+      <div class="twrap"><table class="tt">
+        <thead><tr><th>标的 / valen 论点</th><th>收盘</th><th>日涨跌</th><th>距250日高</th><th>距年线</th><th>MSMR 结构 · 位置</th><th>动能</th><th>状态灯</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('tbody tr').forEach(tr => tr.addEventListener('click', () => {
+    loadChart(tr.dataset.code, cur.period);
+    document.getElementById('charts').scrollIntoView({behavior:'smooth', block:'start'});
+  }));
+}
+
+/* ══════════════ ② 共振雷达渲染 ══════════════ */
+function renderLadders(){
+  const host = $('ladders');
+  host.innerHTML = LADDERS.map(L => {
+    const d = snap[L.code];
+    const w = WATCH.find(x => x.code === L.code);
+    if(!d || d.err) return `<div class="lad"><h3>${L.title}</h3><p class="st">${L.story}</p><p class="st mut">行情加载中…</p></div>`;
+    const lvs = L.levels.map(x => ({...x, v: x.v === 'ma250' ? d.ma250 : x.v})).filter(x => isFinite(x.v));
+    const all = lvs.map(x=>x.v).concat([d.close]);
+    const min = Math.min(...all)*0.97, max = Math.max(...all)*1.03;
+    const px = v => ((v-min)/(max-min)*100).toFixed(2);
+    const ticks = lvs.map(x => `<div class="tick${x.key?' key':''}" style="left:${px(x.v)}%"></div>`).join('');
+    const rows = lvs.sort((a,b)=>b.v-a.v).map(x => {
+      const dis = (d.close/x.v-1)*100;
+      /* 只有关键位（valen 线/锚位/突破位/箱顶）按上下方判色；普通参考位保持中性，免得「低于上参考」被误读成坏事 */
+      const cls = x.key ? (Math.abs(dis) < 3 ? 'cx-warn' : dis >= 0 ? 'cx-ok' : 'cx-bad') : 'cx-wait';
+      return `<div class="lv"><span class="l">${x.key?'▶ ':''}${x.l}</span><span class="v">${fmtP(x.v)} <span class="chipx ${cls}" style="margin-left:4px">${dis>=0?'+':''}${dis.toFixed(1)}%</span></span></div>`;
+    }).join('');
+    return `<div class="lad">
+      <h3>${L.title}</h3>
+      <p class="st">${L.story}</p>
+      <div class="rail"><div class="bar"></div>${ticks}<div class="dot" style="left:${px(d.close)}%" title="现价 ${fmtP(d.close)}"></div></div>
+      <div class="lv"><span class="l">现价（${w?w.name:''}）</span><span class="v"><b>${fmtP(d.close)}</b></span></div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════ 仓位常识行（R/价格 实时） ══════════════ */
+function renderRline(){
+  const pick = [['sz002415','海康'],['sz300308','旭创'],['sh688008','澜起'],['sh688146','中船特气']];
+  const parts = pick.map(([c,n]) => {
+    const d = snap[c];
+    if(!d || d.err) return `${n} —`;
+    return `${n} ${(d.msmr.last.R/d.close*100).toFixed(1)}%`;
+  });
+  $('rline').textContent = '仓位常识（R/价格 = 正常呼吸幅度，实时）：' + parts.join(' · ') + ' —— 同样的资金冲击，波动大的仓位要按比例缩小。';
+}
+
+/* ══════════════ ③ 图表（与结构台一致） ══════════════ */
+let chart = null, series = {}, priceLines = [], levels = [];
+function themeColors(){
+  const light = document.documentElement.dataset.theme === 'light';
+  return light
+    ? {bg:'#fffdf8', grid:'rgba(150,140,120,.16)', text:'#6a7178', border:'#ded7c9'}
+    : {bg:'#131a22', grid:'rgba(70,84,99,.18)',   text:'#7f8b99', border:'#26313d'};
+}
+function buildChart(){
+  const box = $('stagebox');
+  if(chart){ chart.remove(); chart = null; }
+  const t = themeColors();
+  chart = LightweightCharts.createChart(box, {
+    layout:{background:{color:t.bg}, textColor:t.text, fontFamily:cssVar('--mono')||'monospace'},
+    grid:{vertLines:{color:t.grid}, horzLines:{color:t.grid}},
+    rightPriceScale:{borderColor:t.border, scaleMargins:{top:.08, bottom:.08}},
+    timeScale:{borderColor:t.border, rightOffset:12, barSpacing:7},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+    localization:{locale:'zh-CN'},
+    handleScale:{axisPressedMouseMove:{time:true, price:false}}
+  });
+  series.bg = chart.addHistogramSeries({priceScaleId:'msmr-bg', priceLineVisible:false, lastValueVisible:false, base:0});
+  chart.priceScale('msmr-bg').applyOptions({scaleMargins:{top:0, bottom:0}, visible:false});
+  series.candle = chart.addCandlestickSeries({
+    upColor:cssVar('--up'), downColor:cssVar('--down'),
+    borderUpColor:cssVar('--up'), borderDownColor:cssVar('--down'),
+    wickUpColor:cssVar('--up'), wickDownColor:cssVar('--down'),
+    priceLineVisible:false
+  });
+  const bandOpt = {lineWidth:2, priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false};
+  series.up = chart.addLineSeries(bandOpt);
+  series.dn = chart.addLineSeries(bandOpt);
+  series.mid = chart.addLineSeries({color:hexA(cssVar('--muted')||'#8b97a5',.55), lineWidth:1, priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false});
+  new ResizeObserver(() => chart && chart.applyOptions({width:box.clientWidth, height:box.clientHeight})).observe(box);
+  chart.applyOptions({width:box.clientWidth, height:box.clientHeight});
+}
+function clearPriceLines(){ priceLines.forEach(l => series.candle.removePriceLine(l)); priceLines = []; levels = []; }
+function addPriceLine(price, color, title, dashed){
+  if(!isFinite(price)) return;
+  levels.push(price);
+  priceLines.push(series.candle.createPriceLine({
+    price, color, lineWidth:dashed?1:2,
+    lineStyle: dashed ? LightweightCharts.LineStyle.Dashed : LightweightCharts.LineStyle.Solid,
+    axisLabelVisible:true, title
+  }));
+}
+function autoscaleWithLevels(orig){
+  const res = orig();
+  if(!res || !res.priceRange || !levels.length) return res;
+  res.priceRange.minValue = Math.min(res.priceRange.minValue, ...levels);
+  res.priceRange.maxValue = Math.max(res.priceRange.maxValue, ...levels);
+  return res;
+}
+function renderPanel(m, prec){
+  const L = m.last, meta = ST[L.st], c = cssVar(meta.v);
+  const rows = [];
+  const row = (k,v,style,cls) => rows.push(`<tr><th>${k}</th><td class="${cls||''}" style="${style||''}">${v}</td></tr>`);
+  rows.push(`<tr class="st-row"><th style="background:${c}">结构</th><td class="txt" style="background:${hexA(c,.88)}">${meta.name}</td></tr>`);
+  row('位置', L.pos, `color:${L.pos==='通道中部' ? cssVar('--ink') : c}`, 'txt');
+  row('动能', L.mom, `color:${L.mom==='上涨' ? cssVar('--s1') : L.mom==='下跌' ? cssVar('--s3') : cssVar('--faint')}`, 'txt');
+  rows.push(`<tr><th>约束</th><td class="txt" style="background:${hexA(c,.18)}">${meta.rule}</td></tr>`);
+  if(L.isTrend){
+    row('方向', L.isLong?'多头':'空头', `color:${L.isLong?cssVar('--s1'):cssVar('--s3')}`, 'txt');
+    row('止损',      fmtP(L.tSL,prec),  `color:${cssVar('--sl')}`);
+    row('止盈1',     fmtP(L.tTP1,prec), `color:${cssVar('--tp1')}`);
+    row('止盈2',     fmtP(L.tTP2,prec), `color:${cssVar('--tp2')}`);
+    row('趋势止盈3', fmtP(L.tTP3,prec), `color:${cssVar('--tp3')}`);
+  } else {
+    row('多头止损', fmtP(L.lSL,prec),  `color:${cssVar('--sl')}`);
+    row('多头止盈', `${fmtP(L.lTP1,prec)} / ${fmtP(L.lTP2,prec)}`, `color:${cssVar('--s1')}`);
+    row('空头止损', fmtP(L.sSL,prec),  `color:${cssVar('--sl')}`);
+    row('空头止盈', `${fmtP(L.sTP1,prec)} / ${fmtP(L.sTP2,prec)}`, `color:${cssVar('--s1')}`);
+    rows.push(`<tr><th>趋势目标</th><td class="txt muted">当前结构不启用</td></tr>`);
+  }
+  $('panBody').innerHTML = rows.join('');
+  $('panNote').innerHTML = `R = ${fmtP(L.R,prec)}（1.4×ATR${PARAM.atrF}）· 重叠度 ${L.overlap.toFixed(2)} · 效率 ${L.er.toFixed(2)} · 一致性 ${L.consist>=0?'+':''}${L.consist.toFixed(2)}<br>`
+    + (L.isTrend ? '窄幅通道 = 真趋势，多一层趋势止盈。' : '非窄幅通道，按震荡给对称多空参考位。');
+}
+function renderChart(bars, m, prec){
+  const t = themeColors();
+  chart.applyOptions({layout:{background:{color:t.bg}, textColor:t.text}, grid:{vertLines:{color:t.grid}, horzLines:{color:t.grid}}, rightPriceScale:{borderColor:t.border}, timeScale:{borderColor:t.border}});
+  series.candle.applyOptions({
+    priceFormat:{type:'price', precision:prec, minMove:Math.pow(10,-prec)},
+    autoscaleInfoProvider: autoscaleWithLevels
+  });
+  series.candle.setData(bars);
+  const BG_A = {1:.15, 2:.11, 3:.15, 4:.11, 5:.10, 6:.05};
+  series.bg.setData(bars.map((b,i) => ({time:b.time, value:1, color:hexA(cssVar(ST[m.st[i]].v), BG_A[m.st[i]])})));
+  const band = arr => bars.map((b,i) => ({time:b.time, value:arr[i], color:cssVar(ST[m.st[i]].v)}));
+  series.up.setData(band(m.upper));
+  series.dn.setData(band(m.lower));
+  series.mid.setData(bars.map((b,i) => ({time:b.time, value:m.mid[i]})));
+  clearPriceLines();
+  const L = m.last;
+  if(L.isTrend){
+    addPriceLine(L.tSL,  cssVar('--sl'),  '止损');
+    addPriceLine(L.tTP1, cssVar('--tp1'), '止盈1');
+    addPriceLine(L.tTP2, cssVar('--tp2'), '止盈2');
+    addPriceLine(L.tTP3, cssVar('--tp3'), '趋势止盈3');
+  } else {
+    addPriceLine(L.lTP2, cssVar('--tp2'), '多盈2');
+    addPriceLine(L.lTP1, cssVar('--tp1'), '多盈1/空损');
+    addPriceLine(L.lSL,  cssVar('--tp1'), '多损/空盈1');
+    addPriceLine(L.sTP2, cssVar('--tp2'), '空盈2');
+  }
+  /* valen 线 / 触发位：虚线叠加，与状态灯同源 */
+  const w = WATCH.find(x => x.code === cur.code);
+  if(w && w.rule){
+    const r = w.rule;
+    if(r.k === 'floor' || r.k === 'floor2' || r.k === 'brk') addPriceLine(r.lv, cssVar('--accent'), r.k==='brk'?'突破位':'valen 线', true);
+    if(r.k === 'band'){ addPriceLine(r.lo, cssVar('--accent'), '箱底', true); addPriceLine(r.hi, cssVar('--accent'), '箱顶', true); }
+    if((r.k === 'reclaim' || r.k === 'floor2') && snap[cur.code] && snap[cur.code].ma250) addPriceLine(snap[cur.code].ma250, cssVar('--accent'), '年线', true);
+  }
+  const n = bars.length;
+  chart.timeScale().setVisibleLogicalRange({from:Math.max(0, n - VIEW_BARS), to:n + 10});
+}
+
+let cur = {code:'sz002415', period:'day'};
+async function loadChart(code, period){
+  cur = {code, period};
+  $('loading').style.display = 'grid';
+  $('loading').textContent = '加载行情…';
+  document.querySelectorAll('#chartChips .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.code === code)));
+  document.querySelectorAll('#periodSegs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === period)));
+  try{
+    let bars;
+    if(period === 'day' && cache[code]) bars = cache[code].bars;
+    else { const r = await fetchBars(code, period); bars = r.bars; if(period === 'day'){ cache[code] = {bars}; snap[code] = calcSnap(bars); } }
+    const w = WATCH.find(x => x.code === code);
+    const last = bars[bars.length-1], prev = bars[bars.length-2];
+    const prec = last.close < 5 ? 3 : 2;
+    const m = computeMSMR(bars, PARAM);
+    $('stkName').textContent = w ? w.name : code;
+    $('stkCode').textContent = code.toUpperCase() + ' · ' + ({day:'日线',week:'周线',m60:'60分钟'})[period];
+    $('stkLast').textContent = fmtP(last.close, prec);
+    const chg = prev ? (last.close/prev.close - 1)*100 : 0;
+    $('stkChg').textContent = (chg>=0?'+':'') + chg.toFixed(2) + '%';
+    $('stkChg').style.color = chg >= 0 ? cssVar('--up') : cssVar('--down');
+    renderChart(bars, m, prec);
+    renderPanel(m, prec);
+    $('loading').style.display = 'none';
+  }catch(e){
+    $('loading').textContent = '加载失败：' + (e && e.message ? e.message : e);
+  }
+}
+
+/* ══════════════ 初始化 ══════════════ */
+function initChips(){
+  $('chartChips').innerHTML = WATCH.map(w =>
+    `<button class="chip" type="button" data-code="${w.code}" aria-pressed="false"><i style="background:${cssVar(TIERS[w.t].color)}"></i>${w.name}</button>`
+  ).join('');
+  $('chartChips').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if(b) loadChart(b.dataset.code, cur.period);
+  });
+}
+$('periodSegs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  loadChart(cur.code, b.dataset.p);
+});
+$('refreshBtn').addEventListener('click', async () => {
+  Object.keys(cache).forEach(k => delete cache[k]);
+  await refreshAll();
+  loadChart(cur.code, cur.period);
+});
+$('themeBtn').addEventListener('click', () => {
+  const light = document.documentElement.dataset.theme === 'light';
+  document.documentElement.dataset.theme = light ? 'dark' : 'light';
+  $('themeBtn').textContent = light ? '切换浅色' : '切换深色';
+  renderTiers(); renderLadders();
+  buildChart();
+  loadChart(cur.code, cur.period);
+});
+
+initChips();
+buildChart();
+renderTiers();          /* 先画空骨架 */
+refreshAll().then(() => loadChart(cur.code, cur.period));
+})();
+</script>
+</body>
+</html>

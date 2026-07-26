@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<!-- msmr-portfolio-console-v1 -->
+<title>MSMR 结构台 · 持仓 + 任意标的</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f1419'/%3E%3Cpath d='M8 22h48M8 42h48' stroke='%23c8873a' stroke-width='3.5' stroke-linecap='round'/%3E%3Cpath d='M20 22v20M32 14v36M44 22v20' stroke='%235fb894' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0e1319; --panel:#141b23; --panel-2:#182029; --card:#131a22; --sunk:#0b1015;
+    --ink:#e8edf2; --muted:#8b97a5; --faint:#5c6773;
+    --hair:#26313d; --hair-soft:#1d2630;
+    --accent:#c8873a; --accent-soft:rgba(200,135,58,.14);
+    --up:#e34c3f; --down:#16a37a;          /* A股口径：涨红跌绿，与持仓 SMC 页一致 */
+    --cost:#e0a53a;
+    /* 六态结构色 —— Okabe-Ito 派生，红绿色觉下仍可区分；颜色始终与文字标签并存 */
+    --s1:#0f9d76;  /* 窄幅上涨通道 */
+    --s2:#56b4e9;  /* 宽幅上涨通道 */
+    --s3:#d55e00;  /* 窄幅下降通道 */
+    --s4:#cc79a7;  /* 宽幅下降通道 */
+    --s5:#e69f00;  /* 宽幅震荡 */
+    --s6:#8b95a1;  /* 窄幅震荡 */
+    --sl:#d55e00; --tp1:#c9a227; --tp2:#0e8c99; --tp3:#8e6bc0;
+    --mono:ui-monospace,"SF Mono",Menlo,"Cascadia Mono","DejaVu Sans Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f4ef; --panel:#fffdf8; --panel-2:#f0ece3; --card:#fffdf8; --sunk:#eae5da;
+    --ink:#1a1f25; --muted:#5f6975; --faint:#8d97a3;
+    --hair:#ded7c9; --hair-soft:#e9e3d7;
+    --accent:#a4691f; --accent-soft:rgba(164,105,31,.12);
+    --s1:#0b7a5c; --s2:#2b7fb0; --s3:#b34e00; --s4:#a45c85; --s5:#b57c00; --s6:#6c7681;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .page{max-width:1400px;margin:0 auto;padding:0 22px 90px}
+
+  /* ── masthead ── */
+  .masthead{padding:44px 0 20px;border-bottom:1px solid var(--hair)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin:0 0 14px}
+  .kicker::before{content:"";width:26px;height:2px;background:var(--accent);flex:none}
+  h1{font-size:clamp(25px,4vw,37px);line-height:1.08;letter-spacing:-.022em;font-weight:800;margin:0 0 12px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .deck{font-size:15.5px;color:var(--muted);max-width:78ch;margin:0}
+  .deck b{color:var(--ink)}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .pill{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:var(--panel-2);border:1px solid var(--hair);border-radius:999px;padding:4px 11px}
+
+  /* ── toolbar ── */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0 0}
+  .field{display:flex;gap:0;border:1px solid var(--hair);border-radius:9px;overflow:hidden;background:var(--panel)}
+  .field input{appearance:none;border:none;outline:none;background:transparent;color:var(--ink);font-family:var(--mono);font-size:13.5px;padding:9px 13px;width:270px}
+  .field input::placeholder{color:var(--faint)}
+  .field button{appearance:none;border:none;border-left:1px solid var(--hair);background:var(--panel-2);color:var(--ink);font-family:var(--sans);font-weight:600;font-size:13.5px;padding:9px 15px;cursor:pointer}
+  .field button:hover{background:var(--accent-soft);color:var(--accent)}
+  .segs{display:flex;border:1px solid var(--hair);border-radius:9px;overflow:hidden;background:var(--panel)}
+  .segs button{appearance:none;border:none;background:transparent;color:var(--muted);font-family:var(--mono);font-size:12.5px;padding:9px 14px;cursor:pointer;border-right:1px solid var(--hair-soft)}
+  .segs button:last-child{border-right:none}
+  .segs button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+  .segs button:disabled{opacity:.35;cursor:not-allowed;background:transparent;color:var(--faint);font-weight:400}
+  .btn{appearance:none;border:1px solid var(--hair);background:var(--panel);color:var(--muted);font-family:var(--sans);font-size:13px;padding:9px 14px;border-radius:9px;cursor:pointer}
+  .btn:hover{color:var(--ink);border-color:var(--faint)}
+  .status{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .status.err{color:var(--s3)}
+  .spacer{flex:1}
+
+  /* ── holdings chips ── */
+  .chips-wrap{margin:18px 0 0}
+  .chips-lab{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin:0 0 8px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{appearance:none;border:1px solid var(--hair);background:var(--panel);color:var(--muted);border-radius:8px;padding:6px 11px;cursor:pointer;font-family:var(--sans);font-size:13px;display:inline-flex;align-items:baseline;gap:7px;transition:border-color .12s,color .12s}
+  .chip .c{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .chip:hover{border-color:var(--faint);color:var(--ink)}
+  .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+  .chip[aria-pressed="true"] .c{color:var(--accent)}
+  .chip.contra{border-style:dashed}
+
+  /* ── main stage ── */
+  .stage{display:grid;grid-template-columns:1fr 288px;gap:18px;margin-top:24px;align-items:start}
+  @media(max-width:1080px){.stage{grid-template-columns:1fr}}
+  .chartcard{background:var(--card);border:1px solid var(--hair);border-radius:14px;overflow:hidden}
+  .chart-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;padding:14px 18px 12px;border-bottom:1px solid var(--hair-soft)}
+  .chart-head h2{font-size:19px;font-weight:750;margin:0;letter-spacing:-.01em}
+  .chart-head .code{font-family:var(--mono);font-size:12.5px;color:var(--faint)}
+  .chart-head .last{font-family:var(--mono);font-size:15px;font-weight:700;margin-left:auto}
+  .chart-head .chg{font-family:var(--mono);font-size:12.5px}
+  .stagebox{height:520px;position:relative}
+  @media(max-width:720px){.stagebox{height:400px}}
+  .loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:12.5px;color:var(--faint);background:var(--card);z-index:3}
+  .chart-foot{display:flex;flex-wrap:wrap;gap:14px;padding:10px 18px 13px;border-top:1px solid var(--hair-soft);font-size:12px;color:var(--faint)}
+  .chart-foot span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:15px;height:0;border-top:2.5px solid currentColor;flex:none}
+  .sw.d{border-top-style:dashed}
+
+  /* ── MSMR panel (复刻原版) ── */
+  .msmr{background:var(--card);border:1px solid var(--hair);border-radius:14px;overflow:hidden;position:sticky;top:14px}
+  .msmr-cap{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:13px 16px 10px;border-bottom:1px solid var(--hair-soft)}
+  table.pan{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.pan th,table.pan td{padding:8px 12px;border-bottom:1px solid var(--hair-soft);text-align:center}
+  table.pan tr:last-child th,table.pan tr:last-child td{border-bottom:none}
+  table.pan th{width:38%;font-weight:600;color:var(--muted);background:var(--panel-2);text-align:center;font-size:13px}
+  table.pan td{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+  table.pan td.txt{font-family:var(--sans)}
+  .st-row th,.st-row td{color:#fff!important;font-weight:700}
+  .muted{color:var(--faint)!important;font-weight:400!important}
+  .msmr-note{padding:11px 16px 14px;font-size:11.5px;color:var(--faint);line-height:1.55;border-top:1px solid var(--hair-soft)}
+
+  /* ── legend / formula ── */
+  .sechead{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin:0 0 12px}
+  .sechead h2{font-size:20px;font-weight:750;margin:0;letter-spacing:-.012em}
+  .sechead p{margin:0;font-size:13px;color:var(--muted);max-width:70ch}
+  .grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin-top:14px}
+  @media(max-width:820px){.grid6{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.grid6{grid-template-columns:1fr}}
+  .cell{background:var(--card);padding:13px 15px}
+  .cell b{display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:4px}
+  .cell i{width:11px;height:11px;border-radius:3px;flex:none;display:inline-block}
+  .cell span{font-size:12.5px;color:var(--muted);display:block}
+  details.fold{margin-top:26px;border:1px solid var(--hair);border-radius:12px;background:var(--card);overflow:hidden}
+  details.fold>summary{cursor:pointer;padding:14px 18px;font-weight:650;font-size:14.5px;list-style:none}
+  details.fold>summary::-webkit-details-marker{display:none}
+  details.fold>summary::before{content:"▸ ";color:var(--accent)}
+  details.fold[open]>summary::before{content:"▾ "}
+  .foldbody{padding:0 18px 18px;border-top:1px solid var(--hair-soft);font-size:13.5px;color:var(--muted)}
+  .foldbody h4{color:var(--ink);font-size:14px;margin:16px 0 6px}
+  .foldbody code,.foldbody pre{font-family:var(--mono);font-size:12.5px}
+  .foldbody pre{background:var(--sunk);border:1px solid var(--hair-soft);border-radius:9px;padding:12px 14px;overflow-x:auto;color:var(--ink);line-height:1.65}
+  .foldbody table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+  .foldbody th,.foldbody td{border-bottom:1px solid var(--hair-soft);padding:6px 9px;text-align:left}
+  .foldbody th{color:var(--ink);font-weight:650}
+  .foldbody td.n{font-family:var(--mono);text-align:right}
+
+  footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--hair);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:12px;color:var(--faint)}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="page">
+
+<header class="masthead">
+  <div class="kicker">MSMR · 结构 / 位置 / 动能 / 约束 / 风险</div>
+  <h1>MSMR <em>结构台</em></h1>
+  <p class="deck">把 trader-c 的「Market Structure Momentum Risk」逆向复刻成浏览器里能跑的版本，挂在你的持仓上。
+  它<b>不给买卖信号</b>，只回答四个问题：现在是什么行情、价格在什么位置、动能朝哪、这种行情下该守什么约束——外加一句「按当前波动，止损止盈该放多远」。
+  支持 A 股 / 场内基金 / 美股，输入框可看任意标的。<b>本页非投资建议。</b></p>
+  <div class="meta-row">
+    <span class="pill">数据：腾讯行情 · 前复权</span>
+    <span class="pill">指标在你浏览器本地计算</span>
+    <span class="pill" id="asofPill">末根：加载中…</span>
+    <span class="pill" id="srcPill">—</span>
+  </div>
+  <div class="toolbar">
+    <form class="field" id="symForm">
+      <input id="symInput" placeholder="输入标的：600031 / 159509 / AAPL / NVDA" autocomplete="off" spellcheck="false">
+      <button type="submit">看这只</button>
+    </form>
+    <div class="segs" id="periodSegs" role="group" aria-label="周期">
+      <button type="button" data-p="day"  aria-pressed="true">日线</button>
+      <button type="button" data-p="week" aria-pressed="false">周线</button>
+      <button type="button" data-p="m60"  aria-pressed="false">60分</button>
+    </div>
+    <span class="status" id="status"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="themeBtn" type="button">切换浅色</button>
+  </div>
+  <div class="chips-wrap">
+    <p class="chips-lab">A 股持仓 · 点击切换（虚线框 = 逆向跟随盘）</p>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="chips-wrap">
+    <p class="chips-lab">美股 · 快捷入口（只看不买，非持仓）</p>
+    <div class="chips" id="chipsUS"></div>
+  </div>
+</header>
+
+<section class="stage">
+  <div class="chartcard">
+    <div class="chart-head">
+      <h2 id="stkName">—</h2>
+      <span class="code" id="stkCode">—</span>
+      <span class="last num" id="stkLast">—</span>
+      <span class="chg num" id="stkChg"></span>
+    </div>
+    <div class="stagebox" id="stagebox"><div class="loading" id="loading">加载行情…</div></div>
+    <div class="chart-foot">
+      <span><i class="sw" style="color:var(--sl)"></i>止损</span>
+      <span><i class="sw" style="color:var(--tp1)"></i>止盈1 (1R)</span>
+      <span><i class="sw" style="color:var(--tp2)"></i>止盈2</span>
+      <span><i class="sw" style="color:var(--tp3)"></i>趋势止盈3（仅窄幅通道）</span>
+      <span><i class="sw d" style="color:var(--cost)"></i>你的成本</span>
+      <span>背景色带 = 结构状态</span>
+    </div>
+  </div>
+
+  <aside class="msmr">
+    <div class="msmr-cap">MSMR 面板</div>
+    <table class="pan"><tbody id="panBody"></tbody></table>
+    <p class="msmr-note" id="panNote">—</p>
+  </aside>
+</section>
+
+<section style="margin-top:30px">
+  <div class="sechead"><h2>六态结构</h2><p>颜色只是辅助，状态名始终以文字显示。</p></div>
+  <div class="grid6">
+    <div class="cell"><b><i style="background:var(--s1)"></i>窄幅上涨通道</b><span>真趋势。只考虑多头，启用趋势止盈3。</span></div>
+    <div class="cell"><b><i style="background:var(--s2)"></i>宽幅上涨通道</b><span>窄幅上涨被反向动能打伤后的退化态，按震荡处理。</span></div>
+    <div class="cell"><b><i style="background:var(--s3)"></i>窄幅下降通道</b><span>真趋势。只考虑空头，启用趋势止盈3。</span></div>
+    <div class="cell"><b><i style="background:var(--s4)"></i>宽幅下降通道</b><span>退化态，按震荡处理，不出趋势止盈。</span></div>
+    <div class="cell"><b><i style="background:var(--s5)"></i>宽幅震荡</b><span>上沿偏空，下沿偏多。</span></div>
+    <div class="cell"><b><i style="background:var(--s6)"></i>窄幅震荡</b><span>等待突破，不参与。</span></div>
+  </div>
+</section>
+
+<details class="fold">
+  <summary>指标是怎么逆向出来的（公式 + 证据）</summary>
+  <div class="foldbody">
+    <p>原脚本 invite-only 无源码。结论来自两类证据：作者 2026-07-15 的推文链自述，以及 10 组面板截图的数值反推。</p>
+
+    <h4>一、被数值证明的部分</h4>
+    <p>10 组截图里，<code>(止损 + 止盈1) / 2</code> 全部精确等于当时的实时价——趋势态和震荡态都成立：</p>
+    <pre>MGC 10m  (4036.6+4053.2)/2 = 4044.90  = 收盘 4044.9
+BTC 6H   (73066.0+70169.8)/2 = 71617.9 = 现价 71617.9   ← 空头，止损在上
+MGC 15m  (4068.7+4111.1)/2   = 4089.90 = 收盘 4089.9    ← 多头，止损在下</pre>
+    <p>所以：<b>止盈1 = 1R</b>，价位以<b>当前收盘</b>为锚逐 bar 重算，不是入场价。震荡态多空镜像（只需 4 条线），趋势态只出一个方向。<br>
+    通道则满足 <code>中轴 = (上轨 + 下轨) / 2</code>，四组带小数的读数全中。</p>
+
+    <h4>二、止损和止盈2 挂在不同的波动率标尺上</h4>
+    <p>同品种同周期、相隔约 1 小时的两张图，中间走出一根急拉大阳线：</p>
+    <table><thead><tr><th>时点</th><th>结构</th><th>R</th><th>D (止盈2)</th></tr></thead><tbody>
+      <tr><td>急拉前</td><td>宽幅震荡</td><td class="n">19.7</td><td class="n">32.1</td></tr>
+      <tr><td>急拉后</td><td>窄幅上涨通道</td><td class="n">21.2 ↑7.6%</td><td class="n">31.1 ↓3.1%</td></tr>
+    </tbody></table>
+    <p>急拉让 R 变大、D 反而略缩。<b>共用同一个 ATR 不可能出现这种反向。</b>所以 R 挂短周期 ATR（对新波动敏感），D 挂长周期 ATR（新的一根被摊薄）。这也解释了 D/R 在 10 组样本里从 1.47 漂到 2.18。</p>
+    <pre>R = k_sl × ATR(快)   k_sl ≈ 1.4
+D = k_tp × ATR(慢)   k_tp ≈ 2.0</pre>
+
+    <h4>三、结构判定（作者原话）</h4>
+    <blockquote style="margin:8px 0;padding-left:14px;border-left:2px solid var(--hair)">
+    动能不会单独决定市场方向，而是作为确认和修正：上涨结构＋上涨动能＋<b>低重叠</b>，更容易成为「窄幅上涨通道」……
+    原本是窄幅上涨，但出现明显下跌动能，会先<b>退化</b>成「宽幅上涨通道」。<b>不会因为一两根反向K线就直接翻转趋势。</b>
+    只有<b>均线、价格位置、方向一致性、趋势效率和动能</b>共同改变，才会确认反向趋势。
+    </blockquote>
+    <p>其中两个词可以直接写成公式：<b>趋势效率</b> = Kaufman Efficiency Ratio <code>|close−close[n]| / Σ|close−close[1]|</code>；
+    <b>重叠度</b> = 相邻K线区间的 <code>交集/并集</code> 窗口均值——低重叠 = 单边推进，这是「窄幅」和「宽幅」的分界量，不是波动率，是推进的干净程度。</p>
+
+    <h4>四、还没定式的</h4>
+    <p><b>趋势止盈3。</b>四组趋势样本里，<code>D3 = k × ATR慢</code>（k≈3.9~5.0）离散度 1.28，是拟合最紧的模型，本页取 k=4.4；
+    「通道沿 ± k×通道宽」离散度 1.60（BTC 两组自洽于 1.2，黄金对不上）。残差最可能来自通道斜率投影，但样本不够拟合。</p>
+    <p style="margin-top:12px;color:var(--faint)">完整推导见仓库里的 <code>逆向分析.md</code>；Pine 版本见 <code>MSMR.pine</code>（可直接贴进 TradingView）。</p>
+  </div>
+</details>
+
+<footer>
+  <span>指标为逆向复刻，与原作者脚本非同一实现 · 参数可在源码顶部 PARAM 调 · msmr-portfolio-console-v1</span>
+  <span>图表引擎 TradingView Lightweight Charts™ · 行情腾讯 · 本页非投资建议</span>
+</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+<script>
+/* msmr-portfolio-console-v1 */
+(() => {
+'use strict';
+
+/* ══════════════ 参数（想调指标改这里） ══════════════ */
+const PARAM = {
+  chLen:50, chSmo:10,            // 通道：N 根极值 → EMA 平滑
+  atrF:14,  kSL:1.4,             // 止损 R = kSL × ATR(快)
+  atrS:50,  kTP2:2.0, kTP3:4.4,  // 止盈2 / 趋势止盈3 = k × ATR(慢)
+  maFast:20, maSlow:50,
+  consLen:20, consThr:0.20,      // 方向一致性
+  erLen:20,   erThr:0.35,        // 趋势效率 (Kaufman ER)
+  ovlLen:10,  ovlThr:0.45,       // 重叠度
+  momLen:9,                      // 动能 EMA
+  confBars:3,                    // 反向确认根数
+  wLen:100,   wThr:1.0,          // 宽/窄基准
+  edgeP:15                       // 上/下沿区域 %
+};
+const VIEW_BARS = 170;           // 默认视野根数（多取的部分只用于指标预热）
+
+/* ══════════════ 持仓（与 portfolio-smc-daily 保持一致） ══════════════ */
+const HOLDINGS = [
+  {code:'sh601899',name:'紫金矿业',    group:'main',  cost:27.21},
+  {code:'sh600031',name:'三一重工',    group:'main',  cost:18.36},
+  {code:'sh513050',name:'中概互联ETF', group:'main',  cost:1.6933},
+  {code:'sh600089',name:'特变电工',    group:'main',  cost:27.82},
+  {code:'sh600570',name:'恒生电子',    group:'main',  cost:29.72},
+  {code:'sh601601',name:'中国太保',    group:'main',  cost:35.62},
+  {code:'sh600030',name:'中信证券',    group:'main',  cost:28.97},
+  {code:'sz159509',name:'纳指科技ETF', group:'main',  cost:null},
+  {code:'sh560280',name:'工程机械ETF', group:'main',  cost:1.76},
+  {code:'sh512890',name:'红利低波ETF', group:'contra',cost:1.082},
+  {code:'sh600036',name:'招商银行',    group:'contra',cost:35.93},
+  {code:'sh601288',name:'农业银行',    group:'contra',cost:6.22},
+  {code:'sz159122',name:'创业板新能源ETF',group:'contra',cost:1.07},
+  {code:'sh601336',name:'新华保险',    group:'contra',cost:60.47}
+];
+/* 美股只看不买，不设成本线。任意 ticker 都能用输入框查，这里只是快捷入口 */
+const US_WATCH = [
+  {code:'usNVDA.OQ', name:'NVIDIA'},   {code:'usAAPL.OQ', name:'Apple'},
+  {code:'usMSFT.OQ', name:'Microsoft'},{code:'usGOOGL.OQ',name:'Alphabet'},
+  {code:'usAMZN.OQ', name:'Amazon'},   {code:'usMETA.OQ', name:'Meta'},
+  {code:'usTSLA.OQ', name:'Tesla'},    {code:'usAMD.OQ',  name:'AMD'},
+  {code:'usTSM.N',   name:'台积电ADR'},{code:'usAVGO.OQ', name:'Broadcom'}
+];
+
+/* ══════════════ 指标数学 ══════════════ */
+const nan = NaN;
+function ema(src, len){
+  const k = 2/(len+1), out = new Array(src.length);
+  let prev = nan;
+  for(let i=0;i<src.length;i++){
+    const v = src[i];
+    if(!isFinite(v)){ out[i] = prev; continue; }
+    prev = isFinite(prev) ? v*k + prev*(1-k) : v;
+    out[i] = prev;
+  }
+  return out;
+}
+function sma(src, len){
+  const out = new Array(src.length); let sum = 0;
+  for(let i=0;i<src.length;i++){
+    sum += src[i];
+    if(i >= len) sum -= src[i-len];
+    out[i] = i >= len-1 ? sum/len : nan;
+  }
+  return out;
+}
+/* Wilder RMA —— Pine 的 ta.atr / ta.rma 用的就是它，前 len 根用 SMA 起步 */
+function rma(src, len){
+  const out = new Array(src.length); let sum = 0, prev = nan;
+  for(let i=0;i<src.length;i++){
+    if(i < len){ sum += src[i]; if(i === len-1){ prev = sum/len; out[i] = prev; } else out[i] = nan; }
+    else { prev = (prev*(len-1) + src[i])/len; out[i] = prev; }
+  }
+  return out;
+}
+function atr(bars, len){
+  const tr = bars.map((b,i) => i === 0 ? b.high-b.low
+    : Math.max(b.high-b.low, Math.abs(b.high-bars[i-1].close), Math.abs(b.low-bars[i-1].close)));
+  return rma(tr, len);
+}
+function rollExtreme(arr, len, isMax){
+  const out = new Array(arr.length);
+  for(let i=0;i<arr.length;i++){
+    const s = Math.max(0, i-len+1);
+    let v = arr[s];
+    for(let j=s+1;j<=i;j++) v = isMax ? Math.max(v, arr[j]) : Math.min(v, arr[j]);
+    out[i] = v;
+  }
+  return out;
+}
+
+/* MSMR 主体 —— 与 MSMR.pine 逐行对应 */
+function computeMSMR(bars, P){
+  const n = bars.length;
+  const close = bars.map(b=>b.close), high = bars.map(b=>b.high), low = bars.map(b=>b.low);
+
+  const upper = ema(rollExtreme(high, P.chLen, true),  P.chSmo);
+  const lower = ema(rollExtreme(low,  P.chLen, false), P.chSmo);
+  const mid   = upper.map((u,i) => (u + lower[i]) / 2);
+  const width = upper.map((u,i) => u - lower[i]);
+
+  const atrFast = atr(bars, P.atrF), atrSlow = atr(bars, P.atrS);
+  const maF = ema(close, P.maFast), maS = ema(close, P.maSlow);
+  const emaMom = ema(close, P.momLen);
+  const wAvg = sma(width, P.wLen);
+
+  const st = new Array(n), consist = new Array(n), er = new Array(n), overlap = new Array(n);
+  let upCnt = 0, dnCnt = 0, nilCnt = 0, dirState = 0;
+
+  for(let i=0;i<n;i++){
+    /* ① 方向一致性：窗口内上涨 bar 占比 → −1..+1 */
+    let up = 0, m = 0;
+    for(let j=0;j<P.consLen && i-j-1 >= 0;j++){ m++; if(close[i-j] > close[i-j-1]) up++; }
+    consist[i] = m ? up/m*2 - 1 : 0;
+
+    /* ② 趋势效率 (Kaufman ER) */
+    if(i >= P.erLen){
+      let path = 0;
+      for(let j=0;j<P.erLen;j++) path += Math.abs(close[i-j] - close[i-j-1]);
+      er[i] = path > 0 ? Math.abs(close[i] - close[i-P.erLen]) / path : 0;
+    } else er[i] = 0;
+
+    /* ③ 重叠度：相邻K线 交集/并集 的窗口均值。低 = 单边推进 */
+    let ov = 0, k = 0;
+    for(let j=0;j<P.ovlLen && i-j-1 >= 0;j++){
+      const a = i-j, b = i-j-1;
+      const inter = Math.max(0, Math.min(high[a],high[b]) - Math.max(low[a],low[b]));
+      const uni   = Math.max(high[a],high[b]) - Math.min(low[a],low[b]);
+      ov += uni > 0 ? inter/uni : 1; k++;
+    }
+    overlap[i] = k ? ov/k : 1;
+
+    /* ④ 四分量共同成立才算基础趋势（作者：均线 + 价格位置 + 方向一致性 + 趋势效率） */
+    const okBase = isFinite(maS[i]) && isFinite(mid[i]);
+    const baseUp = okBase && maF[i] > maS[i] && close[i] > mid[i] && consist[i] >  P.consThr && er[i] > P.erThr;
+    const baseDn = okBase && maF[i] < maS[i] && close[i] < mid[i] && consist[i] < -P.consThr && er[i] > P.erThr;
+
+    upCnt  = baseUp ? upCnt+1 : 0;
+    dnCnt  = baseDn ? dnCnt+1 : 0;
+    nilCnt = (!baseUp && !baseDn) ? nilCnt+1 : 0;
+    /* 作者：不会因为一两根反向K线就直接翻转趋势 */
+    if(upCnt  >= P.confBars) dirState =  1;
+    if(dnCnt  >= P.confBars) dirState = -1;
+    if(nilCnt >= P.confBars) dirState =  0;
+
+    /* ⑤ 动能 + 低重叠 决定「窄幅」，否则退化为「宽幅」 */
+    const momUp = i > 0 && emaMom[i] > emaMom[i-1];
+    const momDn = i > 0 && emaMom[i] < emaMom[i-1];
+    const lowOvl = overlap[i] < P.ovlThr;
+    const isWide = isFinite(wAvg[i]) ? width[i] > wAvg[i]*P.wThr : width[i] > 0;
+
+    st[i] = dirState ===  1 ? ((momUp && lowOvl) ? 1 : 2)
+          : dirState === -1 ? ((momDn && lowOvl) ? 3 : 4)
+          : (isWide ? 5 : 6);
+  }
+
+  /* ── 末根：位置 / 动能 / 约束 / 风险价位 ── */
+  const i = n-1, P0 = close[i], W = width[i], edge = W*P.edgeP/100;
+  const pos = P0 > upper[i] ? '通道上方'
+            : P0 < lower[i] ? '通道下方'
+            : P0 > upper[i]-edge ? '通道上沿'
+            : P0 < lower[i]+edge ? '通道下沿' : '通道中部';
+  const momUpL = emaMom[i] > emaMom[i-1], momDnL = emaMom[i] < emaMom[i-1];
+  const R = P.kSL*atrFast[i], D = P.kTP2*atrSlow[i], D3 = P.kTP3*atrSlow[i];
+  const code = st[i], isTrend = code === 1 || code === 3, isLong = code === 1;
+
+  return {
+    upper, lower, mid, st, close,
+    last:{
+      st:code, pos,
+      mom: momUpL ? '上涨' : momDnL ? '下跌' : '持平',
+      isTrend, isLong, price:P0, R, D, D3,
+      overlap:overlap[i], er:er[i], consist:consist[i],
+      lSL:P0-R, lTP1:P0+R, lTP2:P0+D,
+      sSL:P0+R, sTP1:P0-R, sTP2:P0-D,
+      tSL: isLong ? P0-R : P0+R,
+      tTP1:isLong ? P0+R : P0-R,
+      tTP2:isLong ? P0+D : P0-D,
+      tTP3:isLong ? P0+D3: P0-D3
+    }
+  };
+}
+
+/* ══════════════ 状态元数据 ══════════════ */
+const ST = {
+  1:{name:'窄幅上涨通道', v:'--s1', rule:'只考虑多头'},
+  2:{name:'宽幅上涨通道', v:'--s2', rule:'上沿偏空，下沿偏多'},
+  3:{name:'窄幅下降通道', v:'--s3', rule:'只考虑空头'},
+  4:{name:'宽幅下降通道', v:'--s4', rule:'上沿偏空，下沿偏多'},
+  5:{name:'宽幅震荡',     v:'--s5', rule:'上沿偏空，下沿偏多'},
+  6:{name:'窄幅震荡',     v:'--s6', rule:'等待突破，不参与'}
+};
+const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function hexA(hex, a){
+  const h = hex.replace('#','');
+  const s = h.length === 3 ? h.split('').map(c=>c+c).join('') : h;
+  const n = parseInt(s,16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+/* ══════════════ 行情 ══════════════ */
+function normalizeCode(raw){
+  let s = String(raw||'').trim().replace(/\s+/g,'');
+  if(!s) return '';
+  if(/^(sh|sz|hk|us)/i.test(s)) return s.replace(/^(sh|sz|hk|us)/i, m=>m.toLowerCase());
+  if(/^\d{6}$/.test(s))  return (/^[569]/.test(s) ? 'sh' : 'sz') + s;
+  if(/^\d{5}$/.test(s))  return 'hk' + s;
+  if(/^\d{1,4}$/.test(s))return 'hk' + s.padStart(5,'0');
+  if(/^[A-Za-z.]+$/.test(s)){ const u = s.toUpperCase(); return 'us' + (u.includes('.') ? u : u + '.OQ'); }
+  return s;
+}
+const PERIOD_LABEL = {day:'日线', week:'周线', m60:'60分钟'};
+
+async function fetchBars(code, period){
+  if(period === 'm60'){
+    if(!/^(sh|sz)/.test(code)) throw new Error('60 分钟线目前只支持 A 股 / 场内基金');
+    const url = `https://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,320`;
+    const j = await (await fetch(url)).json();
+    const d = j?.data?.[code];
+    const rows = d?.m60;
+    if(!rows || !rows.length) throw new Error('没有取到 60 分钟数据');
+    return {bars: rows.map(r=>({
+      time: (()=>{ const t=String(r[0]); return Date.UTC(+t.slice(0,4), +t.slice(4,6)-1, +t.slice(6,8), +t.slice(8,10), +t.slice(10,12))/1000; })(),
+      open:+r[1], close:+r[2], high:+r[3], low:+r[4]
+    })), name: d?.qt?.[code]?.[1] || ''};
+  }
+  /* 美股：腾讯要带交易所后缀。纳斯达克 .OQ，纽交所 .N —— 先试 .OQ，取不到再回退 .N */
+  const tries = /^us/.test(code) && !/\.(OQ|N)$/i.test(code)
+    ? [code + '.OQ', code + '.N']
+    : (/^us/.test(code) && /\.OQ$/i.test(code) ? [code, code.replace(/\.OQ$/i, '.N')] : [code]);
+
+  const cnt = period === 'week' ? 400 : 500;
+  let lastErr = '没找到这个标的';
+  for(const c of tries){
+    const url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${c},${period},,,${cnt},qfq`;
+    let j = null;
+    try { j = await (await fetch(url)).json(); } catch(e){ lastErr = '行情接口连不上'; continue; }
+    const d = j?.data?.[c];
+    const rows = d && (d['qfq'+period] || d[period]);
+    if(!rows || rows.length < 60){ lastErr = rows ? '数据太少，画不出指标（至少 60 根）' : '没找到这个标的'; continue; }
+    return {
+      bars: rows.map(r=>({time:r[0], open:+r[1], close:+r[2], high:+r[3], low:+r[4]})),
+      name: d?.qt?.[c]?.[1] || '',
+      code: c
+    };
+  }
+  throw new Error(lastErr);
+}
+
+/* ══════════════ 图表 ══════════════ */
+let chart = null, series = {}, priceLines = [];
+function themeColors(){
+  const light = document.documentElement.dataset.theme === 'light';
+  return light
+    ? {bg:'#fffdf8', grid:'rgba(150,140,120,.16)', text:'#6a7178', border:'#ded7c9'}
+    : {bg:'#131a22', grid:'rgba(70,84,99,.18)',   text:'#7f8b99', border:'#26313d'};
+}
+function buildChart(){
+  const box = document.getElementById('stagebox');
+  if(chart){ chart.remove(); chart = null; }
+  const t = themeColors();
+  chart = LightweightCharts.createChart(box, {
+    layout:{background:{color:t.bg}, textColor:t.text, fontFamily:cssVar('--mono')||'monospace'},
+    grid:{vertLines:{color:t.grid}, horzLines:{color:t.grid}},
+    rightPriceScale:{borderColor:t.border, scaleMargins:{top:.08, bottom:.08}},
+    timeScale:{borderColor:t.border, rightOffset:12, barSpacing:7},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+    localization:{locale:'zh-CN'},
+    handleScale:{axisPressedMouseMove:{time:true, price:false}}
+  });
+  /* 结构背景色带：histogram 独占一条 0~1 的隐藏价格轴，铺满全高 */
+  series.bg = chart.addHistogramSeries({priceScaleId:'msmr-bg', priceLineVisible:false, lastValueVisible:false, base:0});
+  chart.priceScale('msmr-bg').applyOptions({scaleMargins:{top:0, bottom:0}, visible:false});
+
+  series.candle = chart.addCandlestickSeries({
+    upColor:cssVar('--up'), downColor:cssVar('--down'),
+    borderUpColor:cssVar('--up'), borderDownColor:cssVar('--down'),
+    wickUpColor:cssVar('--up'), wickDownColor:cssVar('--down'),
+    priceLineVisible:false
+  });
+  /* 上下轨：单条线série，逐点着色（v4 的 LineData 支持 per-point color）。
+     不要用「6 条线 + whitespace 留空」——LineSeries 会跨过空白直接插值，画出长直线。 */
+  const bandOpt = {lineWidth:2, priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false};
+  series.up = chart.addLineSeries(bandOpt);
+  series.dn = chart.addLineSeries(bandOpt);
+  series.mid = chart.addLineSeries({color:hexA(cssVar('--muted')||'#8b97a5',.55), lineWidth:1, priceLineVisible:false, lastValueVisible:false, crosshairMarkerVisible:false});
+  new ResizeObserver(() => chart && chart.applyOptions({width:box.clientWidth, height:box.clientHeight})).observe(box);
+  chart.applyOptions({width:box.clientWidth, height:box.clientHeight});
+}
+/* 价位线不参与默认自动缩放，趋势止盈3 会掉到可视区外。收集起来喂给 autoscaleInfoProvider */
+let levels = [];
+function clearPriceLines(){ priceLines.forEach(l => series.candle.removePriceLine(l)); priceLines = []; levels = []; }
+function addPriceLine(price, color, title, dashed){
+  if(!isFinite(price)) return;
+  levels.push(price);
+  priceLines.push(series.candle.createPriceLine({
+    price, color, lineWidth:dashed?1:2,
+    lineStyle: dashed ? LightweightCharts.LineStyle.Dashed : LightweightCharts.LineStyle.Solid,
+    axisLabelVisible:true, title
+  }));
+}
+function autoscaleWithLevels(orig){
+  const res = orig();
+  if(!res || !res.priceRange || !levels.length) return res;
+  res.priceRange.minValue = Math.min(res.priceRange.minValue, ...levels);
+  res.priceRange.maxValue = Math.max(res.priceRange.maxValue, ...levels);
+  return res;
+}
+
+/* ══════════════ 渲染 ══════════════ */
+let cur = {code:'sh601899', period:'day'};
+const $ = id => document.getElementById(id);
+const fmt = (v,p) => isFinite(v) ? Number(v).toFixed(p) : '—';
+
+function renderPanel(m, prec){
+  const L = m.last, meta = ST[L.st], c = cssVar(meta.v);
+  const rows = [];
+  const row = (k,v,style,cls) => rows.push(`<tr><th>${k}</th><td class="${cls||''}" style="${style||''}">${v}</td></tr>`);
+
+  /* 两格都用实色 —— 半透明底在浅色主题下会把白字冲掉 */
+  rows.push(`<tr class="st-row"><th style="background:${c}">结构</th><td class="txt" style="background:${hexA(c,.88)}">${meta.name}</td></tr>`);
+  row('位置', L.pos, `color:${L.pos==='通道中部' ? cssVar('--ink') : c}`, 'txt');
+  row('动能', L.mom, `color:${L.mom==='上涨' ? cssVar('--s1') : L.mom==='下跌' ? cssVar('--s3') : cssVar('--faint')}`, 'txt');
+  rows.push(`<tr><th>约束</th><td class="txt" style="background:${hexA(c,.18)}">${meta.rule}</td></tr>`);
+
+  if(L.isTrend){
+    row('方向', L.isLong?'多头':'空头', `color:${L.isLong?cssVar('--s1'):cssVar('--s3')}`, 'txt');
+    row('止损',      fmt(L.tSL,prec),  `color:${cssVar('--sl')}`);
+    row('止盈1',     fmt(L.tTP1,prec), `color:${cssVar('--tp1')}`);
+    row('止盈2',     fmt(L.tTP2,prec), `color:${cssVar('--tp2')}`);
+    row('趋势止盈3', fmt(L.tTP3,prec), `color:${cssVar('--tp3')}`);
+  } else {
+    row('多头止损', fmt(L.lSL,prec),  `color:${cssVar('--sl')}`);
+    row('多头止盈', `${fmt(L.lTP1,prec)} / ${fmt(L.lTP2,prec)}`, `color:${cssVar('--s1')}`);
+    row('空头止损', fmt(L.sSL,prec),  `color:${cssVar('--sl')}`);
+    row('空头止盈', `${fmt(L.sTP1,prec)} / ${fmt(L.sTP2,prec)}`, `color:${cssVar('--s1')}`);
+    rows.push(`<tr><th>趋势目标</th><td class="txt muted">当前结构不启用</td></tr>`);
+  }
+  $('panBody').innerHTML = rows.join('');
+  $('panNote').innerHTML = `R = ${fmt(L.R,prec)}（1.4×ATR${PARAM.atrF}）· 重叠度 ${L.overlap.toFixed(2)} · 效率 ${L.er.toFixed(2)} · 一致性 ${L.consist>=0?'+':''}${L.consist.toFixed(2)}<br>`
+    + (L.isTrend ? '窄幅通道 = 真趋势，多一层趋势止盈。' : '非窄幅通道，按震荡给对称多空参考位。');
+}
+
+function renderChart(bars, m, cost, prec){
+  const t = themeColors();
+  chart.applyOptions({layout:{background:{color:t.bg}, textColor:t.text}, grid:{vertLines:{color:t.grid}, horzLines:{color:t.grid}}, rightPriceScale:{borderColor:t.border}, timeScale:{borderColor:t.border}});
+  series.candle.applyOptions({
+    priceFormat:{type:'price', precision:prec, minMove:Math.pow(10,-prec)},
+    autoscaleInfoProvider: autoscaleWithLevels
+  });
+  series.candle.setData(bars);
+  /* 趋势态画重一点，窄幅震荡（什么都没发生）画到几乎看不见，免得整张图糊成一片 */
+  const BG_A = {1:.15, 2:.11, 3:.15, 4:.11, 5:.10, 6:.05};
+  series.bg.setData(bars.map((b,i) => ({time:b.time, value:1, color:hexA(cssVar(ST[m.st[i]].v), BG_A[m.st[i]])})));
+
+  const band = arr => bars.map((b,i) => ({time:b.time, value:arr[i], color:cssVar(ST[m.st[i]].v)}));
+  series.up.setData(band(m.upper));
+  series.dn.setData(band(m.lower));
+  series.mid.setData(bars.map((b,i) => ({time:b.time, value:m.mid[i]})));
+
+  clearPriceLines();
+  const L = m.last;
+  if(L.isTrend){
+    addPriceLine(L.tSL,  cssVar('--sl'),  '止损');
+    addPriceLine(L.tTP1, cssVar('--tp1'), '止盈1');
+    addPriceLine(L.tTP2, cssVar('--tp2'), '止盈2');
+    addPriceLine(L.tTP3, cssVar('--tp3'), '趋势止盈3');
+  } else {
+    addPriceLine(L.lTP2, cssVar('--tp2'), '多盈2');
+    addPriceLine(L.lTP1, cssVar('--tp1'), '多盈1/空损');
+    addPriceLine(L.lSL,  cssVar('--tp1'), '多损/空盈1');
+    addPriceLine(L.sTP2, cssVar('--tp2'), '空盈2');
+  }
+  if(cost != null) addPriceLine(cost, cssVar('--cost'), '成本', true);
+  /* 全量 500 根只用于指标预热，视野只给最近 VIEW_BARS 根，否则图被压扁看不清 */
+  const n = bars.length;
+  chart.timeScale().setVisibleLogicalRange({from:Math.max(0, n - VIEW_BARS), to:n + 10});
+}
+
+async function load(code, period){
+  let note = '';
+  /* 美股没有 60 分钟线，别让按钮亮着而图是旧的 */
+  const isUS = /^us/i.test(code);
+  if(isUS && period === 'm60'){ period = 'day'; note = '美股无 60 分钟线，已切回日线'; }
+  document.querySelector('#periodSegs button[data-p="m60"]').disabled = isUS;
+
+  cur = {code, period};
+  $('loading').style.display = 'grid';
+  $('loading').textContent = '加载行情…';
+  $('status').textContent = note; $('status').className = 'status';
+  document.querySelectorAll('#chips .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.code === code)));
+  document.querySelectorAll('#periodSegs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === period)));
+
+  try{
+    const {bars, name, code:resolved} = await fetchBars(code, period);
+    if(resolved && resolved !== code){ code = resolved; cur.code = resolved; }
+    const hold = HOLDINGS.find(h => h.code === code);
+    const watch = US_WATCH.find(h => h.code === code);
+    const label = hold ? hold.name : watch ? watch.name : (name || code);
+    const last = bars[bars.length-1], prev = bars[bars.length-2];
+    const prec = last.close < 5 ? 3 : 2;
+
+    const m = computeMSMR(bars, PARAM);
+
+    $('stkName').textContent = label;
+    $('stkCode').textContent = code.toUpperCase() + ' · ' + PERIOD_LABEL[period];
+    $('stkLast').textContent = fmt(last.close, prec);
+    const chg = prev ? (last.close/prev.close - 1)*100 : 0;
+    $('stkChg').textContent = (chg>=0?'+':'') + chg.toFixed(2) + '%';
+    $('stkChg').style.color = chg >= 0 ? cssVar('--up') : cssVar('--down');
+    $('asofPill').textContent = '末根：' + (typeof last.time === 'string' ? last.time : new Date(last.time*1000).toISOString().slice(0,16).replace('T',' '));
+    $('srcPill').textContent = bars.length + ' 根 · ' + PERIOD_LABEL[period];
+
+    renderChart(bars, m, hold ? hold.cost : null, prec);
+    renderPanel(m, prec);
+    $('loading').style.display = 'none';
+  } catch(e){
+    $('loading').textContent = '加载失败：' + (e && e.message ? e.message : e);
+    $('status').textContent = '× ' + (e && e.message ? e.message : e);
+    $('status').className = 'status err';
+  }
+}
+
+/* ══════════════ 初始化 ══════════════ */
+function initChips(){
+  $('chips').innerHTML = HOLDINGS.map(h =>
+    `<button class="chip${h.group==='contra'?' contra':''}" type="button" data-code="${h.code}" aria-pressed="false">${h.name}<span class="c">${h.code.slice(2)}</span></button>`
+  ).join('');
+  $('chipsUS').innerHTML = US_WATCH.map(h =>
+    `<button class="chip" type="button" data-code="${h.code}" aria-pressed="false">${h.name}<span class="c">${h.code.slice(2).split('.')[0]}</span></button>`
+  ).join('');
+  const pick = e => { const b = e.target.closest('.chip'); if(b) load(b.dataset.code, cur.period); };
+  $('chips').addEventListener('click', pick);
+  $('chipsUS').addEventListener('click', pick);
+}
+$('symForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const c = normalizeCode($('symInput').value);
+  if(c) load(c, cur.period);
+});
+$('periodSegs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  load(cur.code, b.dataset.p);
+});
+$('themeBtn').addEventListener('click', () => {
+  const light = document.documentElement.dataset.theme === 'light';
+  document.documentElement.dataset.theme = light ? 'dark' : 'light';
+  $('themeBtn').textContent = light ? '切换浅色' : '切换深色';
+  buildChart();
+  load(cur.code, cur.period);
+});
+
+initChips();
+buildChart();
+load(cur.code, cur.period);
+})();
+</script>
+</body>
+</html>

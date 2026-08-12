@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B站高能K线采集系统 · 实现规格书 v2</title>
+<meta name="description" content="B站直播间高能用户数 OHLC K线 + 弹幕/礼物量能副图：自包含实现规格，面向零上下文实现者">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1216; --panel:#151a20; --panel2:#1a212a; --line:#252d38; --line2:#303a47;
+  --ink:#e9eef4; --dim:#9aa7b5; --mute:#5d6a78;
+  --pink:#fb7299; --pink-dim:#c95a7c;
+  --green:#2fbf8f; --red:#f0544f; --amber:#e0aa4e; --blue:#5ca8ff;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:-apple-system,'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.85;
+  background-image:radial-gradient(ellipse 900px 420px at 85% -80px,rgba(251,114,153,.07),transparent),
+                   radial-gradient(ellipse 700px 380px at 8% 12%,rgba(47,191,143,.05),transparent);}
+::selection{background:rgba(251,114,153,.35)}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{display:grid;grid-template-columns:248px minmax(0,1fr);gap:0;max-width:1240px;margin:0 auto}
+/* ---------- TOC ---------- */
+nav.toc{position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 18px 40px 22px;border-right:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;scrollbar-width:thin}
+nav.toc .brand{color:var(--pink);font-weight:800;letter-spacing:.04em;margin-bottom:4px}
+nav.toc .brand::before{content:'▚ ';color:var(--mute)}
+nav.toc .sub{color:var(--mute);font-size:11px;margin-bottom:18px}
+nav.toc ol{list-style:none}
+nav.toc li{margin:2px 0}
+nav.toc a{display:block;color:var(--dim);padding:3px 8px;border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.5}
+nav.toc a:hover{color:var(--ink);text-decoration:none;background:var(--panel)}
+nav.toc a.on{color:var(--pink);border-left-color:var(--pink);background:rgba(251,114,153,.06)}
+nav.toc a .n{color:var(--mute);margin-right:6px}
+nav.toc a.on .n{color:var(--pink-dim)}
+/* ---------- main ---------- */
+main{padding:0 44px 120px;max-width:920px}
+header.hero{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+.rfcline{font-family:var(--mono);font-size:11.5px;color:var(--mute);display:flex;flex-wrap:wrap;gap:8px 22px;margin-bottom:18px}
+.rfcline b{color:var(--dim);font-weight:400}
+h1{font-family:var(--mono);font-size:clamp(22px,3.4vw,31px);font-weight:800;line-height:1.35;letter-spacing:-.01em}
+h1 .hl{color:var(--pink)}
+.hero .tag{margin-top:12px;color:var(--dim);font-size:14px;max-width:46em}
+.candles{margin-top:22px;display:block;width:100%;height:64px}
+/* ---------- sections ---------- */
+section{margin-top:56px}
+h2{font-family:var(--mono);font-size:19px;font-weight:800;padding-top:26px;border-top:1px solid var(--line);letter-spacing:.01em}
+h2 .sn{color:var(--pink);margin-right:12px;font-weight:800}
+h3{font-family:var(--mono);font-size:15px;font-weight:600;margin:30px 0 10px;color:var(--ink)}
+h3 .sn{color:var(--pink-dim);margin-right:9px;font-weight:600}
+p{margin:12px 0;color:var(--ink)}
+p.d,li.d{color:var(--dim)}
+ul,ol{margin:10px 0 14px 1.4em}
+li{margin:5px 0}
+em{font-style:normal;color:var(--pink);font-weight:600}
+strong{color:var(--ink)}
+hr{border:0;border-top:1px dashed var(--line);margin:26px 0}
+/* badges */
+.b{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:3px;
+  vertical-align:1px;letter-spacing:.03em;white-space:nowrap}
+.b-must{color:#ff8f8a;background:rgba(240,84,79,.13);border:1px solid rgba(240,84,79,.35)}
+.b-should{color:var(--amber);background:rgba(224,170,78,.12);border:1px solid rgba(224,170,78,.35)}
+.b-may{color:var(--dim);background:rgba(154,167,181,.1);border:1px solid rgba(154,167,181,.3)}
+.b-tested{color:var(--green);background:rgba(47,191,143,.12);border:1px solid rgba(47,191,143,.35)}
+.b-infer{color:var(--amber);background:rgba(224,170,78,.12);border:1px solid rgba(224,170,78,.35)}
+.b-community{color:var(--blue);background:rgba(92,168,255,.12);border:1px solid rgba(92,168,255,.35)}
+.b-common{color:var(--dim);background:rgba(154,167,181,.1);border:1px solid rgba(154,167,181,.3)}
+.b-dead{color:#ff8f8a;background:rgba(240,84,79,.13);border:1px solid rgba(240,84,79,.35)}
+/* callouts */
+.box{border:1px solid var(--line2);border-left:3px solid var(--mute);background:var(--panel);
+  border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;font-size:14px}
+.box.pink{border-left-color:var(--pink)}
+.box.green{border-left-color:var(--green)}
+.box.red{border-left-color:var(--red)}
+.box.amber{border-left-color:var(--amber)}
+.box .bt{font-family:var(--mono);font-size:11.5px;font-weight:800;letter-spacing:.08em;margin-bottom:6px;display:block}
+.box.pink .bt{color:var(--pink)} .box.green .bt{color:var(--green)}
+.box.red .bt{color:#ff8f8a} .box.amber .bt{color:var(--amber)}
+.box p{margin:6px 0;color:var(--dim)}
+.box p strong{color:var(--ink)}
+/* tables */
+.tblwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--mute);
+  text-align:left;padding:9px 14px;border-bottom:1px solid var(--line2);background:var(--panel2);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);font-size:12.5px;color:var(--ink);white-space:nowrap}
+td strong{color:var(--ink)}
+td code,p code,li code{font-family:var(--mono);font-size:.9em;color:#8ed0b5;background:rgba(47,191,143,.08);
+  padding:1px 5px;border-radius:4px;border:1px solid rgba(47,191,143,.14);word-break:break-all}
+/* code blocks */
+.code{position:relative;margin:16px 0;border:1px solid var(--line2);border-radius:10px;background:#11151b;overflow:hidden}
+.code .bar{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;
+  border-bottom:1px solid var(--line);background:var(--panel2);font-family:var(--mono);font-size:11px;color:var(--mute)}
+.code .bar .lang{letter-spacing:.08em;font-weight:600}
+.code button.cp{font-family:var(--mono);font-size:11px;color:var(--dim);background:transparent;
+  border:1px solid var(--line2);border-radius:5px;padding:2px 10px;cursor:pointer}
+.code button.cp:hover{color:var(--pink);border-color:var(--pink-dim)}
+.code pre{overflow-x:auto;padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#cdd8e3}
+.code pre .c{color:var(--mute)}      /* comment */
+.code pre .k{color:var(--pink)}      /* keyword */
+.code pre .s{color:#8ed0b5}          /* string */
+.code pre .n{color:#e6c07b}          /* number/name */
+/* arch svg */
+.arch{width:100%;height:auto;display:block;margin:18px 0}
+/* checklist */
+.check{list-style:none;margin:14px 0;padding:0}
+.check li{display:flex;gap:12px;align-items:flex-start;padding:9px 14px;border:1px solid var(--line);
+  border-radius:8px;margin:8px 0;background:var(--panel);color:var(--dim);font-size:14px}
+.check input{margin-top:5px;accent-color:var(--pink);width:15px;height:15px;flex:none;cursor:pointer}
+.check li.done{opacity:.55}
+.check li.done label{text-decoration:line-through}
+.check label{cursor:pointer}
+.check label strong{color:var(--ink)}
+.kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line2);border-bottom-width:2px;
+  border-radius:5px;padding:0 6px;background:var(--panel2);color:var(--dim)}
+footer{margin-top:90px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11.5px;color:var(--mute);line-height:2}
+@media (max-width:1020px){
+  .wrap{display:block}
+  nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:20px 22px}
+  nav.toc ol{display:flex;flex-wrap:wrap;gap:2px 14px}
+  main{padding:0 22px 90px}
+  table{min-width:560px}
+}
+@media print{nav.toc{display:none}.wrap{display:block}main{padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" id="toc">
+  <div class="brand">BILI‑ONLINE‑KLINE</div>
+  <div class="sub">spec v2 · 2026‑08‑12</div>
+  <ol>
+    <li><a href="#s0"><span class="n">§0</span>任务卡</a></li>
+    <li><a href="#s1"><span class="n">§1</span>背景与目标</a></li>
+    <li><a href="#s2"><span class="n">§2</span>领域知识包</a></li>
+    <li><a href="#s3"><span class="n">§3</span>系统架构</a></li>
+    <li><a href="#s4"><span class="n">§4</span>数据设计</a></li>
+    <li><a href="#s5"><span class="n">§5</span>采集器规格</a></li>
+    <li><a href="#s6"><span class="n">§6</span>聚合与出图</a></li>
+    <li><a href="#s7"><span class="n">§7</span>部署</a></li>
+    <li><a href="#s8"><span class="n">§8</span>验收清单</a></li>
+    <li><a href="#s9"><span class="n">§9</span>迭代路线</a></li>
+    <li><a href="#sA"><span class="n">§A</span>附录·实测记录</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="rfcline">
+    <span><b>doc:</b> bili-online-kline-spec</span>
+    <span><b>version:</b> v2.0</span>
+    <span><b>date:</b> 2026-08-12</span>
+    <span><b>status:</b> 待实现</span>
+    <span><b>默认目标:</b> live.bilibili.com/7777</span>
+  </div>
+  <h1>B站直播「高能用户数」K线采集系统<br><span class="hl">—— 自包含实现规格书</span></h1>
+  <p class="tag">把直播间的实时热度做成一张合格的 K 线图：高能用户数 OHLC 蜡烛主图 + 弹幕量 / 礼物电池两条量能副图。本文写给<strong>零上下文的实现者</strong>（另一台机器上的 agent 或工程师）——所有领域知识、接口口径、实测证据均内联在文内，不依赖任何外部私有上下文。</p>
+  <svg class="candles" viewBox="0 0 900 64" preserveAspectRatio="none" aria-hidden="true">
+    <g stroke-width="1"><line x1="0" y1="50" x2="900" y2="50" stroke="#252d38"/></g>
+    <g>
+      <line x1="20" y1="8" x2="20" y2="44" stroke="#2fbf8f"/><rect x="14" y="16" width="12" height="20" fill="#2fbf8f" rx="1"/>
+      <line x1="50" y1="12" x2="50" y2="46" stroke="#2fbf8f"/><rect x="44" y="18" width="12" height="16" fill="#2fbf8f" rx="1"/>
+      <line x1="80" y1="6" x2="80" y2="40" stroke="#f0544f"/><rect x="74" y="12" width="12" height="18" fill="#f0544f" rx="1"/>
+      <line x1="110" y1="14" x2="110" y2="44" stroke="#2fbf8f"/><rect x="104" y="20" width="12" height="14" fill="#2fbf8f" rx="1"/>
+      <line x1="140" y1="4" x2="140" y2="38" stroke="#2fbf8f"/><rect x="134" y="8" width="12" height="22" fill="#2fbf8f" rx="1"/>
+      <line x1="170" y1="10" x2="170" y2="42" stroke="#f0544f"/><rect x="164" y="14" width="12" height="16" fill="#f0544f" rx="1"/>
+      <line x1="200" y1="16" x2="200" y2="46" stroke="#f0544f"/><rect x="194" y="22" width="12" height="14" fill="#f0544f" rx="1"/>
+      <line x1="230" y1="12" x2="230" y2="42" stroke="#2fbf8f"/><rect x="224" y="16" width="12" height="18" fill="#2fbf8f" rx="1"/>
+      <line x1="260" y1="6" x2="260" y2="36" stroke="#2fbf8f"/><rect x="254" y="10" width="12" height="16" fill="#2fbf8f" rx="1"/>
+    </g>
+    <g opacity=".9">
+      <rect x="300" y="30" width="9" height="20" fill="#3a4656"/><rect x="315" y="22" width="9" height="28" fill="#3a4656"/>
+      <rect x="330" y="36" width="9" height="14" fill="#3a4656"/><rect x="345" y="14" width="9" height="36" fill="#fb7299"/>
+      <rect x="360" y="26" width="9" height="24" fill="#3a4656"/><rect x="375" y="32" width="9" height="18" fill="#3a4656"/>
+      <rect x="390" y="18" width="9" height="32" fill="#fb7299"/><rect x="405" y="38" width="9" height="12" fill="#3a4656"/>
+      <rect x="420" y="28" width="9" height="22" fill="#3a4656"/>
+    </g>
+    <g font-family="JetBrains Mono,monospace" font-size="10" fill="#5d6a78">
+      <text x="470" y="24">onlineNum → OHLC candles</text>
+      <text x="470" y="42">danmaku / battery → volume bars</text>
+    </g>
+  </svg>
+</header>
+
+<!-- ============ §0 ============ -->
+<section id="s0">
+  <h2><span class="sn">§0</span>任务卡（TL;DR）</h2>
+  <p><strong>做什么：</strong>为 B 站直播间（默认 <code>7777</code>，德云色）自建一份「高能用户数」时间序列数据集：一个常驻采集进程双通道写入 SQLite；一个出图脚本聚合出 1m / 1h / 1d 三档 OHLC，渲染成主图 K 线 + 双量能副图的静态 HTML。</p>
+  <div class="box pink">
+    <span class="bt">给实现者的话 —— 本文档的使用契约</span>
+    <p>① 本文<strong>自包含</strong>：不要假设你能访问本文之外的任何上下文（原始对话、私有笔记、原机文件）。</p>
+    <p>② 所有标 <span class="b b-tested">实测</span> 的数据是 <strong>2026-08-12</strong> 的快照证据；接口行为可能漂移，<strong>动手前先跑 §2.2 的探活命令重新验证</strong>，与本文不符时以你的实测为准，并在实现记录里标注差异。</p>
+    <p>③ 口径出处分级：<span class="b b-tested">实测</span> 当日验证过 · <span class="b b-infer">推断</span> 合理推测未验证 · <span class="b b-community">社区共识</span> 开发者社区逆向结论 · <span class="b b-common">通识</span> 平台公开常识。写代码时可信赖前者，对后两者保留验证心。</p>
+  </div>
+  <h3>交付物</h3>
+  <div class="code"><div class="bar"><span class="lang">TREE</span><button class="cp">复制</button></div><pre>bili-online-tracker/
+├── tracker.py          <span class="c"># 常驻采集 daemon（§5）</span>
+├── render_kline.py     <span class="c"># 聚合出图脚本（§6）</span>
+├── config.json         <span class="c"># 房间号/间隔/路径（§5.1）</span>
+├── data/
+│   └── bili_online.db  <span class="c"># SQLite，运行时生成（§4）</span>
+└── kline.html          <span class="c"># 最终图表，运行时生成（§6.2）</span></pre></div>
+  <h3>硬约束</h3>
+  <ul>
+    <li><span class="b b-must">必须</span> 只读采集：不发弹幕、不点赞、不触发任何互动接口。</li>
+    <li><span class="b b-must">必须</span> 单 Python 进程（asyncio 双协程），SQLite 单库，无外部服务依赖。</li>
+    <li><span class="b b-must">必须</span> 默认不存弹幕全文，只存分钟计数（§4.2）。</li>
+    <li><span class="b b-must">必须</span> 遵守 §2.4 风控与礼貌规则（频率上限、退避、必带 header）。</li>
+    <li><span class="b b-should">建议</span> 预留多房间扩展（所有表带 <code>room_id</code>），v1 只跑一个房间。</li>
+  </ul>
+  <p class="d">验收以 §8 清单为准。历史数据不可回溯，数据从进程首次启动起积累（T+0 起点）：当天可看分钟 K，一周后小时 K 成型，日 K 需积累一至两个月。</p>
+</section>
+
+<!-- ============ §1 ============ -->
+<section id="s1">
+  <h2><span class="sn">§1</span>背景与目标</h2>
+  <p>B 站直播间右上角的「高能用户数」是一个实时波动的量（观众进来涨、离开跌），天然适合做 OHLC 蜡烛聚合——就像股价。但 B 站<strong>没有任何公开接口提供它的历史序列</strong>，第三方数据站（danmakus.com、laplace.live）只收录 Vtuber，不覆盖游戏区主播 <span class="b b-tested">实测</span>。所以：想要这张 K 线图，唯一的路是自己长期采集。</p>
+  <p>目标图（合格线 = 结构对齐主流行情软件）：</p>
+  <div class="code"><div class="bar"><span class="lang">LAYOUT</span><button class="cp">复制</button></div><pre>┌──────────────────────────────────────────┐
+│ 主图  高能用户数 OHLC 蜡烛（1m/1h/1d 切换）│
+├──────────────────────────────────────────┤
+│ 副图① 弹幕量柱形，每分钟条数    ← “成交量” │
+├──────────────────────────────────────────┤
+│ 副图② 礼物电池柱形，每分钟电池  ← “成交额” │
+└──────────────────────────────────────────┘
+  三块共享时间轴，缩放/十字线联动（§6.3 验收）</pre></div>
+  <ul class="d">
+    <li>主图标的是<strong>高能用户数</strong>而非「人气值」——人气值是加权热度，量纲含水；高能数≈真实在线登录观众（§2.1）。</li>
+    <li>弹幕量是活跃度「成交量」；礼物电池是真金白银「成交额」；弹幕数/高能数 = 人均活跃度，高潮时刻一眼可见。</li>
+  </ul>
+</section>
+
+<!-- ============ §2 ============ -->
+<section id="s2">
+  <h2><span class="sn">§2</span>领域知识包（知识差补齐）</h2>
+  <p class="d">本节是零上下文实现者需要的全部 B 站直播领域知识。读完本节你应当不需要再查任何 B 站文档。</p>
+
+  <h3><span class="sn">2.1</span>概念与口径</h3>
+  <div class="tblwrap"><table>
+    <tr><th>术语</th><th>口径（写代码时按此理解）</th><th>出处</th></tr>
+    <tr><td>短号 / 真实房号</td><td>大主播有短位「靓号」，如 <code>7777</code>；API 大多要<strong>真实房号</strong>（7777 → <code>545068</code>）。用 §2.2-A 接口在启动时解析一次即可，同时拿到主播 uid（<code>ruid=8739477</code>，德云色）。</td><td><span class="b b-tested">实测</span></td></tr>
+    <tr><td>高能用户数<br>onlineNum</td><td><strong>本系统的 K 线标的。</strong>≈ 当前在直播间内的<strong>已登录</strong>观众数（游客不计），实时口径、随进出增减。证据：读数会下降（6190→6091）；6190 人中有积分上榜者仅 ~150 人，故「互动过才算」不成立（详见 §A）。</td><td><span class="b b-tested">实测</span></td></tr>
+    <tr><td>人气值 online</td><td>加权热度值，量纲不是人数（同场读数 39.9 万 vs 高能 6190）。只做参考列，不做标的。</td><td><span class="b b-tested">实测</span></td></tr>
+    <tr><td>高能榜 score</td><td>榜单上每人的分 = <strong>本场累计</strong>互动积分：送礼按电池计大分；进场/停留/点赞类计 1~2 小分（小分构成无官方定义）。累计量只涨不跌，<strong>不适合做 K 线</strong>，但 top1 分与榜和可快照留档画「收入进度」。每场开播重置。</td><td><span class="b b-tested">实测</span> + <span class="b b-infer">推断</span></td></tr>
+    <tr><td>电池 / 金瓜子</td><td>充值换算：<strong>1 元 = 10 电池 = 1000 金瓜子</strong>，即 1 电池 = 100 金瓜子。礼物事件里的 <code>total_coin</code> 单位是金瓜子（§2.3）。免费礼物走「银瓜子」，不计钱。</td><td><span class="b b-common">通识</span></td></tr>
+    <tr><td>SC / 醒目留言</td><td>付费置顶留言（SuperChat），<code>price</code> 字段单位是<strong>元</strong>。</td><td><span class="b b-common">通识</span></td></tr>
+    <tr><td>大航海 guard_level</td><td>包月贵族：1=总督、2=提督、3=舰长、0=无。跨场持续，非本场量。</td><td><span class="b b-common">通识</span></td></tr>
+    <tr><td>live_status</td><td>0=未开播，1=直播中，2=轮播（放录像）。<strong>只有 =1 的时段进 K 线</strong>。</td><td><span class="b b-community">社区共识</span></td></tr>
+    <tr><td>「N人看过」watched_show</td><td>本场累计进场 UV（只涨不跌）。想要但拿不到——所在接口有风控（§2.2-F），v1 放弃。</td><td><span class="b b-tested">实测</span></td></tr>
+  </table></div>
+
+  <h3><span class="sn">2.2</span>REST 接口速查（轮询通道用）</h3>
+  <p>所有请求 <span class="b b-must">必须</span> 带这两个 header（裸 curl 会触发风控）：</p>
+  <div class="code"><div class="bar"><span class="lang">HTTP HEADERS</span><button class="cp">复制</button></div><pre>User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36
+Referer: https://live.bilibili.com/</pre></div>
+
+  <p><strong>A. 房间信息（启动时解析短号→真实房号/uid；每分钟探 live_status）</strong></p>
+  <div class="code"><div class="bar"><span class="lang">GET · 探活命令</span><button class="cp">复制</button></div><pre>curl -s 'https://api.live.bilibili.com/room/v1/Room/get_info?room_id=7777' \
+  -H 'User-Agent: Mozilla/5.0' -H 'Referer: https://live.bilibili.com/' | jq \
+  '{code, uid:.data.uid, room_id:.data.room_id, live_status:.data.live_status,
+    live_time:.data.live_time, online:.data.online, title:.data.title}'
+<span class="c"># 实测返回（2026-08-12）：code=0, uid=8739477, room_id=545068,
+#   live_status=1, live_time="2026-08-12 11:40:43", online=399660  ← online 是人气值</span></pre></div>
+
+  <p><strong>B. 高能榜 / 高能用户数（15s 采样标的，主接口）</strong></p>
+  <div class="code"><div class="bar"><span class="lang">GET · 探活命令</span><button class="cp">复制</button></div><pre>curl -s 'https://api.live.bilibili.com/xlive/general-interface/v1/rank/getOnlineGoldRank?ruid=8739477&roomId=545068&page=1&pageSize=50' \
+  -H 'User-Agent: Mozilla/5.0' -H 'Referer: https://live.bilibili.com/' | jq \
+  '{code, onlineNum:.data.onlineNum, top1:.data.OnlineRankItem[0]}'
+<span class="c"># onlineNum = 高能用户数（采样值）；OnlineRankItem[].score = 本场累计分
+# 注意 roomId 必须真实房号；pageSize 上限 50；实测翻页 ~150 名后返回空数组
+# 实测样本：onlineNum=6187, top1={userRank:1, name:"飞哥飞飞飞飞飞飞", score:2000, guard_level:2}</span></pre></div>
+
+  <p><strong>C~E. 辅助接口（可选列 / 对照用）</strong></p>
+  <div class="tblwrap"><table>
+    <tr><th>接口</th><th>用途与限制</th><th>状态</th></tr>
+    <tr><td>xlive/web-room/v1/dM/gethistory?roomid=</td><td>弹幕历史——<strong>仅最近 10 条</strong>。不可用于计数（高峰每秒几十条，轮询必漏 90%+），只配做 ws 全挂后的有损兜底（§2.3 退路③）。</td><td><span class="b b-tested">实测</span></td></tr>
+    <tr><td>xlive/app-room/v2/guardTab/topList?roomid=&ruid=</td><td>大航海名单与总数（实测 427 人）。长周期量，v1 不采，v2 可日更一行。</td><td><span class="b b-tested">实测</span></td></tr>
+    <tr><td>av/v1/SuperChat/getMessageList?room_id=</td><td>当前挂着的 SC 列表。实时快照，SC 计数走 ws 事件更准，此接口仅对照。</td><td><span class="b b-tested">实测</span></td></tr>
+    <tr><td>xlive/web-room/v1/index/getInfoByRoom</td><td>含 watched_show（N人看过）/点赞数——<strong>返回 -352 风控</strong>，需完整 buvid 激活 + w_rid 签名，成本高，v1 禁用。</td><td><span class="b b-dead">-352</span></td></tr>
+    <tr><td>rankdb/v1/RoomRank/webRoomInfo</td><td>老版周榜，已下线（返回 1000003 方法不存在）。别踩。</td><td><span class="b b-dead">已下线</span></td></tr>
+  </table></div>
+
+  <h3><span class="sn">2.3</span>WebSocket 弹幕通道（弹幕/礼物计数唯一可靠源）</h3>
+  <p>B 站弹幕 ws 协议：先调 <code>getDanmuInfo</code> 拿 token 和 wss 主机表 → 连 <code>wss://&lt;host&gt;/sub</code> → 发认证包 → 每 30s 心跳 → 收压缩二进制消息帧。<span class="b b-should">建议</span> 不要手写协议，直接用 <a href="https://github.com/xfgryujk/blivedm" target="_blank" rel="noopener">blivedm</a>（Python asyncio 库，处理握手/心跳/解压/重连全流程；安装方式以其 README 当前说明为准，pip 包名 <code>blivedm</code>，若 PyPI 版本陈旧则 <code>pip install git+https://github.com/xfgryujk/blivedm</code>）。</p>
+  <p>需要监听的事件（blivedm 回调名以其当前版本为准，事件 cmd 名是稳定的）：</p>
+  <div class="tblwrap"><table>
+    <tr><th>事件 cmd</th><th>计数逻辑</th><th>出处</th></tr>
+    <tr><td>DANMU_MSG</td><td>弹幕一条 → <code>danmaku_cnt += 1</code>。匿名连接下发送者用户名会被打码（uname="***"），<strong>不影响计数</strong>。</td><td><span class="b b-community">社区共识</span></td></tr>
+    <tr><td>SEND_GIFT</td><td><code>gift_cnt += num</code>；若 <code>coin_type == "gold"</code>：<code>gift_battery += total_coin / 100</code>（total_coin 单位金瓜子，÷100 = 电池）。<code>coin_type == "silver"</code> 是免费礼物，只计条数不计电池。</td><td><span class="b b-community">社区共识</span></td></tr>
+    <tr><td>SUPER_CHAT_MESSAGE</td><td><code>sc_cnt += 1</code>；<code>sc_rmb += price</code>（price 单位元）。</td><td><span class="b b-community">社区共识</span></td></tr>
+    <tr><td>ONLINE_RANK_COUNT</td><td>服务端推送的高能数变化。<strong>v1 不用它做主图</strong>（推送时机不受控，不如 15s 均匀轮询规整），可 DEBUG 日志留档做对照。</td><td><span class="b b-community">社区共识</span></td></tr>
+  </table></div>
+  <div class="box amber">
+    <span class="bt">匿名连接的现实与退路（按顺序尝试）</span>
+    <p><strong>现状</strong>：2023 年起 B 站对未登录 ws 连接收紧——用户名打码（计数无损）；<code>getDanmuInfo</code> 匿名调用可能被风控拒。<span class="b b-infer">推断</span>，装机时验证。</p>
+    <p><strong>退路①</strong>：先 GET <code>https://www.bilibili.com/</code> 种 <code>buvid3</code> cookie 再握手（blivedm 传入 aiohttp session 即可）。</p>
+    <p><strong>退路②</strong>：从浏览器手动导出 <code>SESSDATA</code> cookie，经<strong>环境变量</strong>注入（<span class="b b-must">必须</span> 不硬编码、不进 git、不进日志）。只读采集场景风险低。</p>
+    <p><strong>退路③（有损兜底）</strong>：ws 彻底不通才退回 gethistory 每 5s 轮询、按 (ts,uid,text) 去重估算弹幕数，明知漏计、在数据里如实标 <code>ws_ok=0</code>。基本走不到这步。</p>
+  </div>
+
+  <h3><span class="sn">2.4</span>风控与礼貌规则</h3>
+  <ul>
+    <li><span class="b b-must">必须</span> 全部请求带 §2.2 的 UA + Referer；超时 10s。</li>
+    <li><span class="b b-must">必须</span> 轮询频率上限：直播中 15s/次，未开播 60s/次（§5.2）；单 IP 单房间。这与网页端自身轮询同量级，属正常访问形态。</li>
+    <li><span class="b b-must">必须</span> 失败指数退避：5s 起，×2 递增，封顶 5min；连续失败 20 次 → 进程以非零码退出（交给守护器拉起并留下告警日志行，见 §5.4 快速失败）。</li>
+    <li><span class="b b-must">必须</span> 收到 <code>code=-352</code>（风控）：轮询间隔立即降为 60s，并重种 buvid3；持续 30min 仍 -352 → 快速失败退出。</li>
+    <li><span class="b b-must">必须</span> 纯只读：整个系统不调用任何写接口（不发弹幕/不点赞/不关注）。</li>
+    <li><span class="b b-should">建议</span> 尊重目标：这是公开页面数据的低频礼貌采集，等价于挂一个网页观众；不要因为"想要更细的 K 线"把间隔压到秒级。</li>
+  </ul>
+</section>
+
+<!-- ============ §3 ============ -->
+<section id="s3">
+  <h2><span class="sn">§3</span>系统架构</h2>
+  <p>双通道单进程：<strong>轮询管主图，ws 管副图</strong>。轮询给 OHLC 提供均匀采样（比事件推送规整），且 ws 断线不牵连主图数据。</p>
+  <svg class="arch" viewBox="0 0 880 320" font-family="JetBrains Mono,monospace">
+    <defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="#5d6a78"/></marker></defs>
+    <!-- B站 -->
+    <rect x="18" y="30" width="200" height="100" rx="10" fill="#151a20" stroke="#303a47"/>
+    <text x="118" y="56" text-anchor="middle" fill="#fb7299" font-size="13" font-weight="700">B站公开面</text>
+    <text x="118" y="80" text-anchor="middle" fill="#9aa7b5" font-size="11">REST · getOnlineGoldRank</text>
+    <text x="118" y="98" text-anchor="middle" fill="#9aa7b5" font-size="11">REST · get_info</text>
+    <text x="118" y="116" text-anchor="middle" fill="#9aa7b5" font-size="11">WSS  · 弹幕事件流</text>
+    <!-- daemon -->
+    <rect x="300" y="16" width="270" height="180" rx="10" fill="#151a20" stroke="#fb7299" stroke-opacity=".55"/>
+    <text x="435" y="42" text-anchor="middle" fill="#e9eef4" font-size="13" font-weight="700">tracker.py（单进程 asyncio）</text>
+    <rect x="318" y="58" width="234" height="52" rx="7" fill="#1a212a" stroke="#303a47"/>
+    <text x="435" y="80" text-anchor="middle" fill="#2fbf8f" font-size="11.5">轮询协程 poll_loop</text>
+    <text x="435" y="98" text-anchor="middle" fill="#5d6a78" font-size="10.5">直播中15s / 空闲60s · 退避</text>
+    <rect x="318" y="122" width="234" height="58" rx="7" fill="#1a212a" stroke="#303a47"/>
+    <text x="435" y="144" text-anchor="middle" fill="#5ca8ff" font-size="11.5">ws 协程 danmaku_loop（blivedm）</text>
+    <text x="435" y="162" text-anchor="middle" fill="#5d6a78" font-size="10.5">弹幕/礼物/SC → 内存分钟桶</text>
+    <!-- sqlite -->
+    <rect x="650" y="46" width="212" height="120" rx="10" fill="#151a20" stroke="#2fbf8f" stroke-opacity=".55"/>
+    <text x="756" y="72" text-anchor="middle" fill="#2fbf8f" font-size="13" font-weight="700">SQLite (WAL)</text>
+    <text x="756" y="98" text-anchor="middle" fill="#9aa7b5" font-size="11">samples        ← 15s 一行</text>
+    <text x="756" y="118" text-anchor="middle" fill="#9aa7b5" font-size="11">minute_stats ← 每分钟一行</text>
+    <text x="756" y="144" text-anchor="middle" fill="#5d6a78" font-size="10.5">~236万行/年 · 约百MB</text>
+    <!-- render -->
+    <rect x="300" y="238" width="270" height="60" rx="10" fill="#151a20" stroke="#303a47"/>
+    <text x="435" y="262" text-anchor="middle" fill="#e0aa4e" font-size="12.5" font-weight="700">render_kline.py（按需运行）</text>
+    <text x="435" y="282" text-anchor="middle" fill="#5d6a78" font-size="10.5">pandas resample OHLC → 三档 JSON</text>
+    <rect x="650" y="238" width="212" height="60" rx="10" fill="#151a20" stroke="#303a47"/>
+    <text x="756" y="262" text-anchor="middle" fill="#e9eef4" font-size="12.5" font-weight="700">kline.html</text>
+    <text x="756" y="282" text-anchor="middle" fill="#5d6a78" font-size="10.5">ECharts · 主图+双副图联动</text>
+    <!-- edges -->
+    <line x1="218" y1="84" x2="300" y2="84" stroke="#5d6a78" marker-end="url(#ar)"/>
+    <line x1="218" y1="151" x2="300" y2="151" stroke="#5d6a78" marker-end="url(#ar)"/>
+    <line x1="570" y1="84" x2="650" y2="84" stroke="#5d6a78" marker-end="url(#ar)"/>
+    <line x1="570" y1="151" x2="650" y2="128" stroke="#5d6a78" marker-end="url(#ar)"/>
+    <line x1="756" y1="166" x2="756" y2="200 " stroke="#5d6a78" stroke-dasharray="4 4"/>
+    <line x1="756" y1="200" x2="500 " y2="200" stroke="#5d6a78" stroke-dasharray="4 4"/>
+    <line x1="500" y1="200" x2="466" y2="238" stroke="#5d6a78" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+    <line x1="570" y1="268" x2="650" y2="268" stroke="#5d6a78" marker-end="url(#ar)"/>
+  </svg>
+  <ul class="d">
+    <li><strong>为什么不全走 ws？</strong>ONLINE_RANK_COUNT 推送时机不受控（人多时秒级多条、人少时长时间不推），OHLC 需要均匀采样；且轮询无连接状态，天然抗断线。</li>
+    <li><strong>为什么不全走轮询？</strong>弹幕 REST 接口只留 10 条（§2.2-C），计数必须吃事件流。</li>
+    <li>两协程共享一个 SQLite 连接串行写（或各自持连接，WAL 下单写者多读者安全；<span class="b b-should">建议</span> 用一个 asyncio 队列汇到单写协程，最省心）。</li>
+  </ul>
+</section>
+
+<!-- ============ §4 ============ -->
+<section id="s4">
+  <h2><span class="sn">§4</span>数据设计</h2>
+  <h3><span class="sn">4.1</span>DDL（全文照抄）</h3>
+  <div class="code"><div class="bar"><span class="lang">SQL</span><button class="cp">复制</button></div><pre><span class="k">PRAGMA</span> journal_mode=WAL;
+<span class="k">PRAGMA</span> synchronous=NORMAL;
+
+<span class="c">-- 15s 一行：K线主图数据源（轮询通道写入）</span>
+<span class="k">CREATE TABLE IF NOT EXISTS</span> samples (
+  ts          <span class="n">INTEGER NOT NULL</span>,   <span class="c">-- Unix epoch 秒，UTC</span>
+  room_id     <span class="n">INTEGER NOT NULL</span>,   <span class="c">-- 真实房号（545068）</span>
+  online_num  <span class="n">INTEGER</span>,            <span class="c">-- 高能用户数 ← K线标的</span>
+  popularity  <span class="n">INTEGER</span>,            <span class="c">-- 人气值（参考列）</span>
+  rank_total  <span class="n">INTEGER</span>,            <span class="c">-- 榜单可见 score 之和（收入进度，可空）</span>
+  top1_score  <span class="n">INTEGER</span>,            <span class="c">-- 榜一分数（可空）</span>
+  live_status <span class="n">INTEGER</span>             <span class="c">-- 0未播 1直播 2轮播</span>
+);
+<span class="k">CREATE INDEX IF NOT EXISTS</span> idx_samples_room_ts <span class="k">ON</span> samples(room_id, ts);
+
+<span class="c">-- 每分钟一行：量能副图数据源（ws 通道分钟桶落盘）</span>
+<span class="k">CREATE TABLE IF NOT EXISTS</span> minute_stats (
+  minute_ts    <span class="n">INTEGER NOT NULL</span>,  <span class="c">-- 分钟对齐 epoch：ts - ts%60</span>
+  room_id      <span class="n">INTEGER NOT NULL</span>,
+  danmaku_cnt  <span class="n">INTEGER DEFAULT 0</span>, <span class="c">-- 弹幕条数 ← 副图①</span>
+  gift_cnt     <span class="n">INTEGER DEFAULT 0</span>, <span class="c">-- 礼物条数（含免费）</span>
+  gift_battery <span class="n">INTEGER DEFAULT 0</span>, <span class="c">-- 付费礼物电池数 ← 副图②</span>
+  sc_cnt       <span class="n">INTEGER DEFAULT 0</span>, <span class="c">-- SC 条数</span>
+  sc_rmb       <span class="n">INTEGER DEFAULT 0</span>, <span class="c">-- SC 金额（元）</span>
+  ws_ok        <span class="n">INTEGER DEFAULT 1</span>, <span class="c">-- 该分钟 ws 是否在线（0=断线，图上灰柱）</span>
+  <span class="k">PRIMARY KEY</span> (room_id, minute_ts)
+);</pre></div>
+  <ul class="d">
+    <li>时间一律存 <strong>UTC epoch 秒</strong>；聚合/展示时 +8h 转北京时间，日 K 日界 = 北京时间自然日（§6.1）。</li>
+    <li><span class="b b-must">必须</span> 不建预聚合表——两百万行读时聚合毫秒级，物化是过度设计；真慢了再加也不迟。</li>
+    <li>minute_stats 用 <code>INSERT ... ON CONFLICT(room_id,minute_ts) DO UPDATE</code> 累加，天然幂等（进程重启同一分钟不丢不重）。</li>
+  </ul>
+  <h3><span class="sn">4.2</span>数据量（SQLite 可行性论证）</h3>
+  <div class="tblwrap"><table>
+    <tr><th>表</th><th>写入节奏</th><th>行/年</th><th>体积/年（估）</th></tr>
+    <tr><td>samples</td><td>15s×24h（未播时 60s，此处按上限估）</td><td>≤ 210 万</td><td>50~100MB 含索引</td></tr>
+    <tr><td>minute_stats</td><td>每分钟 1 行（日播 12h 计）</td><td>~26 万</td><td>&lt;10MB</td></tr>
+    <tr><td><strong>合计</strong></td><td>—</td><td><strong>~236 万</strong></td><td><strong>约百 MB</strong></td></tr>
+  </table></div>
+  <p class="d">SQLite 舒适区在千万~亿行量级，本系统十年不用换库。工况是「单写者（daemon）+ 偶发读者（出图脚本）」，WAL 模式下互不阻塞，正是 SQLite 的最佳场景。若 v2 打开弹幕全文存储（约 +1.8GB/年）依然可行。</p>
+</section>
+
+<!-- ============ §5 ============ -->
+<section id="s5">
+  <h2><span class="sn">§5</span>采集器实现规格（tracker.py）</h2>
+  <h3><span class="sn">5.1</span>配置（config.json）</h3>
+  <div class="code"><div class="bar"><span class="lang">JSON</span><button class="cp">复制</button></div><pre>{
+  <span class="s">"room_id_or_short"</span>: <span class="n">7777</span>,        <span class="c">// 短号或真实号均可，启动时统一解析</span>
+  <span class="s">"poll_live_sec"</span>:   <span class="n">15</span>,          <span class="c">// 直播中采样间隔</span>
+  <span class="s">"poll_idle_sec"</span>:   <span class="n">60</span>,          <span class="c">// 未开播探测间隔</span>
+  <span class="s">"db_path"</span>:         <span class="s">"data/bili_online.db"</span>,
+  <span class="s">"log_path"</span>:        <span class="s">"logs/tracker.log"</span>,
+  <span class="s">"heartbeat_min"</span>:   <span class="n">5</span>           <span class="c">// 心跳日志间隔（分钟）</span>
+}
+<span class="c">// SESSDATA 若需要（§2.3 退路②）走环境变量 BILI_SESSDATA，绝不进此文件</span></pre></div>
+  <h3><span class="sn">5.2</span>参考实现骨架</h3>
+  <div class="box amber"><span class="bt">诚实声明</span><p>下列骨架<strong>未经运行验证</strong>（本规格在无 Python 运行环境下编写），控制流和口径是规范性的 <span class="b b-must">必须</span>，具体 API 签名（尤其 blivedm 回调名）以库当前版本 README 为准。</p></div>
+  <div class="code"><div class="bar"><span class="lang">PYTHON · tracker.py 骨架</span><button class="cp">复制</button></div><pre><span class="c"># deps: python>=3.10, aiohttp, blivedm  (pip install aiohttp blivedm)</span>
+<span class="k">import</span> asyncio, aiohttp, sqlite3, json, time, os, signal, logging
+<span class="k">from</span> logging.handlers <span class="k">import</span> RotatingFileHandler
+<span class="k">import</span> blivedm
+
+UA = {<span class="s">"User-Agent"</span>: <span class="s">"Mozilla/5.0 ..."</span>, <span class="s">"Referer"</span>: <span class="s">"https://live.bilibili.com/"</span>}
+API_INFO = <span class="s">"https://api.live.bilibili.com/room/v1/Room/get_info"</span>
+API_RANK = <span class="s">"https://api.live.bilibili.com/xlive/general-interface/v1/rank/getOnlineGoldRank"</span>
+
+<span class="k">class</span> MinuteBucket:                       <span class="c"># ws 事件的内存分钟桶</span>
+    <span class="k">def</span> __init__(self): self.reset(0)
+    <span class="k">def</span> reset(self, m): self.minute=m; self.dm=0; self.gift=0; self.bat=0; self.sc=0; self.rmb=0
+    <span class="k">def</span> flush(self, db, room, ws_ok):     <span class="c"># 幂等落盘（ON CONFLICT 累加）</span>
+        <span class="k">if</span> self.minute == 0: <span class="k">return</span>
+        db.execute(<span class="s">"""INSERT INTO minute_stats VALUES (?,?,?,?,?,?,?,?)
+          ON CONFLICT(room_id,minute_ts) DO UPDATE SET
+          danmaku_cnt=danmaku_cnt+excluded.danmaku_cnt, gift_cnt=gift_cnt+excluded.gift_cnt,
+          gift_battery=gift_battery+excluded.gift_battery, sc_cnt=sc_cnt+excluded.sc_cnt,
+          sc_rmb=sc_rmb+excluded.sc_rmb, ws_ok=min(ws_ok,excluded.ws_ok)"""</span>,
+          (self.minute, room, self.dm, self.gift, self.bat, self.sc, self.rmb, ws_ok))
+        db.commit()
+
+<span class="k">async def</span> poll_loop(sess, db, room, ruid, cfg, state):
+    backoff, fails = 5, 0
+    <span class="k">while True</span>:
+        <span class="k">try</span>:
+            <span class="k">async with</span> sess.get(API_RANK, params={<span class="s">"ruid"</span>:ruid,<span class="s">"roomId"</span>:room,<span class="s">"page"</span>:1,<span class="s">"pageSize"</span>:50},
+                                headers=UA, timeout=aiohttp.ClientTimeout(total=10)) <span class="k">as</span> r:
+                j = <span class="k">await</span> r.json()
+            <span class="k">if</span> j[<span class="s">"code"</span>] == -352:                 <span class="c"># 风控：降频 + 记录（§2.4）</span>
+                state[<span class="s">"risk"</span>] = time.time(); logging.warning(<span class="s">"-352 risk control"</span>)
+                <span class="k">await</span> asyncio.sleep(60); <span class="k">continue</span>
+            items = j[<span class="s">"data"</span>][<span class="s">"OnlineRankItem"</span>] <span class="k">or</span> []
+            db.execute(<span class="s">"INSERT INTO samples VALUES (?,?,?,?,?,?,?)"</span>,
+                (<span class="n">int</span>(time.time()), room, j[<span class="s">"data"</span>][<span class="s">"onlineNum"</span>], state.get(<span class="s">"pop"</span>),
+                 <span class="n">sum</span>(i[<span class="s">"score"</span>] <span class="k">for</span> i <span class="k">in</span> items), items[0][<span class="s">"score"</span>] <span class="k">if</span> items <span class="k">else</span> <span class="n">None</span>,
+                 state.get(<span class="s">"live"</span>, 0)))
+            db.commit(); backoff, fails = 5, 0
+        <span class="k">except</span> Exception <span class="k">as</span> e:
+            fails += 1; logging.warning(<span class="s">f"poll fail #{fails}: {e}"</span>)
+            <span class="k">if</span> fails >= 20: logging.error(<span class="s">"fast-fail: 20 consecutive"</span>); os._exit(1)   <span class="c"># §5.4</span>
+            <span class="k">await</span> asyncio.sleep(<span class="n">min</span>(backoff, 300)); backoff *= 2; <span class="k">continue</span>
+        <span class="k">await</span> asyncio.sleep(cfg[<span class="s">"poll_live_sec"</span>] <span class="k">if</span> state.get(<span class="s">"live"</span>)==1 <span class="k">else</span> cfg[<span class="s">"poll_idle_sec"</span>])
+
+<span class="c"># status_loop：每 60s GET get_info → state["live"], state["pop"]（结构同上，略）</span>
+<span class="c"># danmaku_loop：blivedm 客户端，回调里给 MinuteBucket 累加；</span>
+<span class="c">#   每逢分钟边界（int(t//60)*60 变化）flush 上一桶；断线期间 flush 时 ws_ok=0；</span>
+<span class="c">#   blivedm 自带重连；SIGTERM 时 flush 当前桶再退出（优雅收尾）。</span>
+<span class="c"># heartbeat_loop：每 cfg[heartbeat_min] 分钟 log 一行计数汇总（§5.4 进度日志）。</span>
+
+<span class="k">async def</span> main():
+    cfg = json.load(<span class="k">open</span>(<span class="s">"config.json"</span>))
+    <span class="c"># 启动：GET get_info 解析 短号→真实 room_id + ruid（§2.2-A），建表（§4.1 DDL）</span>
+    <span class="c"># asyncio.gather(poll_loop, status_loop, danmaku_loop, heartbeat_loop)</span>
+    ...
+</pre></div>
+  <h3><span class="sn">5.3</span>规范性要点（实现必须满足）</h3>
+  <ul>
+    <li><span class="b b-must">必须</span> 启动时解析短号（§2.2-A），失败重试 3 次后退出；真实 room_id / ruid 缓存在内存。</li>
+    <li><span class="b b-must">必须</span> 分钟桶按 <code>minute_ts = ts - ts % 60</code> 对齐；分钟边界与进程退出（SIGTERM/SIGINT）时 flush；落盘用 ON CONFLICT 累加保幂等。</li>
+    <li><span class="b b-must">必须</span> ws 断线期间对应分钟记 <code>ws_ok=0</code>（图上显示灰柱缺口，不造假补数）；blivedm 重连后恢复 1。</li>
+    <li><span class="b b-must">必须</span> 未开播（live_status≠1）时轮询降为 60s；ws 保持连接（停播弹幕也照计）。</li>
+    <li><span class="b b-should">建议</span> 日志用 RotatingFileHandler（10MB×3 份），跨平台省掉 logrotate 依赖。</li>
+  </ul>
+  <h3><span class="sn">5.4</span>长任务心跳三件套</h3>
+  <ul class="d">
+    <li><strong>进度日志</strong>：每 5min 一行心跳 <code>HB live=1 online=6190 dm/min=214 bat/min=350 ws=ok</code>——沉默的 daemon 无法诊断。</li>
+    <li><strong>分段落盘</strong>：samples 逐条 commit、minute 桶逐分钟 flush（WAL 下开销可忽略）；任何时刻 kill 掉最多丢当前分钟。</li>
+    <li><strong>快速失败</strong>：连续 20 次轮询失败或 -352 持续 30min → 非零码退出 + ERROR 日志行，交给守护器重启，绝不静默挂死空转。</li>
+  </ul>
+</section>
+
+<!-- ============ §6 ============ -->
+<section id="s6">
+  <h2><span class="sn">§6</span>聚合与出图（render_kline.py → kline.html）</h2>
+  <h3><span class="sn">6.1</span>聚合：pandas 一行出三档</h3>
+  <div class="code"><div class="bar"><span class="lang">PYTHON</span><button class="cp">复制</button></div><pre><span class="k">import</span> pandas <span class="k">as</span> pd, sqlite3
+cx = sqlite3.connect(<span class="s">"data/bili_online.db"</span>)
+
+df = pd.read_sql(<span class="s">"SELECT ts, online_num FROM samples WHERE room_id=? AND live_status=1"</span>,
+                 cx, params=(<span class="n">545068</span>,))
+df.index = pd.to_datetime(df.ts, unit=<span class="s">"s"</span>) + pd.Timedelta(hours=<span class="n">8</span>)   <span class="c"># 北京时间，日界随之正确</span>
+k1m = df.online_num.resample(<span class="s">"1min"</span>).ohlc().dropna()                <span class="c"># 1h→"1h"，1d→"1D"</span>
+
+vol = pd.read_sql(<span class="s">"SELECT * FROM minute_stats WHERE room_id=?"</span>, cx, params=(<span class="n">545068</span>,))
+vol.index = pd.to_datetime(vol.minute_ts, unit=<span class="s">"s"</span>) + pd.Timedelta(hours=<span class="n">8</span>)
+<span class="c"># 1h/1d 档：danmaku_cnt/gift_battery 用 .resample("1h").sum()；ws_ok 用 .min()（有断线即标灰）</span></pre></div>
+  <ul class="d">
+    <li><span class="b b-must">必须</span> 只聚合 <code>live_status=1</code> 的样本；一天两场则日 K 含两场（口径注明在图上）。</li>
+    <li><span class="b b-must">必须</span> 弹幕/礼物副图与主图对齐到同一时间桶；1m 档直接用 minute_stats 行。</li>
+    <li><span class="b b-should">建议</span> 输出三档数据内嵌进 HTML（JSON 变量），默认视图 = 近 7 天的 1m 档。</li>
+  </ul>
+  <h3><span class="sn">6.2</span>渲染：ECharts 结构</h3>
+  <p class="d">用 ECharts 5（CDN 或本地均可）。结构骨架——三个 grid 垂直排布，category 时间轴（未开播时段自然压缩不占宽度），dataZoom 同时挂三轴：</p>
+  <div class="code"><div class="bar"><span class="lang">JS · ECharts option 骨架</span><button class="cp">复制</button></div><pre>option = {
+  axisPointer: { link: [{ xAxisIndex: <span class="s">"all"</span> }] },              <span class="c">// 十字线三图联动</span>
+  grid: [ {top:<span class="s">"6%"</span>,height:<span class="s">"46%"</span>}, {top:<span class="s">"58%"</span>,height:<span class="s">"14%"</span>}, {top:<span class="s">"78%"</span>,height:<span class="s">"14%"</span>} ],
+  xAxis: [0,1,2].map(i => ({ type:<span class="s">"category"</span>, gridIndex:i, data: T })),   <span class="c">// T=时间桶标签</span>
+  yAxis: [ {gridIndex:0, scale:<span class="k">true</span>}, {gridIndex:1}, {gridIndex:2} ],
+  dataZoom: [
+    { type:<span class="s">"inside"</span>, xAxisIndex:[0,1,2] },                    <span class="c">// 滚轮缩放三图同步 ← 合格线</span>
+    { type:<span class="s">"slider"</span>, xAxisIndex:[0,1,2], bottom: 0 } ],
+  series: [
+    { type:<span class="s">"candlestick"</span>, data: OHLC,                          <span class="c">// [open,close,low,high]</span>
+      itemStyle:{ color:<span class="s">"#2fbf8f"</span>, color0:<span class="s">"#f0544f"</span>,           <span class="c">// 涨绿跌红可按偏好互换，全图一致即可</span>
+                  borderColor:<span class="s">"#2fbf8f"</span>, borderColor0:<span class="s">"#f0544f"</span> } },
+    { type:<span class="s">"bar"</span>, xAxisIndex:1, yAxisIndex:1, data: DM_BARS },  <span class="c">// 弹幕量，按主图涨跌染色；ws_ok=0 → 灰 #555</span>
+    { type:<span class="s">"bar"</span>, xAxisIndex:2, yAxisIndex:2, data: BAT_BARS } ]<span class="c">// 礼物电池</span>
+};</pre></div>
+  <h3><span class="sn">6.3</span>图表验收细则</h3>
+  <ul>
+    <li><span class="b b-must">必须</span> 主副图缩放/平移/十字线联动（拖任一处三图同步）。</li>
+    <li><span class="b b-must">必须</span> 1m / 1h / 1d 三档切换按钮；tooltip 同时报 OHLC + 弹幕数 + 电池数。</li>
+    <li><span class="b b-must">必须</span> <code>ws_ok=0</code> 的分钟弹幕/礼物柱渲染为灰色（数据诚实优先于图好看）。</li>
+    <li><span class="b b-should">建议</span> 弹幕柱红绿跟随主图当根蜡烛涨跌（股票软件视觉语言）。</li>
+    <li><span class="b b-may">可选</span> 副图③：rank_total 差分做「收入进度」曲线。</li>
+  </ul>
+</section>
+
+<!-- ============ §7 ============ -->
+<section id="s7">
+  <h2><span class="sn">§7</span>部署（跨平台三选一）</h2>
+  <p class="d">采集器是普通长驻进程，选实现机对应的守护方式。日志和 DB 路径按 config.json，下例假设装在 <code>~/bili-online-tracker</code>。</p>
+  <h3><span class="sn">7.1</span>macOS · launchd</h3>
+  <div class="code"><div class="bar"><span class="lang">XML · ~/Library/LaunchAgents/com.user.bili-tracker.plist</span><button class="cp">复制</button></div><pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;&lt;string&gt;com.user.bili-tracker&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;&lt;array&gt;
+    &lt;string&gt;/usr/bin/env&lt;/string&gt;&lt;string&gt;python3&lt;/string&gt;
+    &lt;string&gt;tracker.py&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;WorkingDirectory&lt;/key&gt;&lt;string&gt;/Users/YOU/bili-online-tracker&lt;/string&gt;
+  &lt;key&gt;KeepAlive&lt;/key&gt;&lt;true/&gt;          &lt;!-- 崩溃/快速失败后自动拉起 --&gt;
+  &lt;key&gt;StandardOutPath&lt;/key&gt;&lt;string&gt;logs/stdout.log&lt;/string&gt;
+  &lt;key&gt;StandardErrorPath&lt;/key&gt;&lt;string&gt;logs/stderr.log&lt;/string&gt;
+&lt;/dict&gt;&lt;/plist&gt;
+<span class="c"># launchctl load ~/Library/LaunchAgents/com.user.bili-tracker.plist</span></pre></div>
+  <h3><span class="sn">7.2</span>Linux · systemd</h3>
+  <div class="code"><div class="bar"><span class="lang">INI · /etc/systemd/system/bili-tracker.service</span><button class="cp">复制</button></div><pre>[Unit]
+Description=bili online kline tracker
+After=network-online.target
+
+[Service]
+WorkingDirectory=/opt/bili-online-tracker
+ExecStart=/usr/bin/python3 tracker.py
+Restart=always
+RestartSec=10
+<span class="c"># Environment=BILI_SESSDATA=...   ← 如需退路②，走 systemd env 或 EnvironmentFile（chmod 600）</span>
+
+[Install]
+WantedBy=multi-user.target
+<span class="c"># systemctl enable --now bili-tracker</span></pre></div>
+  <h3><span class="sn">7.3</span>最简兜底 · nohup</h3>
+  <div class="code"><div class="bar"><span class="lang">BASH</span><button class="cp">复制</button></div><pre>cd ~/bili-online-tracker &amp;&amp; nohup python3 tracker.py &gt;&gt; logs/nohup.log 2&gt;&amp;1 &amp;
+<span class="c"># 无自动拉起，仅验证/临时用；长期跑请用 7.1/7.2</span></pre></div>
+</section>
+
+<!-- ============ §8 ============ -->
+<section id="s8">
+  <h2><span class="sn">§8</span>验收清单</h2>
+  <p class="d">勾选状态存在你的浏览器 localStorage 里，可当施工进度板用。</p>
+  <h3>T+10 分钟（daemon 起来后）</h3>
+  <ul class="check">
+    <li><input type="checkbox" id="c1"><label for="c1"><strong>解析正确</strong>：日志含一行 <code>resolved room 7777 → 545068 (ruid 8739477)</code> 等价信息</label></li>
+    <li><input type="checkbox" id="c2"><label for="c2"><strong>主表在涨</strong>：直播中 <code>SELECT COUNT(*) FROM samples</code> ≥ 30（15s 间隔），且 <code>online_num</code> 数千量级、有波动</label></li>
+    <li><input type="checkbox" id="c3"><label for="c3"><strong>分钟桶在落</strong>：<code>SELECT * FROM minute_stats ORDER BY minute_ts DESC LIMIT 5</code> 每分钟一行，直播中 danmaku_cnt 数十~数百</label></li>
+    <li><input type="checkbox" id="c4"><label for="c4"><strong>数字对得上</strong>：samples 最新 online_num 与直播间网页「高能用户」面板读数一致（±正常抖动）</label></li>
+    <li><input type="checkbox" id="c5"><label for="c5"><strong>心跳在打</strong>：日志每 5min 一行 HB 汇总</label></li>
+  </ul>
+  <h3>T+1 天</h3>
+  <ul class="check">
+    <li><input type="checkbox" id="c6"><label for="c6"><strong>出图跑通</strong>：render_kline.py 生成 kline.html，分钟 K 蜡烛形态正常（非全平线——若全平检查是否把 popularity 错当 online_num）</label></li>
+    <li><input type="checkbox" id="c7"><label for="c7"><strong>联动合格</strong>：滚轮缩放任一图，三图同步；tooltip 三值对齐同一时刻</label></li>
+    <li><input type="checkbox" id="c8"><label for="c8"><strong>空窗压缩</strong>：未开播时段不占横轴宽度（category 轴生效）</label></li>
+    <li><input type="checkbox" id="c9"><label for="c9"><strong>断线诚实</strong>：制造一次 ws 断线（断网 2min），对应分钟灰柱、ws_ok=0，恢复后正常</label></li>
+    <li><input type="checkbox" id="c10"><label for="c10"><strong>重启幂等</strong>：kill -TERM 再拉起，重启分钟的 minute_stats 不翻倍（ON CONFLICT 生效）、samples 无重复时间戳异常</label></li>
+  </ul>
+  <h3>持续运行</h3>
+  <ul class="check">
+    <li><input type="checkbox" id="c11"><label for="c11"><strong>无风控告警</strong>：连续 3 天日志无 -352；若有，确认降频逻辑触发过且自动恢复</label></li>
+    <li><input type="checkbox" id="c12"><label for="c12"><strong>体积符合预期</strong>：一周后 DB ≤ 3MB 量级（约百 MB/年折算）；明显超标查是否误存了全文</label></li>
+  </ul>
+</section>
+
+<!-- ============ §9 ============ -->
+<section id="s9">
+  <h2><span class="sn">§9</span>迭代路线</h2>
+  <div class="tblwrap"><table>
+    <tr><th>版本</th><th>范围</th></tr>
+    <tr><td>v1（本规格）</td><td>单房间 · 高能数 K 线 + 弹幕/电池双副图 · 计数不存全文 · 本地静态出图</td></tr>
+    <tr><td>v2 可选项</td><td>弹幕全文存储 + FTS 词云/回放（+1.8GB/年）；多房间并采（错峰轮询）；ONLINE_RANK_V2 榜单快照回放；rank_total 差分收入曲线；大航海数日更；watched_show（若解决 w_rid 签名）</td></tr>
+    <tr><td>非目标</td><td>任何互动行为；秒级采样；对抗性反反爬（-352 持续出现就该降频停手，而不是升级伪装）</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ §A ============ -->
+<section id="sA">
+  <h2><span class="sn">§A</span>附录 · 实测记录（2026-08-12，房间 545068 直播中）</h2>
+  <p class="d">保留原始证据供实现者校准预期数据形态。当日场次：「德云色 云顶美测红包局！」11:40 开播，英雄联盟区，关注 282 万。</p>
+  <h3>A.1 onlineNum 波动实录（证伪「累计互动」口径的关键证据）</h3>
+  <div class="code"><div class="bar"><span class="lang">LOG</span><button class="cp">复制</button></div><pre>16:18:43  onlineNum=6187~6190     <span class="c"># 首次读取</span>
+16:26:33  onlineNum=6091          <span class="c"># ↓ 较 8 分钟前净降 ~100 —— 累计量不可能下降</span>
+16:26:41  onlineNum=6090          <span class="c"># ↓</span>
+16:26:50  onlineNum=6113
+16:26:58  onlineNum=6106          <span class="c"># ↓</span>
+16:27:06  onlineNum=6135
+16:27:14  onlineNum=6145
+<span class="c"># 结论：实时口径，随观众进出增减 → 适合 OHLC</span></pre></div>
+  <h3>A.2 榜单结构实录</h3>
+  <div class="code"><div class="bar"><span class="lang">LOG</span><button class="cp">复制</button></div><pre>page1-2 (rank 1-100)：score 合计 6249 电池；top1=2000[提督]、2-3名=620、前9名≥300、第10名断崖=24
+page3   (rank 101-150)：score 2 → 1        <span class="c"># 长尾全是 1~2 小分</span>
+page4+  ：返回空数组                        <span class="c"># 可见榜深约 150 名</span>
+<span class="c"># 6190 高能用户中有分者仅 ~150 → 「互动过才算高能用户」不成立</span>
+<span class="c"># 榜单 score 合计只是可见部分下界 ≠ 本场礼物总额</span></pre></div>
+  <h3>A.3 其他接口当日状态</h3>
+  <div class="tblwrap"><table>
+    <tr><th>接口</th><th>当日返回</th></tr>
+    <tr><td>get_info（短号 7777）</td><td>code=0 · uid=8739477 · room_id=545068 · live_status=1 · online=399660（人气值）</td></tr>
+    <tr><td>guardTab/topList</td><td>code=0 · 大航海 427 人 · top3 均提督</td></tr>
+    <tr><td>SuperChat/getMessageList</td><td>code=0 · list=null（本场当时无 SC 在挂——接口通，数据空）</td></tr>
+    <tr><td>dM/gethistory</td><td>code=0 · 恒返回最近 10 条</td></tr>
+    <tr><td>getInfoByRoom</td><td>code=<strong>-352</strong>（风控；带简单 buvid cookie 重试仍 -352）</td></tr>
+    <tr><td>rankdb webRoomInfo</td><td>code=1000003 方法不存在（已下线）</td></tr>
+    <tr><td>danmakus.com 收录查询</td><td>404 未收录（该站只收 Vtuber）</td></tr>
+  </table></div>
+</section>
+
+<footer>
+  <div>bili-online-kline-spec v2.0 · 2026-08-12 · 状态：待实现（T+0 起点：数据从采集器首次启动起积累）</div>
+  <div>口径徽章：<span class="b b-tested">实测</span> 当日验证 · <span class="b b-infer">推断</span> 未验证 · <span class="b b-community">社区共识</span> 开发者逆向 · <span class="b b-common">通识</span> 平台常识 —— 实现前请复跑 §2.2 探活命令</div>
+</footer>
+</main>
+</div>
+
+<script>
+/* copy buttons */
+document.querySelectorAll('.code').forEach(b=>{
+  const btn=b.querySelector('button.cp'), pre=b.querySelector('pre');
+  if(!btn||!pre)return;
+  btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(pre.innerText).then(()=>{
+      btn.textContent='已复制 ✓';setTimeout(()=>btn.textContent='复制',1400);
+    });
+  });
+});
+/* toc scroll spy */
+const links=[...document.querySelectorAll('nav.toc a')];
+const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(a=>a.classList.remove('on'));
+      const a=map.get(e.target.id); if(a)a.classList.add('on');
+    }
+  });
+},{rootMargin:'-8% 0px -80% 0px'});
+document.querySelectorAll('main section[id]').forEach(s=>io.observe(s));
+/* checklist persistence */
+const KEY='bili-kline-spec-checks';
+const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+document.querySelectorAll('.check input').forEach(c=>{
+  if(saved[c.id]){c.checked=true;c.closest('li').classList.add('done');}
+  c.addEventListener('change',()=>{
+    saved[c.id]=c.checked;localStorage.setItem(KEY,JSON.stringify(saved));
+    c.closest('li').classList.toggle('done',c.checked);
+  });
+});
+</script>
+</body>
+</html>

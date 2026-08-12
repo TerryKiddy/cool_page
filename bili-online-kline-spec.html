@@ -383,7 +383,7 @@ Referer: https://live.bilibili.com/</pre></div>
   room_id     <span class="n">INTEGER NOT NULL</span>,   <span class="c">-- 真实房号（545068）</span>
   online_num  <span class="n">INTEGER</span>,            <span class="c">-- 高能用户数 ← K线标的</span>
   popularity  <span class="n">INTEGER</span>,            <span class="c">-- 人气值（参考列）</span>
-  rank_total  <span class="n">INTEGER</span>,            <span class="c">-- 榜单可见 score 之和（收入进度，可空）</span>
+  rank_total  <span class="n">INTEGER</span>,            <span class="c">-- 仅第一页 top50 的 score 之和（下界指标，勿翻页多拉）</span>
   top1_score  <span class="n">INTEGER</span>,            <span class="c">-- 榜一分数（可空）</span>
   live_status <span class="n">INTEGER</span>             <span class="c">-- 0未播 1直播 2轮播</span>
 );
@@ -428,7 +428,8 @@ Referer: https://live.bilibili.com/</pre></div>
   <span class="s">"log_path"</span>:        <span class="s">"logs/tracker.log"</span>,
   <span class="s">"heartbeat_min"</span>:   <span class="n">5</span>           <span class="c">// 心跳日志间隔（分钟）</span>
 }
-<span class="c">// SESSDATA 若需要（§2.3 退路②）走环境变量 BILI_SESSDATA，绝不进此文件</span></pre></div>
+<span class="c">// ⚠ 上面的 // 注释仅为讲解示意——标准 JSON 不支持注释，落盘时必须删除（否则 json.load 直接报错）
+// SESSDATA 若需要（§2.3 退路②）走环境变量 BILI_SESSDATA，绝不进此文件</span></pre></div>
   <h3><span class="sn">5.2</span>参考实现骨架</h3>
   <div class="box amber"><span class="bt">诚实声明</span><p>下列骨架<strong>未经运行验证</strong>（本规格在无 Python 运行环境下编写），控制流和口径是规范性的 <span class="b b-must">必须</span>，具体 API 签名（尤其 blivedm 回调名）以库当前版本 README 为准。</p></div>
   <div class="code"><div class="bar"><span class="lang">PYTHON · tracker.py 骨架</span><button class="cp">复制</button></div><pre><span class="c"># deps: python>=3.10, aiohttp, blivedm  (pip install aiohttp blivedm)</span>

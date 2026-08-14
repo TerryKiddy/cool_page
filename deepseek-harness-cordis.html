@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="DeepSeek Harness 与 Cordis 讲解：一切皆插件的 agent harness，以及它底下那套「时空可组合性」框架到底解决了什么。">
-<meta name="build" content="dsh-cordis-v1">
+<meta name="build" content="dsh-cordis-v2">
 <title>DeepSeek Harness × Cordis · 一切皆插件</title>
-<!-- dsh-cordis-v1 · light · 2026-08-14 -->
+<!-- dsh-cordis-v2 · light · 2026-08-14 -->
 <style>
 :root{
   --void:#f6f8fd;
@@ -301,6 +301,7 @@ footer{padding:66px 0 80px;border-top:1px solid var(--line);margin-top:40px}
   <a href="#turn"><b></b><span>主循环</span></a>
   <a href="#hands"><b></b><span>动手</span></a>
   <a href="#cost"><b></b><span>代价</span></a>
+  <a href="#vs-pi"><b></b><span>对照 pi</span></a>
 </nav>
 
 <main>
@@ -959,6 +960,108 @@ footer{padding:66px 0 80px;border-top:1px solid var(--line);margin-top:40px}
   </div>
 </section>
 
+<!-- ============ VS PI ============ -->
+<section id="vs-pi" class="rule">
+  <div class="eyebrow">Section 11 · 横向对照</div>
+  <h2>和 pi runtime / pi-coding-agent 差在哪</h2>
+  <p class="lede" style="margin-bottom:30px">两边论点其实是同一个：<strong>模型决定效果上限，harness 决定迭代速度和能力空间</strong>。都是 TypeScript、都在进程内、都把 agent loop 当成可替换的资源。但再往下一层，两者的分层哲学几乎正相反。</p>
+
+  <div class="verdict punch reveal">
+    <div class="n">≠</div>
+    <p><strong>一句话记住差别：pi 有内核，Cordis 声称没有。</strong>pi 的心智模型是操作系统——内核（runtime core）＋系统调用（control plane）＋驱动（extensions）；Cordis 的心智模型是「没有一个特权的 core 可以打补丁」，主循环自己也只是一个挂在树上的插件。</p>
+  </div>
+
+  <div class="scroller panel reveal" style="padding:6px 0;margin-top:26px">
+    <table class="tbl">
+      <thead><tr><th style="min-width:110px">维度</th><th>pi（pi-agent-core / pi-coding-agent）</th><th>DeepSeek Harness / Cordis</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>代码分层</td>
+          <td>monorepo <strong>四层</strong>，越底层越接近模型：<code>pi-ai</code> → <code>pi-agent-core</code> → <code>pi-coding-agent</code> → <code>pi-tui</code>。多数扩展只依赖第三层</td>
+          <td><strong>无代码分层</strong>。226 个包同级挂载；<code>bundle → profile → patch</code> 是发行与配置的叠加，不是依赖分层</td>
+        </tr>
+        <tr>
+          <td>扩展点形态</td>
+          <td><strong>枚举的</strong>五个边界：<code>input/before_agent_start</code> → <code>context</code> → <code>tool_execution_*</code> → <code>appendEntry</code>，边界数量由 runtime 定义</td>
+          <td><strong>开放的</strong>：类型化事件 + 服务接缝，任何插件都能声明新事件、新服务；waterfall 提供环绕拦截</td>
+        </tr>
+        <tr>
+          <td>卸载语义</td>
+          <td>公开材料里<em>未见</em>形式化的卸载 / 回滚模型</td>
+          <td><strong>一等公民</strong>：revertible effects + fiber 状态机 + reactive coeffects；HMR 与「依赖消失自动卸载」都建在它上面</td>
+        </tr>
+        <tr>
+          <td>可替换粒度</td>
+          <td>换模型 provider、换 UI、改 context transform、进程内 <code>pi.registerTool()</code></td>
+          <td>capability seam 三角色；fs + subprocess 一起指向远程沙箱，subagent 可以直接是 <code>subagent-claude-code</code> / <code>subagent-codex</code></td>
+        </tr>
+        <tr>
+          <td>会话与回放</td>
+          <td><code>appendEntry</code> 写 JSONL 会话树，resume 时 replay</td>
+          <td>append-only <code>SessionEvent</code> + <strong>运行时断言</strong>「模型可见 = 已落日志」</td>
+        </tr>
+        <tr>
+          <td>沙箱边界</td>
+          <td>默认本地 bash 走 Node <code>spawn</code>；<code>tool_call</code> 拦截是<em>策略钩子而非 OS 沙箱</em>，间接读文件仍可能绕过</td>
+          <td><code>ctx.sandbox</code> 是一条接缝（<code>sandbox-local</code> / <code>-policy</code> / <code>-windows-acl</code>），另有 <code>approval/request</code> waterfall 承接审批</td>
+        </tr>
+        <tr>
+          <td>成熟度</td>
+          <td>已在内部使用，<code>pi-extensions</code> 沉淀了五类实验（观测反馈 / 上下文工程 / 模型接入 / 会话协作 / GEPA 自动优化）</td>
+          <td>2026-08-13 发布的 <strong>v0.1 developer preview</strong>，README 全大写写着会有破坏兼容的变更</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid3 reveal" style="margin-top:26px">
+    <div class="panel">
+      <span class="tag b">枚举 vs 开放</span>
+      <h3>扩展面的形状不同</h3>
+      <p style="font-size:14.5px">pi 的五个边界<strong>好学、契约清楚</strong>——看完就知道能改什么。Cordis 的扩展面不封顶，代价是要靠文档和 <code>@mode</code> 标注去维持契约，新人得先读架构图才知道该挂哪儿。</p>
+    </div>
+    <div class="panel">
+      <span class="tag a">这条最关键</span>
+      <h3>卸载是不是一等公民</h3>
+      <p style="font-size:14.5px">这是两者最大的结构差别。<strong>Cordis 把 revert 做成运行时义务</strong>，所以热替换、配置换实现、依赖消失自动重启才敢当日常功能用。pi 走的是另一条路：进程内直接改 inner loop，不靠卸载。</p>
+    </div>
+    <div class="panel">
+      <span class="tag g">价值定位</span>
+      <h3>一个在用，一个在读</h3>
+      <p style="font-size:14.5px">pi 已经把 runtime 用于真实的 agent 算法实验（<code>pack</code> 上下文压缩、<code>skill-recall</code>、GEPA 优化 SKILL.md 本身）。dsh 现阶段的价值主要是<strong>架构参考</strong>——226 个包的真实实现摆在那儿给你对照。</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:44px">把 Codex 也放进来：三种形态</h3>
+  <div class="grid3 reveal" style="margin-top:16px">
+    <div class="panel">
+      <span class="tag v">成品系统</span>
+      <h3>Codex</h3>
+      <p style="font-size:14.5px">原生 Rust agent 产品，核心 loop、工具路由、压缩、审批、沙箱都在 Rust 进程内；TS SDK 主要是 <code>spawn</code> CLI 后收发 JSONL。深度定制走配置、Hook、MCP/插件。<strong>带标准扩展面的成品。</strong></p>
+    </div>
+    <div class="panel">
+      <span class="tag b">可拆 runtime</span>
+      <h3>pi</h3>
+      <p style="font-size:14.5px"><code>AgentSession</code>、agent loop、工具执行与扩展回调<strong>直接放进宿主 Node 进程</strong>。适合改 context transform、工具调度、模型切换、UI。<strong>进程内的乐高。</strong></p>
+    </div>
+    <div class="panel">
+      <span class="tag g">无内核插件树</span>
+      <h3>dsh / Cordis</h3>
+      <p style="font-size:14.5px">一切皆插件，包括主循环；能力以三角色接缝定义，注册以可撤销 effect 落地。<strong>把「可替换」和「可卸载」做成了形式化目标。</strong></p>
+    </div>
+  </div>
+
+  <div class="verdict reveal" style="margin-top:28px">
+    <div class="n">↳</div>
+    <p><strong>选型：</strong>要做 agent 算法实验、改 inner loop、进程内控制上下文与工具语义 → <strong>pi</strong>（而且已有实验沉淀可抄）。要尽快拿到跨平台执行、审批沙箱、线程恢复、自动压缩的完整工程产品 → <strong>Codex</strong>。要研究「能力接缝该怎么切」，或者需要把某个能力<em>整块</em>换掉（远程沙箱、异构 subagent）→ 读 <strong>dsh</strong>，但别急着拿它日常干活。</p>
+  </div>
+
+  <div class="callout warn reveal" style="margin-top:22px">
+    <span class="k">这段对照的证据边界</span>
+    <p style="margin:0">pi 一侧的事实来自 2026-07-24 的内部分享文档与当时的公开源码对照（四层结构、五个扩展边界、bash 直接 spawn、pi-extensions 五类实验）；<strong>「未见形式化卸载模型」指的是公开材料里没有，不等于它不存在</strong>。dsh 一侧全部来自官方仓库 master 文档原文。两边资料的时间点相差三周，若 pi 近期有大改动，以仓库为准。</p>
+  </div>
+</section>
+
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="eyebrow">Sources &amp; 溯源</div>
@@ -974,7 +1077,7 @@ footer{padding:66px 0 80px;border-top:1px solid var(--line);margin-top:40px}
   <p style="margin-top:32px;font:600 10px/1.9 var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase">
     编制于 2026-08-14 · 发布次日 · 所有代码片段来自官方文档原文<br>
     DeepSeek Harness v0.1 developer preview · 会有破坏兼容的变更<br>
-    <span style="opacity:.5">dsh-cordis-v1</span>
+    <span style="opacity:.5">dsh-cordis-v2</span>
   </p>
 </footer>
 

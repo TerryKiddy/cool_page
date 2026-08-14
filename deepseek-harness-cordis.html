@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="DeepSeek Harness 与 Cordis 讲解：一切皆插件的 agent harness，以及它底下那套「时空可组合性」框架到底解决了什么。">
+<meta name="build" content="dsh-cordis-v1">
+<title>DeepSeek Harness × Cordis · 一切皆插件</title>
+<!-- dsh-cordis-v1 · light · 2026-08-14 -->
+<style>
+:root{
+  --void:#f6f8fd;
+  --deep:#ffffff;
+  --panel:#ffffff;
+  --panel-2:#eef3fc;
+  --line:rgba(28,50,108,.15);
+  --line-hot:rgba(58,85,230,.4);
+  --ink:#121a2e;
+  --ink-2:#3d4a67;
+  --muted:#78859f;
+  --ds:#3A55E6;
+  --ds-vivid:#4D6BFE;
+  --ds-soft:rgba(77,107,254,.085);
+  --green:#0d8a5e;
+  --amber:#b3730a;
+  --red:#d13a2f;
+  --violet:#6a45dd;
+  --shadow:0 1px 2px rgba(28,50,108,.05),0 10px 28px rgba(28,50,108,.055);
+  --display:"Futura","Avenir Next Condensed","PingFang SC","Hiragino Sans GB",sans-serif;
+  --body:"Avenir Next","PingFang SC","Hiragino Sans GB",sans-serif;
+  --mono:"SFMono-Regular","Menlo","Cascadia Code","Roboto Mono",monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--body);
+  line-height:1.72;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- atmosphere ---------- */
+.bg{position:fixed;inset:0;z-index:-2;pointer-events:none}
+.bg::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(28,50,108,.062) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(28,50,108,.062) 1px,transparent 1px);
+  background-size:64px 64px;
+}
+.bg::after{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(28,50,108,.034) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(28,50,108,.034) 1px,transparent 1px);
+  background-size:16px 16px;
+  mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,#000 0%,transparent 70%);
+}
+.glow{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(760px 460px at 78% -8%,rgba(77,107,254,.15),transparent 62%),
+    radial-gradient(620px 520px at 6% 34%,rgba(106,69,221,.07),transparent 64%),
+    radial-gradient(900px 600px at 50% 118%,rgba(13,138,94,.06),transparent 60%);
+}
+.grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.2;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E")}
+
+/* ---------- chrome ---------- */
+.progress{position:fixed;left:0;top:0;height:2px;width:100%;z-index:100;background:rgba(28,50,108,.07)}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ds-vivid),var(--green));box-shadow:0 0 10px rgba(77,107,254,.45)}
+
+.rail{position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;display:grid;gap:7px}
+.rail a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--muted);
+  font:600 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;transition:.24s}
+.rail b{display:block;width:16px;height:1px;background:currentColor;transition:.24s}
+.rail span{opacity:0;transform:translateX(-6px);transition:.24s;white-space:nowrap}
+.rail a:hover span,.rail a.on span{opacity:1;transform:none}
+.rail a.on{color:var(--ds)}
+.rail a.on b{width:30px;height:2px}
+@media(max-width:1180px){.rail{display:none}}
+
+main{width:min(1080px,calc(100% - 44px));margin:0 auto}
+section{padding:104px 0;position:relative;scroll-margin-top:8px}
+.rule{border-top:1px solid var(--line)}
+
+/* ---------- type ---------- */
+h1,h2,h3,h4,p,ul,ol{margin-top:0}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.015em;line-height:1.06;font-weight:500}
+h2{font-size:clamp(30px,4.4vw,50px);margin-bottom:16px}
+h3{font-size:clamp(19px,2.2vw,25px);margin-bottom:12px;letter-spacing:0}
+p{color:var(--ink-2);font-size:16px}
+a{color:var(--ds)}
+strong{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:.87em;color:var(--ds);background:rgba(77,107,254,.075);
+  border:1px solid rgba(77,107,254,.16);border-radius:4px;padding:.1em .38em;white-space:nowrap}
+
+.eyebrow{display:inline-flex;align-items:center;gap:11px;margin-bottom:22px;
+  font:700 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ds)}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--ds)}
+.lede{font-size:clamp(17px,1.7vw,19px);color:var(--ink);max-width:70ch}
+
+/* ---------- hero ---------- */
+.hero{padding:118px 0 84px;position:relative}
+.stamp{font:600 10.5px/1.9 var(--mono);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.stamp b{color:var(--green);font-weight:600}
+h1{font-size:clamp(46px,8.4vw,104px);margin:26px 0 0;letter-spacing:-.04em}
+h1 .k{color:var(--ds-vivid)}
+h1 .x{font-family:var(--mono);font-size:.42em;vertical-align:.42em;color:var(--muted);letter-spacing:0;margin:0 .18em}
+.tagline{margin:22px 0 0;font:500 clamp(15px,1.8vw,19px)/1.7 var(--body);color:var(--ink-2);max-width:64ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:36px}
+.chip{font:600 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 11px;border:1px solid var(--line);border-radius:2px;color:var(--ink-2);background:#fff;
+  box-shadow:0 1px 1px rgba(28,50,108,.035)}
+.chip.hot{border-color:var(--line-hot);color:var(--ds);background:var(--ds-soft)}
+
+/* ---------- panels ---------- */
+.panel{position:relative;background:var(--panel);box-shadow:var(--shadow);
+  border:1px solid var(--line);border-radius:3px;padding:26px}
+.panel::before,.panel::after{content:"";position:absolute;width:9px;height:9px;border:1px solid var(--line-hot)}
+.panel::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.panel::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.panel h3{margin-bottom:8px}
+.panel p:last-child{margin-bottom:0}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.tag{display:inline-block;font:700 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 8px;border-radius:2px;margin-bottom:12px}
+.tag.b{color:var(--ds);background:var(--ds-soft);border:1px solid var(--line-hot)}
+.tag.g{color:var(--green);background:rgba(13,138,94,.09);border:1px solid rgba(13,138,94,.28)}
+.tag.a{color:var(--amber);background:rgba(179,115,10,.09);border:1px solid rgba(179,115,10,.28)}
+.tag.v{color:var(--violet);background:rgba(106,69,221,.09);border:1px solid rgba(106,69,221,.26)}
+
+/* ---------- verdict ---------- */
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;
+  padding:24px;border-left:2px solid var(--ds);background:linear-gradient(90deg,var(--ds-soft),transparent 70%)}
+.verdict .n{font:600 34px/1 var(--display);color:var(--ds);opacity:.45}
+.verdict p{margin:0;font-size:16.5px;color:var(--ink)}
+.verdict + .verdict{margin-top:12px}
+.verdict.punch{border-left-color:var(--green);background:linear-gradient(90deg,rgba(13,138,94,.085),transparent 70%)}
+.verdict.punch .n{color:var(--green)}
+
+/* ---------- code ---------- */
+.code{background:#f4f7fe;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0}
+.code-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:9px 13px;border-bottom:1px solid var(--line);background:rgba(28,50,108,.028)}
+.code-name{font:600 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.copy{border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;
+  font:600 9.5px/1 var(--mono);letter-spacing:.1em;padding:5px 9px;border-radius:2px;transition:.2s;text-transform:uppercase}
+.copy:hover{color:var(--ds);border-color:var(--line-hot);background:var(--ds-soft)}
+.copy.ok{color:var(--green);border-color:rgba(13,138,94,.4)}
+pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.78;color:#2b3348}
+pre::-webkit-scrollbar{height:7px}
+pre::-webkit-scrollbar-thumb{background:rgba(28,50,108,.22);border-radius:4px}
+.c-key{color:#8b32b0}.c-str{color:#0a7346}.c-com{color:#8d97ac;font-style:italic}
+.c-fn{color:#2453cf}.c-num{color:#9c5a06}.c-hi{color:var(--amber)}.c-out{color:var(--green)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;
+  font:600 10.5px/1 var(--mono);letter-spacing:.1em;padding:9px 13px;border-radius:2px;transition:.2s;text-transform:uppercase}
+.tab:hover{color:var(--ink-2);border-color:var(--line-hot)}
+.tab.on{color:#fff;background:var(--ds-vivid);border-color:var(--ds-vivid);box-shadow:0 4px 14px rgba(77,107,254,.28)}
+.pane{display:none}.pane.on{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- table ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font:700 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line-hot)}
+.tbl td{padding:12px;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.tbl tr:hover td{background:rgba(77,107,254,.05)}
+.tbl td:first-child{color:var(--ink);font-weight:600}
+.scroller{overflow-x:auto}
+
+/* ---------- fiber machine ---------- */
+.fiber{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+@media(max-width:860px){.fiber{grid-template-columns:1fr}}
+.states{display:flex;flex-direction:column;gap:9px}
+.st{display:flex;align-items:center;gap:13px;padding:12px 14px;border:1px solid var(--line);
+  border-radius:3px;background:#fff;transition:.3s;position:relative;overflow:hidden}
+.st .dot{width:9px;height:9px;border-radius:50%;background:var(--muted);opacity:.35;flex:none;transition:.3s}
+.st .nm{font:700 12px/1 var(--mono);letter-spacing:.12em;color:var(--muted);transition:.3s;flex:none;width:98px}
+.st .ds{font-size:12.5px;color:var(--muted);opacity:.8;transition:.3s;line-height:1.5}
+.st.live{border-color:var(--line-hot);background:var(--ds-soft);box-shadow:0 4px 18px rgba(77,107,254,.12)}
+.st.live .dot{background:var(--ds-vivid);opacity:1;box-shadow:0 0 0 3px rgba(77,107,254,.18);animation:pulse 1.4s infinite}
+.st.live .nm{color:var(--ds)}.st.live .ds{color:var(--ink-2);opacity:1}
+.st.done .dot{background:var(--green);opacity:.8}
+.st.done .nm{color:var(--ink-2)}
+.st.err{border-color:rgba(209,58,47,.42);background:rgba(209,58,47,.06)}
+.st.err .dot{background:var(--red);opacity:1;box-shadow:0 0 0 3px rgba(209,58,47,.16)}
+.st.err .nm{color:var(--red)}.st.err .ds{color:#a3352c;opacity:1}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.45)}}
+
+.console{background:#fbfcff;border:1px solid var(--line);border-radius:3px;display:flex;flex-direction:column;min-height:280px;box-shadow:var(--shadow)}
+.console-bar{padding:9px 13px;border-bottom:1px solid var(--line);font:600 10px/1 var(--mono);
+  letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;justify-content:space-between}
+.console-out{flex:1;padding:13px;font:12px/1.85 var(--mono);color:#4c5a76;overflow-y:auto;max-height:300px}
+.console-out div{animation:slide .26s ease}
+@keyframes slide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.console-out .t{color:#a3adc2}
+.console-out .ok{color:var(--green)}
+.console-out .warn{color:var(--amber)}
+.console-out .bad{color:var(--red)}
+.console-out .info{color:#2453cf}
+.acts{display:flex;flex-wrap:wrap;gap:7px;padding:11px 13px;border-top:1px solid var(--line)}
+.act{border:1px solid var(--line);background:transparent;color:var(--ink-2);cursor:pointer;
+  font:600 10px/1 var(--mono);letter-spacing:.08em;padding:8px 11px;border-radius:2px;transition:.2s;text-transform:uppercase}
+.act:hover:not(:disabled){color:var(--ds);border-color:var(--line-hot);background:var(--ds-soft)}
+.act:disabled{opacity:.28;cursor:not-allowed}
+.act.danger:hover:not(:disabled){color:var(--red);border-color:rgba(209,58,47,.42);background:rgba(209,58,47,.07)}
+
+/* ---------- waterfall ---------- */
+.wf{display:grid;grid-template-columns:1fr;gap:14px}
+.wf-input{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.wf-input .lbl{font:600 10px/1 var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.chain{display:flex;flex-direction:column;gap:0}
+.hop{position:relative;padding:14px 16px;border:1px solid var(--line);border-radius:3px;
+  background:#fff;opacity:.44;transition:.35s;margin-bottom:26px}
+.hop:last-child{margin-bottom:0}
+.hop::after{content:"";position:absolute;left:28px;bottom:-26px;width:1px;height:26px;background:var(--line)}
+.hop:last-child::after{display:none}
+.hop.on{opacity:1;border-color:var(--line-hot);background:var(--ds-soft);box-shadow:0 4px 18px rgba(77,107,254,.1)}
+.hop.cut{border-color:rgba(179,115,10,.45);background:rgba(179,115,10,.08);opacity:1}
+.hop.skip{opacity:.3}
+.hop .hn{font:700 10.5px/1 var(--mono);letter-spacing:.12em;color:var(--muted);margin-bottom:7px;text-transform:uppercase}
+.hop.on .hn{color:var(--ds)}.hop.cut .hn{color:var(--amber)}
+.hop .hb{font-size:13.5px;color:var(--ink-2);line-height:1.6}
+.hop .hv{font:600 12px/1 var(--mono);color:var(--green);margin-top:9px;display:block}
+.hop.cut .hv{color:var(--amber)}
+
+/* ---------- flow ---------- */
+.flow{background:#f4f7fe;border:1px solid var(--line);border-radius:3px;padding:20px 22px;
+  font:12.4px/1.95 var(--mono);color:#3a465e;overflow-x:auto;white-space:pre;tab-size:2}
+.flow::-webkit-scrollbar{height:7px}
+.flow::-webkit-scrollbar-thumb{background:rgba(28,50,108,.22);border-radius:4px}
+.flow .d{color:#7b87a1}
+.flow .e{color:#2453cf}
+.flow .w{color:var(--amber);font-weight:600}
+.flow .s{color:var(--green)}
+.flow .note{color:#98a2b8;font-style:italic}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font:600 10px/1 var(--mono);
+  letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:7px;vertical-align:-1px;border-radius:1px}
+
+/* ---------- seam ---------- */
+.seam{display:grid;grid-template-columns:repeat(3,1fr);gap:0;align-items:stretch}
+@media(max-width:760px){.seam{grid-template-columns:1fr}}
+.seam-cell{padding:20px;border:1px solid var(--line);border-right:0}
+.seam-cell:last-child{border-right:1px solid var(--line)}
+@media(max-width:760px){.seam-cell{border-right:1px solid var(--line);border-bottom:0}
+  .seam-cell:last-child{border-bottom:1px solid var(--line)}}
+.seam-cell .r{font:700 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.seam-cell .ex{font-family:var(--mono);font-size:12px;color:var(--ink);margin-top:11px;line-height:1.9}
+.seam-cell .ex b{color:var(--ds);font-weight:600}
+
+/* ---------- misc ---------- */
+ul.clean{list-style:none;padding:0;margin:0}
+ul.clean li{position:relative;padding-left:20px;margin-bottom:11px;color:var(--ink-2);font-size:15px;line-height:1.7}
+ul.clean li::before{content:"";position:absolute;left:0;top:.68em;width:7px;height:1px;background:var(--ds)}
+ul.clean li:last-child{margin-bottom:0}
+ul.clean.warn li::before{background:var(--amber)}
+
+.callout{border:1px dashed var(--line-hot);background:var(--ds-soft);border-radius:3px;padding:18px 20px}
+.callout.warn{border-color:rgba(179,115,10,.4);background:rgba(179,115,10,.06)}
+.callout .k{font:700 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ds);display:block;margin-bottom:9px}
+.callout.warn .k{color:var(--amber)}
+.callout p:last-child{margin-bottom:0}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+footer{padding:66px 0 80px;border-top:1px solid var(--line);margin-top:40px}
+.src{font-size:13px;color:var(--muted);line-height:2}
+.src a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line)}
+.src a:hover{color:var(--ds);border-color:var(--ds)}
+.prov{display:inline-block;font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 6px;border-radius:2px;
+  margin-right:8px;text-transform:uppercase;vertical-align:1px}
+.prov.v{color:var(--green);border:1px solid rgba(13,138,94,.32);background:rgba(13,138,94,.07)}
+.prov.p{color:var(--amber);border:1px solid rgba(179,115,10,.32);background:rgba(179,115,10,.07)}
+.prov.i{color:var(--violet);border:1px solid rgba(106,69,221,.3);background:rgba(106,69,221,.07)}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="glow"></div><div class="grain"></div>
+<div class="progress"><i id="bar"></i></div>
+
+<nav class="rail" id="rail">
+  <a href="#verdict"><b></b><span>结论</span></a>
+  <a href="#five"><b></b><span>五个概念</span></a>
+  <a href="#spacetime"><b></b><span>时空</span></a>
+  <a href="#fiber"><b></b><span>Fiber</span></a>
+  <a href="#events"><b></b><span>事件</span></a>
+  <a href="#compose"><b></b><span>组装</span></a>
+  <a href="#seam"><b></b><span>接缝</span></a>
+  <a href="#turn"><b></b><span>主循环</span></a>
+  <a href="#hands"><b></b><span>动手</span></a>
+  <a href="#cost"><b></b><span>代价</span></a>
+</nav>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="stamp">2026-08-14 · 发布次日拆解 &nbsp;/&nbsp; <b>v0.1 DEVELOPER PREVIEW</b> · MIT</div>
+  <h1>DeepSeek<br>Harness<span class="x">×</span><span class="k">Cordis</span></h1>
+  <p class="tagline">一个开源 coding agent 客户端，和它底下那套"什么都能拔掉重插"的插件内核。真正值得看的不是 UI，是<strong>没有特权内核</strong>这件事本身——连 agent 主循环都只是一个插件。</p>
+  <div class="chips">
+    <span class="chip hot">2026-08-13 开源</span>
+    <span class="chip">MIT</span>
+    <span class="chip">226 个 npm 包</span>
+    <span class="chip">Cordis 4.0.0-rc.7（vendored）</span>
+    <span class="chip">npx @deepseek-ai/dsh web</span>
+    <span class="chip hot">有论文</span>
+  </div>
+</header>
+
+<!-- ============ VERDICT ============ -->
+<section id="verdict" class="rule">
+  <div class="eyebrow">Section 01 · 结论先行</div>
+  <h2>30 秒版本</h2>
+  <p class="lede" style="margin-bottom:34px">如果你只想知道"这东西值不值得看"，看这四条就够了。</p>
+
+  <div class="reveal">
+    <div class="verdict">
+      <div class="n">1</div>
+      <p><strong>DeepSeek Harness（命令行叫 <code>dsh</code>）是 DeepSeek 官方开源的 agent harness</strong>，功能位面上对标 Claude Code / Codex：能读写文件、跑命令、派子 agent、维护 plan，自带 Web UI（默认 <code>127.0.0.1:3080</code>）。2026-08-13 发的 v0.1 developer preview，MIT。</p>
+    </div>
+    <div class="verdict">
+      <div class="n">2</div>
+      <p><strong>它的设计只有一句话：一切皆插件。</strong>模型适配器、工具注册表、会话日志、系统提示词组装、沙箱、存储、UI——包括 agent 主循环<em>自己</em>——全都是挂在同一棵树上的插件。官方文档的原话是：<em>"没有一个特权的 core 可以打补丁"</em>，扩展 dsh 的方式是在旁边再挂一个插件。</p>
+    </div>
+    <div class="verdict">
+      <div class="n">3</div>
+      <p><strong>Cordis 是让这句话成立的那层框架，而且它不是 DeepSeek 造的。</strong>Cordis 来自开源社区 <code>cordiverse</code>（MIT，自称"时空可组合性元框架"），DeepSeek 把它连同 8 个配套包一起 <em>vendor</em> 进仓库、改名到 <code>@deepseek-ai/*</code> 域下，并记录了 18 处本地修改。它背后有一篇 2026-08-13 的论文草稿。</p>
+    </div>
+    <div class="verdict punch">
+      <div class="n">4</div>
+      <p><strong>一句话记住分工：Harness 是产品，Cordis 是"这个产品可以被整块换掉"的原因。</strong>换掉 <code>ctx.shell</code> 的 provider，Bash / PTY / LSP 一起搬到远程沙箱；换掉 subagent provider，你的子 agent 可以直接是 Claude Code 或 Codex——仓库里真有 <code>subagent-claude-code</code> 和 <code>subagent-codex</code> 两个包。</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:30px">
+    <span class="k">这页的证据标准</span>
+    <p style="margin:0">下面所有代码、事件名、状态机、包名，都来自 <code>deepseek-ai/deepseek-harness</code> 仓库 master 分支的官方文档原文（<code>docs/architecture.md</code>、<code>docs/cordis-primer.md</code>、七章 <code>cordis-tutorial/</code>、<code>vendor/README.md</code> 及自动生成的能力图）。属于我个人判断的段落会明确标出。</p>
+  </div>
+</section>
+
+<!-- ============ FIVE IDEAS ============ -->
+<section id="five" class="rule">
+  <div class="eyebrow">Section 02 · Cordis 的全部</div>
+  <h2>五个概念，讲完这框架</h2>
+  <p class="lede" style="margin-bottom:34px">官方 primer 用五句话概括了 Cordis。这五句话是理解整个 harness 的钥匙——后面所有复杂度都是它们的组合。</p>
+
+  <div class="grid2 reveal">
+    <div class="panel">
+      <span class="tag b">01 / Plugin</span>
+      <h3>插件就是一个函数</h3>
+      <p>不需要继承、不需要注册宏。导出一个 <code>apply(ctx)</code> 就是插件。框架加载时调用它，传进去一个 <strong>context</strong>——这个 <code>ctx</code> 是插件对外的唯一接口。</p>
+    </div>
+    <div class="panel">
+      <span class="tag b">02 / Context</span>
+      <h3>Context 是服务仓库</h3>
+      <p>一个服务占住一个稳定的 <code>ctx.&lt;key&gt;</code>，比如 <code>ctx.tools</code>、<code>ctx.llm</code>、<code>ctx.sessions</code>。<strong>别的插件按 key 找它，而不是 import 某个具体实现</strong>——这就是配置能换掉实现的原因。</p>
+    </div>
+    <div class="panel">
+      <span class="tag g">03 / inject</span>
+      <h3>依赖用 inject 声明</h3>
+      <p><code>export const inject = ['tools']</code>。列出的服务不存在时，插件停在 PENDING 不动；一旦齐了才跑 <code>apply</code>。<strong>加载顺序由依赖决定，不由配置文件里的行号决定</strong>——把 YAML 里两行对调，输出一模一样。</p>
+    </div>
+    <div class="panel">
+      <span class="tag v">04 / Events</span>
+      <h3>类型化事件</h3>
+      <p>服务通过 TS 声明合并注册事件名，再用 <code>emit</code> / <code>waterfall</code> / <code>parallel</code> / <code>serial</code> / <code>bail</code> 五种模式派发。<strong>用哪种模式是事件公开契约的一部分</strong>，新事件必须用 <code>@mode</code> 标注。</p>
+    </div>
+    <div class="panel" style="grid-column:1/-1">
+      <span class="tag a">05 / Effects</span>
+      <h3>所有注册都是可撤销的副作用</h3>
+      <p>提示词片段、工具 schema、模型适配器、事件监听——全部通过 <code>ctx.effect()</code> 或 <code>ctx.on()</code> 安装，<strong>插件卸载时框架按逆序把它们全部撤回</strong>。你几乎不用手写 <code>ctx.effect()</code>，因为 <code>ctx.on()</code>、<code>ctx.plugin()</code>、<code>ctx.tools.register()</code> 本身就已经是 effect 了。这条是整套设计的地基，第 3 节展开。</p>
+    </div>
+  </div>
+
+  <div style="margin-top:26px" class="reveal">
+    <div class="tabs" data-group="five">
+      <button class="tab on" data-t="f1">函数插件</button>
+      <button class="tab" data-t="f2">提供服务</button>
+      <button class="tab" data-t="f3">消费服务</button>
+      <button class="tab" data-t="f4">组装</button>
+    </div>
+
+    <div class="pane on" id="f1">
+      <div class="code">
+        <div class="code-bar"><span class="code-name">hello.ts — 最小插件</span><button class="copy">copy</button></div>
+<pre><span class="c-key">import type</span> { Context } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/cordis'</span>
+
+<span class="c-key">export const</span> name = <span class="c-str">'hello'</span>          <span class="c-com">// 可选，只用于诊断显示</span>
+
+<span class="c-key">export function</span> <span class="c-fn">apply</span>(ctx: Context) {
+  <span class="c-fn">console.log</span>(<span class="c-str">'hello from my first plugin'</span>)
+}</pre>
+      </div>
+      <p style="margin-top:12px;font-size:14px;color:var(--muted)">文件里没有任何框架 bootstrap 代码。插件只描述"我贡献什么"，谁跟谁组装由 <code>cordis.yml</code> 决定。</p>
+    </div>
+
+    <div class="pane" id="f2">
+      <div class="code">
+        <div class="code-bar"><span class="code-name">greeter.ts — 占住 ctx.greeter</span><button class="copy">copy</button></div>
+<pre><span class="c-key">import</span> { Service, <span class="c-key">type</span> Context } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/cordis'</span>
+
+<span class="c-com">// 编译期：把 greeter 加进 Context 接口，让 ctx.greeter 到处都有类型</span>
+<span class="c-key">declare module</span> <span class="c-str">'@deepseek-ai/cordis'</span> {
+  <span class="c-key">interface</span> Context {
+    greeter: GreeterService
+  }
+}
+
+<span class="c-key">export class</span> GreeterService <span class="c-key">extends</span> Service {
+  <span class="c-fn">constructor</span>(ctx: Context) {
+    <span class="c-fn">super</span>(ctx, <span class="c-str">'greeter'</span>)   <span class="c-hi">// 运行期：注册成 ctx.greeter，这本身是个 effect</span>
+  }
+
+  <span class="c-fn">greet</span>(who: <span class="c-key">string</span>) {
+    <span class="c-key">return</span> <span class="c-str">`Hello, ${who}!`</span>
+  }
+}
+
+<span class="c-key">export const</span> name = <span class="c-str">'greeter'</span>
+<span class="c-key">export function</span> <span class="c-fn">apply</span>(ctx: Context) {
+  ctx.<span class="c-fn">plugin</span>(GreeterService)   <span class="c-com">// Service 子类本身就是插件</span>
+}</pre>
+      </div>
+      <p style="margin-top:12px;font-size:14px;color:var(--muted)">两半配合：<code>super(ctx,'greeter')</code> 管运行期，<code>declare module</code> 管类型。少了后者服务照跑，只是消费方失去类型安全。</p>
+    </div>
+
+    <div class="pane" id="f3">
+      <div class="code">
+        <div class="code-bar"><span class="code-name">consumer.ts — 按 key 拿，不 import 实现</span><button class="copy">copy</button></div>
+<pre><span class="c-key">import type</span> { Context } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/cordis'</span>
+
+<span class="c-key">export const</span> name = <span class="c-str">'consumer'</span>
+<span class="c-key">export const</span> inject = [<span class="c-str">'greeter'</span>]   <span class="c-hi">// 硬依赖：没有它就不加载</span>
+
+<span class="c-key">export function</span> <span class="c-fn">apply</span>(ctx: Context) {
+  <span class="c-com">// 能进到这里，ctx.greeter 一定就绪</span>
+  <span class="c-fn">console.log</span>(ctx.greeter.<span class="c-fn">greet</span>(<span class="c-str">'world'</span>))
+}
+
+<span class="c-com">// 软依赖写法：不 inject，用的时候探一下</span>
+<span class="c-com">// const greeter = ctx.get('greeter')</span>
+<span class="c-com">// console.log(greeter?.greet('maybe') ?? 'no greeter available')</span></pre>
+      </div>
+    </div>
+
+    <div class="pane" id="f4">
+      <div class="code">
+        <div class="code-bar"><span class="code-name">cordis.yml — 应用就是一份清单</span><button class="copy">copy</button></div>
+<pre><span class="c-key">- name</span>: <span class="c-str">'./greeter.ts'</span>
+<span class="c-key">- name</span>: <span class="c-str">'./consumer.ts'</span>
+
+<span class="c-com"># 两行对调，输出完全一样 —— 顺序来自 inject，不来自行号</span>
+<span class="c-com"># 删掉 greeter.ts：consumer 停在 PENDING，不打印、不崩溃</span>
+
+<span class="c-out">$ node --import tsx ../../vendor/cordis/bin.js</span>
+<span class="c-out">Hello, world!</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPACETIME ============ -->
+<section id="spacetime" class="rule">
+  <div class="eyebrow">Section 03 · 核心洞察</div>
+  <h2>"时空可组合性"到底在说什么</h2>
+  <p class="lede">Cordis 自称 <em>a meta-framework of spatiotemporal composability</em>，配套论文《A Programming Paradigm for Spatiotemporal Composability》（2026-08-13 草稿）。名字听着玄，拆开只有两件事，而且都很具体。</p>
+
+  <div class="grid2 reveal" style="margin-top:34px">
+    <div class="panel">
+      <span class="tag a">Temporal · 时间维度</span>
+      <h3>组件被移除时，副作用能被<em>完整</em>回滚</h3>
+      <p style="margin-bottom:14px">论文的说法是 <strong>revertible effects</strong>：每一次对 context 的改动都自带一个逆操作，由运行时追踪。落到代码上就是——你注册的东西，框架替你记着怎么撤。</p>
+      <div class="code" style="margin-top:14px">
+        <div class="code-bar"><span class="code-name">ctx.effect() 是唯一的手写形态</span></div>
+<pre>ctx.<span class="c-fn">effect</span>(() =&gt; {
+  <span class="c-key">const</span> timer = <span class="c-fn">setInterval</span>(tick, <span class="c-num">200</span>)
+  <span class="c-key">return</span> () =&gt; <span class="c-fn">clearInterval</span>(timer)  <span class="c-hi">// ← 逆操作</span>
+})</pre>
+      </div>
+      <p style="margin-top:14px;margin-bottom:0">但你很少写它，因为这些<strong>本来就是 effect</strong>：<code>ctx.on()</code>、<code>ctx.plugin()</code>、<code>ctx.tools.register()</code>、<code>ctx.llm.registerAdapter()</code>。卸载时它们自动解绑，<em>永远不需要写 removeListener</em>。</p>
+    </div>
+
+    <div class="panel">
+      <span class="tag g">Spatial · 空间维度</span>
+      <h3>依赖能被声明，并且是<em>响应式</em>的</h3>
+      <p style="margin-bottom:14px">论文叫 <strong>reactive coeffects</strong>：context 每次变化都会按组件的 coeffect 声明去通知它。落到代码上就是 <code>inject</code>，而且它<strong>不是一次性的启动检查</strong>。</p>
+      <div class="callout" style="margin-top:14px">
+        <span class="k">关键行为</span>
+        <p style="margin:0;font-size:14.5px">运行中某个被 inject 的服务消失了（provider 被卸载或热替换），<strong>所有依赖它的插件会跟着卸载</strong>；服务回来时再自动装回去。</p>
+      </div>
+      <p style="margin-top:14px;margin-bottom:0">这条防住了一类经典 bug：一个还在跑的消费者，手里攥着一个已经失效的服务引用。它自己的注册会随着依赖消失一起被撤掉。</p>
+    </div>
+  </div>
+
+  <div class="verdict punch reveal" style="margin-top:26px">
+    <div class="n">=</div>
+    <p><strong>两条合起来，才换来这三件事：</strong>① 改一行 <code>cordis.yml</code> 就能换掉实现，而不是重启进程；② HMR 保存文件就热替换，旧实例的注册不会残留；③ 卸掉 <code>dsh-bash-local</code>、挂上另一个 <code>shell</code> provider，所有 <code>inject('shell')</code> 的插件干净地对着新实现重启一遍。</p>
+  </div>
+
+  <div class="callout warn reveal" style="margin-top:22px">
+    <span class="k">我的判断（非官方口径）</span>
+    <p style="margin:0">"agent harness 需要一套插件框架"这个论断不新鲜，新鲜的是<strong>他们把可撤销性当成形式化目标去做，而不是当成最佳实践去劝</strong>。多数插件系统的卸载是"尽力而为"，于是没人敢真的在生产里热卸载。Cordis 把 revert 做成运行时义务，HMR 和"配置即架构"才敢当成日常功能用。</p>
+  </div>
+</section>
+
+<!-- ============ FIBER ============ -->
+<section id="fiber" class="rule">
+  <div class="eyebrow">Section 04 · 交互</div>
+  <h2>Fiber：一个插件实例的一生</h2>
+  <p class="lede" style="margin-bottom:32px">每个被加载的插件实例拥有一个 <strong>fiber</strong>——它的运行时句柄和生命周期。理解这张状态机，就能解释 90% 的"我的插件为什么没反应"。点下面的按钮亲手跑一遍。</p>
+
+  <div class="fiber reveal">
+    <div class="states" id="states">
+      <div class="st" data-s="PENDING"><i class="dot"></i><span class="nm">PENDING</span><span class="ds">已声明，但 inject 的服务还没齐</span></div>
+      <div class="st" data-s="LOADING"><i class="dot"></i><span class="nm">LOADING</span><span class="ds">依赖齐了，apply 正在执行</span></div>
+      <div class="st" data-s="ACTIVE"><i class="dot"></i><span class="nm">ACTIVE</span><span class="ds">跑起来了，注册全部生效</span></div>
+      <div class="st" data-s="FAILED"><i class="dot"></i><span class="nm">FAILED</span><span class="ds">apply 抛错，或 config 校验没过</span></div>
+      <div class="st" data-s="UNLOADING"><i class="dot"></i><span class="nm">UNLOADING</span><span class="ds">disposer 逆序执行中</span></div>
+      <div class="st" data-s="DISPOSED"><i class="dot"></i><span class="nm">DISPOSED</span><span class="ds">全部拆干净，子插件递归卸载</span></div>
+    </div>
+
+    <div class="console">
+      <div class="console-bar"><span>fiber log</span><span id="cur" style="color:var(--ds)">idle</span></div>
+      <div class="console-out" id="log"></div>
+      <div class="acts">
+        <button class="act" id="b-mount">挂载插件</button>
+        <button class="act" id="b-serve">提供依赖</button>
+        <button class="act danger" id="b-drop">拔掉依赖</button>
+        <button class="act danger" id="b-throw">apply 抛错</button>
+        <button class="act" id="b-hmr">改文件 HMR</button>
+        <button class="act" id="b-reset">重置</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid3 reveal" style="margin-top:24px">
+    <div class="panel">
+      <span class="tag a">陷阱 #1</span>
+      <h3>PENDING 是静默的</h3>
+      <p style="font-size:14.5px">插件 inject 了一个没人提供的服务，它<strong>永远等下去，不报错、不打印</strong>——因为 provider 完全可能稍后才挂上。官方 tutorial 直说这是"我的插件为什么什么都没打印"的常见答案。</p>
+    </div>
+    <div class="panel">
+      <span class="tag b">怎么查</span>
+      <h3>遍历 registry</h3>
+      <p style="font-size:14.5px;margin-bottom:10px">任何 context 都能枚举插件注册表：</p>
+      <div class="code"><pre><span class="c-key">for</span> (<span class="c-key">const</span> rt <span class="c-key">of</span> ctx.registry.<span class="c-fn">values</span>())
+  <span class="c-key">for</span> (<span class="c-key">const</span> f <span class="c-key">of</span> rt.fibers)
+    <span class="c-key">if</span> (f.state === FiberState.PENDING)
+      <span class="c-fn">report</span>(f.name)</pre></div>
+    </div>
+    <div class="panel">
+      <span class="tag a">陷阱 #2</span>
+      <h3>异步 disposer 是并发的</h3>
+      <p style="font-size:14.5px">卸载时 disposer 按<strong>注册的逆序</strong>开始跑，但多个 <em>async</em> disposer 是并发的，没有串行完成保证。顺序敏感的清理必须塞进<em>同一个</em> <code>ctx.effect()</code> 里 await。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EVENTS ============ -->
+<section id="events" class="rule">
+  <div class="eyebrow">Section 05 · 交互</div>
+  <h2>五种派发模式，和那个会咬人的 waterfall</h2>
+  <p class="lede" style="margin-bottom:30px">服务负责"直接调用"，事件负责"我宣布一件事，不关心谁在听"。派发模式决定了监听者能不能返回值、能不能并发、能不能截断别人。</p>
+
+  <div class="scroller panel reveal" style="padding:6px 0">
+    <table class="tbl">
+      <thead><tr><th>模式</th><th>调用</th><th>语义</th></tr></thead>
+      <tbody>
+        <tr><td>emit</td><td><code>ctx.emit(name, ...args)</code></td><td>同步广播。返回的 promise 和值既不 await 也不收集。纯观察用。</td></tr>
+        <tr><td>parallel</td><td><code>await ctx.parallel(...)</code></td><td>所有监听者并发跑，一起 await。</td></tr>
+        <tr><td>serial</td><td><code>await ctx.serial(...)</code></td><td>按注册顺序串行 await；第一个返回非 <code>null</code>/<code>false</code>/<code>undefined</code> 的胜出并终止其余。</td></tr>
+        <tr><td>bail</td><td><code>ctx.bail(...)</code></td><td>serial 的同步版本。</td></tr>
+        <tr><td style="color:var(--amber)">waterfall</td><td><code>ctx.waterfall(name, ...args, next)</code></td><td><strong>环绕式中间件</strong>。监听者收到 <code>(...args, next)</code>：调 <code>next()</code> 把（可能被包装过的）结果交给下一个；不调就地短路。整套拦截能力都建在它上面。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:44px">waterfall 现场演示</h3>
+  <p style="max-width:66ch">两个监听者：第一个把下游结果转大写，第二个在输入里含 <code>blocked</code> 时直接返回、<strong>不调 next()</strong>。看输入不同时链条怎么走。</p>
+
+  <div class="wf reveal" style="margin-top:18px">
+    <div class="wf-input">
+      <span class="lbl">input</span>
+      <button class="tab on" data-wf="hello">'hello'</button>
+      <button class="tab" data-wf="blocked">'blocked words'</button>
+      <button class="act" id="wf-run" style="margin-left:auto">▶ 跑一遍</button>
+    </div>
+
+    <div class="chain" id="chain">
+      <div class="hop" data-h="0">
+        <div class="hn">Listener 1 · 包装型</div>
+        <div class="hb"><code>const downstream = await next()</code> → <code>return downstream.toUpperCase()</code><br><span style="color:var(--muted);font-size:12.5px">先调 next() 往下走，拿到结果后在"回程"上加工。</span></div>
+        <span class="hv" id="hv0"></span>
+      </div>
+      <div class="hop" data-h="1">
+        <div class="hn">Listener 2 · 决策型</div>
+        <div class="hb"><code>if (input.includes('blocked')) return '** blocked **'</code><br><span style="color:var(--muted);font-size:12.5px">它认为自己拥有这个决策 → 不调 next()，链条到此为止。</span></div>
+        <span class="hv" id="hv1"></span>
+      </div>
+      <div class="hop" data-h="2">
+        <div class="hn">Default · 传给 ctx.waterfall 的兜底函数</div>
+        <div class="hb">最内层的默认行为。<strong>被短路时它根本不会执行。</strong></div>
+        <span class="hv" id="hv2"></span>
+      </div>
+    </div>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-name">最终结果</span></div>
+<pre id="wf-out"><span class="c-com">点上面的「跑一遍」</span></pre>
+    </div>
+  </div>
+
+  <div class="callout warn reveal" style="margin-top:26px">
+    <span class="k">仓库级的铁律</span>
+    <p style="margin:0"><strong>只观察或只加注解的 waterfall 监听者，必须调 <code>next()</code>。</strong>不调 = 你在主动短路。在一个日志监听里忘了 <code>next()</code>，会<em>静默地</em>把默认行为对所有下游吞掉。官方 primer 把这条列为 standing rule。这也是"环绕式中间件"这个模型的固有税：能力越大，忘一行的代价越大。</p>
+  </div>
+
+  <p style="margin-top:24px;color:var(--muted);font-size:14.5px">harness 里真正用 waterfall 的地方：<code>agent/pre-step</code>（决定模型看见什么）、<code>agent/request</code>（插件可以替换模型调用配置）、<code>llm/stream</code>、<code>tools/pre-execute</code> / <code>tools/execute</code> / <code>tools/post-execute</code>、<code>approval/request</code>（策略可以代替人回答审批）。</p>
+</section>
+
+<!-- ============ COMPOSE ============ -->
+<section id="compose" class="rule">
+  <div class="eyebrow">Section 06 · 从框架到产品</div>
+  <h2>一个跑起来的 dsh，是怎么被"叠"出来的</h2>
+  <p class="lede" style="margin-bottom:32px">Cordis 只给了机制，Harness 需要一套发行格式。它的答案是三层叠加：<strong>bundle → profile → patch</strong>，最后得到一棵插件树。</p>
+
+  <div class="grid3 reveal">
+    <div class="panel">
+      <span class="tag b">Bundle</span>
+      <h3>一沓配置行 + 代码</h3>
+      <p style="font-size:14.5px"><code>dsh-base</code> 是每个 profile 的第一层：模型适配器、工具、持久化、沙箱与审批策略、设置、凭据、遥测。<code>dsh-web-app</code> 加浏览器应用，<code>dsh-headless</code> 加一个完全无服务器的一次性 runner。</p>
+    </div>
+    <div class="panel">
+      <span class="tag g">Profile</span>
+      <h3>一份具名组合</h3>
+      <p style="font-size:14.5px">存在 Harness home 里，列出它要叠哪些 bundle、装了哪些树外插件、以及用户自己的 <code>cordis.patch.yml</code>。<code>web</code> 和 <code>headless</code> 作为模板出厂。</p>
+    </div>
+    <div class="panel">
+      <span class="tag a">Patch</span>
+      <h3>按 id 精确改写</h3>
+      <p style="font-size:14.5px">补丁按 <code>id</code> 命中某一行、整体替换它的 config，或插入新行。叠加顺序：各 bundle → profile 的 patch → home 级 patch → <code>--patch</code> 覆盖层。</p>
+    </div>
+  </div>
+
+  <div class="code reveal" style="margin-top:24px">
+    <div class="code-bar"><span class="code-name">看你这台机器实际启动的那棵树</span><button class="copy">copy</button></div>
+<pre><span class="c-out">$</span> dsh --profile web --dump-config
+
+<span class="c-com"># 它打印出来的任何一行，你都能用自己的 patch 替换掉</span></pre>
+  </div>
+
+  <h3 style="margin-top:48px">核心包与它们占住的 ctx key</h3>
+  <div class="scroller panel reveal" style="padding:6px 0;margin-top:16px">
+    <table class="tbl">
+      <thead><tr><th>包</th><th>负责</th><th>ctx key</th></tr></thead>
+      <tbody>
+        <tr><td>core/session</td><td>append-only 的 <code>SessionEvent</code> 日志与内存存储</td><td><code>ctx.sessions</code></td></tr>
+        <tr><td>core/system-prompt</td><td>提示词片段与工具 schema 的组装</td><td><code>ctx.systemPrompt</code></td></tr>
+        <tr><td>core/tools</td><td>作用域化的工具注册表与受保护的执行流水线</td><td><code>ctx.tools</code></td></tr>
+        <tr><td>core/agent</td><td><code>Agent</code> 接口、活体注册表、<code>agent/*</code> 事件</td><td><code>ctx.agents</code></td></tr>
+        <tr><td>core/agent-loop</td><td>实现该接口的默认驱动 —— <strong>主循环也只是个插件</strong></td><td><code>ctx.agentLoop</code></td></tr>
+        <tr><td>core/scope</td><td>每个 agent 的作用域注册原语</td><td>纯库，不占 key</td></tr>
+        <tr><td>llm/llm</td><td>消息与流式词汇表，以及适配器接缝</td><td><code>ctx.llm</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout reveal" style="margin-top:24px">
+    <span class="k">规模参照</span>
+    <p style="margin:0"><code>packages/</code> 下有 <strong>226 个</strong>独立 npm 包（含 <code>package.json</code> 的叶子目录），分在 49 个大类里；整仓约 8600 个文件。<code>vendor/</code> 里源码内联了 9 个上游包：cordis 4.0.0-rc.7、loader、include、group、timer、hmr、logger-console、cosmokit、schemastery，全部改名到 <code>@deepseek-ai/*</code> 域，并且 <code>vendor/README.md</code> 逐条记录了 18 处本地修改（含对 <code>fiber.ts</code> 的可重入卸载加固）。<span style="color:var(--muted)">—— 数据来自仓库文件树与 vendor manifest，2026-08-14 核对。</span></p>
+  </div>
+</section>
+
+<!-- ============ SEAM ============ -->
+<section id="seam" class="rule">
+  <div class="eyebrow">Section 07 · 最有用的一个概念</div>
+  <h2>Capability Seam：换一个 provider，整个产品跟着变</h2>
+  <p class="lede" style="margin-bottom:30px">Harness 把"可替换能力"定义成一个有三个角色的结构，叫 <strong>seam（接缝）</strong>。文档说得很硬：<em>三个角色齐了才叫 seam，单独一个角色不是</em>；新增一项能力意味着把三个角色都设计出来。</p>
+
+  <div class="seam reveal">
+    <div class="seam-cell">
+      <div class="r" style="color:var(--ds)">Role 1 — Service Definition</div>
+      <p style="font-size:14.5px;margin-bottom:0">拥有 <code>ctx.&lt;key&gt;</code> 和词汇表类型的那个 Cordis <code>Service</code>。可以是抽象类，也可以是具体注册表，<strong>但绝不能是一个 TS <code>interface</code></strong>。</p>
+      <div class="ex"><b>dsh-shell</b></div>
+    </div>
+    <div class="seam-cell">
+      <div class="r" style="color:var(--green)">Role 2 — Service Provider</div>
+      <p style="font-size:14.5px;margin-bottom:0">一个或多个实现。它们互相之间不需要知道对方存在，配置选谁就是谁。</p>
+      <div class="ex"><b>dsh-bash-local</b><br><b>dsh-bash-sandbox</b></div>
+    </div>
+    <div class="seam-cell">
+      <div class="r" style="color:var(--amber)">Role 3 — Consumer</div>
+      <p style="font-size:14.5px;margin-bottom:0">inject 这个服务去用的人，常见是一个面向模型的工具。</p>
+      <div class="ex"><b>dsh-tool-bash</b></div>
+    </div>
+  </div>
+
+  <div class="grid2 reveal" style="margin-top:26px">
+    <div class="panel">
+      <span class="tag b">威力示例 A</span>
+      <h3>一次替换，搬走三样东西</h3>
+      <p>文件系统 provider 和子进程 provider 共享同一个"执行世界"。把它们指向一个远程沙箱，<strong>Bash、PTY、LSP 会一起跟着搬过去</strong>——不需要给任何 provider 开分叉。</p>
+    </div>
+    <div class="panel">
+      <span class="tag v">威力示例 B</span>
+      <h3>你的子 agent 可以是别人家的</h3>
+      <p>同一个 subagent 接口后面，实现可以差得非常远。仓库里现成的 provider 包括 <code>subagent-fork-in-process</code>、<code>subagent-spawn-in-process</code>、<code>subagent-acp</code>、<code>subagent-dsh-sdk</code>，以及 <code style="color:var(--violet)">subagent-claude-code</code> 和 <code style="color:var(--violet)">subagent-codex</code>。</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:44px">新行为该往哪挂：官方对照表（节选）</h3>
+  <div class="scroller panel reveal" style="padding:6px 0;margin-top:16px">
+    <table class="tbl">
+      <thead><tr><th>你想干的事</th><th>挂载点</th></tr></thead>
+      <tbody>
+        <tr><td>加一个模型供应商</td><td>把适配器注册到 <code>ctx.llm</code></td></tr>
+        <tr><td>加一个面向模型的能力</td><td>注册到 <code>ctx.tools</code>，它的 schema 自动进提示词组装</td></tr>
+        <tr><td>给某一个会话不同的能力集</td><td>组一个 agent preset；里面的 service 行需要 <code>isolate</code> 域</td></tr>
+        <tr><td>加 shell 执行</td><td>注册一个 <code>ctx.shell</code> 后端；本地那个通过 <code>ctx.subprocess</code> 起进程</td></tr>
+        <tr><td>加一个人类命令（斜杠命令）</td><td>注册到 <code>ctx.commands</code>；<strong>不经过模型 turn</strong> 直接派发</td></tr>
+        <tr><td>拦截一次请求 / 工具 / 整个 turn</td><td>用对应的 <code>agent/*</code> 或 <code>tools/*</code> 事件；<code>agent/turn-stopping</code> 能停掉一个 turn</td></tr>
+        <tr><td>往模型上下文里塞东西</td><td><code>agent.inject()</code>，它会落在下一次被准入的请求里</td></tr>
+        <tr><td>加持久化的会话状态</td><td>扩展 <code>SessionEventMap</code>；从日志渲染与回放</td></tr>
+        <tr><td>把注册限定在单个 agent</td><td>用那个 agent 的 <code>agent.ctx</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ TURN ============ -->
+<section id="turn" class="rule">
+  <div class="eyebrow">Section 08 · 主循环</div>
+  <h2>一个 turn 里到底发生了什么</h2>
+  <p class="lede" style="margin-bottom:20px">术语先对齐：<strong>step</strong> = 一次模型请求 + 它调起的那些工具。<strong>turn</strong> = 零个或多个 step；它在第一份输入被认领之前开启，在"什么都不欠了"之后关闭。<em>零个 step 的 turn 也是合法的</em>——被拒绝的输入照样留下一条 turn 记录。</p>
+
+  <div class="flow reveal"><span class="s">turn/start</span>
+  <span class="d">认领 next-step 输入 + 一条排队消息</span>
+  <span class="d">组装提示词片段 + 工具 schema</span>
+  → <span class="w">agent/pre-step</span>                   <span class="note">waterfall · reject | enter(messages)</span>
+     <span class="d">被拒绝，或第一次 enter 被改写成空 → 关掉 turn，不花 step</span>
+     <span class="s">step/start</span>
+     <span class="d">把 enter 进来的消息作为 user/message 落日志</span>
+     <span class="d">从日志推导模型历史</span>
+     <span class="w">agent/request</span> → <span class="w">llm/stream</span> → <span class="s">assistant/chunk</span>* → <span class="s">assistant/message</span>
+     <span class="s">tool/call</span>* → <span class="w">tools/pre-execute</span> → <span class="w">tools/execute</span> → <span class="w">tools/post-execute</span> → <span class="s">tool/result</span>*
+     <span class="s">step/end</span>
+     <span class="d">工具还欠一次请求，或新的 next-step 输入到了 → 认领 → 下一个 step</span>
+  → <span class="e">agent/turn-stopping</span>            <span class="note">serial · 没有 next()</span>
+<span class="s">turn/end</span></div>
+
+  <div class="legend">
+    <span><i style="background:var(--green)"></i>持久会话事件（可回放）</span>
+    <span><i style="background:var(--amber)"></i>waterfall 扩展点（必须调 next）</span>
+    <span><i style="background:#2453cf"></i>其他活体扩展点</span>
+  </div>
+
+  <div class="grid2 reveal" style="margin-top:30px">
+    <div class="panel">
+      <span class="tag g">三个事件域</span>
+      <h3>选错域是最常见的设计错误</h3>
+      <ul class="clean" style="margin-top:10px">
+        <li><strong>Session 事件</strong>——追加进日志的持久事实，经 <code>session/event</code> 广播。<em>当这件事必须活过一次重载时用它。</em></li>
+        <li><strong>Agent 事件（<code>agent/*</code>）</strong>——携带一个活的 <code>Agent</code>：收件箱、step、状态、请求、校验、续跑。<em>用来观察或拦截正在飞的工作。</em></li>
+        <li><strong>Capability 事件</strong>（<code>fs/*</code>、<code>tools/*</code>、<code>telemetry/*</code>）——把策略和适配器挂到接缝上，<em>不用 import 主循环</em>。</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag b">硬不变式</span>
+      <h3>"模型可见 = 已落日志"</h3>
+      <p>任何进到模型请求里的东西，<strong>都必须能从会话日志重建出来</strong>，而且有一条运行时不变式在断言这件事。</p>
+      <p style="margin-bottom:0">推论很硬：<em>想给模型加一种新的可见输入，就必须新增一个会话事件</em>——扩展 <code>SessionEventMap</code>，然后从日志渲染。fork、resume、转写、遥测、持久化全部由这一条流派生。</p>
+    </div>
+  </div>
+
+  <div class="callout warn reveal" style="margin-top:24px">
+    <span class="k">我的判断（非官方口径）</span>
+    <p style="margin:0">这条不变式是这个仓库里我最看重的设计。一旦"模型看见的"和"日志记下的"允许分叉，会话回放、上下文压缩、fork、审计就会全部变成近似值。它把这层做成运行时断言，代价是加一种上下文注入必须走一遍事件类型扩展——<strong>用开发便利换取可回放性</strong>。对一个要长期做上下文工程的 harness，这笔交易划算。</p>
+  </div>
+</section>
+
+<!-- ============ HANDS ON ============ -->
+<section id="hands" class="rule">
+  <div class="eyebrow">Section 09 · 动手</div>
+  <h2>五分钟：跑起来，然后写个工具</h2>
+
+  <div class="tabs reveal" data-group="hands">
+    <button class="tab on" data-t="h1">① 跑起来</button>
+    <button class="tab" data-t="h2">② 注册一个模型可调工具</button>
+    <button class="tab" data-t="h3">③ 旁观所有工具调用</button>
+    <button class="tab" data-t="h4">④ 组装并运行</button>
+    <button class="tab" data-t="h5">⑤ 挂进 Web UI</button>
+  </div>
+
+  <div class="pane on reveal" id="h1">
+    <div class="code">
+      <div class="code-bar"><span class="code-name">最快路径 · 需要 Node.js</span><button class="copy">copy</button></div>
+<pre><span class="c-out">$</span> npx @deepseek-ai/dsh web
+<span class="c-com"># Web UI 默认在 http://127.0.0.1:3080</span>
+
+<span class="c-com"># 从源码跑：</span>
+<span class="c-out">$</span> git clone https://github.com/deepseek-ai/deepseek-harness.git
+<span class="c-out">$</span> cd deepseek-harness &amp;&amp; pnpm install &amp;&amp; pnpm run build
+<span class="c-out">$</span> pnpm dsh web</pre>
+    </div>
+    <p style="margin-top:14px;font-size:14.5px;color:var(--muted)">首次进去要做两件事：<strong>Settings → Models</strong> 填 API key（存完立即生效，不用重启）；然后 <strong>Choose workspace</strong> 选一个工作目录——没选之前会话输入框是不可用的。官方还给了四种运行形态：Standard（完整 coding agent）、Code（加 Code Mode SDK 的多步 TypeScript 编排）、Minimal（只有 bash + 字符串替换编辑器）、Creator（做自定义预设、运行时内省和插件实验）。</p>
+  </div>
+
+  <div class="pane reveal" id="h2">
+    <div class="code">
+      <div class="code-bar"><span class="code-name">greet-tool.ts</span><button class="copy">copy</button></div>
+<pre><span class="c-key">import type</span> { Context } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/cordis'</span>
+<span class="c-key">import</span> { defineTool } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/dsh-tools'</span>
+<span class="c-key">import</span> { CallId } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/dsh-llm'</span>
+
+<span class="c-key">export const</span> name = <span class="c-str">'greet-tool'</span>
+<span class="c-key">export const</span> inject = [<span class="c-str">'tools'</span>]        <span class="c-com">// 等工具注册表就绪</span>
+
+<span class="c-key">export function</span> <span class="c-fn">apply</span>(ctx: Context) {
+  ctx.tools.<span class="c-fn">register</span>(<span class="c-fn">defineTool</span>({
+    name: <span class="c-str">'greet'</span>,
+    description: <span class="c-str">'Greet the named person.'</span>,
+    parameters: {
+      name: { type: <span class="c-str">'string'</span>, required: <span class="c-key">true</span>, description: <span class="c-str">'Who to greet'</span> },
+    },
+    output: {
+      schema: { type: <span class="c-str">'string'</span> },
+      render: (_args, value) =&gt; [{ type: <span class="c-str">'text'</span>, text: value }],
+    },
+    <span class="c-key">async</span> <span class="c-fn">execute</span>(args) {
+      <span class="c-key">return</span> <span class="c-str">`Hello, ${args.name}!`</span>
+    },
+  }))
+
+  <span class="c-com">// 手动驱动一次真实执行流水线，替模型走一遍</span>
+  <span class="c-key">void</span> (<span class="c-key">async</span> () =&gt; {
+    <span class="c-key">const</span> result = <span class="c-key">await</span> ctx.tools.<span class="c-fn">execute</span>({
+      callId: <span class="c-fn">CallId</span>(<span class="c-str">'demo-1'</span>),
+      name: <span class="c-str">'greet'</span>,
+      arguments: { name: <span class="c-str">'Cordis'</span> },
+      signal: <span class="c-key">new</span> <span class="c-fn">AbortController</span>().signal,
+    })
+    <span class="c-fn">console.log</span>(<span class="c-str">'tool replied:'</span>, <span class="c-fn">JSON.stringify</span>(result.content))
+  })()
+}</pre>
+    </div>
+    <p style="margin-top:14px;font-size:14.5px;color:var(--muted)"><code>ctx.tools.register()</code> 把 disposer 挂到调用它的插件上，<strong>插件卸载工具自动下架</strong>。<code>defineTool</code> 把 <code>parameters</code> 转成给模型看的 JSON Schema、推断 <code>args</code> 类型，并在 <code>execute</code> 之前校验模型给的参数。</p>
+  </div>
+
+  <div class="pane reveal" id="h3">
+    <div class="code">
+      <div class="code-bar"><span class="code-name">tool-logger.ts — 完全不认识 greet-tool</span><button class="copy">copy</button></div>
+<pre><span class="c-key">import type</span> { Context } <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/cordis'</span>
+<span class="c-key">import type</span> {} <span class="c-key">from</span> <span class="c-str">'@deepseek-ai/dsh-tools'</span>   <span class="c-com">// 只为拿到声明合并</span>
+
+<span class="c-key">export const</span> name = <span class="c-str">'tool-logger'</span>
+<span class="c-key">export const</span> inject = [<span class="c-str">'tools'</span>]
+
+<span class="c-key">export function</span> <span class="c-fn">apply</span>(ctx: Context) {
+  ctx.<span class="c-fn">on</span>(<span class="c-str">'tools/result'</span>, (exec, result) =&gt; {
+    <span class="c-key">const</span> text = result.content
+      .<span class="c-fn">map</span>(b =&gt; (b.type === <span class="c-str">'text'</span> ? b.text : <span class="c-str">''</span>))
+      .<span class="c-fn">join</span>(<span class="c-str">''</span>)
+    <span class="c-fn">console.log</span>(<span class="c-str">`[tool-logger] ${exec.name} -&gt; ${text}`</span>)
+  })
+}</pre>
+    </div>
+    <p style="margin-top:14px;font-size:14.5px;color:var(--muted)">这就是整个架构的缩影：<strong>两个插件谁也不知道对方存在</strong>，注册表服务和事件把它们接起来。想给全仓所有工具加 timeout / 重试 / 埋点，也是同一个套路——挂 <code>tools/execute</code> waterfall，不碰任何工具的代码。</p>
+  </div>
+
+  <div class="pane reveal" id="h4">
+    <div class="code">
+      <div class="code-bar"><span class="code-name">cordis.yml + 输出</span><button class="copy">copy</button></div>
+<pre><span class="c-key">- name</span>: <span class="c-str">'@deepseek-ai/dsh-system-prompt'</span>   <span class="c-com"># tools 依赖它，少了 tools 会卡 PENDING</span>
+<span class="c-key">- name</span>: <span class="c-str">'@deepseek-ai/dsh-tools'</span>
+<span class="c-key">- name</span>: <span class="c-str">'./tool-logger.ts'</span>
+<span class="c-key">- name</span>: <span class="c-str">'./greet-tool.ts'</span>
+
+<span class="c-out">$ node --import tsx ../../vendor/cordis/bin.js</span>
+
+<span class="c-out">[tool-logger] greet -&gt; Hello, Cordis!</span>
+<span class="c-out">tool replied: [{"type":"text","text":"Hello, Cordis!"}]</span></pre>
+    </div>
+    <p style="margin-top:14px;font-size:14.5px;color:var(--muted)">注意 logger 先打印：<code>tools/result</code> 是在结果物化阶段发出的，<strong>早于 <code>execute</code> 的 promise 兑现给调用者</strong>。整个 tutorial 全程不需要 API key。</p>
+  </div>
+
+  <div class="pane reveal" id="h5">
+    <div class="code">
+      <div class="code-bar"><span class="code-name">scratch-plugin/cordis.yml — 作为 Web overlay 插进去</span><button class="copy">copy</button></div>
+<pre><span class="c-key">- insert</span>:
+    <span class="c-key">- id</span>: hello
+      <span class="c-key">name</span>: <span class="c-str">'/absolute/path/to/deepseek-harness/scratch-plugin/src/my-plugin.ts'</span>
+
+<span class="c-com"># 路径必须是绝对路径：patch 文件只贡献配置，</span>
+<span class="c-com"># 不改变 loader 解析模块路径所用的 profile 目录。</span>
+
+<span class="c-out">$ pnpm dsh web --patch ./scratch-plugin/cordis.yml</span></pre>
+    </div>
+    <p style="margin-top:14px;font-size:14.5px;color:var(--muted)">再加上 <code>@deepseek-ai/cordis-plugin-hmr</code>，保存文件就热替换：旧实例卸载（注册全部回收）→ 新代码加载 → <code>apply</code> 重跑。想让插件被别人搜到，官方建议给仓库打 <code>dsh-plugin</code> 这个 GitHub topic。</p>
+  </div>
+
+  <div class="callout warn reveal" style="margin-top:26px">
+    <span class="k">配置的两个坑</span>
+    <p style="margin:0 0 8px"><strong>① 给每行写 <code>id</code>。</strong>没有 <code>id</code> 的条目每次读取都会拿到一个新生成的 id，于是<em>任何一次改 cordis.yml，它都算"删除+新增"而重新挂载</em>，哪怕它自己那几行一个字没动。</p>
+      <p style="margin:0"><strong>② 模块名拼错不会崩。</strong>解析不了的条目走 Cordis logger 服务上报，而启动早期这条报告可能在 console exporter 就位前就丢了。新加的条目"什么都没发生"，先查拼写。</p>
+  </div>
+</section>
+
+<!-- ============ COST ============ -->
+<section id="cost" class="rule">
+  <div class="eyebrow">Section 10 · 平衡看</div>
+  <h2>它买到了什么，又付了什么</h2>
+
+  <div class="grid2 reveal">
+    <div class="panel">
+      <span class="tag g">买到的</span>
+      <h3>可替换性是真的，不是 PPT</h3>
+      <ul class="clean" style="margin-top:12px">
+        <li>换 provider 不用 fork：文件系统 + 子进程一起指向远程沙箱，Bash / PTY / LSP 跟着走。</li>
+        <li>子 agent 可以是 Claude Code、Codex、ACP 对端或进程内 fork——同一个接口。</li>
+        <li>HMR 敢在开发时天天用，因为卸载是有保证的而不是尽力而为。</li>
+        <li>会话日志是唯一真相源，回放 / fork / 压缩 / 遥测全从它派生。</li>
+        <li>MIT，框架层连同上游 Cordis 一并 vendor 进仓库：可审计、可打补丁、版本钉死。</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag a">付掉的</span>
+      <h3>灵活性的账单</h3>
+      <ul class="clean warn" style="margin-top:12px">
+        <li><strong>PENDING 是静默的。</strong>依赖没满足 = 不报错、不打印，只是永远不启动。</li>
+        <li><strong>服务名是每应用一个扁平命名空间。</strong>harness 已经占了 <code>tools</code>、<code>llm</code> 这类通名，自定义服务必须加前缀。</li>
+        <li><strong>waterfall 忘调 <code>next()</code> 会静默吞掉下游默认行为。</strong>这是能力换来的固有风险，只能靠纪律和 review。</li>
+        <li><strong>异步 disposer 并发执行</strong>，顺序敏感的清理必须自己塞进同一个 effect 里 await。</li>
+        <li><strong>developer preview。</strong>README 用全大写写着：会有破坏兼容的变更。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict punch reveal" style="margin-top:28px">
+    <div class="n">↳</div>
+    <p><strong>我的建议（非官方口径）：</strong>现在把它当"架构参考实现"读，比当"日常工具"用价值大得多。如果你在自研 agent 平台，<code>docs/architecture.md</code> + <code>docs/capability-seams.md</code> + 那篇论文，是目前公开材料里对<em>「agent harness 该怎么分层」</em>说得最完整的一份——而且附带 226 个包的真实实现给你对照。要日常干活，等 API 稳一稳。</p>
+  </div>
+
+  <div class="callout reveal" style="margin-top:24px">
+    <span class="k">顺带一提</span>
+    <p style="margin:0">同一天 DeepSeek 还上了 V4-Pro（API 价格更高）。<span class="prov p">press</span>这条来自媒体报道，本页没有从官方仓库核实，与 harness / Cordis 的技术内容无关，仅作发布语境。</p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="eyebrow">Sources &amp; 溯源</div>
+  <p style="max-width:70ch;margin-bottom:22px">页内标注约定：<span class="prov v">verified</span>取自官方仓库文档原文或仓库文件树（2026-08-14 核对）；<span class="prov p">press</span>媒体报道，未从一手材料核实；<span class="prov i">judgment</span>我的判断，已在正文明确标出。</p>
+  <div class="src">
+    <span class="prov v">verified</span><a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener">github.com/deepseek-ai/deepseek-harness</a> — README / docs/architecture.md / docs/cordis-primer.md / docs/glossary.md / docs/agent-lifecycle.md / docs/tool-execution-pipeline.md / docs/capability-seams.md / docs/cordis-tutorial/01–07 / vendor/README.md<br>
+    <span class="prov v">verified</span><a href="https://deepseek-harness.github.io/deepseek-harness/en/reference/cordis-primer" target="_blank" rel="noopener">deepseek-harness.github.io — 官方文档站</a><br>
+    <span class="prov v">verified</span><a href="https://deepseek.com/harness/en/" target="_blank" rel="noopener">deepseek.com/harness — 产品页（四种运行形态、安装命令、MIT）</a><br>
+    <span class="prov v">verified</span><a href="https://github.com/cordiverse/cordis" target="_blank" rel="noopener">github.com/cordiverse/cordis — Cordis 上游（MIT）</a><br>
+    <span class="prov v">verified</span><a href="https://github.com/cordiverse/paper" target="_blank" rel="noopener">cordiverse/paper — 《A Programming Paradigm for Spatiotemporal Composability》2026-08-13 草稿</a><br>
+    <span class="prov p">press</span>VentureBeat、Pandaily 等对 2026-08-13 发布与 V4-Pro 的报道
+  </div>
+  <p style="margin-top:32px;font:600 10px/1.9 var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase">
+    编制于 2026-08-14 · 发布次日 · 所有代码片段来自官方文档原文<br>
+    DeepSeek Harness v0.1 developer preview · 会有破坏兼容的变更<br>
+    <span style="opacity:.5">dsh-cordis-v1</span>
+  </p>
+</footer>
+
+</main>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- scroll progress + rail ---------- */
+var bar = document.getElementById('bar');
+var railLinks = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+var sections = railLinks.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+function onScroll(){
+  var h = document.documentElement;
+  var max = h.scrollHeight - h.clientHeight;
+  bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  var mid = h.scrollTop + window.innerHeight * 0.35;
+  var idx = -1;
+  for (var i = 0; i < sections.length; i++){
+    if (sections[i] && sections[i].offsetTop <= mid) idx = i;
+  }
+  railLinks.forEach(function(a,i){ a.classList.toggle('on', i === idx); });
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', onScroll);
+onScroll();
+
+/* ---------- reveal ---------- */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {threshold: 0, rootMargin: '0px 0px -30px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+/* safety net: an anchor jump must never leave visible content stuck at opacity 0 */
+function sweepReveals(){
+  document.querySelectorAll('.reveal:not(.in)').forEach(function(el){
+    var r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0){ el.classList.add('in'); io.unobserve(el); }
+  });
+}
+window.addEventListener('hashchange', function(){ setTimeout(sweepReveals, 60); });
+window.addEventListener('scroll', sweepReveals, {passive:true});
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tabs[data-group]').forEach(function(group){
+  group.querySelectorAll('.tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      group.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      var target = btn.getAttribute('data-t');
+      group.parentElement.querySelectorAll('.pane').forEach(function(p){
+        p.classList.toggle('on', p.id === target);
+      });
+    });
+  });
+});
+
+/* ---------- copy ---------- */
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var pre = btn.closest('.code').querySelector('pre');
+    var text = pre.innerText;
+    navigator.clipboard.writeText(text).then(function(){
+      btn.textContent = 'copied';
+      btn.classList.add('ok');
+      setTimeout(function(){ btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1400);
+    }).catch(function(){
+      btn.textContent = 'failed';
+      setTimeout(function(){ btn.textContent = 'copy'; }, 1400);
+    });
+  });
+});
+
+/* ---------- fiber state machine ---------- */
+var stEls = {};
+document.querySelectorAll('#states .st').forEach(function(el){ stEls[el.getAttribute('data-s')] = el; });
+var logEl = document.getElementById('log');
+var curEl = document.getElementById('cur');
+var fib = { state: null, dep: false, effects: 0 };
+
+var btn = {
+  mount: document.getElementById('b-mount'),
+  serve: document.getElementById('b-serve'),
+  drop:  document.getElementById('b-drop'),
+  thr:   document.getElementById('b-throw'),
+  hmr:   document.getElementById('b-hmr'),
+  reset: document.getElementById('b-reset')
+};
+
+var clock = 0;
+function stamp(){ clock += (7 + Math.floor(Math.random()*23)); return String(clock).padStart(4,'0'); }
+
+function say(text, cls){
+  var d = document.createElement('div');
+  d.innerHTML = '<span class="t">+' + stamp() + 'ms</span> <span class="' + (cls||'') + '">' + text + '</span>';
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setState(s, err){
+  fib.state = s;
+  Object.keys(stEls).forEach(function(k){
+    var el = stEls[k];
+    el.classList.remove('live','done','err');
+  });
+  if (s){
+    var order = ['PENDING','LOADING','ACTIVE','FAILED','UNLOADING','DISPOSED'];
+    var target = stEls[s];
+    if (target) target.classList.add(err ? 'err' : 'live');
+    if (s === 'ACTIVE'){ stEls.PENDING.classList.add('done'); stEls.LOADING.classList.add('done'); }
+    if (s === 'UNLOADING' || s === 'DISPOSED'){ stEls.ACTIVE.classList.add('done'); }
+  }
+  curEl.textContent = s || 'idle';
+  curEl.style.color = err ? 'var(--red)' : (s === 'ACTIVE' ? 'var(--green)' : 'var(--ds)');
+  sync();
+}
+
+function sync(){
+  btn.mount.disabled  = fib.state !== null;
+  btn.serve.disabled  = !(fib.state === 'PENDING' && !fib.dep);
+  btn.drop.disabled   = !(fib.state === 'ACTIVE' && fib.dep);
+  btn.thr.disabled    = fib.state !== 'PENDING';
+  btn.hmr.disabled    = fib.state !== 'ACTIVE';
+}
+
+btn.mount.addEventListener('click', function(){
+  logEl.innerHTML = ''; clock = 0;
+  say('loader 读取 cordis.yml，挂载 ./my-plugin.ts', 'info');
+  say('该插件声明 inject: [\'greeter\']');
+  setState('PENDING');
+  say('fiber → PENDING &nbsp;— 服务 greeter 不存在，不执行 apply', 'warn');
+  say('注意：这里既不报错也不打印任何东西', 'warn');
+});
+
+btn.serve.addEventListener('click', function(){
+  fib.dep = true;
+  say('挂载 ./greeter.ts → super(ctx, \'greeter\') 占住 ctx.greeter', 'info');
+  say('coeffect 解析：greeter 到位，唤醒等待中的 fiber', 'ok');
+  setState('LOADING');
+  say('fiber → LOADING &nbsp;— apply(ctx) 执行中');
+  setTimeout(function(){
+    fib.effects = 3;
+    say('ctx.on(\'tools/result\', …) &nbsp;→ effect #1 已登记');
+    say('ctx.tools.register(greet) &nbsp;→ effect #2 已登记');
+    say('ctx.effect(setInterval …) &nbsp;→ effect #3 已登记');
+    setState('ACTIVE');
+    say('fiber → ACTIVE &nbsp;— 3 个可撤销副作用在册', 'ok');
+  }, 460);
+});
+
+btn.drop.addEventListener('click', function(){
+  say('provider dsh-greeter 被卸载 → ctx.greeter 消失', 'bad');
+  say('reactive coeffect 触发：依赖它的 fiber 必须退场', 'warn');
+  setState('UNLOADING');
+  say('fiber → UNLOADING &nbsp;— disposer 按注册逆序开始');
+  setTimeout(function(){
+    say('effect #3 撤销 → clearInterval');
+    say('effect #2 撤销 → greet 工具下架，提示词里也没了');
+    say('effect #1 撤销 → 监听器解绑');
+    say('子插件递归卸载完成');
+    setState('DISPOSED');
+    fib.dep = false;
+    say('fiber → DISPOSED &nbsp;— 零残留。greeter 回来时会自动重装', 'ok');
+    setTimeout(function(){ fib.state = null; sync(); btn.mount.disabled = false; }, 200);
+  }, 520);
+});
+
+btn.thr.addEventListener('click', function(){
+  say('依赖满足，apply(ctx) 开始执行', 'info');
+  setState('LOADING');
+  setTimeout(function(){
+    say('Error: apply exploded', 'bad');
+    setState('FAILED', true);
+    say('fiber → FAILED &nbsp;— 加载失败是响亮的失败，不是被跳过的条目', 'bad');
+    say('config 校验不过也落在这里：ValidationError 会带上精确路径', 'warn');
+    setTimeout(function(){ fib.state = null; fib.dep = false; sync(); }, 200);
+  }, 420);
+});
+
+btn.hmr.addEventListener('click', function(){
+  say('hmr: reload plugin at my-plugin.ts', 'info');
+  setState('UNLOADING');
+  say('旧实例卸载 —— 3 个 effect 全部回收');
+  setTimeout(function(){
+    setState('LOADING');
+    say('新代码加载，apply 重新执行');
+    setTimeout(function(){
+      setState('ACTIVE');
+      say('fiber → ACTIVE &nbsp;— 旧实例的注册没有一条残留', 'ok');
+      say('这就是 temporal composability 的现金价值', 'ok');
+    }, 380);
+  }, 380);
+});
+
+btn.reset.addEventListener('click', function(){
+  logEl.innerHTML = ''; clock = 0; fib = { state:null, dep:false, effects:0 };
+  setState(null);
+});
+
+setState(null);
+
+/* ---------- waterfall demo ---------- */
+var wfInput = 'hello';
+document.querySelectorAll('[data-wf]').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('[data-wf]').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    wfInput = b.getAttribute('data-wf');
+    resetChain();
+  });
+});
+
+var hops = Array.prototype.slice.call(document.querySelectorAll('#chain .hop'));
+var hvs = [document.getElementById('hv0'), document.getElementById('hv1'), document.getElementById('hv2')];
+var wfOut = document.getElementById('wf-out');
+
+function resetChain(){
+  hops.forEach(function(h){ h.className = 'hop'; });
+  hvs.forEach(function(v){ v.textContent = ''; });
+  wfOut.innerHTML = '<span class="c-com">点上面的「跑一遍」</span>';
+}
+
+document.getElementById('wf-run').addEventListener('click', function(){
+  resetChain();
+  var blocked = wfInput === 'blocked';
+  var literal = blocked ? "'blocked words'" : "'hello'";
+  var seq = [];
+
+  seq.push(function(){ hops[0].classList.add('on'); hvs[0].textContent = '→ 调用 next()，等下游'; });
+  seq.push(function(){ hops[1].classList.add(blocked ? 'cut' : 'on');
+    hvs[1].textContent = blocked ? '⛔ 命中 blocked → 直接 return，不调 next()' : '→ 不命中，调用 next()'; });
+  seq.push(function(){
+    if (blocked){
+      hops[2].classList.add('skip');
+      hvs[2].textContent = '（从未执行）';
+    } else {
+      hops[2].classList.add('on');
+      hvs[2].textContent = "返回 'hello'";
+    }
+  });
+  seq.push(function(){
+    var mid = blocked ? "'** blocked **'" : "'hello'";
+    hvs[1].textContent += blocked ? '' : '  ⤴ 原样上传 ' + mid;
+    hvs[0].textContent = '⤴ 回程加工：toUpperCase() → ' + (blocked ? "'** BLOCKED **'" : "'HELLO'");
+  });
+  seq.push(function(){
+    wfOut.innerHTML = '<span class="c-out">$ ctx.waterfall(\'demo/transform\', ' + literal + ', default)</span>\n' +
+      '<span class="c-hi">' + (blocked ? '** BLOCKED **' : 'HELLO') + '</span>\n\n' +
+      '<span class="c-com">' + (blocked
+        ? '// Listener 2 短路了链条，最内层 default 从未运行；\n// 但 Listener 1 仍然在回程上加工了那条替换消息。'
+        : '// 完整走通：1 → 2 → default，然后一路回程加工。') + '</span>';
+  });
+
+  seq.forEach(function(fn, i){ setTimeout(fn, 340 * i + 60); });
+});
+
+resetChain();
+
+})();
+</script>
+</body>
+</html>

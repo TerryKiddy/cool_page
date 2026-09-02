@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>买点看板 · 2026-09-02 收盘</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root { --ink:#1f2937; --mute:#6b7280; --line:#e5e7eb; --bg:#f3f4f6; --up:#dc2626; --dn:#059669; --amber:#b45309; }
+  body { font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--ink); padding:24px 12px; -webkit-font-smoothing:antialiased; }
+  .page { max-width:1040px; margin:0 auto; background:#fff; border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,.07); overflow:hidden; }
+  .hd { background:#111827; color:#fff; padding:26px 30px 22px; }
+  .hd .tag { font-size:12px; letter-spacing:1px; color:#9ca3af; margin-bottom:8px; }
+  .hd h1 { font-size:24px; font-weight:700; }
+  .hd .sub { margin-top:10px; font-size:13px; color:#d1d5db; line-height:1.75; }
+  .hd .sub b { color:#fbbf24; font-weight:600; }
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:18px; }
+  .kpi { background:rgba(255,255,255,.07); border-radius:10px; padding:12px 14px; }
+  .kpi .v { font-size:26px; font-weight:700; line-height:1.1; }
+  .kpi .l { font-size:12px; color:#9ca3af; margin-top:4px; }
+  section { padding:22px 30px; border-top:1px solid #f1f2f4; }
+  h2 { font-size:16px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+  h2 .n { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px; background:#111827; color:#fff; font-size:12px; }
+  .lead { font-size:13px; color:var(--mute); line-height:1.7; margin-bottom:14px; }
+  .wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table { width:100%; border-collapse:collapse; font-size:13px; min-width:720px; }
+  th { text-align:left; font-weight:600; color:var(--mute); padding:8px 10px; border-bottom:2px solid var(--line); font-size:12px; white-space:nowrap; }
+  td { padding:9px 10px; border-bottom:1px solid #f1f2f4; vertical-align:top; line-height:1.6; }
+  tr:last-child td { border-bottom:none; }
+  .num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .up { color:var(--up); font-weight:600; } .dn { color:var(--dn); font-weight:600; }
+  .name { font-weight:700; white-space:nowrap; } .code { color:var(--mute); font-size:11px; font-weight:400; margin-left:4px; }
+  .badge { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; white-space:nowrap; }
+  .b-wait { background:#fef3c7; color:#92400e; } .b-no { background:#fee2e2; color:#991b1b; } .b-hold { background:#e0e7ff; color:#3730a3; }
+  .b-ask { background:#fae8ff; color:#86198f; } .b-live { background:#dcfce7; color:#166534; } .b-near { background:#ffedd5; color:#9a3412; }
+  .gate { font-weight:600; } .dist { font-size:12px; color:var(--mute); }
+  .callout { border-radius:10px; padding:14px 16px; font-size:13px; line-height:1.8; margin-bottom:10px; }
+  .c-amber { background:#fffbeb; border:1px solid #fde68a; } .c-gray { background:#f9fafb; border:1px solid var(--line); } .c-red { background:#fef2f2; border:1px solid #fecaca; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+  .card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .card h3 { font-size:14px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .card p { font-size:13px; line-height:1.75; color:#374151; }
+  .card p + p { margin-top:4px; }
+  .k { color:var(--mute); }
+  ul { padding-left:18px; font-size:13px; line-height:1.8; }
+  .ft { padding:16px 30px 22px; font-size:12px; color:var(--mute); line-height:1.7; border-top:1px solid #f1f2f4; }
+  @media (max-width:640px) { .kpis { grid-template-columns:repeat(2,1fr); } .hd, section, .ft { padding-left:16px; padding-right:16px; } .hd h1 { font-size:20px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hd">
+    <div class="tag">观察池 · 从零重判 · 收盘口径</div>
+    <h1>买点看板 · 2026-09-02 收盘</h1>
+    <div class="sub">14 只观察标的今晚全部按今天的行情、最新一季财报和近两周一手公告重新判定，<b>不引用任何历史结论</b>。结论一句话：<b>今天没有一只在可买位</b>。能做的事只有两种：把门写好等它来，或者不碰。所有「门」都是<b>收盘价</b>口径，盘中触及不算。</div>
+    <div class="kpis">
+      <div class="kpi"><div class="v">0</div><div class="l">今天可买</div></div>
+      <div class="kpi"><div class="v">10</div><div class="l">等门（含 159558 分批）</div></div>
+      <div class="kpi"><div class="v">6</div><div class="l">不碰</div></div>
+      <div class="kpi"><div class="v">1</div><div class="l">待裁决（159122 换基）</div></div>
+    </div>
+  </div>
+
+  <section>
+    <h2><span class="n">1</span>门清单 · 按离门远近排</h2>
+    <div class="lead">「距门」= 收盘价要走多远才碰到门，负数是往下等回踩，正数是往上等突破。两道门的标的先到哪个走哪个。「量比」= 当天成交量 / 20 日均量，大于 1.3 才算放量。</div>
+    <div class="wrap">
+    <table>
+      <thead><tr><th>标的</th><th>今收</th><th>门</th><th>距门</th><th>仓位 / 动作</th><th>论点证伪线（任一触发上桌重审）</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td class="name">天山铝业<span class="code">002532</span></td><td class="num">12.94 <span class="dn">−1.8%</span></td>
+          <td><div class="gate">b · 回踩 12.50 ±0.10，且当天沪铝 &gt; 23,500</div><div class="gate">a · 放量收上 13.10，量比 &gt; 1.3</div></td>
+          <td class="num"><div>−3.4%</div><div>+1.2%</div></td>
+          <td>1,500 股。门 b 挂 12.55 限价每日重挂；门 a 先到则当天改买。第二个 1,500 股等放量收上 14.51 再说。不在现价追。</td>
+          <td>沪铝收盘 &lt; 23,000；氧化铝收盘 &gt; 3,200；三季报单季扣非同比 &lt; +30%。收盘破 12.50 也上桌。</td>
+          <td><span class="badge b-near">贴门</span></td></tr>
+        <tr><td class="name">三一重工<span class="code">600031</span></td><td class="num">19.63 <span class="dn">−2.9%</span></td>
+          <td><div class="gate">b · 回踩 19.21 不破 + 三季报扣非转正（10 月）</div><div class="gate">a · 收盘站上 20.84 且次日不回落</div></td>
+          <td class="num"><div>−2.1%</div><div>+6.2%</div></td>
+          <td>持仓 300 股照拿。中报归母 +9% 但扣非 −13.5%，中间是非经常性损益，加仓要等扣非说话。</td>
+          <td>三季报单季扣非仍为负；海外毛利率同比转降。</td>
+          <td><span class="badge b-hold">持仓·等门</span></td></tr>
+        <tr><td class="name">创新药ETF<span class="code">159992</span></td><td class="num">0.843 <span class="dn">−0.7%</span></td>
+          <td><div class="gate">守住 0.823（7/30 低），并放量站回 MA20 0.890</div></td>
+          <td class="num"><div>−2.4% / +5.6%</div></td>
+          <td>8/25 已清仓，无持仓。两条对账线：收盘 &lt; 0.823 = 方向判断证伪；放量站回 0.890 = 重入案上桌。</td>
+          <td>收盘跌破 0.823，60 日上升结构破坏。</td>
+          <td><span class="badge b-wait">等门</span></td></tr>
+        <tr><td class="name">光迅科技<span class="code">002281</span></td><td class="num">173.44 <span class="dn">−4.0%</span></td>
+          <td><div class="gate">b · 回到定增价 167.55 附近缩量企稳</div><div class="gate">a · 放量站上 202.38（箱体上沿）</div></td>
+          <td class="num"><div>−3.4%</div><div>+16.7%</div></td>
+          <td>未定仓位。Q2 扣非 +55% 但经营现金流每股 −1.49。硬日期：12/16 定增股解禁。</td>
+          <td>三季报单季扣非增速 &lt; +20%；毛利率连续两季下行；全年经营现金流仍为负。</td>
+          <td><span class="badge b-wait">等门</span></td></tr>
+        <tr><td class="name">创业板AI ETF<span class="code">159363</span></td><td class="num">1.206 <span class="dn">−2.1%</span></td>
+          <td><div class="gate">b · 回踩 1.164（8/26 低）不破</div><div class="gate">a · 放量收复 1.34（8/17 高）</div></td>
+          <td class="num"><div>−3.5%</div><div>+11.1%</div></td>
+          <td>未定仓位。8/14 一家流动性服务商终止，盘口会变薄。与 159915 前十大重叠 4 只，光模块占 41%，两者不同时拿。</td>
+          <td>跌破 1.164 反弹结构失效。</td>
+          <td><span class="badge b-wait">等门</span></td></tr>
+        <tr><td class="name">云铝股份<span class="code">000807</span></td><td class="num">26.57 <span class="dn">−1.8%</span></td>
+          <td><div class="gate">b · 回踩 25.60 ±0.15，且沪铝 &gt; 23,500、氧化铝 &lt; 2,900</div><div class="gate">a · 放量收上 27.61，量比 &gt; 1.3</div></td>
+          <td class="num"><div>−3.7%</div><div>+3.9%</div></td>
+          <td>未定仓位。扣非 +176%、PE 8.4，箱体 24.5–29.0，和天山同一个形状，同一个价差逻辑。</td>
+          <td>同天山：沪铝 &lt; 23,000 或氧化铝 &gt; 3,200。</td>
+          <td><span class="badge b-wait">等门</span></td></tr>
+        <tr><td class="name">创业板ETF<span class="code">159915</span></td><td class="num">3.335 <span class="dn">−2.3%</span></td>
+          <td><div class="gate">b · 回踩 3.182（7/30 低）不破且缩量</div><div class="gate">a · 站回 MA20 3.53 且放量</div></td>
+          <td class="num"><div>−4.6%</div><div>+5.8%</div></td>
+          <td>已挂 3.215 × 3,000 份（距 −3.6%），当日单失效需每日重挂。下跌中继，反弹高点逐级下移；6/30 以来份额 +77%，抄底盘在涌入。</td>
+          <td>收盘跌破 3.182，7 月底以来的箱体下沿失守。</td>
+          <td><span class="badge b-live">挂单中</span></td></tr>
+        <tr><td class="name">半导体设备ETF<span class="code">159558</span></td><td class="num">1.074 <span class="dn">−1.9%</span></td>
+          <td><div class="gate">第二档 · 收盘 ≤ 1.00（7/20 恐慌低点区）</div><div class="gate">第三档 · 收盘 ≤ 0.95（8/3 低 0.947）</div></td>
+          <td class="num"><div>−6.9%</div><div>−11.5%</div></td>
+          <td>持仓 1 万份，底部分批打法，不设价格止损。每档到价<b>次日</b>加 1 万份，单日跌 5% 以上的恐慌日不当天买。封顶 3.5 万。</td>
+          <td>北方华创或中微单季营收转负；长鑫长存扩产暂停；管制切断关键零部件。收盘破 0.947 上桌重审。</td>
+          <td><span class="badge b-hold">持仓·分批</span></td></tr>
+        <tr><td class="name">沪电股份<span class="code">002463</span></td><td class="num">118.39 <span class="dn">−1.9%</span></td>
+          <td><div class="gate">放量收上 127.77，且 PCB 篮子同步不再跑输</div></td>
+          <td class="num"><div>+7.9%</div></td>
+          <td>偏不碰。覆铜板涨价周期里它在成本承受端，20 日跑输同业 11 个点。</td>
+          <td>毛利率环比下行两季。</td>
+          <td><span class="badge b-wait">等门·偏不碰</span></td></tr>
+        <tr><td class="name">生益科技<span class="code">600183</span></td><td class="num">144.98 <span class="up">+0.4%</span></td>
+          <td><div class="gate">收盘站上 157.28（8/31 高），量比 &gt; 1.3</div></td>
+          <td class="num"><div>+8.5%</div></td>
+          <td>未定仓位。7 只个股里唯一「扣非 +123% 加速、板块领涨、普跌日收红」三合一，8/31 在 157 放量被打回一次，要第二次带量冲过。优先级高于沪电。</td>
+          <td>三季报扣非增速腰斩；覆铜板提价被下游拒绝。</td>
+          <td><span class="badge b-wait">等门</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span>不碰 · 6 项</h2>
+    <div class="lead">不碰的意思是今天不需要盯，不是永远不看。每条给一个可查证的理由。</div>
+    <div class="cards">
+      <div class="card"><h3>雅克科技 002409 <span class="badge b-no">不碰</span></h3><p>今收 130.84。上半年扣非只增 0.7%，PE 60，高位崩塌后下跌中继。没有买的理由。</p></div>
+      <div class="card"><h3>有研新材 600206 <span class="badge b-no">不碰</span></h3><p>今收 48.26。暴涨后高位派发，高点逐级下移、缩量，PE 128，扣非 +17%。</p></div>
+      <div class="card"><h3>中兴通讯 000063 <span class="badge b-no">不碰</span></h3><p>今收 33.49。近 6 个季度单季扣非 5 负 1 正，Q2 −40%，毛利率同比降 7 个点。报表不支持「估值合理」。</p></div>
+      <div class="card"><h3>黄金ETF 518880 <span class="badge b-no">不碰</span></h3><p>今收 8.902。9/16 美联储会议市场定价的是<b>加息</b>约 64%，美元、长端利率、加息预期三件套同向逆风。8/25 见 9.62 后 6 天跌 7.5%。</p></div>
+      <div class="card"><h3>兆易创新 603986 <span class="badge b-no">不碰</span></h3><p>今收 388.86。一手 3.9 万，止损放 337 一手认亏 5,200，是历史最大单笔亏损的 5 倍。PE 34 是上半年 68.6 亿顶部利润折出来的，市场腰斩就是在赌 2027 站不住。要敞口走芯片ETF 159995（兆易占 11%）。</p></div>
+      <div class="card"><h3>存储芯片整条腿 <span class="badge b-no">不碰</span></h3><p>周期在顶部区：合约价涨幅从上半年 100%+ 收敛到三季度 +13～18%，美光 2027 资本开支更高，A 股 21 只主板存储股 60 日高点全落在 6/26–7/15，量只剩均量一半。主板过闸的通富、华天、中电港、长电全是封测/分销 beta，且扣非只占净利三到四成。等 10 月长鑫入指数、深科技三季报。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">3</span>待裁决 · 159122 创业板新能源ETF</h2>
+    <div class="callout c-red"><b>产品风险，不是行业判断。</b>规模 0.57 亿元，距 0.5 亿清盘线只差 12%；今天成交额 244 万元，比同类低两个数量级。持仓成本 1.07，今收 0.852。副本建议在 0.812 破位前，分几天用限价单迁到同赛道大基金 159875 / 515030 / 561160，行业敞口不变，只去掉清盘和流动性风险。这是逆向盘的一条腿，7/2 裁决过「迷你基不换」，所以不自动动，等一句话。</div>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span>怎么用这张表</h2>
+    <ul>
+      <li><b>每天收盘看一眼「距门」列</b>。到了门才有动作，没到门什么都不做。盘中碰到不算，收盘价说了算。</li>
+      <li><b>两道门先到先算</b>。回踩门是等便宜，突破门是等确认。现价通常卡在两门中间，那是期望最差的位置，不买。</li>
+      <li><b>「放量」必须有量比证据</b>。连续缩量的票没有量的突破多半是假的，第二天就回箱子。</li>
+      <li><b>证伪线比门重要</b>。门决定买不买，证伪线决定还拿不拿。任一触发先上桌，不自动卖。</li>
+      <li><b>弹药有限</b>。天山 1,500 股、159915 一档、159558 两档加起来已经把可投额度用到九成，新标的进场要先腾位置。</li>
+    </ul>
+  </section>
+
+  <div class="ft">数据：收盘价与量比来自腾讯行情接口 2026-09-02 收盘；财报为 2026 中报一手口径（扣非优先）；公告为巨潮 8/15–9/2 逐条核对；期货为新浪期货主力连续。判定由两份研究副本独立现算，主会话抽核价位、成交额、基金规模一致，三一扣非未能独立复核。共 24 条未验证项，见知识库原报告。本页是个人交易计划的记录，不构成任何建议。</div>
+</div>
+</body>
+</html>

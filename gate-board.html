@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="build" content="gate-board-20261028183339">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>条件门看板</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --surface: #ffffff; --ink: #1d1d1b; --muted: #6b6a66; --line: #e4e2dc;
+    --act: #0f7a4a; --act-bg: #e6f4ec;
+    --check: #9a6a00; --check-bg: #fbf1d9;
+    --blocked: #b03a2e; --blocked-bg: #fbe7e4;
+    --preview: #3b5bb5; --preview-bg: #e8edfa;
+    --idle: #8a8984; --idle-bg: #efeee9;
+    --proposal: #7a4fb0; --proposal-bg: #f1eafa;
+    --expired: #8a8984; --expired-bg: #efeee9; --error: #b03a2e; --error-bg: #fbe7e4;
+    --up: #c0392b; --down: #1e8449;   /* A 股习惯：红涨绿跌 */
+    --meter: #d9d6cf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151514; --surface: #1f1f1d; --ink: #ecebe6; --muted: #9c9b95; --line: #33322f;
+      --act: #4cc38a; --act-bg: #17301f; --check: #e0b14a; --check-bg: #33290f;
+      --blocked: #ef7a6d; --blocked-bg: #3a1d19; --preview: #8ea6f0; --preview-bg: #1c2440;
+      --idle: #8a8984; --idle-bg: #262624; --proposal: #b89ae6; --proposal-bg: #2a2140; --expired: #8a8984; --expired-bg: #262624; --error: #ef7a6d; --error-bg: #3a1d19; --up: #ef6f61; --down: #4cc38a; --meter: #3a3936;
+    }
+  }
+  :root[data-theme="dark"] {
+      --bg: #151514; --surface: #1f1f1d; --ink: #ecebe6; --muted: #9c9b95; --line: #33322f;
+      --act: #4cc38a; --act-bg: #17301f; --check: #e0b14a; --check-bg: #33290f;
+      --blocked: #ef7a6d; --blocked-bg: #3a1d19; --preview: #8ea6f0; --preview-bg: #1c2440;
+      --idle: #8a8984; --idle-bg: #262624; --proposal: #b89ae6; --proposal-bg: #2a2140; --expired: #8a8984; --expired-bg: #262624; --error: #ef7a6d; --error-bg: #3a1d19; --up: #ef6f61; --down: #4cc38a; --meter: #3a3936;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.55 -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 64px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .5px; }
+  .meta { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .warn { margin-top: 10px; padding: 8px 12px; border-radius: 8px; background: var(--blocked-bg); color: var(--blocked); font-size: 13px; }
+  .summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+  .chip { padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+  .rollup { margin: 8px 0 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 13px; }
+  .rollup div + div { margin-top: 4px; }
+  .rollup .bad { color: var(--blocked); font-weight: 600; }
+  h2 { font-size: 15px; margin: 30px 0 10px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { color: var(--muted); font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+          border-left: 4px solid var(--c); display: flex; flex-direction: column; gap: 10px; }
+  .card.idle { opacity: .9; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .name { font-weight: 600; }
+  .sub { color: var(--muted); font-size: 12px; }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .verdict { font-size: 13px; font-weight: 600; color: var(--c); background: var(--cbg); padding: 6px 10px; border-radius: 8px; }
+  .action { font-size: 16px; font-weight: 700; }
+  .action.muted { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .legtitle { font-size: 12px; color: var(--muted); margin-bottom: -6px; }
+  .pending { color: var(--muted); }
+  .action .amt { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+  .action .bud { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+  .action .bud.bad { color: var(--blocked); }
+  .stale { font-size: 12px; font-weight: 600; color: var(--blocked); background: var(--blocked-bg); padding: 4px 8px; border-radius: 6px; }
+  .streak { font-size: 12px; color: var(--muted); }
+  .meter .hl { font-size: 13px; display: flex; justify-content: space-between; }
+  .bar { height: 6px; background: var(--meter); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .bar i { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+  ul.legs { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+  ul.legs li { display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 6px; padding: 3px 0; border-top: 1px dashed var(--line); }
+  ul.legs li .rd { grid-column: 2; white-space: normal; }
+  ul.legs li .rd:empty { display: none; }
+  ul.legs li:first-child { border-top: 0; }
+  .ok { color: var(--act); } .fail { color: var(--blocked); } .manual { color: var(--check); }
+  .rd { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .pos { font-size: 12px; color: var(--muted); }
+  .up { color: var(--up); } .down { color: var(--down); }
+  .note { font-size: 12px; background: var(--check-bg); color: var(--ink); padding: 8px 10px; border-radius: 8px; }
+  details { font-size: 12px; color: var(--muted); }
+  details summary { cursor: pointer; }
+  details p { margin: 6px 0 0; word-break: break-all; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+  .foot { margin-top: 36px; font-size: 12px; color: var(--muted); }
+  button { font: inherit; font-size: 13px; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .empty { padding: 40px; text-align: center; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="empty">没读到 data.js。先运行 <code>python3 scripts/gate_board/build.py</code> 再刷新。</div></div>
+<script>window.GATE_BOARD = {"meta": {"built_at": "2026-10-28 18:33:39", "intraday": false, "phase": "静态快照 · 收盘后读数（行情 10/28 16:14）", "holdings_asof": "2026-10-28", "gates_total": 10, "gates_live": 10, "warnings": [], "stale_days": 5}, "budget_rollup": [{"label": "半导体设备腿剩余弹药（3.5 万封顶 − 已投 18,566）", "ok": true, "text": "G06 + G07 同时亮，合计 ≈ 15,640 元，预算内（剩 794 元）"}, {"label": "中韩独立腿剩余额度（3 万封顶 − 已投 9,306）", "ok": true, "text": "G16 + G17 同时亮，合计 ≈ 17,586 元，预算内（剩 3,108 元）"}], "sections": [{"key": "act", "title": "条件全过 · 该执行", "count": 3}, {"key": "check", "title": "还差手核 · 核完才算数", "count": 2}, {"key": "idle", "title": "未触发", "count": 5}], "cards": [{"id": "G127", "code": "sz159949", "name": "创业板50ETF华安·首笔建仓卡（限价 ≤1.21）", "type": "建仓", "expr": "price<=1.21", "src": "本会话 10/28", "status_raw": "生效（10/28 user 改回 159949；10/29 盘中执行；10/28 收 1.206）", "expiry": "2026-10-30", "verdict": "act", "verdict_label": "条件全过 · 该执行", "order": 0, "error": null, "legs": [{"name": "判据 price=1.206 <= 1.21", "state": "ok", "reading": "", "kind": "main"}], "guards": [{"name": "开盘 ≤ 1.23 才买（高开不追）", "state": "pending", "reading": "执行时核", "kind": "guard"}], "meter": {"var": "price", "op": "<=", "line": "1.21", "value": "1.206", "hit": true, "headline": "已越线（线 1.21）", "want": "跌破", "note": null, "closeness": 100}, "pct": "+3.34%", "pct_up": true, "streak_text": "已亮约 1 个交易日", "stale": false, "action": {"text": "首笔买 4,000 份（限价 ≤1.21）", "side": "buy", "amount": "≈ 4,824 元（按现价 1.206）", "stop": "成交后止损＝收盘破 1.05 次日清；止盈＝收盘 ≥1.31 次日卖一半"}, "action_prefix": "→ ", "position": null, "note": "10/28 user 改回 159949，10/29 执行，卡有效到 10/30。创业板50 的 +2.63σ 未核，已核的是创业板指 +1.96σ。", "close_only": false}, {"id": "G06", "code": "sz159558", "name": "半导体设备ETF·第二档", "type": "加仓", "expr": "price<=1.00", "src": "kb/finance/semiconductor-equipment-etf-159558.md:190", "status_raw": "生效（10/28设备0.782，1.00到价，今日+4.13%；已报 14 日）", "expiry": null, "verdict": "act", "verdict_label": "条件全过 · 该执行", "order": 0, "error": null, "legs": [{"name": "判据 price=0.782 <= 1", "state": "ok", "reading": "", "kind": "main"}], "guards": [{"name": "执行日跌幅 < 5%（恐慌日不当日买，顺延）", "state": "pending", "reading": "执行时核", "kind": "guard"}], "meter": {"var": "price", "op": "<=", "line": "1", "value": "0.782", "hit": true, "headline": "已越线（线 1）", "want": "跌破", "note": null, "closeness": 100}, "pct": "+4.13%", "pct_up": true, "streak_text": "已亮约 14 个交易日", "stale": true, "action": {"text": "次日买 10,000 份（第二档）", "side": "buy", "amount": "≈ 7,820 元（按现价 0.782）", "budget": "半导体设备腿剩余弹药（3.5 万封顶 − 已投 18,566）：剩 16,434 元，够用，买完剩 8,614 元", "budget_ok": true}, "action_prefix": "→ ", "position": {"name": "半导体设备ETF易方达", "code": "sz159558", "shares": "18,000", "cost": "1.0314", "price": "0.782", "mv": "14,076", "pnl": "-4,489 元（-24.2%）", "pnl_up": false}, "note": null, "close_only": true}, {"id": "G07", "code": "sz159558", "name": "半导体设备ETF·第三档", "type": "加仓", "expr": "price<=0.95", "src": "kb/finance/semiconductor-equipment-etf-159558.md:190", "status_raw": "生效（10/28设备0.782，0.95到价，今日+4.13%；已报 11 日）", "expiry": null, "verdict": "act", "verdict_label": "条件全过 · 该执行", "order": 0, "error": null, "legs": [{"name": "判据 price=0.782 <= 0.95", "state": "ok", "reading": "", "kind": "main"}], "guards": [{"name": "执行日跌幅 < 5%（恐慌日不当日买，顺延）", "state": "pending", "reading": "执行时核", "kind": "guard"}], "meter": {"var": "price", "op": "<=", "line": "0.95", "value": "0.782", "hit": true, "headline": "已越线（线 0.95）", "want": "跌破", "note": null, "closeness": 100}, "pct": "+4.13%", "pct_up": true, "streak_text": "已亮约 11 个交易日", "stale": true, "action": {"text": "次日买 10,000 份（第三档）", "side": "buy", "amount": "≈ 7,820 元（按现价 0.782）", "budget": "半导体设备腿剩余弹药（3.5 万封顶 − 已投 18,566）：剩 16,434 元，够用，买完剩 8,614 元", "budget_ok": true}, "action_prefix": "→ ", "position": {"name": "半导体设备ETF易方达", "code": "sz159558", "shares": "18,000", "cost": "1.0314", "price": "0.782", "mv": "14,076", "pnl": "-4,489 元（-24.2%）", "pnl_up": false}, "note": null, "close_only": true}, {"id": "G16", "code": "sh513310", "name": "中韩半导体ETF·独立腿第二档", "type": "加仓", "expr": "price<=4.40", "src": "kb/finance/adr-and-sk-hynix.md（9/4 盘后块）", "status_raw": "生效（10/28中韩3.908，4.40到价，今日正式溢价待核；已报 12 日）", "expiry": null, "verdict": "check", "verdict_label": "还差手核 · 核完才算数", "order": 1, "error": null, "legs": [{"name": "判据 price=3.908 <= 4.4", "state": "ok", "reading": "", "kind": "main"}, {"name": "同日正式净值溢价 ≤ 10%", "state": "manual", "reading": "估算 4.17%，当日正式净值未出；最近正式净值 10/27 3.5541", "kind": "formal_premium"}], "guards": [{"name": "执行日跌幅 < 5%（恐慌日不当日买，顺延）", "state": "pending", "reading": "执行时核", "kind": "guard"}], "meter": {"var": "price", "op": "<=", "line": "4.4", "value": "3.908", "hit": true, "headline": "已越线（线 4.4）", "want": "跌破", "note": null, "closeness": 100}, "pct": "+8.05%", "pct_up": true, "streak_text": "已亮约 12 个交易日", "stale": true, "action": {"text": "次日买 2,000 份（第二档）", "side": "buy", "amount": "≈ 7,816 元（按现价 3.908）", "budget": "中韩独立腿剩余额度（3 万封顶 − 已投 9,306）：剩 20,694 元，够用，买完剩 12,878 元", "budget_ok": true}, "action_prefix": "核完后 → ", "position": {"name": "中韩半导体ETF", "code": "sh513310", "shares": "2,000", "cost": "4.653", "price": "3.908", "mv": "7,816", "pnl": "-1,490 元（-16.0%）", "pnl_up": false}, "note": "10/20 你把中韩目标改成「等全球科技股反转」，10/16、10/20 agent 建议新增暂缓。条件全过时先决定这一档还算不算数——要么执行，要么改档或撤门。", "close_only": true}, {"id": "G17", "code": "sh513310", "name": "中韩半导体ETF·独立腿第三档", "type": "加仓", "expr": "price<=4.25", "src": "kb/finance/adr-and-sk-hynix.md（9/4 盘后块）", "status_raw": "生效（10/28中韩3.908，4.25到价，今日正式溢价待核；已报 11 日）", "expiry": null, "verdict": "check", "verdict_label": "还差手核 · 核完才算数", "order": 1, "error": null, "legs": [{"name": "判据 price=3.908 <= 4.25", "state": "ok", "reading": "", "kind": "main"}, {"name": "同日正式净值溢价 ≤ 10%", "state": "manual", "reading": "估算 4.17%，当日正式净值未出；最近正式净值 10/27 3.5541", "kind": "formal_premium"}], "guards": [{"name": "执行日跌幅 < 5%（恐慌日不当日买，顺延）", "state": "pending", "reading": "执行时核", "kind": "guard"}], "meter": {"var": "price", "op": "<=", "line": "4.25", "value": "3.908", "hit": true, "headline": "已越线（线 4.25）", "want": "跌破", "note": null, "closeness": 100}, "pct": "+8.05%", "pct_up": true, "streak_text": "已亮约 11 个交易日", "stale": true, "action": {"text": "次日买 2,500 份（第三档）", "side": "buy", "amount": "≈ 9,770 元（按现价 3.908）", "budget": "中韩独立腿剩余额度（3 万封顶 − 已投 9,306）：剩 20,694 元，够用，买完剩 10,924 元", "budget_ok": true}, "action_prefix": "核完后 → ", "position": {"name": "中韩半导体ETF", "code": "sh513310", "shares": "2,000", "cost": "4.653", "price": "3.908", "mv": "7,816", "pnl": "-1,490 元（-16.0%）", "pnl_up": false}, "note": "同 G16。", "close_only": true}, {"id": "G124", "code": "sh000688", "name": "半导体设备 ETF·右侧加仓开关（科创50 单日 +3% 且主力净流入）", "type": "加仓", "expr": "pct>=3", "src": "tech-sector-review-20261009.md 落点", "status_raw": "生效（10/28科创50+2.45%，距+3%差0.55个百分点；已报 0 日）", "expiry": null, "verdict": "idle", "verdict_label": "未触发", "order": 7, "error": null, "legs": [{"name": "判据 pct=2.45 >= 3", "state": "fail", "reading": "", "kind": "main"}, {"name": "当天主力转净流入（东财，扫描器无数据）", "state": "manual", "reading": "需手核", "kind": "manual"}], "guards": [{"name": "执行日非恐慌日（沿用设备腿口径）", "state": "pending", "reading": "执行时手核", "kind": "guard"}], "meter": {"var": "pct", "op": ">=", "line": "3", "value": "2.45", "hit": false, "headline": "现价还要涨 0.55 个点 才触发（线 3）", "want": "涨过", "note": null, "closeness": 94}, "pct": "+2.45%", "pct_up": true, "streak_text": null, "stale": false, "action": {"text": "次日加半导体设备 ETF 第二档 10,000 份（≈1 万）", "side": "buy", "amount": "≈ 7,820 元（按现价 0.782）", "budget": "半导体设备腿剩余弹药（3.5 万封顶 − 已投 18,566）：剩 16,434 元，够用，买完剩 8,614 元", "budget_ok": true}, "action_prefix": "触发后：", "position": {"name": "半导体设备ETF易方达", "code": "sz159558", "shares": "18,000", "cost": "1.0314", "price": "0.782", "mv": "14,076", "pnl": "-4,489 元（-24.2%）", "pnl_up": false}, "note": null, "close_only": true}, {"id": "G126", "code": "sz002415", "name": "海康威视·止损线（成本 34.09 −8%）", "type": "减仓", "expr": "price<31.36", "src": "portfolio-holdings.md 退出规则表（10/28）", "status_raw": "生效（10/28 收 34.15，距线 +8.9%）", "expiry": null, "verdict": "idle", "verdict_label": "未触发", "order": 7, "error": null, "legs": [{"name": "判据 price=34.15 < 31.36", "state": "fail", "reading": "", "kind": "main"}], "guards": [], "meter": {"var": "price", "op": "<", "line": "31.36", "value": "34.15", "hit": false, "headline": "现价还要跌 8.2% 才触发（线 31.36）", "want": "跌破", "note": null, "closeness": 59}, "pct": "-0.29%", "pct_up": false, "streak_text": null, "stale": false, "action": {"text": "次日清仓 200 股", "side": "sell", "amount": "≈ 6,830 元（按现价 34.15）"}, "action_prefix": "触发后：", "position": {"name": "海康威视", "code": "sz002415", "shares": "200", "cost": "34.09", "price": "34.15", "mv": "6,830", "pnl": "+12 元（+0.2%）", "pnl_up": true}, "note": null, "close_only": true}, {"id": "G125", "code": "sh600176", "name": "中国巨石·买回开关（站回 39.7 且主力净流入）", "type": "建仓", "expr": "price>39.7", "src": "tech-sector-review-20261009.md 落点 · china-jushi-600176.md", "status_raw": "生效（10/28巨石31.35，距39.7差21.03%；已报 0 日）", "expiry": null, "verdict": "idle", "verdict_label": "未触发", "order": 7, "error": null, "legs": [{"name": "判据 price=31.35 > 39.7", "state": "fail", "reading": "", "kind": "main"}, {"name": "当天主力净流入（东财，手核）", "state": "manual", "reading": "需手核", "kind": "manual"}], "guards": [], "meter": {"var": "price", "op": ">", "line": "39.7", "value": "31.35", "hit": false, "headline": "现价还要涨 26.6% 才触发（线 39.7）", "want": "涨过", "note": null, "closeness": 0}, "pct": "+3.23%", "pct_up": true, "streak_text": null, "stale": false, "action": {"text": "次日买 100 股（≈3,900）", "side": "buy", "amount": "≈ 3,135 元（按现价 31.35）", "stop": "止损＝触发日最低"}, "action_prefix": "触发后：", "position": null, "note": null, "close_only": true}, {"id": "G24", "code": "sh600089", "name": "特变电工·站上 25.0 减半", "type": "减仓", "expr": "price>=25.0", "src": "kb/finance/tebian-electric.md:13 · portfolio-holdings.md:149", "status_raw": "生效（10/28特变17.83，距25差28.68%；已报 0 日）", "expiry": null, "verdict": "idle", "verdict_label": "未触发", "order": 7, "error": null, "legs": [{"name": "判据 price=17.83 >= 25", "state": "fail", "reading": "", "kind": "main"}], "guards": [], "meter": {"var": "price", "op": ">=", "line": "25", "value": "17.83", "hit": false, "headline": "现价还要涨 40.2% 才触发（线 25）", "want": "涨过", "note": null, "closeness": 0}, "pct": "-0.61%", "pct_up": false, "streak_text": null, "stale": false, "action": {"text": "次日减半，卖出 200 股", "side": "sell", "amount": "≈ 3,566 元（按现价 17.83）"}, "action_prefix": "触发后：", "position": {"name": "特变电工", "code": "sh600089", "shares": "400", "cost": "27.82", "price": "17.83", "mv": "7,132", "pnl": "-3,996 元（-35.9%）", "pnl_up": false}, "note": null, "close_only": true}, {"id": "G18", "code": "sh513310", "name": "中韩半导体ETF·溢价过热减半", "type": "减仓", "expr": "price>=5.16", "src": "kb/finance/adr-and-sk-hynix.md（9/4 盘后块）", "status_raw": "生效（10/28中韩估算溢价4.20%，22%未到；已报 0 日）", "expiry": null, "verdict": "idle", "verdict_label": "未触发", "order": 7, "error": null, "legs": [{"name": "判据 price=3.908 >= 5.16", "state": "fail", "reading": "", "kind": "main"}, {"name": "估算溢价 ≥ 22%（真判据，5.16 只是旧近似价）", "state": "fail", "reading": "premium = 4.17%", "kind": "auto"}], "guards": [], "meter": {"var": "price", "op": ">=", "line": "5.16", "value": "3.908", "hit": false, "headline": "现价还要涨 32.0% 才触发（线 5.16）", "want": "涨过", "note": null, "closeness": 0}, "pct": "+8.05%", "pct_up": true, "streak_text": null, "stale": false, "action": {"text": "上桌核正式溢价是否 ≥ 22%，成立再议减半（不自动卖）", "side": "review"}, "action_prefix": "触发后：", "position": {"name": "中韩半导体ETF", "code": "sh513310", "shares": "2,000", "cost": "4.653", "price": "3.908", "mv": "7,816", "pnl": "-1,490 元（-16.0%）", "pnl_up": false}, "note": null, "close_only": false}]};</script>
+<script>
+// 只做展示：所有数字、判定、文案都来自 build.py 生成的 data.js；这里只拼接与转义
+(function () {
+  const D = window.GATE_BOARD;
+  if (!D) return;
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const VERDICT = ["act", "check", "proposal", "blocked", "preview", "expired", "error", "idle"];
+  const STATE = {ok: "✓", fail: "✗", manual: "?", pending: "…"};
+  const vk = k => VERDICT.includes(k) ? k : "idle";          // 进 class / CSS 变量的值走白名单
+  const sk = k => k in STATE ? k : "manual";
+  const pctw = n => Math.max(0, Math.min(100, Number(n) || 0)); // 进 style 的宽度只接受 0–100 的数
+  const m = D.meta;
+
+  const head = `
+    <header>
+      <div class="top"><h1>条件门看板</h1></div>
+      <div class="meta">
+        <span>生成于 <b>${esc(m.built_at)}</b></span>
+        <span>${esc(m.phase)}</span>
+        <span>持仓截至 <b>${esc(m.holdings_asof)}</b>（以最后一次成交回报为准）</span>
+        <span>在扫 <b>${esc(m.gates_live)}</b> / ${esc(m.gates_total)} 道门</span>
+      </div>
+      ${(m.warnings || []).length ? `<div class="warn">${m.warnings.map(esc).join("<br>")}</div>` : ""}
+    </header>
+    <div class="summary">${D.sections.map(s =>
+      `<span class="chip" style="color:var(--${vk(s.key)});background:var(--${vk(s.key)}-bg)">${esc(s.title)} ${esc(s.count)}</span>`).join("")}
+    </div>
+    ${(D.budget_rollup || []).length ? `<div class="rollup">${D.budget_rollup.map(r =>
+      `<div class="${r.ok ? "" : "bad"}">💰 ${esc(r.label)}：${esc(r.text)}</div>`).join("")}</div>` : ""}`;
+
+  const legList = (legs, title) => legs && legs.length ? `
+      ${title ? `<div class="legtitle">${esc(title)}</div>` : ""}
+      <ul class="legs">${legs.map(l =>
+        `<li><span class="${sk(l.state)}">${STATE[sk(l.state)]}</span><span>${esc(l.name)}</span><span class="rd">${esc(l.reading)}</span></li>`).join("")}</ul>` : "";
+
+  const card = c => {
+    const v = vk(c.verdict), mt = c.meter, a = c.action;
+    const showAmt = a && ["act", "check", "blocked", "preview"].includes(v);
+    return `
+    <article class="card ${v}" style="--c:var(--${v});--cbg:var(--${v}-bg)">
+      <div class="top">
+        <div><div class="name">${esc(c.name)}</div>
+          <div class="sub">${esc(c.id)} · ${esc(c.code)}${c.pct ? ` · 今日 <span class="${c.pct_up ? "up" : "down"}">${esc(c.pct)}</span>` : ""}${c.expiry ? ` · 有效至 ${esc(c.expiry)}` : ""}</div></div>
+        <span class="tag">${esc(c.type)}${c.close_only ? " · 收盘口径" : ""}</span>
+      </div>
+      <div class="verdict">${esc(c.verdict_label)}</div>
+      ${a ? `<div class="action ${showAmt ? "" : "muted"}">${esc(c.action_prefix)}${esc(a.text)}
+          ${showAmt && a.amount ? `<span class="amt">${esc(a.amount)}</span>` : ""}
+          ${showAmt && a.budget ? `<span class="bud ${a.budget_ok === false ? "bad" : ""}">${esc(a.budget)}</span>` : ""}
+          ${a.stop ? `<span class="bud">${esc(a.stop)}</span>` : ""}</div>` : ""}
+      ${c.stale ? `<div class="stale">${esc(c.streak_text)}：要么执行，要么改线／撤门</div>`
+                : c.streak_text ? `<div class="streak">${esc(c.streak_text)}</div>` : ""}
+      ${c.error ? `<div class="warn">${esc(c.error)}</div>` : ""}
+      ${mt ? `<div class="meter"><div class="hl"><span>${esc(mt.headline)}</span><span class="rd">现 ${esc(mt.value)}</span></div>
+          <div class="bar"><i style="width:${pctw(mt.closeness)}%"></i></div>
+          ${mt.note ? `<div class="sub">${esc(mt.note)}</div>` : ""}</div>` : ""}
+      ${legList(c.legs, "")}
+      ${legList(c.guards, "执行时的限制")}
+      ${c.position ? `<div class="pos">持仓 ${esc(c.position.name)} ${esc(c.position.shares)} @ ${esc(c.position.cost)}${c.position.pnl
+          ? ` · 浮盈亏 <span class="${c.position.pnl_up ? "up" : "down"}">${esc(c.position.pnl)}</span>` : ""}</div>` : ""}
+      ${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}
+      <details><summary>判据与出处</summary>
+        <p><code>${esc(c.expr)}</code></p><p>${esc(c.src)}</p><p>台账状态：${esc(c.status_raw)}</p></details>
+    </article>`;
+  };
+
+  const body = D.sections.map(s => `
+    <h2><span style="color:var(--${vk(s.key)})">●</span>${esc(s.title)}<span class="n">${esc(s.count)}</span></h2>
+    <div class="grid">${D.cards.filter(c => c.verdict === s.key).map(card).join("")}</div>`).join("");
+
+  document.getElementById("app").innerHTML = head + body +
+    `<div class="foot">数据：腾讯行情（qt 实时＋ETF 估算溢价）、东财基金正式净值、上证日线（交易日历）、kb/finance/_gates.md、portfolio-holdings.md、config.yaml。
+     门满足 ≠ 自动下单。这是 2026-10-28 18:33:39 生成的静态快照，不会自动更新。</div>`;
+})();
+</script>
+</body>
+</html>
